@@ -13,12 +13,14 @@ from django.db.migrations.writer import MigrationWriter
 from django.utils.version import get_docs_version
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = (
         "Squashes an existing set of migrations (from first until specified) into a "
         "single new one."
     )
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "app_label",
@@ -59,6 +61,7 @@ class Command(BaseCommand):
             help="Do not add a header comment to the new squashed migration.",
         )
 
+    # [TODO] Command > handle
     def handle(self, **options):
         self.verbosity = options["verbosity"]
         self.interactive = options["interactive"]
@@ -252,6 +255,7 @@ class Command(BaseCommand):
                         )
                     )
 
+    # [TODO] Command > find_migration
     def find_migration(self, loader, app_label, name):
         try:
             return loader.get_migration_by_prefix(app_label, name)

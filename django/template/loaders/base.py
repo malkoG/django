@@ -1,10 +1,13 @@
 from django.template import Template, TemplateDoesNotExist
 
 
+# [TODO] Loader
 class Loader:
+    # [TODO] Loader > __init__
     def __init__(self, engine):
         self.engine = engine
 
+    # [TODO] Loader > get_template
     def get_template(self, template_name, skip=None):
         """
         Call self.get_template_sources() and return a Template object for
@@ -34,6 +37,7 @@ class Loader:
 
         raise TemplateDoesNotExist(template_name, tried=tried)
 
+    # [TODO] Loader > get_template_sources
     def get_template_sources(self, template_name):
         """
         An iterator that yields possible matching template paths for a
@@ -43,6 +47,7 @@ class Loader:
             "subclasses of Loader must provide a get_template_sources() method"
         )
 
+    # [TODO] Loader > reset
     def reset(self):
         """
         Reset any state maintained by the loader instance (e.g. cached

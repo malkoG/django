@@ -2,6 +2,7 @@ from . import engines
 from .exceptions import TemplateDoesNotExist
 
 
+# [TODO] get_template
 def get_template(template_name, using=None):
     """
     Load and return a template for the given name.
@@ -19,6 +20,7 @@ def get_template(template_name, using=None):
     raise TemplateDoesNotExist(template_name, chain=chain)
 
 
+# [TODO] select_template
 def select_template(template_name_list, using=None):
     """
     Load and return a template for one of the given names.
@@ -49,6 +51,7 @@ def select_template(template_name_list, using=None):
         raise TemplateDoesNotExist("No template names provided")
 
 
+# [TODO] render_to_string
 def render_to_string(template_name, context=None, request=None, using=None):
     """
     Load a template and render it with a context. Return a string.
@@ -62,5 +65,6 @@ def render_to_string(template_name, context=None, request=None, using=None):
     return template.render(context, request)
 
 
+# [TODO] _engine_list
 def _engine_list(using=None):
     return engines.all() if using is None else [engines[using]]

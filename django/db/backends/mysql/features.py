@@ -4,6 +4,7 @@ from django.db.backends.base.features import BaseDatabaseFeatures
 from django.utils.functional import cached_property
 
 
+# [TODO] DatabaseFeatures
 class DatabaseFeatures(BaseDatabaseFeatures):
     empty_fetchmany_value = ()
     allows_group_by_selected_pks = True
@@ -60,6 +61,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
     order_by_nulls_first = True
     supports_logical_xor = True
 
+    # [TODO] DatabaseFeatures > minimum_database_version
     @cached_property
     def minimum_database_version(self):
         if self.connection.mysql_is_mariadb:
@@ -67,6 +69,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
         else:
             return (8, 0, 11)
 
+    # [TODO] DatabaseFeatures > test_collations
     @cached_property
     def test_collations(self):
         charset = "utf8"
@@ -87,6 +90,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     test_now_utc_template = "UTC_TIMESTAMP(6)"
 
+    # [TODO] DatabaseFeatures > django_test_skips
     @cached_property
     def django_test_skips(self):
         skips = {
@@ -172,11 +176,13 @@ class DatabaseFeatures(BaseDatabaseFeatures):
             )
         return skips
 
+    # [TODO] DatabaseFeatures > _mysql_storage_engine
     @cached_property
     def _mysql_storage_engine(self):
         "Internal method used in Django tests. Don't rely on this from your code"
         return self.connection.mysql_server_data["default_storage_engine"]
 
+    # [TODO] DatabaseFeatures > allows_auto_pk_0
     @cached_property
     def allows_auto_pk_0(self):
         """
@@ -185,15 +191,18 @@ class DatabaseFeatures(BaseDatabaseFeatures):
         """
         return "NO_AUTO_VALUE_ON_ZERO" in self.connection.sql_mode
 
+    # [TODO] DatabaseFeatures > update_can_self_select
     @cached_property
     def update_can_self_select(self):
         return self.connection.mysql_is_mariadb
 
+    # [TODO] DatabaseFeatures > can_introspect_foreign_keys
     @cached_property
     def can_introspect_foreign_keys(self):
         "Confirm support for introspected foreign keys"
         return self._mysql_storage_engine != "MyISAM"
 
+    # [TODO] DatabaseFeatures > introspected_field_types
     @cached_property
     def introspected_field_types(self):
         return {
@@ -204,6 +213,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
             "GenericIPAddressField": "CharField",
         }
 
+    # [TODO] DatabaseFeatures > can_return_columns_from_insert
     @cached_property
     def can_return_columns_from_insert(self):
         return self.connection.mysql_is_mariadb and self.connection.mysql_version >= (
@@ -216,14 +226,17 @@ class DatabaseFeatures(BaseDatabaseFeatures):
         operator.attrgetter("can_return_columns_from_insert")
     )
 
+    # [TODO] DatabaseFeatures > has_zoneinfo_database
     @cached_property
     def has_zoneinfo_database(self):
         return self.connection.mysql_server_data["has_zoneinfo_database"]
 
+    # [TODO] DatabaseFeatures > is_sql_auto_is_null_enabled
     @cached_property
     def is_sql_auto_is_null_enabled(self):
         return self.connection.mysql_server_data["sql_auto_is_null"]
 
+    # [TODO] DatabaseFeatures > supports_column_check_constraints
     @cached_property
     def supports_column_check_constraints(self):
         if self.connection.mysql_is_mariadb:
@@ -234,22 +247,26 @@ class DatabaseFeatures(BaseDatabaseFeatures):
         operator.attrgetter("supports_column_check_constraints")
     )
 
+    # [TODO] DatabaseFeatures > can_introspect_check_constraints
     @cached_property
     def can_introspect_check_constraints(self):
         if self.connection.mysql_is_mariadb:
             return True
         return self.connection.mysql_version >= (8, 0, 16)
 
+    # [TODO] DatabaseFeatures > has_select_for_update_skip_locked
     @cached_property
     def has_select_for_update_skip_locked(self):
         if self.connection.mysql_is_mariadb:
             return self.connection.mysql_version >= (10, 6)
         return True
 
+    # [TODO] DatabaseFeatures > has_select_for_update_of
     @cached_property
     def has_select_for_update_of(self):
         return not self.connection.mysql_is_mariadb
 
+    # [TODO] DatabaseFeatures > supports_explain_analyze
     @cached_property
     def supports_explain_analyze(self):
         return self.connection.mysql_is_mariadb or self.connection.mysql_version >= (
@@ -258,6 +275,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
             18,
         )
 
+    # [TODO] DatabaseFeatures > supported_explain_formats
     @cached_property
     def supported_explain_formats(self):
         # Alias MySQL's TRADITIONAL to TEXT for consistency with other
@@ -271,6 +289,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
             formats.add("TREE")
         return formats
 
+    # [TODO] DatabaseFeatures > supports_transactions
     @cached_property
     def supports_transactions(self):
         """
@@ -278,21 +297,25 @@ class DatabaseFeatures(BaseDatabaseFeatures):
         """
         return self._mysql_storage_engine != "MyISAM"
 
+    # [TODO] DatabaseFeatures > ignores_table_name_case
     @cached_property
     def ignores_table_name_case(self):
         return self.connection.mysql_server_data["lower_case_table_names"]
 
+    # [TODO] DatabaseFeatures > supports_default_in_lead_lag
     @cached_property
     def supports_default_in_lead_lag(self):
         # To be added in https://jira.mariadb.org/browse/MDEV-12981.
         return not self.connection.mysql_is_mariadb
 
+    # [TODO] DatabaseFeatures > can_introspect_json_field
     @cached_property
     def can_introspect_json_field(self):
         if self.connection.mysql_is_mariadb:
             return self.can_introspect_check_constraints
         return True
 
+    # [TODO] DatabaseFeatures > supports_index_column_ordering
     @cached_property
     def supports_index_column_ordering(self):
         if self._mysql_storage_engine != "InnoDB":
@@ -301,6 +324,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
             return self.connection.mysql_version >= (10, 8)
         return True
 
+    # [TODO] DatabaseFeatures > supports_expression_indexes
     @cached_property
     def supports_expression_indexes(self):
         return (
@@ -309,6 +333,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
             and self.connection.mysql_version >= (8, 0, 13)
         )
 
+    # [TODO] DatabaseFeatures > supports_select_intersection
     @cached_property
     def supports_select_intersection(self):
         is_mariadb = self.connection.mysql_is_mariadb
@@ -318,18 +343,21 @@ class DatabaseFeatures(BaseDatabaseFeatures):
         operator.attrgetter("supports_select_intersection")
     )
 
+    # [TODO] DatabaseFeatures > can_rename_index
     @cached_property
     def can_rename_index(self):
         if self.connection.mysql_is_mariadb:
             return self.connection.mysql_version >= (10, 5, 2)
         return True
 
+    # [TODO] DatabaseFeatures > supports_expression_defaults
     @cached_property
     def supports_expression_defaults(self):
         if self.connection.mysql_is_mariadb:
             return True
         return self.connection.mysql_version >= (8, 0, 13)
 
+    # [TODO] DatabaseFeatures > has_native_uuid_field
     @cached_property
     def has_native_uuid_field(self):
         is_mariadb = self.connection.mysql_is_mariadb

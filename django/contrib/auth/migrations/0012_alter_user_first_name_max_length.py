@@ -1,6 +1,7 @@
 from django.db import migrations, models
 
 
+# [TODO] Migration
 class Migration(migrations.Migration):
     dependencies = [
         ("auth", "0011_update_proxy_permissions"),

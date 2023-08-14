@@ -4,6 +4,7 @@ import pathlib
 from django.core.exceptions import SuspiciousFileOperation
 
 
+# [TODO] validate_file_name
 def validate_file_name(name, allow_relative_path=False):
     # Remove potentially dangerous names
     if os.path.basename(name) in {"", ".", ".."}:
@@ -24,6 +25,7 @@ def validate_file_name(name, allow_relative_path=False):
     return name
 
 
+# [TODO] FileProxyMixin
 class FileProxyMixin:
     """
     A mixin class used to forward file methods to an underlying file
@@ -49,10 +51,12 @@ class FileProxyMixin:
     write = property(lambda self: self.file.write)
     writelines = property(lambda self: self.file.writelines)
 
+    # [TODO] FileProxyMixin > closed
     @property
     def closed(self):
         return not self.file or self.file.closed
 
+    # [TODO] FileProxyMixin > readable
     def readable(self):
         if self.closed:
             return False
@@ -60,6 +64,7 @@ class FileProxyMixin:
             return self.file.readable()
         return True
 
+    # [TODO] FileProxyMixin > writable
     def writable(self):
         if self.closed:
             return False
@@ -67,6 +72,7 @@ class FileProxyMixin:
             return self.file.writable()
         return "w" in getattr(self.file, "mode", "")
 
+    # [TODO] FileProxyMixin > seekable
     def seekable(self):
         if self.closed:
             return False
@@ -74,5 +80,6 @@ class FileProxyMixin:
             return self.file.seekable()
         return True
 
+    # [TODO] FileProxyMixin > __iter__
     def __iter__(self):
         return iter(self.file)

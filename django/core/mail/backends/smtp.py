@@ -10,11 +10,13 @@ from django.core.mail.utils import DNS_NAME
 from django.utils.functional import cached_property
 
 
+# [TODO] EmailBackend
 class EmailBackend(BaseEmailBackend):
     """
     A wrapper that manages the SMTP network connection.
     """
 
+    # [TODO] EmailBackend > __init__
     def __init__(
         self,
         host=None,
@@ -51,10 +53,12 @@ class EmailBackend(BaseEmailBackend):
         self.connection = None
         self._lock = threading.RLock()
 
+    # [TODO] EmailBackend > connection_class
     @property
     def connection_class(self):
         return smtplib.SMTP_SSL if self.use_ssl else smtplib.SMTP
 
+    # [TODO] EmailBackend > ssl_context
     @cached_property
     def ssl_context(self):
         if self.ssl_certfile or self.ssl_keyfile:
@@ -64,6 +68,7 @@ class EmailBackend(BaseEmailBackend):
         else:
             return ssl.create_default_context()
 
+    # [TODO] EmailBackend > open
     def open(self):
         """
         Ensure an open connection to the email server. Return whether or not a
@@ -97,6 +102,7 @@ class EmailBackend(BaseEmailBackend):
             if not self.fail_silently:
                 raise
 
+    # [TODO] EmailBackend > close
     def close(self):
         """Close the connection to the email server."""
         if self.connection is None:
@@ -116,6 +122,7 @@ class EmailBackend(BaseEmailBackend):
         finally:
             self.connection = None
 
+    # [TODO] EmailBackend > send_messages
     def send_messages(self, email_messages):
         """
         Send one or more EmailMessage objects and return the number of email
@@ -140,6 +147,7 @@ class EmailBackend(BaseEmailBackend):
                     self.close()
         return num_sent
 
+    # [TODO] EmailBackend > _send
     def _send(self, email_message):
         """A helper method that does the actual sending."""
         if not email_message.recipients():

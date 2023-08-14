@@ -9,6 +9,7 @@ FieldInfo = namedtuple("FieldInfo", BaseFieldInfo._fields + ("is_autofield", "co
 TableInfo = namedtuple("TableInfo", BaseTableInfo._fields + ("comment",))
 
 
+# [TODO] DatabaseIntrospection
 class DatabaseIntrospection(BaseDatabaseIntrospection):
     # Maps type codes to Django Field types.
     data_types_reverse = {
@@ -38,6 +39,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     ignored_tables = []
 
+    # [TODO] DatabaseIntrospection > get_field_type
     def get_field_type(self, data_type, description):
         field_type = super().get_field_type(data_type, description)
         if description.is_autofield or (
@@ -53,6 +55,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
                 return "SmallAutoField"
         return field_type
 
+    # [TODO] DatabaseIntrospection > get_table_list
     def get_table_list(self, cursor):
         """Return a list of table and view names in the current database."""
         cursor.execute(
@@ -78,6 +81,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             if row[0] not in self.ignored_tables
         ]
 
+    # [TODO] DatabaseIntrospection > get_table_description
     def get_table_description(self, cursor, table_name):
         """
         Return a description of the table with the DB-API cursor.description
@@ -126,6 +130,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             for line in cursor.description
         ]
 
+    # [TODO] DatabaseIntrospection > get_sequences
     def get_sequences(self, cursor, table_name, table_fields=()):
         cursor.execute(
             """
@@ -152,6 +157,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             for row in cursor.fetchall()
         ]
 
+    # [TODO] DatabaseIntrospection > get_relations
     def get_relations(self, cursor, table_name):
         """
         Return a dictionary of {field_name: (field_name_other_table, other_table)}
@@ -177,6 +183,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         )
         return {row[0]: (row[2], row[1]) for row in cursor.fetchall()}
 
+    # [TODO] DatabaseIntrospection > get_constraints
     def get_constraints(self, cursor, table_name):
         """
         Retrieve any constraints or keys (unique, pk, fk, check, index) across

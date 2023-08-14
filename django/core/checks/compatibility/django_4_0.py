@@ -3,6 +3,7 @@ from django.conf import settings
 from .. import Error, Tags, register
 
 
+# [TODO] check_csrf_trusted_origins
 @register(Tags.compatibility)
 def check_csrf_trusted_origins(app_configs, **kwargs):
     errors = []

@@ -3,6 +3,7 @@ from django.utils.deprecation import MiddlewareMixin
 from django.utils.http import parse_http_date_safe
 
 
+# [TODO] ConditionalGetMiddleware
 class ConditionalGetMiddleware(MiddlewareMixin):
     """
     Handle conditional GET operations. If the response has an ETag or
@@ -10,6 +11,7 @@ class ConditionalGetMiddleware(MiddlewareMixin):
     replace the response with HttpNotModified. Add an ETag header if needed.
     """
 
+    # [TODO] ConditionalGetMiddleware > process_response
     def process_response(self, request, response):
         # It's too late to prevent an unsafe request with a 412 response, and
         # for a HEAD request, the response body is always empty so computing
@@ -34,6 +36,7 @@ class ConditionalGetMiddleware(MiddlewareMixin):
 
         return response
 
+    # [TODO] ConditionalGetMiddleware > needs_etag
     def needs_etag(self, response):
         """Return True if an ETag header should be added to response."""
         cache_control_headers = cc_delim_re.split(response.get("Cache-Control", ""))

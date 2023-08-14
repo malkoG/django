@@ -2,6 +2,7 @@ import django
 from django.core.handlers.asgi import ASGIHandler
 
 
+# [TODO] get_asgi_application
 def get_asgi_application():
     """
     The public interface to Django's ASGI support. Return an ASGI 3 callable.

@@ -15,6 +15,7 @@ from django.utils.functional import cached_property
 from django.utils.text import capfirst
 
 
+# [TODO] NotRunningInTTYException
 class NotRunningInTTYException(Exception):
     pass
 
@@ -22,11 +23,13 @@ class NotRunningInTTYException(Exception):
 PASSWORD_FIELD = "password"
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = "Used to create a superuser."
     requires_migrations_checks = True
     stealth_options = ("stdin",)
 
+    # [TODO] Command > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.UserModel = get_user_model()
@@ -34,6 +37,7 @@ class Command(BaseCommand):
             self.UserModel.USERNAME_FIELD
         )
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "--%s" % self.UserModel.USERNAME_FIELD,
@@ -83,10 +87,12 @@ class Command(BaseCommand):
                     help="Specifies the %s for the superuser." % field_name,
                 )
 
+    # [TODO] Command > execute
     def execute(self, *args, **options):
         self.stdin = options.get("stdin", sys.stdin)  # Used for testing
         return super().execute(*args, **options)
 
+    # [TODO] Command > handle
     def handle(self, *args, **options):
         username = options[self.UserModel.USERNAME_FIELD]
         database = options["database"]
@@ -251,6 +257,7 @@ class Command(BaseCommand):
                 "to create one manually."
             )
 
+    # [TODO] Command > get_input_data
     def get_input_data(self, field, message, default=None):
         """
         Override this method if you want to customize data inputs or
@@ -267,6 +274,7 @@ class Command(BaseCommand):
 
         return val
 
+    # [TODO] Command > _get_input_message
     def _get_input_message(self, field, default=None):
         return "%s%s%s: " % (
             capfirst(field.verbose_name),
@@ -282,6 +290,7 @@ class Command(BaseCommand):
             else "",
         )
 
+    # [TODO] Command > username_is_unique
     @cached_property
     def username_is_unique(self):
         if self.username_field.unique:
@@ -292,6 +301,7 @@ class Command(BaseCommand):
             for unique_constraint in self.UserModel._meta.total_unique_constraints
         )
 
+    # [TODO] Command > _validate_username
     def _validate_username(self, username, verbose_field_name, database):
         """Validate username. If invalid, return a string error message."""
         if self.username_is_unique:

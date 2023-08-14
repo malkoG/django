@@ -19,6 +19,7 @@ from . import BLANK_CHOICE_DASH
 from .mixins import FieldCacheMixin
 
 
+# [TODO] ForeignObjectRel
 class ForeignObjectRel(FieldCacheMixin):
     """
     Used by ForeignObject to store information about the relation.
@@ -38,6 +39,7 @@ class ForeignObjectRel(FieldCacheMixin):
     null = True
     empty_strings_allowed = False
 
+    # [TODO] ForeignObjectRel > __init__
     def __init__(
         self,
         field,
@@ -63,18 +65,22 @@ class ForeignObjectRel(FieldCacheMixin):
     # __init__ as the field doesn't have its model yet. Calling these methods
     # before field.contribute_to_class() has been called will result in
     # AttributeError
+    # [TODO] ForeignObjectRel > hidden
     @cached_property
     def hidden(self):
         return self.is_hidden()
 
+    # [TODO] ForeignObjectRel > name
     @cached_property
     def name(self):
         return self.field.related_query_name()
 
+    # [TODO] ForeignObjectRel > remote_field
     @property
     def remote_field(self):
         return self.field
 
+    # [TODO] ForeignObjectRel > target_field
     @property
     def target_field(self):
         """
@@ -88,6 +94,7 @@ class ForeignObjectRel(FieldCacheMixin):
             )
         return target_fields[0]
 
+    # [TODO] ForeignObjectRel > related_model
     @cached_property
     def related_model(self):
         if not self.field.model:
@@ -97,38 +104,48 @@ class ForeignObjectRel(FieldCacheMixin):
             )
         return self.field.model
 
+    # [TODO] ForeignObjectRel > many_to_many
     @cached_property
     def many_to_many(self):
         return self.field.many_to_many
 
+    # [TODO] ForeignObjectRel > many_to_one
     @cached_property
     def many_to_one(self):
         return self.field.one_to_many
 
+    # [TODO] ForeignObjectRel > one_to_many
     @cached_property
     def one_to_many(self):
         return self.field.many_to_one
 
+    # [TODO] ForeignObjectRel > one_to_one
     @cached_property
     def one_to_one(self):
         return self.field.one_to_one
 
+    # [TODO] ForeignObjectRel > get_lookup
     def get_lookup(self, lookup_name):
         return self.field.get_lookup(lookup_name)
 
+    # [TODO] ForeignObjectRel > get_lookups
     def get_lookups(self):
         return self.field.get_lookups()
 
+    # [TODO] ForeignObjectRel > get_transform
     def get_transform(self, name):
         return self.field.get_transform(name)
 
+    # [TODO] ForeignObjectRel > get_internal_type
     def get_internal_type(self):
         return self.field.get_internal_type()
 
+    # [TODO] ForeignObjectRel > db_type
     @property
     def db_type(self):
         return self.field.db_type
 
+    # [TODO] ForeignObjectRel > __repr__
     def __repr__(self):
         return "<%s: %s.%s>" % (
             type(self).__name__,
@@ -136,6 +153,7 @@ class ForeignObjectRel(FieldCacheMixin):
             self.related_model._meta.model_name,
         )
 
+    # [TODO] ForeignObjectRel > identity
     @property
     def identity(self):
         return (
@@ -150,14 +168,17 @@ class ForeignObjectRel(FieldCacheMixin):
             self.multiple,
         )
 
+    # [TODO] ForeignObjectRel > __eq__
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return NotImplemented
         return self.identity == other.identity
 
+    # [TODO] ForeignObjectRel > __hash__
     def __hash__(self):
         return hash(self.identity)
 
+    # [TODO] ForeignObjectRel > __getstate__
     def __getstate__(self):
         state = self.__dict__.copy()
         # Delete the path_infos cached property because it can be recalculated
@@ -170,6 +191,7 @@ class ForeignObjectRel(FieldCacheMixin):
         state.pop("path_infos", None)
         return state
 
+    # [TODO] ForeignObjectRel > get_choices
     def get_choices(
         self,
         include_blank=True,
@@ -190,10 +212,12 @@ class ForeignObjectRel(FieldCacheMixin):
             qs = qs.order_by(*ordering)
         return (blank_choice if include_blank else []) + [(x.pk, str(x)) for x in qs]
 
+    # [TODO] ForeignObjectRel > is_hidden
     def is_hidden(self):
         """Should the related object be hidden?"""
         return bool(self.related_name) and self.related_name[-1] == "+"
 
+    # [TODO] ForeignObjectRel > get_joining_columns
     def get_joining_columns(self):
         warnings.warn(
             "ForeignObjectRel.get_joining_columns() is deprecated. Use "
@@ -202,12 +226,15 @@ class ForeignObjectRel(FieldCacheMixin):
         )
         return self.field.get_reverse_joining_columns()
 
+    # [TODO] ForeignObjectRel > get_joining_fields
     def get_joining_fields(self):
         return self.field.get_reverse_joining_fields()
 
+    # [TODO] ForeignObjectRel > get_extra_restriction
     def get_extra_restriction(self, alias, related_alias):
         return self.field.get_extra_restriction(related_alias, alias)
 
+    # [TODO] ForeignObjectRel > set_field_name
     def set_field_name(self):
         """
         Set the related field's name, this is not available until later stages
@@ -218,6 +245,7 @@ class ForeignObjectRel(FieldCacheMixin):
         # example custom multicolumn joins currently have no remote field).
         self.field_name = None
 
+    # [TODO] ForeignObjectRel > get_accessor_name
     def get_accessor_name(self, model=None):
         # This method encapsulates the logic that decides what name to give an
         # accessor descriptor that retrieves related many-to-one or
@@ -236,16 +264,19 @@ class ForeignObjectRel(FieldCacheMixin):
             return self.related_name
         return opts.model_name + ("_set" if self.multiple else "")
 
+    # [TODO] ForeignObjectRel > get_path_info
     def get_path_info(self, filtered_relation=None):
         if filtered_relation:
             return self.field.get_reverse_path_info(filtered_relation)
         else:
             return self.field.reverse_path_infos
 
+    # [TODO] ForeignObjectRel > path_infos
     @cached_property
     def path_infos(self):
         return self.get_path_info()
 
+    # [TODO] ForeignObjectRel > get_cache_name
     def get_cache_name(self):
         """
         Return the name of the cache key to use for storing an instance of the
@@ -254,6 +285,7 @@ class ForeignObjectRel(FieldCacheMixin):
         return self.get_accessor_name()
 
 
+# [TODO] ManyToOneRel
 class ManyToOneRel(ForeignObjectRel):
     """
     Used by the ForeignKey field to store information about the relation.
@@ -269,6 +301,7 @@ class ManyToOneRel(ForeignObjectRel):
     reverse relations into actual fields.
     """
 
+    # [TODO] ManyToOneRel > __init__
     def __init__(
         self,
         field,
@@ -292,15 +325,18 @@ class ManyToOneRel(ForeignObjectRel):
 
         self.field_name = field_name
 
+    # [TODO] ManyToOneRel > __getstate__
     def __getstate__(self):
         state = super().__getstate__()
         state.pop("related_model", None)
         return state
 
+    # [TODO] ManyToOneRel > identity
     @property
     def identity(self):
         return super().identity + (self.field_name,)
 
+    # [TODO] ManyToOneRel > get_related_field
     def get_related_field(self):
         """
         Return the Field in the 'to' object to which this relationship is tied.
@@ -312,10 +348,12 @@ class ManyToOneRel(ForeignObjectRel):
             )
         return field
 
+    # [TODO] ManyToOneRel > set_field_name
     def set_field_name(self):
         self.field_name = self.field_name or self.model._meta.pk.name
 
 
+# [TODO] OneToOneRel
 class OneToOneRel(ManyToOneRel):
     """
     Used by OneToOneField to store information about the relation.
@@ -324,6 +362,7 @@ class OneToOneRel(ManyToOneRel):
     flags for the reverse relation.
     """
 
+    # [TODO] OneToOneRel > __init__
     def __init__(
         self,
         field,
@@ -349,6 +388,7 @@ class OneToOneRel(ManyToOneRel):
         self.multiple = False
 
 
+# [TODO] ManyToManyRel
 class ManyToManyRel(ForeignObjectRel):
     """
     Used by ManyToManyField to store information about the relation.
@@ -357,6 +397,7 @@ class ManyToManyRel(ForeignObjectRel):
     flags for the reverse relation.
     """
 
+    # [TODO] ManyToManyRel > __init__
     def __init__(
         self,
         field,
@@ -388,6 +429,7 @@ class ManyToManyRel(ForeignObjectRel):
         self.symmetrical = symmetrical
         self.db_constraint = db_constraint
 
+    # [TODO] ManyToManyRel > identity
     @property
     def identity(self):
         return super().identity + (
@@ -396,6 +438,7 @@ class ManyToManyRel(ForeignObjectRel):
             self.db_constraint,
         )
 
+    # [TODO] ManyToManyRel > get_related_field
     def get_related_field(self):
         """
         Return the field in the 'to' object to which this relationship is tied.

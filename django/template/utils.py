@@ -9,11 +9,14 @@ from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 
 
+# [TODO] InvalidTemplateEngineError
 class InvalidTemplateEngineError(ImproperlyConfigured):
     pass
 
 
+# [TODO] EngineHandler
 class EngineHandler:
+    # [TODO] EngineHandler > __init__
     def __init__(self, templates=None):
         """
         templates is an optional list of template engine definitions
@@ -22,6 +25,7 @@ class EngineHandler:
         self._templates = templates
         self._engines = {}
 
+    # [TODO] EngineHandler > templates
     @cached_property
     def templates(self):
         if self._templates is None:
@@ -64,6 +68,7 @@ class EngineHandler:
 
         return templates
 
+    # [TODO] EngineHandler > __getitem__
     def __getitem__(self, alias):
         try:
             return self._engines[alias]
@@ -87,13 +92,16 @@ class EngineHandler:
             self._engines[alias] = engine
             return engine
 
+    # [TODO] EngineHandler > __iter__
     def __iter__(self):
         return iter(self.templates)
 
+    # [TODO] EngineHandler > all
     def all(self):
         return [self[alias] for alias in self]
 
 
+# [TODO] get_app_template_dirs
 @functools.lru_cache
 def get_app_template_dirs(dirname):
     """

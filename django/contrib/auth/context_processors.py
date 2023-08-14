@@ -2,39 +2,51 @@
 # the template system can understand.
 
 
+# [TODO] PermLookupDict
 class PermLookupDict:
+    # [TODO] PermLookupDict > __init__
     def __init__(self, user, app_label):
         self.user, self.app_label = user, app_label
 
+    # [TODO] PermLookupDict > __repr__
     def __repr__(self):
         return str(self.user.get_all_permissions())
 
+    # [TODO] PermLookupDict > __getitem__
     def __getitem__(self, perm_name):
         return self.user.has_perm("%s.%s" % (self.app_label, perm_name))
 
+    # [TODO] PermLookupDict > __iter__
     def __iter__(self):
         # To fix 'item in perms.someapp' and __getitem__ interaction we need to
         # define __iter__. See #18979 for details.
         raise TypeError("PermLookupDict is not iterable.")
 
+    # [TODO] PermLookupDict > __bool__
     def __bool__(self):
         return self.user.has_module_perms(self.app_label)
 
 
+# [TODO] PermWrapper
 class PermWrapper:
+    # [TODO] PermWrapper > __init__
     def __init__(self, user):
         self.user = user
 
+    # [TODO] PermWrapper > __repr__
     def __repr__(self):
         return f"{self.__class__.__qualname__}({self.user!r})"
 
+    # [TODO] PermWrapper > __getitem__
     def __getitem__(self, app_label):
         return PermLookupDict(self.user, app_label)
 
+    # [TODO] PermWrapper > __iter__
     def __iter__(self):
         # I am large, I contain multitudes.
         raise TypeError("PermWrapper is not iterable.")
 
+    # [TODO] PermWrapper > __contains__
     def __contains__(self, perm_name):
         """
         Lookup by "someapp" or "someapp.someperm" in perms.
@@ -46,6 +58,7 @@ class PermWrapper:
         return self[app_label][perm_name]
 
 
+# [TODO] auth
 def auth(request):
     """
     Return context variables required by apps that use Django's authentication

@@ -4,11 +4,13 @@ from django.forms import ModelForm, modelformset_factory
 from django.forms.models import BaseModelFormSet
 
 
+# [TODO] BaseGenericInlineFormSet
 class BaseGenericInlineFormSet(BaseModelFormSet):
     """
     A formset for generic inline objects to a parent.
     """
 
+    # [TODO] BaseGenericInlineFormSet > __init__
     def __init__(
         self,
         data=None,
@@ -46,11 +48,13 @@ class BaseGenericInlineFormSet(BaseModelFormSet):
             )
         super().__init__(queryset=qs, data=data, files=files, prefix=prefix, **kwargs)
 
+    # [TODO] BaseGenericInlineFormSet > initial_form_count
     def initial_form_count(self):
         if self.save_as_new:
             return 0
         return super().initial_form_count()
 
+    # [TODO] BaseGenericInlineFormSet > get_default_prefix
     @classmethod
     def get_default_prefix(cls):
         opts = cls.model._meta
@@ -64,6 +68,7 @@ class BaseGenericInlineFormSet(BaseModelFormSet):
             + cls.ct_fk_field.name
         )
 
+    # [TODO] BaseGenericInlineFormSet > save_new
     def save_new(self, form, commit=True):
         setattr(
             form.instance,
@@ -74,6 +79,7 @@ class BaseGenericInlineFormSet(BaseModelFormSet):
         return form.save(commit=commit)
 
 
+# [TODO] generic_inlineformset_factory
 def generic_inlineformset_factory(
     model,
     form=ModelForm,

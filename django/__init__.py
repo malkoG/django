@@ -5,6 +5,7 @@ VERSION = (5, 0, 0, "alpha", 0)
 __version__ = get_version(VERSION)
 
 
+# [TODO] setup
 def setup(set_prefix=True):
     """
     Configure the settings (this happens as a side effect of accessing the

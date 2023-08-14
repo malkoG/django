@@ -30,18 +30,21 @@ from django.utils.encoding import iri_to_uri
 from django.utils.xmlutils import SimplerXMLGenerator
 
 
+# [TODO] rfc2822_date
 def rfc2822_date(date):
     if not isinstance(date, datetime.datetime):
         date = datetime.datetime.combine(date, datetime.time())
     return email.utils.format_datetime(date)
 
 
+# [TODO] rfc3339_date
 def rfc3339_date(date):
     if not isinstance(date, datetime.datetime):
         date = datetime.datetime.combine(date, datetime.time())
     return date.isoformat() + ("Z" if date.utcoffset() is None else "")
 
 
+# [TODO] get_tag_uri
 def get_tag_uri(url, date):
     """
     Create a TagURI.
@@ -56,9 +59,11 @@ def get_tag_uri(url, date):
     return "tag:%s%s:%s/%s" % (bits.hostname, d, bits.path, bits.fragment)
 
 
+# [TODO] SyndicationFeed
 class SyndicationFeed:
     "Base class for all syndication feeds. Subclasses should provide write()"
 
+    # [TODO] SyndicationFeed > __init__
     def __init__(
         self,
         title,
@@ -98,6 +103,7 @@ class SyndicationFeed:
         }
         self.items = []
 
+    # [TODO] SyndicationFeed > add_item
     def add_item(
         self,
         title,
@@ -148,9 +154,11 @@ class SyndicationFeed:
             }
         )
 
+    # [TODO] SyndicationFeed > num_items
     def num_items(self):
         return len(self.items)
 
+    # [TODO] SyndicationFeed > root_attributes
     def root_attributes(self):
         """
         Return extra attributes to place on the root (i.e. feed/channel) element.
@@ -158,6 +166,7 @@ class SyndicationFeed:
         """
         return {}
 
+    # [TODO] SyndicationFeed > add_root_elements
     def add_root_elements(self, handler):
         """
         Add elements in the root (i.e. feed/channel) element. Called
@@ -165,18 +174,21 @@ class SyndicationFeed:
         """
         pass
 
+    # [TODO] SyndicationFeed > item_attributes
     def item_attributes(self, item):
         """
         Return extra attributes to place on each item (i.e. item/entry) element.
         """
         return {}
 
+    # [TODO] SyndicationFeed > add_item_elements
     def add_item_elements(self, handler, item):
         """
         Add elements on each item (i.e. item/entry) element.
         """
         pass
 
+    # [TODO] SyndicationFeed > write
     def write(self, outfile, encoding):
         """
         Output the feed in the given encoding to outfile, which is a file-like
@@ -186,6 +198,7 @@ class SyndicationFeed:
             "subclasses of SyndicationFeed must provide a write() method"
         )
 
+    # [TODO] SyndicationFeed > writeString
     def writeString(self, encoding):
         """
         Return the feed in the given encoding as a string.
@@ -194,6 +207,7 @@ class SyndicationFeed:
         self.write(s, encoding)
         return s.getvalue()
 
+    # [TODO] SyndicationFeed > latest_post_date
     def latest_post_date(self):
         """
         Return the latest item's pubdate or updateddate. If no items
@@ -212,18 +226,22 @@ class SyndicationFeed:
         return latest_date or datetime.datetime.now(tz=datetime.timezone.utc)
 
 
+# [TODO] Enclosure
 class Enclosure:
     """An RSS enclosure"""
 
+    # [TODO] Enclosure > __init__
     def __init__(self, url, length, mime_type):
         "All args are expected to be strings"
         self.length, self.mime_type = length, mime_type
         self.url = iri_to_uri(url)
 
 
+# [TODO] RssFeed
 class RssFeed(SyndicationFeed):
     content_type = "application/rss+xml; charset=utf-8"
 
+    # [TODO] RssFeed > write
     def write(self, outfile, encoding):
         handler = SimplerXMLGenerator(outfile, encoding, short_empty_elements=True)
         handler.startDocument()
@@ -234,18 +252,21 @@ class RssFeed(SyndicationFeed):
         self.endChannelElement(handler)
         handler.endElement("rss")
 
+    # [TODO] RssFeed > rss_attributes
     def rss_attributes(self):
         return {
             "version": self._version,
             "xmlns:atom": "http://www.w3.org/2005/Atom",
         }
 
+    # [TODO] RssFeed > write_items
     def write_items(self, handler):
         for item in self.items:
             handler.startElement("item", self.item_attributes(item))
             self.add_item_elements(handler, item)
             handler.endElement("item")
 
+    # [TODO] RssFeed > add_root_elements
     def add_root_elements(self, handler):
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement("link", self.feed["link"])
@@ -264,13 +285,16 @@ class RssFeed(SyndicationFeed):
         if self.feed["ttl"] is not None:
             handler.addQuickElement("ttl", self.feed["ttl"])
 
+    # [TODO] RssFeed > endChannelElement
     def endChannelElement(self, handler):
         handler.endElement("channel")
 
 
+# [TODO] RssUserland091Feed
 class RssUserland091Feed(RssFeed):
     _version = "0.91"
 
+    # [TODO] RssUserland091Feed > add_item_elements
     def add_item_elements(self, handler, item):
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", item["link"])
@@ -278,10 +302,12 @@ class RssUserland091Feed(RssFeed):
             handler.addQuickElement("description", item["description"])
 
 
+# [TODO] Rss201rev2Feed
 class Rss201rev2Feed(RssFeed):
     # Spec: https://cyber.harvard.edu/rss/rss.html
     _version = "2.0"
 
+    # [TODO] Rss201rev2Feed > add_item_elements
     def add_item_elements(self, handler, item):
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", item["link"])
@@ -338,11 +364,13 @@ class Rss201rev2Feed(RssFeed):
             handler.addQuickElement("category", cat)
 
 
+# [TODO] Atom1Feed
 class Atom1Feed(SyndicationFeed):
     # Spec: https://tools.ietf.org/html/rfc4287
     content_type = "application/atom+xml; charset=utf-8"
     ns = "http://www.w3.org/2005/Atom"
 
+    # [TODO] Atom1Feed > write
     def write(self, outfile, encoding):
         handler = SimplerXMLGenerator(outfile, encoding, short_empty_elements=True)
         handler.startDocument()
@@ -351,12 +379,14 @@ class Atom1Feed(SyndicationFeed):
         self.write_items(handler)
         handler.endElement("feed")
 
+    # [TODO] Atom1Feed > root_attributes
     def root_attributes(self):
         if self.feed["language"] is not None:
             return {"xmlns": self.ns, "xml:lang": self.feed["language"]}
         else:
             return {"xmlns": self.ns}
 
+    # [TODO] Atom1Feed > add_root_elements
     def add_root_elements(self, handler):
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement(
@@ -383,12 +413,14 @@ class Atom1Feed(SyndicationFeed):
         if self.feed["feed_copyright"] is not None:
             handler.addQuickElement("rights", self.feed["feed_copyright"])
 
+    # [TODO] Atom1Feed > write_items
     def write_items(self, handler):
         for item in self.items:
             handler.startElement("entry", self.item_attributes(item))
             self.add_item_elements(handler, item)
             handler.endElement("entry")
 
+    # [TODO] Atom1Feed > add_item_elements
     def add_item_elements(self, handler, item):
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", "", {"href": item["link"], "rel": "alternate"})

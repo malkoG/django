@@ -7,6 +7,7 @@ from django.utils.cache import add_never_cache_headers, patch_cache_control
 from django.utils.decorators import decorator_from_middleware_with_args
 
 
+# [TODO] cache_page
 def cache_page(timeout, *, cache=None, key_prefix=None):
     """
     Decorator for views that tries getting the page from the cache and
@@ -28,6 +29,7 @@ def cache_page(timeout, *, cache=None, key_prefix=None):
     )
 
 
+# [TODO] _check_request
 def _check_request(request, decorator_name):
     # Ensure argument looks like a request.
     if not hasattr(request, "META"):
@@ -37,6 +39,7 @@ def _check_request(request, decorator_name):
         )
 
 
+# [TODO] cache_control
 def cache_control(**kwargs):
     def _cache_controller(viewfunc):
         if iscoroutinefunction(viewfunc):
@@ -60,6 +63,7 @@ def cache_control(**kwargs):
     return _cache_controller
 
 
+# [TODO] never_cache
 def never_cache(view_func):
     """
     Decorator that adds headers to a response so that it will never be cached.

@@ -4,6 +4,7 @@ from django.contrib.messages import constants, utils
 LEVEL_TAGS = utils.get_level_tags()
 
 
+# [TODO] Message
 class Message:
     """
     Represent an actual message that can be stored in any of the supported
@@ -11,11 +12,13 @@ class Message:
     or template.
     """
 
+    # [TODO] Message > __init__
     def __init__(self, level, message, extra_tags=None):
         self.level = int(level)
         self.message = message
         self.extra_tags = extra_tags
 
+    # [TODO] Message > _prepare
     def _prepare(self):
         """
         Prepare the message for serialization by forcing the ``message``
@@ -24,23 +27,28 @@ class Message:
         self.message = str(self.message)
         self.extra_tags = str(self.extra_tags) if self.extra_tags is not None else None
 
+    # [TODO] Message > __eq__
     def __eq__(self, other):
         if not isinstance(other, Message):
             return NotImplemented
         return self.level == other.level and self.message == other.message
 
+    # [TODO] Message > __str__
     def __str__(self):
         return str(self.message)
 
+    # [TODO] Message > tags
     @property
     def tags(self):
         return " ".join(tag for tag in [self.extra_tags, self.level_tag] if tag)
 
+    # [TODO] Message > level_tag
     @property
     def level_tag(self):
         return LEVEL_TAGS.get(self.level, "")
 
 
+# [TODO] BaseStorage
 class BaseStorage:
     """
     This is the base backend for temporary message storage.
@@ -49,6 +57,7 @@ class BaseStorage:
     subclassed and the two methods ``_get`` and ``_store`` overridden.
     """
 
+    # [TODO] BaseStorage > __init__
     def __init__(self, request, *args, **kwargs):
         self.request = request
         self._queued_messages = []
@@ -56,9 +65,11 @@ class BaseStorage:
         self.added_new = False
         super().__init__(*args, **kwargs)
 
+    # [TODO] BaseStorage > __len__
     def __len__(self):
         return len(self._loaded_messages) + len(self._queued_messages)
 
+    # [TODO] BaseStorage > __iter__
     def __iter__(self):
         self.used = True
         if self._queued_messages:
@@ -66,12 +77,15 @@ class BaseStorage:
             self._queued_messages = []
         return iter(self._loaded_messages)
 
+    # [TODO] BaseStorage > __contains__
     def __contains__(self, item):
         return item in self._loaded_messages or item in self._queued_messages
 
+    # [TODO] BaseStorage > __repr__
     def __repr__(self):
         return f"<{self.__class__.__qualname__}: request={self.request!r}>"
 
+    # [TODO] BaseStorage > _loaded_messages
     @property
     def _loaded_messages(self):
         """
@@ -83,6 +97,7 @@ class BaseStorage:
             self._loaded_data = messages or []
         return self._loaded_data
 
+    # [TODO] BaseStorage > _get
     def _get(self, *args, **kwargs):
         """
         Retrieve a list of stored messages. Return a tuple of the messages
@@ -100,6 +115,7 @@ class BaseStorage:
             "subclasses of BaseStorage must provide a _get() method"
         )
 
+    # [TODO] BaseStorage > _store
     def _store(self, messages, response, *args, **kwargs):
         """
         Store a list of messages and return a list of any messages which could
@@ -113,6 +129,7 @@ class BaseStorage:
             "subclasses of BaseStorage must provide a _store() method"
         )
 
+    # [TODO] BaseStorage > _prepare_messages
     def _prepare_messages(self, messages):
         """
         Prepare a list of messages for storage.
@@ -120,6 +137,7 @@ class BaseStorage:
         for message in messages:
             message._prepare()
 
+    # [TODO] BaseStorage > update
     def update(self, response):
         """
         Store all unread messages.
@@ -134,6 +152,7 @@ class BaseStorage:
             messages = self._loaded_messages + self._queued_messages
             return self._store(messages, response)
 
+    # [TODO] BaseStorage > add
     def add(self, level, message, extra_tags=""):
         """
         Queue a message to be stored.
@@ -152,6 +171,7 @@ class BaseStorage:
         message = Message(level, message, extra_tags=extra_tags)
         self._queued_messages.append(message)
 
+    # [TODO] BaseStorage > _get_level
     def _get_level(self):
         """
         Return the minimum recorded level.
@@ -163,6 +183,7 @@ class BaseStorage:
             self._level = getattr(settings, "MESSAGE_LEVEL", constants.INFO)
         return self._level
 
+    # [TODO] BaseStorage > _set_level
     def _set_level(self, value=None):
         """
         Set a custom minimum recorded level.

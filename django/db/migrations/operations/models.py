@@ -8,6 +8,7 @@ from django.utils.functional import cached_property
 from .fields import AddField, AlterField, FieldOperation, RemoveField, RenameField
 
 
+# [TODO] _check_for_duplicates
 def _check_for_duplicates(arg_name, objs):
     used_vals = set()
     for val in objs:
@@ -18,31 +19,39 @@ def _check_for_duplicates(arg_name, objs):
         used_vals.add(val)
 
 
+# [TODO] ModelOperation
 class ModelOperation(Operation):
+    # [TODO] ModelOperation > __init__
     def __init__(self, name):
         self.name = name
 
+    # [TODO] ModelOperation > name_lower
     @cached_property
     def name_lower(self):
         return self.name.lower()
 
+    # [TODO] ModelOperation > references_model
     def references_model(self, name, app_label):
         return name.lower() == self.name_lower
 
+    # [TODO] ModelOperation > reduce
     def reduce(self, operation, app_label):
         return super().reduce(operation, app_label) or self.can_reduce_through(
             operation, app_label
         )
 
+    # [TODO] ModelOperation > can_reduce_through
     def can_reduce_through(self, operation, app_label):
         return not operation.references_model(self.name, app_label)
 
 
+# [TODO] CreateModel
 class CreateModel(ModelOperation):
     """Create a model's table."""
 
     serialization_expand_args = ["fields", "options", "managers"]
 
+    # [TODO] CreateModel > __init__
     def __init__(self, name, fields, options=None, bases=None, managers=None):
         self.fields = fields
         self.options = options or {}
@@ -65,6 +74,7 @@ class CreateModel(ModelOperation):
         )
         _check_for_duplicates("managers", (name for name, _ in self.managers))
 
+    # [TODO] CreateModel > deconstruct
     def deconstruct(self):
         kwargs = {
             "name": self.name,
@@ -78,6 +88,7 @@ class CreateModel(ModelOperation):
             kwargs["managers"] = self.managers
         return (self.__class__.__qualname__, [], kwargs)
 
+    # [TODO] CreateModel > state_forwards
     def state_forwards(self, app_label, state):
         state.add_model(
             ModelState(
@@ -90,26 +101,31 @@ class CreateModel(ModelOperation):
             )
         )
 
+    # [TODO] CreateModel > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         model = to_state.apps.get_model(app_label, self.name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             schema_editor.create_model(model)
 
+    # [TODO] CreateModel > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         model = from_state.apps.get_model(app_label, self.name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             schema_editor.delete_model(model)
 
+    # [TODO] CreateModel > describe
     def describe(self):
         return "Create %smodel %s" % (
             "proxy " if self.options.get("proxy", False) else "",
             self.name,
         )
 
+    # [TODO] CreateModel > migration_name_fragment
     @property
     def migration_name_fragment(self):
         return self.name_lower
 
+    # [TODO] CreateModel > references_model
     def references_model(self, name, app_label):
         name_lower = name.lower()
         if name_lower == self.name_lower:
@@ -133,6 +149,7 @@ class CreateModel(ModelOperation):
                 return True
         return False
 
+    # [TODO] CreateModel > reduce
     def reduce(self, operation, app_label):
         if (
             isinstance(operation, DeleteModel)
@@ -371,57 +388,70 @@ class CreateModel(ModelOperation):
         return super().reduce(operation, app_label)
 
 
+# [TODO] DeleteModel
 class DeleteModel(ModelOperation):
     """Drop a model's table."""
 
+    # [TODO] DeleteModel > deconstruct
     def deconstruct(self):
         kwargs = {
             "name": self.name,
         }
         return (self.__class__.__qualname__, [], kwargs)
 
+    # [TODO] DeleteModel > state_forwards
     def state_forwards(self, app_label, state):
         state.remove_model(app_label, self.name_lower)
 
+    # [TODO] DeleteModel > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         model = from_state.apps.get_model(app_label, self.name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             schema_editor.delete_model(model)
 
+    # [TODO] DeleteModel > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         model = to_state.apps.get_model(app_label, self.name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             schema_editor.create_model(model)
 
+    # [TODO] DeleteModel > references_model
     def references_model(self, name, app_label):
         # The deleted model could be referencing the specified model through
         # related fields.
         return True
 
+    # [TODO] DeleteModel > describe
     def describe(self):
         return "Delete model %s" % self.name
 
+    # [TODO] DeleteModel > migration_name_fragment
     @property
     def migration_name_fragment(self):
         return "delete_%s" % self.name_lower
 
 
+# [TODO] RenameModel
 class RenameModel(ModelOperation):
     """Rename a model."""
 
+    # [TODO] RenameModel > __init__
     def __init__(self, old_name, new_name):
         self.old_name = old_name
         self.new_name = new_name
         super().__init__(old_name)
 
+    # [TODO] RenameModel > old_name_lower
     @cached_property
     def old_name_lower(self):
         return self.old_name.lower()
 
+    # [TODO] RenameModel > new_name_lower
     @cached_property
     def new_name_lower(self):
         return self.new_name.lower()
 
+    # [TODO] RenameModel > deconstruct
     def deconstruct(self):
         kwargs = {
             "old_name": self.old_name,
@@ -429,9 +459,11 @@ class RenameModel(ModelOperation):
         }
         return (self.__class__.__qualname__, [], kwargs)
 
+    # [TODO] RenameModel > state_forwards
     def state_forwards(self, app_label, state):
         state.rename_model(app_label, self.old_name, self.new_name)
 
+    # [TODO] RenameModel > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         new_model = to_state.apps.get_model(app_label, self.new_name)
         if self.allow_migrate_model(schema_editor.connection.alias, new_model):
@@ -480,6 +512,7 @@ class RenameModel(ModelOperation):
                     strict=False,
                 )
 
+    # [TODO] RenameModel > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         self.new_name_lower, self.old_name_lower = (
             self.old_name_lower,
@@ -495,18 +528,22 @@ class RenameModel(ModelOperation):
         )
         self.new_name, self.old_name = self.old_name, self.new_name
 
+    # [TODO] RenameModel > references_model
     def references_model(self, name, app_label):
         return (
             name.lower() == self.old_name_lower or name.lower() == self.new_name_lower
         )
 
+    # [TODO] RenameModel > describe
     def describe(self):
         return "Rename model %s to %s" % (self.old_name, self.new_name)
 
+    # [TODO] RenameModel > migration_name_fragment
     @property
     def migration_name_fragment(self):
         return "rename_%s_%s" % (self.old_name_lower, self.new_name_lower)
 
+    # [TODO] RenameModel > reduce
     def reduce(self, operation, app_label):
         if (
             isinstance(operation, RenameModel)
@@ -525,7 +562,9 @@ class RenameModel(ModelOperation):
         ) or not operation.references_model(self.new_name, app_label)
 
 
+# [TODO] ModelOptionOperation
 class ModelOptionOperation(ModelOperation):
+    # [TODO] ModelOptionOperation > reduce
     def reduce(self, operation, app_label):
         if (
             isinstance(operation, (self.__class__, DeleteModel))
@@ -535,13 +574,16 @@ class ModelOptionOperation(ModelOperation):
         return super().reduce(operation, app_label)
 
 
+# [TODO] AlterModelTable
 class AlterModelTable(ModelOptionOperation):
     """Rename a model's table."""
 
+    # [TODO] AlterModelTable > __init__
     def __init__(self, name, table):
         self.table = table
         super().__init__(name)
 
+    # [TODO] AlterModelTable > deconstruct
     def deconstruct(self):
         kwargs = {
             "name": self.name,
@@ -549,9 +591,11 @@ class AlterModelTable(ModelOptionOperation):
         }
         return (self.__class__.__qualname__, [], kwargs)
 
+    # [TODO] AlterModelTable > state_forwards
     def state_forwards(self, app_label, state):
         state.alter_model_options(app_label, self.name_lower, {"db_table": self.table})
 
+    # [TODO] AlterModelTable > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         new_model = to_state.apps.get_model(app_label, self.name)
         if self.allow_migrate_model(schema_editor.connection.alias, new_model):
@@ -572,25 +616,31 @@ class AlterModelTable(ModelOptionOperation):
                         new_field.remote_field.through._meta.db_table,
                     )
 
+    # [TODO] AlterModelTable > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         return self.database_forwards(app_label, schema_editor, from_state, to_state)
 
+    # [TODO] AlterModelTable > describe
     def describe(self):
         return "Rename table for %s to %s" % (
             self.name,
             self.table if self.table is not None else "(default)",
         )
 
+    # [TODO] AlterModelTable > migration_name_fragment
     @property
     def migration_name_fragment(self):
         return "alter_%s_table" % self.name_lower
 
 
+# [TODO] AlterModelTableComment
 class AlterModelTableComment(ModelOptionOperation):
+    # [TODO] AlterModelTableComment > __init__
     def __init__(self, name, table_comment):
         self.table_comment = table_comment
         super().__init__(name)
 
+    # [TODO] AlterModelTableComment > deconstruct
     def deconstruct(self):
         kwargs = {
             "name": self.name,
@@ -598,11 +648,13 @@ class AlterModelTableComment(ModelOptionOperation):
         }
         return (self.__class__.__qualname__, [], kwargs)
 
+    # [TODO] AlterModelTableComment > state_forwards
     def state_forwards(self, app_label, state):
         state.alter_model_options(
             app_label, self.name_lower, {"db_table_comment": self.table_comment}
         )
 
+    # [TODO] AlterModelTableComment > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         new_model = to_state.apps.get_model(app_label, self.name)
         if self.allow_migrate_model(schema_editor.connection.alias, new_model):
@@ -613,30 +665,37 @@ class AlterModelTableComment(ModelOptionOperation):
                 new_model._meta.db_table_comment,
             )
 
+    # [TODO] AlterModelTableComment > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         return self.database_forwards(app_label, schema_editor, from_state, to_state)
 
+    # [TODO] AlterModelTableComment > describe
     def describe(self):
         return f"Alter {self.name} table comment"
 
+    # [TODO] AlterModelTableComment > migration_name_fragment
     @property
     def migration_name_fragment(self):
         return f"alter_{self.name_lower}_table_comment"
 
 
+# [TODO] AlterTogetherOptionOperation
 class AlterTogetherOptionOperation(ModelOptionOperation):
     option_name = None
 
+    # [TODO] AlterTogetherOptionOperation > __init__
     def __init__(self, name, option_value):
         if option_value:
             option_value = set(normalize_together(option_value))
         setattr(self, self.option_name, option_value)
         super().__init__(name)
 
+    # [TODO] AlterTogetherOptionOperation > option_value
     @cached_property
     def option_value(self):
         return getattr(self, self.option_name)
 
+    # [TODO] AlterTogetherOptionOperation > deconstruct
     def deconstruct(self):
         kwargs = {
             "name": self.name,
@@ -644,6 +703,7 @@ class AlterTogetherOptionOperation(ModelOptionOperation):
         }
         return (self.__class__.__qualname__, [], kwargs)
 
+    # [TODO] AlterTogetherOptionOperation > state_forwards
     def state_forwards(self, app_label, state):
         state.alter_model_options(
             app_label,
@@ -651,6 +711,7 @@ class AlterTogetherOptionOperation(ModelOptionOperation):
             {self.option_name: self.option_value},
         )
 
+    # [TODO] AlterTogetherOptionOperation > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         new_model = to_state.apps.get_model(app_label, self.name)
         if self.allow_migrate_model(schema_editor.connection.alias, new_model):
@@ -662,15 +723,18 @@ class AlterTogetherOptionOperation(ModelOptionOperation):
                 getattr(new_model._meta, self.option_name, set()),
             )
 
+    # [TODO] AlterTogetherOptionOperation > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         return self.database_forwards(app_label, schema_editor, from_state, to_state)
 
+    # [TODO] AlterTogetherOptionOperation > references_field
     def references_field(self, model_name, name, app_label):
         return self.references_model(model_name, app_label) and (
             not self.option_value
             or any((name in fields) for fields in self.option_value)
         )
 
+    # [TODO] AlterTogetherOptionOperation > describe
     def describe(self):
         return "Alter %s for %s (%s constraint(s))" % (
             self.option_name,
@@ -678,10 +742,12 @@ class AlterTogetherOptionOperation(ModelOptionOperation):
             len(self.option_value or ""),
         )
 
+    # [TODO] AlterTogetherOptionOperation > migration_name_fragment
     @property
     def migration_name_fragment(self):
         return "alter_%s_%s" % (self.name_lower, self.option_name)
 
+    # [TODO] AlterTogetherOptionOperation > can_reduce_through
     def can_reduce_through(self, operation, app_label):
         return super().can_reduce_through(operation, app_label) or (
             isinstance(operation, AlterTogetherOptionOperation)
@@ -689,6 +755,7 @@ class AlterTogetherOptionOperation(ModelOptionOperation):
         )
 
 
+# [TODO] AlterUniqueTogether
 class AlterUniqueTogether(AlterTogetherOptionOperation):
     """
     Change the value of unique_together to the target one.
@@ -697,10 +764,12 @@ class AlterUniqueTogether(AlterTogetherOptionOperation):
 
     option_name = "unique_together"
 
+    # [TODO] AlterUniqueTogether > __init__
     def __init__(self, name, unique_together):
         super().__init__(name, unique_together)
 
 
+# [TODO] AlterIndexTogether
 class AlterIndexTogether(AlterTogetherOptionOperation):
     """
     Change the value of index_together to the target one.
@@ -709,19 +778,23 @@ class AlterIndexTogether(AlterTogetherOptionOperation):
 
     option_name = "index_together"
 
+    # [TODO] AlterIndexTogether > __init__
     def __init__(self, name, index_together):
         super().__init__(name, index_together)
 
 
+# [TODO] AlterOrderWithRespectTo
 class AlterOrderWithRespectTo(ModelOptionOperation):
     """Represent a change with the order_with_respect_to option."""
 
     option_name = "order_with_respect_to"
 
+    # [TODO] AlterOrderWithRespectTo > __init__
     def __init__(self, name, order_with_respect_to):
         self.order_with_respect_to = order_with_respect_to
         super().__init__(name)
 
+    # [TODO] AlterOrderWithRespectTo > deconstruct
     def deconstruct(self):
         kwargs = {
             "name": self.name,
@@ -729,6 +802,7 @@ class AlterOrderWithRespectTo(ModelOptionOperation):
         }
         return (self.__class__.__qualname__, [], kwargs)
 
+    # [TODO] AlterOrderWithRespectTo > state_forwards
     def state_forwards(self, app_label, state):
         state.alter_model_options(
             app_label,
@@ -736,6 +810,7 @@ class AlterOrderWithRespectTo(ModelOptionOperation):
             {self.option_name: self.order_with_respect_to},
         )
 
+    # [TODO] AlterOrderWithRespectTo > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         to_model = to_state.apps.get_model(app_label, self.name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
@@ -762,25 +837,30 @@ class AlterOrderWithRespectTo(ModelOptionOperation):
                     field,
                 )
 
+    # [TODO] AlterOrderWithRespectTo > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         self.database_forwards(app_label, schema_editor, from_state, to_state)
 
+    # [TODO] AlterOrderWithRespectTo > references_field
     def references_field(self, model_name, name, app_label):
         return self.references_model(model_name, app_label) and (
             self.order_with_respect_to is None or name == self.order_with_respect_to
         )
 
+    # [TODO] AlterOrderWithRespectTo > describe
     def describe(self):
         return "Set order_with_respect_to on %s to %s" % (
             self.name,
             self.order_with_respect_to,
         )
 
+    # [TODO] AlterOrderWithRespectTo > migration_name_fragment
     @property
     def migration_name_fragment(self):
         return "alter_%s_order_with_respect_to" % self.name_lower
 
 
+# [TODO] AlterModelOptions
 class AlterModelOptions(ModelOptionOperation):
     """
     Set new model options that don't directly affect the database schema
@@ -803,10 +883,12 @@ class AlterModelOptions(ModelOptionOperation):
         "verbose_name_plural",
     ]
 
+    # [TODO] AlterModelOptions > __init__
     def __init__(self, name, options):
         self.options = options
         super().__init__(name)
 
+    # [TODO] AlterModelOptions > deconstruct
     def deconstruct(self):
         kwargs = {
             "name": self.name,
@@ -814,6 +896,7 @@ class AlterModelOptions(ModelOptionOperation):
         }
         return (self.__class__.__qualname__, [], kwargs)
 
+    # [TODO] AlterModelOptions > state_forwards
     def state_forwards(self, app_label, state):
         state.alter_model_options(
             app_label,
@@ -822,60 +905,76 @@ class AlterModelOptions(ModelOptionOperation):
             self.ALTER_OPTION_KEYS,
         )
 
+    # [TODO] AlterModelOptions > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         pass
 
+    # [TODO] AlterModelOptions > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         pass
 
+    # [TODO] AlterModelOptions > describe
     def describe(self):
         return "Change Meta options on %s" % self.name
 
+    # [TODO] AlterModelOptions > migration_name_fragment
     @property
     def migration_name_fragment(self):
         return "alter_%s_options" % self.name_lower
 
 
+# [TODO] AlterModelManagers
 class AlterModelManagers(ModelOptionOperation):
     """Alter the model's managers."""
 
     serialization_expand_args = ["managers"]
 
+    # [TODO] AlterModelManagers > __init__
     def __init__(self, name, managers):
         self.managers = managers
         super().__init__(name)
 
+    # [TODO] AlterModelManagers > deconstruct
     def deconstruct(self):
         return (self.__class__.__qualname__, [self.name, self.managers], {})
 
+    # [TODO] AlterModelManagers > state_forwards
     def state_forwards(self, app_label, state):
         state.alter_model_managers(app_label, self.name_lower, self.managers)
 
+    # [TODO] AlterModelManagers > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         pass
 
+    # [TODO] AlterModelManagers > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         pass
 
+    # [TODO] AlterModelManagers > describe
     def describe(self):
         return "Change managers on %s" % self.name
 
+    # [TODO] AlterModelManagers > migration_name_fragment
     @property
     def migration_name_fragment(self):
         return "alter_%s_managers" % self.name_lower
 
 
+# [TODO] IndexOperation
 class IndexOperation(Operation):
     option_name = "indexes"
 
+    # [TODO] IndexOperation > model_name_lower
     @cached_property
     def model_name_lower(self):
         return self.model_name.lower()
 
 
+# [TODO] AddIndex
 class AddIndex(IndexOperation):
     """Add an index on a model."""
 
+    # [TODO] AddIndex > __init__
     def __init__(self, model_name, index):
         self.model_name = model_name
         if not index.name:
@@ -885,19 +984,23 @@ class AddIndex(IndexOperation):
             )
         self.index = index
 
+    # [TODO] AddIndex > state_forwards
     def state_forwards(self, app_label, state):
         state.add_index(app_label, self.model_name_lower, self.index)
 
+    # [TODO] AddIndex > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             schema_editor.add_index(model, self.index)
 
+    # [TODO] AddIndex > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             schema_editor.remove_index(model, self.index)
 
+    # [TODO] AddIndex > deconstruct
     def deconstruct(self):
         kwargs = {
             "model_name": self.model_name,
@@ -909,6 +1012,7 @@ class AddIndex(IndexOperation):
             kwargs,
         )
 
+    # [TODO] AddIndex > describe
     def describe(self):
         if self.index.expressions:
             return "Create index %s on %s on model %s" % (
@@ -922,10 +1026,12 @@ class AddIndex(IndexOperation):
             self.model_name,
         )
 
+    # [TODO] AddIndex > migration_name_fragment
     @property
     def migration_name_fragment(self):
         return "%s_%s" % (self.model_name_lower, self.index.name.lower())
 
+    # [TODO] AddIndex > reduce
     def reduce(self, operation, app_label):
         if isinstance(operation, RemoveIndex) and self.index.name == operation.name:
             return []
@@ -935,16 +1041,20 @@ class AddIndex(IndexOperation):
         return super().reduce(operation, app_label)
 
 
+# [TODO] RemoveIndex
 class RemoveIndex(IndexOperation):
     """Remove an index from a model."""
 
+    # [TODO] RemoveIndex > __init__
     def __init__(self, model_name, name):
         self.model_name = model_name
         self.name = name
 
+    # [TODO] RemoveIndex > state_forwards
     def state_forwards(self, app_label, state):
         state.remove_index(app_label, self.model_name_lower, self.name)
 
+    # [TODO] RemoveIndex > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -952,6 +1062,7 @@ class RemoveIndex(IndexOperation):
             index = from_model_state.get_index_by_name(self.name)
             schema_editor.remove_index(model, index)
 
+    # [TODO] RemoveIndex > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -959,6 +1070,7 @@ class RemoveIndex(IndexOperation):
             index = to_model_state.get_index_by_name(self.name)
             schema_editor.add_index(model, index)
 
+    # [TODO] RemoveIndex > deconstruct
     def deconstruct(self):
         kwargs = {
             "model_name": self.model_name,
@@ -970,17 +1082,21 @@ class RemoveIndex(IndexOperation):
             kwargs,
         )
 
+    # [TODO] RemoveIndex > describe
     def describe(self):
         return "Remove index %s from %s" % (self.name, self.model_name)
 
+    # [TODO] RemoveIndex > migration_name_fragment
     @property
     def migration_name_fragment(self):
         return "remove_%s_%s" % (self.model_name_lower, self.name.lower())
 
 
+# [TODO] RenameIndex
 class RenameIndex(IndexOperation):
     """Rename an index."""
 
+    # [TODO] RenameIndex > __init__
     def __init__(self, model_name, new_name, old_name=None, old_fields=None):
         if not old_name and not old_fields:
             raise ValueError(
@@ -996,14 +1112,17 @@ class RenameIndex(IndexOperation):
         self.old_name = old_name
         self.old_fields = old_fields
 
+    # [TODO] RenameIndex > old_name_lower
     @cached_property
     def old_name_lower(self):
         return self.old_name.lower()
 
+    # [TODO] RenameIndex > new_name_lower
     @cached_property
     def new_name_lower(self):
         return self.new_name.lower()
 
+    # [TODO] RenameIndex > deconstruct
     def deconstruct(self):
         kwargs = {
             "model_name": self.model_name,
@@ -1015,6 +1134,7 @@ class RenameIndex(IndexOperation):
             kwargs["old_fields"] = self.old_fields
         return (self.__class__.__qualname__, [], kwargs)
 
+    # [TODO] RenameIndex > state_forwards
     def state_forwards(self, app_label, state):
         if self.old_fields:
             state.add_index(
@@ -1033,6 +1153,7 @@ class RenameIndex(IndexOperation):
                 app_label, self.model_name_lower, self.old_name, self.new_name
             )
 
+    # [TODO] RenameIndex > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         model = to_state.apps.get_model(app_label, self.model_name)
         if not self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -1070,6 +1191,7 @@ class RenameIndex(IndexOperation):
         new_index = to_model_state.get_index_by_name(self.new_name)
         schema_editor.rename_index(model, old_index, new_index)
 
+    # [TODO] RenameIndex > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         if self.old_fields:
             # Backward operation with unnamed index is a no-op.
@@ -1089,6 +1211,7 @@ class RenameIndex(IndexOperation):
         )
         self.new_name, self.old_name = self.old_name, self.new_name
 
+    # [TODO] RenameIndex > describe
     def describe(self):
         if self.old_name:
             return (
@@ -1099,6 +1222,7 @@ class RenameIndex(IndexOperation):
             f"{self.new_name}"
         )
 
+    # [TODO] RenameIndex > migration_name_fragment
     @property
     def migration_name_fragment(self):
         if self.old_name:
@@ -1109,6 +1233,7 @@ class RenameIndex(IndexOperation):
             self.new_name_lower,
         )
 
+    # [TODO] RenameIndex > reduce
     def reduce(self, operation, app_label):
         if (
             isinstance(operation, RenameIndex)
@@ -1127,26 +1252,32 @@ class RenameIndex(IndexOperation):
         return super().reduce(operation, app_label)
 
 
+# [TODO] AddConstraint
 class AddConstraint(IndexOperation):
     option_name = "constraints"
 
+    # [TODO] AddConstraint > __init__
     def __init__(self, model_name, constraint):
         self.model_name = model_name
         self.constraint = constraint
 
+    # [TODO] AddConstraint > state_forwards
     def state_forwards(self, app_label, state):
         state.add_constraint(app_label, self.model_name_lower, self.constraint)
 
+    # [TODO] AddConstraint > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             schema_editor.add_constraint(model, self.constraint)
 
+    # [TODO] AddConstraint > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             schema_editor.remove_constraint(model, self.constraint)
 
+    # [TODO] AddConstraint > deconstruct
     def deconstruct(self):
         return (
             self.__class__.__name__,
@@ -1157,16 +1288,19 @@ class AddConstraint(IndexOperation):
             },
         )
 
+    # [TODO] AddConstraint > describe
     def describe(self):
         return "Create constraint %s on model %s" % (
             self.constraint.name,
             self.model_name,
         )
 
+    # [TODO] AddConstraint > migration_name_fragment
     @property
     def migration_name_fragment(self):
         return "%s_%s" % (self.model_name_lower, self.constraint.name.lower())
 
+    # [TODO] AddConstraint > reduce
     def reduce(self, operation, app_label):
         if (
             isinstance(operation, RemoveConstraint)
@@ -1177,16 +1311,20 @@ class AddConstraint(IndexOperation):
         return super().reduce(operation, app_label)
 
 
+# [TODO] RemoveConstraint
 class RemoveConstraint(IndexOperation):
     option_name = "constraints"
 
+    # [TODO] RemoveConstraint > __init__
     def __init__(self, model_name, name):
         self.model_name = model_name
         self.name = name
 
+    # [TODO] RemoveConstraint > state_forwards
     def state_forwards(self, app_label, state):
         state.remove_constraint(app_label, self.model_name_lower, self.name)
 
+    # [TODO] RemoveConstraint > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -1194,6 +1332,7 @@ class RemoveConstraint(IndexOperation):
             constraint = from_model_state.get_constraint_by_name(self.name)
             schema_editor.remove_constraint(model, constraint)
 
+    # [TODO] RemoveConstraint > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -1201,6 +1340,7 @@ class RemoveConstraint(IndexOperation):
             constraint = to_model_state.get_constraint_by_name(self.name)
             schema_editor.add_constraint(model, constraint)
 
+    # [TODO] RemoveConstraint > deconstruct
     def deconstruct(self):
         return (
             self.__class__.__name__,
@@ -1211,9 +1351,11 @@ class RemoveConstraint(IndexOperation):
             },
         )
 
+    # [TODO] RemoveConstraint > describe
     def describe(self):
         return "Remove constraint %s from model %s" % (self.name, self.model_name)
 
+    # [TODO] RemoveConstraint > migration_name_fragment
     @property
     def migration_name_fragment(self):
         return "remove_%s_%s" % (self.model_name_lower, self.name.lower())

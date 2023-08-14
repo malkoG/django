@@ -4,6 +4,7 @@ from django.utils.html import format_html
 from django.utils.safestring import SafeString
 
 
+# [TODO] csrf_input
 def csrf_input(request):
     return format_html(
         '<input type="hidden" name="csrfmiddlewaretoken" value="{}">',

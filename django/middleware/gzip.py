@@ -6,6 +6,7 @@ from django.utils.text import compress_sequence, compress_string
 re_accepts_gzip = _lazy_re_compile(r"\bgzip\b")
 
 
+# [TODO] GZipMiddleware
 class GZipMiddleware(MiddlewareMixin):
     """
     Compress content if the browser allows gzip compression.
@@ -15,6 +16,7 @@ class GZipMiddleware(MiddlewareMixin):
 
     max_random_bytes = 100
 
+    # [TODO] GZipMiddleware > process_response
     def process_response(self, request, response):
         # It's not worth attempting to compress really short responses.
         if not response.streaming and len(response.content) < 200:

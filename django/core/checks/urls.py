@@ -5,6 +5,7 @@ from django.conf import settings
 from . import Error, Tags, Warning, register
 
 
+# [TODO] check_url_config
 @register(Tags.urls)
 def check_url_config(app_configs, **kwargs):
     if getattr(settings, "ROOT_URLCONF", None):
@@ -15,6 +16,7 @@ def check_url_config(app_configs, **kwargs):
     return []
 
 
+# [TODO] check_resolver
 def check_resolver(resolver):
     """
     Recursively check the resolver.
@@ -28,6 +30,7 @@ def check_resolver(resolver):
         return []
 
 
+# [TODO] check_url_namespaces_unique
 @register(Tags.urls)
 def check_url_namespaces_unique(app_configs, **kwargs):
     """
@@ -54,6 +57,7 @@ def check_url_namespaces_unique(app_configs, **kwargs):
     return errors
 
 
+# [TODO] _load_all_namespaces
 def _load_all_namespaces(resolver, parents=()):
     """
     Recursively load all namespaces from URL patterns.
@@ -73,6 +77,7 @@ def _load_all_namespaces(resolver, parents=()):
     return namespaces
 
 
+# [TODO] get_warning_for_invalid_pattern
 def get_warning_for_invalid_pattern(pattern):
     """
     Return a list containing a warning that the pattern is invalid.
@@ -100,6 +105,7 @@ def get_warning_for_invalid_pattern(pattern):
     ]
 
 
+# [TODO] check_url_settings
 @register(Tags.urls)
 def check_url_settings(app_configs, **kwargs):
     errors = []
@@ -110,6 +116,7 @@ def check_url_settings(app_configs, **kwargs):
     return errors
 
 
+# [TODO] E006
 def E006(name):
     return Error(
         "The {} setting must end with a slash.".format(name),

@@ -10,6 +10,7 @@ from django.db.backends.base.schema import (
 from django.utils.duration import duration_iso_string
 
 
+# [TODO] DatabaseSchemaEditor
 class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     sql_create_column = "ALTER TABLE %(table)s ADD %(column)s %(definition)s"
     sql_alter_column_type = "MODIFY %(column)s %(type)s%(collation)s"
@@ -26,6 +27,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     sql_delete_table = "DROP TABLE %(table)s CASCADE CONSTRAINTS"
     sql_create_index = "CREATE INDEX %(name)s ON %(table)s (%(columns)s)%(extra)s"
 
+    # [TODO] DatabaseSchemaEditor > quote_value
     def quote_value(self, value):
         if isinstance(value, (datetime.date, datetime.time, datetime.datetime)):
             return "'%s'" % value
@@ -40,6 +42,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         else:
             return str(value)
 
+    # [TODO] DatabaseSchemaEditor > remove_field
     def remove_field(self, model, field):
         # If the column is an identity column, drop the identity before
         # removing the field.
@@ -47,6 +50,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             self._drop_identity(model._meta.db_table, field.column)
         super().remove_field(model, field)
 
+    # [TODO] DatabaseSchemaEditor > delete_model
     def delete_model(self, model):
         # Run superclass action
         super().delete_model(model)
@@ -70,6 +74,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             }
         )
 
+    # [TODO] DatabaseSchemaEditor > alter_field
     def alter_field(self, model, old_field, new_field, strict=False):
         try:
             super().alter_field(model, old_field, new_field, strict)
@@ -100,6 +105,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             else:
                 raise
 
+    # [TODO] DatabaseSchemaEditor > _alter_field_type_workaround
     def _alter_field_type_workaround(self, model, old_field, new_field):
         """
         Oracle refuses to change from some type to other type.
@@ -167,6 +173,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                         self._create_fk_sql(rel.related_model, rel.field, "_fk")
                     )
 
+    # [TODO] DatabaseSchemaEditor > _alter_column_type_sql
     def _alter_column_type_sql(
         self, model, old_field, new_field, new_type, old_collation, new_collation
     ):
@@ -182,6 +189,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             model, old_field, new_field, new_type, old_collation, new_collation
         )
 
+    # [TODO] DatabaseSchemaEditor > normalize_name
     def normalize_name(self, name):
         """
         Get the properly shortened and uppercased identifier as returned by
@@ -192,16 +200,19 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             nn = nn[1:-1]
         return nn
 
+    # [TODO] DatabaseSchemaEditor > _generate_temp_name
     def _generate_temp_name(self, for_name):
         """Generate temporary names for workarounds that need temp columns."""
         suffix = hex(hash(for_name)).upper()[1:]
         return self.normalize_name(for_name + "_" + suffix)
 
+    # [TODO] DatabaseSchemaEditor > prepare_default
     def prepare_default(self, value):
         # Replace % with %% as %-formatting is applied in
         # FormatStylePlaceholderCursor._fix_for_params().
         return self.quote_value(value).replace("%", "%%")
 
+    # [TODO] DatabaseSchemaEditor > _field_should_be_indexed
     def _field_should_be_indexed(self, model, field):
         create_index = super()._field_should_be_indexed(model, field)
         db_type = field.db_type(self.connection)
@@ -212,6 +223,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             return False
         return create_index
 
+    # [TODO] DatabaseSchemaEditor > _is_identity_column
     def _is_identity_column(self, table_name, column_name):
         with self.connection.cursor() as cursor:
             cursor.execute(
@@ -227,6 +239,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             row = cursor.fetchone()
             return row[0] if row else False
 
+    # [TODO] DatabaseSchemaEditor > _drop_identity
     def _drop_identity(self, table_name, column_name):
         self.execute(
             "ALTER TABLE %(table)s MODIFY %(column)s DROP IDENTITY"
@@ -236,6 +249,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             }
         )
 
+    # [TODO] DatabaseSchemaEditor > _get_default_collation
     def _get_default_collation(self, table_name):
         with self.connection.cursor() as cursor:
             cursor.execute(
@@ -246,6 +260,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             )
             return cursor.fetchone()[0]
 
+    # [TODO] DatabaseSchemaEditor > _collate_sql
     def _collate_sql(self, collation, old_collation=None, table_name=None):
         if collation is None and old_collation is not None:
             collation = self._get_default_collation(table_name)

@@ -1,6 +1,7 @@
 from django.core.management.templates import TemplateCommand
 
 
+# [TODO] Command
 class Command(TemplateCommand):
     help = (
         "Creates a Django app directory structure for the given app name in "
@@ -8,6 +9,7 @@ class Command(TemplateCommand):
     )
     missing_args_message = "You must provide an application name."
 
+    # [TODO] Command > handle
     def handle(self, **options):
         app_name = options.pop("name")
         target = options.pop("directory")

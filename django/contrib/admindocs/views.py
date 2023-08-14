@@ -36,11 +36,13 @@ from .utils import get_view_name
 MODEL_METHODS_EXCLUDE = ("_", "add_", "delete", "save", "set_")
 
 
+# [TODO] BaseAdminDocsView
 class BaseAdminDocsView(TemplateView):
     """
     Base view for admindocs views.
     """
 
+    # [TODO] BaseAdminDocsView > dispatch
     @method_decorator(staff_member_required)
     def dispatch(self, request, *args, **kwargs):
         if not utils.docutils_is_available:
@@ -49,6 +51,7 @@ class BaseAdminDocsView(TemplateView):
             return self.render_to_response(admin.site.each_context(request))
         return super().dispatch(request, *args, **kwargs)
 
+    # [TODO] BaseAdminDocsView > get_context_data
     def get_context_data(self, **kwargs):
         return super().get_context_data(
             **{
@@ -58,13 +61,16 @@ class BaseAdminDocsView(TemplateView):
         )
 
 
+# [TODO] BookmarkletsView
 class BookmarkletsView(BaseAdminDocsView):
     template_name = "admin_doc/bookmarklets.html"
 
 
+# [TODO] TemplateTagIndexView
 class TemplateTagIndexView(BaseAdminDocsView):
     template_name = "admin_doc/template_tag_index.html"
 
+    # [TODO] TemplateTagIndexView > get_context_data
     def get_context_data(self, **kwargs):
         tags = []
         try:
@@ -99,9 +105,11 @@ class TemplateTagIndexView(BaseAdminDocsView):
         return super().get_context_data(**{**kwargs, "tags": tags})
 
 
+# [TODO] TemplateFilterIndexView
 class TemplateFilterIndexView(BaseAdminDocsView):
     template_name = "admin_doc/template_filter_index.html"
 
+    # [TODO] TemplateFilterIndexView > get_context_data
     def get_context_data(self, **kwargs):
         filters = []
         try:
@@ -138,9 +146,11 @@ class TemplateFilterIndexView(BaseAdminDocsView):
         return super().get_context_data(**{**kwargs, "filters": filters})
 
 
+# [TODO] ViewIndexView
 class ViewIndexView(BaseAdminDocsView):
     template_name = "admin_doc/view_index.html"
 
+    # [TODO] ViewIndexView > get_context_data
     def get_context_data(self, **kwargs):
         views = []
         url_resolver = get_resolver(get_urlconf())
@@ -161,9 +171,11 @@ class ViewIndexView(BaseAdminDocsView):
         return super().get_context_data(**{**kwargs, "views": views})
 
 
+# [TODO] ViewDetailView
 class ViewDetailView(BaseAdminDocsView):
     template_name = "admin_doc/view_detail.html"
 
+    # [TODO] ViewDetailView > _get_view_func
     @staticmethod
     def _get_view_func(view):
         urlconf = get_urlconf()
@@ -181,6 +193,7 @@ class ViewDetailView(BaseAdminDocsView):
                 mod, klass = get_mod_func(mod)
                 return getattr(getattr(import_module(mod), klass), func)
 
+    # [TODO] ViewDetailView > get_context_data
     def get_context_data(self, **kwargs):
         view = self.kwargs["view"]
         view_func = self._get_view_func(view)
@@ -202,17 +215,21 @@ class ViewDetailView(BaseAdminDocsView):
         )
 
 
+# [TODO] ModelIndexView
 class ModelIndexView(BaseAdminDocsView):
     template_name = "admin_doc/model_index.html"
 
+    # [TODO] ModelIndexView > get_context_data
     def get_context_data(self, **kwargs):
         m_list = [m._meta for m in apps.get_models()]
         return super().get_context_data(**{**kwargs, "models": m_list})
 
 
+# [TODO] ModelDetailView
 class ModelDetailView(BaseAdminDocsView):
     template_name = "admin_doc/model_detail.html"
 
+    # [TODO] ModelDetailView > get_context_data
     def get_context_data(self, **kwargs):
         model_name = self.kwargs["model_name"]
         # Get the model class.
@@ -392,9 +409,11 @@ class ModelDetailView(BaseAdminDocsView):
         )
 
 
+# [TODO] TemplateDetailView
 class TemplateDetailView(BaseAdminDocsView):
     template_name = "admin_doc/template_detail.html"
 
+    # [TODO] TemplateDetailView > get_context_data
     def get_context_data(self, **kwargs):
         template = self.kwargs["template"]
         templates = []
@@ -433,6 +452,7 @@ class TemplateDetailView(BaseAdminDocsView):
 ####################
 
 
+# [TODO] get_return_data_type
 def get_return_data_type(func_name):
     """Return a somewhat-helpful data type given a function name"""
     if func_name.startswith("get_"):
@@ -443,6 +463,7 @@ def get_return_data_type(func_name):
     return ""
 
 
+# [TODO] get_readable_field_data_type
 def get_readable_field_data_type(field):
     """
     Return the description for a given field type, if it exists. Fields'
@@ -452,6 +473,7 @@ def get_readable_field_data_type(field):
     return field.description % field.__dict__
 
 
+# [TODO] extract_views_from_urlpatterns
 def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
     """
     Return a list of views from a list of urlpatterns.
@@ -483,6 +505,7 @@ def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
     return views
 
 
+# [TODO] simplify_regex
 def simplify_regex(pattern):
     r"""
     Clean up urlpattern regexes into something more readable by humans. For

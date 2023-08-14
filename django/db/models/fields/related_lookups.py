@@ -9,10 +9,12 @@ from django.db.models.lookups import (
 )
 
 
+# [TODO] MultiColSource
 class MultiColSource:
     contains_aggregate = False
     contains_over_clause = False
 
+    # [TODO] MultiColSource > __init__
     def __init__(self, alias, targets, sources, field):
         self.targets, self.sources, self.field, self.alias = (
             targets,
@@ -22,21 +24,26 @@ class MultiColSource:
         )
         self.output_field = self.field
 
+    # [TODO] MultiColSource > __repr__
     def __repr__(self):
         return "{}({}, {})".format(self.__class__.__name__, self.alias, self.field)
 
+    # [TODO] MultiColSource > relabeled_clone
     def relabeled_clone(self, relabels):
         return self.__class__(
             relabels.get(self.alias, self.alias), self.targets, self.sources, self.field
         )
 
+    # [TODO] MultiColSource > get_lookup
     def get_lookup(self, lookup):
         return self.output_field.get_lookup(lookup)
 
+    # [TODO] MultiColSource > resolve_expression
     def resolve_expression(self, *args, **kwargs):
         return self
 
 
+# [TODO] get_normalized_value
 def get_normalized_value(value, lhs):
     from django.db.models import Model
 
@@ -62,7 +69,9 @@ def get_normalized_value(value, lhs):
     return value
 
 
+# [TODO] RelatedIn
 class RelatedIn(In):
+    # [TODO] RelatedIn > get_prep_lookup
     def get_prep_lookup(self):
         if not isinstance(self.lhs, MultiColSource):
             if self.rhs_is_direct_value():
@@ -97,6 +106,7 @@ class RelatedIn(In):
                 self.rhs.set_values([target_field])
         return super().get_prep_lookup()
 
+    # [TODO] RelatedIn > as_sql
     def as_sql(self, compiler, connection):
         if isinstance(self.lhs, MultiColSource):
             # For multicolumn lookups we need to build a multicolumn where clause.
@@ -138,7 +148,9 @@ class RelatedIn(In):
         return super().as_sql(compiler, connection)
 
 
+# [TODO] RelatedLookupMixin
 class RelatedLookupMixin:
+    # [TODO] RelatedLookupMixin > get_prep_lookup
     def get_prep_lookup(self):
         if not isinstance(self.lhs, MultiColSource) and not hasattr(
             self.rhs, "resolve_expression"
@@ -157,6 +169,7 @@ class RelatedLookupMixin:
 
         return super().get_prep_lookup()
 
+    # [TODO] RelatedLookupMixin > as_sql
     def as_sql(self, compiler, connection):
         if isinstance(self.lhs, MultiColSource):
             assert self.rhs_is_direct_value()
@@ -175,25 +188,31 @@ class RelatedLookupMixin:
         return super().as_sql(compiler, connection)
 
 
+# [TODO] RelatedExact
 class RelatedExact(RelatedLookupMixin, Exact):
     pass
 
 
+# [TODO] RelatedLessThan
 class RelatedLessThan(RelatedLookupMixin, LessThan):
     pass
 
 
+# [TODO] RelatedGreaterThan
 class RelatedGreaterThan(RelatedLookupMixin, GreaterThan):
     pass
 
 
+# [TODO] RelatedGreaterThanOrEqual
 class RelatedGreaterThanOrEqual(RelatedLookupMixin, GreaterThanOrEqual):
     pass
 
 
+# [TODO] RelatedLessThanOrEqual
 class RelatedLessThanOrEqual(RelatedLookupMixin, LessThanOrEqual):
     pass
 
 
+# [TODO] RelatedIsNull
 class RelatedIsNull(RelatedLookupMixin, IsNull):
     pass

@@ -23,16 +23,19 @@ except ImportError:
     has_lzma = False
 
 
+# [TODO] ProxyModelWarning
 class ProxyModelWarning(Warning):
     pass
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = (
         "Output the contents of the database as a fixture of the given format "
         "(using each model's default manager unless --all is specified)."
     )
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "args",
@@ -100,6 +103,7 @@ class Command(BaseCommand):
             "-o", "--output", help="Specifies file to which the output is written."
         )
 
+    # [TODO] Command > handle
     def handle(self, *app_labels, **options):
         format = options["format"]
         indent = options["indent"]

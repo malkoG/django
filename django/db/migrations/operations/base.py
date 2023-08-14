@@ -1,6 +1,7 @@
 from django.db import router
 
 
+# [TODO] Operation
 class Operation:
     """
     Base class for migration operations.
@@ -33,12 +34,14 @@ class Operation:
 
     serialization_expand_args = []
 
+    # [TODO] Operation > __new__
     def __new__(cls, *args, **kwargs):
         # We capture the arguments to make returning them trivial
         self = object.__new__(cls)
         self._constructor_args = (args, kwargs)
         return self
 
+    # [TODO] Operation > deconstruct
     def deconstruct(self):
         """
         Return a 3-tuple of class import path (or just name if it lives
@@ -51,6 +54,7 @@ class Operation:
             self._constructor_args[1],
         )
 
+    # [TODO] Operation > state_forwards
     def state_forwards(self, app_label, state):
         """
         Take the state from the previous migration, and mutate it
@@ -60,6 +64,7 @@ class Operation:
             "subclasses of Operation must provide a state_forwards() method"
         )
 
+    # [TODO] Operation > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         """
         Perform the mutation on the database schema in the normal
@@ -69,6 +74,7 @@ class Operation:
             "subclasses of Operation must provide a database_forwards() method"
         )
 
+    # [TODO] Operation > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         """
         Perform the mutation on the database schema in the reverse
@@ -79,12 +85,14 @@ class Operation:
             "subclasses of Operation must provide a database_backwards() method"
         )
 
+    # [TODO] Operation > describe
     def describe(self):
         """
         Output a brief summary of what the action does.
         """
         return "%s: %s" % (self.__class__.__name__, self._constructor_args)
 
+    # [TODO] Operation > migration_name_fragment
     @property
     def migration_name_fragment(self):
         """
@@ -93,6 +101,7 @@ class Operation:
         """
         return None
 
+    # [TODO] Operation > references_model
     def references_model(self, name, app_label):
         """
         Return True if there is a chance this operation references the given
@@ -105,6 +114,7 @@ class Operation:
         """
         return True
 
+    # [TODO] Operation > references_field
     def references_field(self, model_name, name, app_label):
         """
         Return True if there is a chance this operation references the given
@@ -114,6 +124,7 @@ class Operation:
         """
         return self.references_model(model_name, app_label)
 
+    # [TODO] Operation > allow_migrate_model
     def allow_migrate_model(self, connection_alias, model):
         """
         Return whether or not a model may be migrated.
@@ -126,6 +137,7 @@ class Operation:
 
         return router.allow_migrate_model(connection_alias, model)
 
+    # [TODO] Operation > reduce
     def reduce(self, operation, app_label):
         """
         Return either a list of operations the actual operation should be
@@ -138,6 +150,7 @@ class Operation:
             return [self]
         return False
 
+    # [TODO] Operation > __repr__
     def __repr__(self):
         return "<%s %s%s>" % (
             self.__class__.__name__,

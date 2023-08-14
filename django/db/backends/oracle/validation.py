@@ -2,7 +2,9 @@ from django.core import checks
 from django.db.backends.base.validation import BaseDatabaseValidation
 
 
+# [TODO] DatabaseValidation
 class DatabaseValidation(BaseDatabaseValidation):
+    # [TODO] DatabaseValidation > check_field_type
     def check_field_type(self, field, field_type):
         """Oracle doesn't support a database index on some data types."""
         errors = []

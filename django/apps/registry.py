@@ -10,6 +10,7 @@ from django.core.exceptions import AppRegistryNotReady, ImproperlyConfigured
 from .config import AppConfig
 
 
+# [TODO] Apps
 class Apps:
     """
     A registry that stores the configuration of installed applications.
@@ -17,6 +18,7 @@ class Apps:
     It also keeps track of models, e.g. to provide reverse relations.
     """
 
+    # [TODO] Apps > __init__
     def __init__(self, installed_apps=()):
         # installed_apps is set to None when creating the main registry
         # because it cannot be populated at that point. Other registries must
@@ -58,6 +60,7 @@ class Apps:
         if installed_apps is not None:
             self.populate(installed_apps)
 
+    # [TODO] Apps > populate
     def populate(self, installed_apps=None):
         """
         Load application configurations and models.
@@ -126,6 +129,7 @@ class Apps:
             self.ready = True
             self.ready_event.set()
 
+    # [TODO] Apps > check_apps_ready
     def check_apps_ready(self):
         """Raise an exception if all apps haven't been imported yet."""
         if not self.apps_ready:
@@ -137,16 +141,19 @@ class Apps:
             settings.INSTALLED_APPS
             raise AppRegistryNotReady("Apps aren't loaded yet.")
 
+    # [TODO] Apps > check_models_ready
     def check_models_ready(self):
         """Raise an exception if all models haven't been imported yet."""
         if not self.models_ready:
             raise AppRegistryNotReady("Models aren't loaded yet.")
 
+    # [TODO] Apps > get_app_configs
     def get_app_configs(self):
         """Import applications and return an iterable of app configs."""
         self.check_apps_ready()
         return self.app_configs.values()
 
+    # [TODO] Apps > get_app_config
     def get_app_config(self, app_label):
         """
         Import applications and returns an app config for the given label.
@@ -165,6 +172,7 @@ class Apps:
             raise LookupError(message)
 
     # This method is performance-critical at least for Django's test suite.
+    # [TODO] Apps > get_models
     @functools.cache
     def get_models(self, include_auto_created=False, include_swapped=False):
         """
@@ -185,6 +193,7 @@ class Apps:
             result.extend(app_config.get_models(include_auto_created, include_swapped))
         return result
 
+    # [TODO] Apps > get_model
     def get_model(self, app_label, model_name=None, require_ready=True):
         """
         Return the model matching the given app_label and model_name.
@@ -212,6 +221,7 @@ class Apps:
 
         return app_config.get_model(model_name, require_ready=require_ready)
 
+    # [TODO] Apps > register_model
     def register_model(self, app_label, model):
         # Since this method is called when models are imported, it cannot
         # perform imports because of the risk of import loops. It mustn't
@@ -239,6 +249,7 @@ class Apps:
         self.do_pending_operations(model)
         self.clear_cache()
 
+    # [TODO] Apps > is_installed
     def is_installed(self, app_name):
         """
         Check whether an application with this name exists in the registry.
@@ -248,6 +259,7 @@ class Apps:
         self.check_apps_ready()
         return any(ac.name == app_name for ac in self.app_configs.values())
 
+    # [TODO] Apps > get_containing_app_config
     def get_containing_app_config(self, object_name):
         """
         Look for an app config containing a given object.
@@ -267,6 +279,7 @@ class Apps:
         if candidates:
             return sorted(candidates, key=lambda ac: -len(ac.name))[0]
 
+    # [TODO] Apps > get_registered_model
     def get_registered_model(self, app_label, model_name):
         """
         Similar to get_model(), but doesn't require that an app exists with
@@ -280,6 +293,7 @@ class Apps:
             raise LookupError("Model '%s.%s' not registered." % (app_label, model_name))
         return model
 
+    # [TODO] Apps > get_swappable_settings_name
     @functools.cache
     def get_swappable_settings_name(self, to_string):
         """
@@ -303,6 +317,7 @@ class Apps:
                 return model._meta.swappable
         return None
 
+    # [TODO] Apps > set_available_apps
     def set_available_apps(self, available):
         """
         Restrict the set of installed apps used by get_app_config[s].
@@ -331,11 +346,13 @@ class Apps:
         }
         self.clear_cache()
 
+    # [TODO] Apps > unset_available_apps
     def unset_available_apps(self):
         """Cancel a previous call to set_available_apps()."""
         self.app_configs = self.stored_app_configs.pop()
         self.clear_cache()
 
+    # [TODO] Apps > set_installed_apps
     def set_installed_apps(self, installed):
         """
         Enable a different set of installed apps for get_app_config[s].
@@ -361,12 +378,14 @@ class Apps:
         self.clear_cache()
         self.populate(installed)
 
+    # [TODO] Apps > unset_installed_apps
     def unset_installed_apps(self):
         """Cancel a previous call to set_installed_apps()."""
         self.app_configs = self.stored_app_configs.pop()
         self.apps_ready = self.models_ready = self.ready = True
         self.clear_cache()
 
+    # [TODO] Apps > clear_cache
     def clear_cache(self):
         """
         Clear all internal caches, for methods that alter the app registry.
@@ -384,6 +403,7 @@ class Apps:
                 for model in app_config.get_models(include_auto_created=True):
                     model._meta._expire_cache()
 
+    # [TODO] Apps > lazy_model_operation
     def lazy_model_operation(self, function, *model_keys):
         """
         Take a function and a number of ("app_label", "modelname") tuples, and
@@ -424,6 +444,7 @@ class Apps:
             else:
                 apply_next_model(model_class)
 
+    # [TODO] Apps > do_pending_operations
     def do_pending_operations(self, model):
         """
         Take a newly-prepared model and pass it to each function waiting for

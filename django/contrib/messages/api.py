@@ -15,10 +15,12 @@ __all__ = (
 )
 
 
+# [TODO] MessageFailure
 class MessageFailure(Exception):
     pass
 
 
+# [TODO] add_message
 def add_message(request, level, message, extra_tags="", fail_silently=False):
     """
     Attempt to add a message to the request using the 'messages' app.
@@ -40,6 +42,7 @@ def add_message(request, level, message, extra_tags="", fail_silently=False):
         return messages.add(level, message, extra_tags)
 
 
+# [TODO] get_messages
 def get_messages(request):
     """
     Return the message storage on the request if it exists, otherwise return
@@ -48,6 +51,7 @@ def get_messages(request):
     return getattr(request, "_messages", [])
 
 
+# [TODO] get_level
 def get_level(request):
     """
     Return the minimum level of messages to be recorded.
@@ -59,6 +63,7 @@ def get_level(request):
     return storage.level
 
 
+# [TODO] set_level
 def set_level(request, level):
     """
     Set the minimum level of messages to be recorded, and return ``True`` if
@@ -72,6 +77,7 @@ def set_level(request, level):
     return True
 
 
+# [TODO] debug
 def debug(request, message, extra_tags="", fail_silently=False):
     """Add a message with the ``DEBUG`` level."""
     add_message(
@@ -83,6 +89,7 @@ def debug(request, message, extra_tags="", fail_silently=False):
     )
 
 
+# [TODO] info
 def info(request, message, extra_tags="", fail_silently=False):
     """Add a message with the ``INFO`` level."""
     add_message(
@@ -94,6 +101,7 @@ def info(request, message, extra_tags="", fail_silently=False):
     )
 
 
+# [TODO] success
 def success(request, message, extra_tags="", fail_silently=False):
     """Add a message with the ``SUCCESS`` level."""
     add_message(
@@ -105,6 +113,7 @@ def success(request, message, extra_tags="", fail_silently=False):
     )
 
 
+# [TODO] warning
 def warning(request, message, extra_tags="", fail_silently=False):
     """Add a message with the ``WARNING`` level."""
     add_message(
@@ -116,6 +125,7 @@ def warning(request, message, extra_tags="", fail_silently=False):
     )
 
 
+# [TODO] error
 def error(request, message, extra_tags="", fail_silently=False):
     """Add a message with the ``ERROR`` level."""
     add_message(

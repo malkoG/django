@@ -12,6 +12,7 @@ from django.utils.timezone import get_default_timezone, is_naive, make_aware
 from django.utils.translation import get_language
 
 
+# [TODO] add_domain
 def add_domain(domain, url, secure=False):
     protocol = "https" if secure else "http"
     if url.startswith("//"):
@@ -22,16 +23,19 @@ def add_domain(domain, url, secure=False):
     return url
 
 
+# [TODO] FeedDoesNotExist
 class FeedDoesNotExist(ObjectDoesNotExist):
     pass
 
 
+# [TODO] Feed
 class Feed:
     feed_type = feedgenerator.DefaultFeed
     title_template = None
     description_template = None
     language = None
 
+    # [TODO] Feed > __call__
     def __call__(self, request, *args, **kwargs):
         try:
             obj = self.get_object(request, *args, **kwargs)
@@ -48,13 +52,16 @@ class Feed:
         feedgen.write(response, "utf-8")
         return response
 
+    # [TODO] Feed > item_title
     def item_title(self, item):
         # Titles should be double escaped by default (see #6533)
         return escape(str(item))
 
+    # [TODO] Feed > item_description
     def item_description(self, item):
         return str(item)
 
+    # [TODO] Feed > item_link
     def item_link(self, item):
         try:
             return item.get_absolute_url()
@@ -64,6 +71,7 @@ class Feed:
                 "item_link() method in your Feed class." % item.__class__.__name__
             )
 
+    # [TODO] Feed > item_enclosures
     def item_enclosures(self, item):
         enc_url = self._get_dynamic_attr("item_enclosure_url", item)
         if enc_url:
@@ -75,6 +83,7 @@ class Feed:
             return [enc]
         return []
 
+    # [TODO] Feed > _get_dynamic_attr
     def _get_dynamic_attr(self, attname, obj, default=None):
         try:
             attr = getattr(self, attname)
@@ -105,6 +114,7 @@ class Feed:
                 return attr()
         return attr
 
+    # [TODO] Feed > feed_extra_kwargs
     def feed_extra_kwargs(self, obj):
         """
         Return an extra keyword arguments dictionary that is used when
@@ -112,6 +122,7 @@ class Feed:
         """
         return {}
 
+    # [TODO] Feed > item_extra_kwargs
     def item_extra_kwargs(self, item):
         """
         Return an extra keyword arguments dictionary that is used with
@@ -119,9 +130,11 @@ class Feed:
         """
         return {}
 
+    # [TODO] Feed > get_object
     def get_object(self, request, *args, **kwargs):
         return None
 
+    # [TODO] Feed > get_context_data
     def get_context_data(self, **kwargs):
         """
         Return a dictionary to use as extra context if either
@@ -132,6 +145,7 @@ class Feed:
         """
         return {"obj": kwargs.get("item"), "site": kwargs.get("site")}
 
+    # [TODO] Feed > get_feed
     def get_feed(self, obj, request):
         """
         Return a feedgenerator.DefaultFeed object, fully populated, for

@@ -22,6 +22,7 @@ from django.utils.http import parse_header_parameters
 from django.utils.version import get_docs_version
 
 
+# [TODO] TemplateCommand
 class TemplateCommand(BaseCommand):
     """
     Copy either a Django application layout template or a Django project
@@ -43,6 +44,7 @@ class TemplateCommand(BaseCommand):
         (".py-tpl", ".py"),
     )
 
+    # [TODO] TemplateCommand > add_arguments
     def add_arguments(self, parser):
         parser.add_argument("name", help="Name of the application or project.")
         parser.add_argument(
@@ -83,6 +85,7 @@ class TemplateCommand(BaseCommand):
             ),
         )
 
+    # [TODO] TemplateCommand > handle
     def handle(self, app_or_project, name, target=None, **options):
         self.app_or_project = app_or_project
         self.a_or_an = "an" if app_or_project == "app" else "a"
@@ -231,6 +234,7 @@ class TemplateCommand(BaseCommand):
 
         run_formatters([top_dir], **formatter_paths)
 
+    # [TODO] TemplateCommand > handle_template
     def handle_template(self, template, subdir):
         """
         Determine where the app or project templates are.
@@ -257,6 +261,7 @@ class TemplateCommand(BaseCommand):
             "couldn't handle %s template %s." % (self.app_or_project, template)
         )
 
+    # [TODO] TemplateCommand > validate_name
     def validate_name(self, name, name_or_dir="name"):
         if name is None:
             raise CommandError(
@@ -292,6 +297,7 @@ class TemplateCommand(BaseCommand):
                 )
             )
 
+    # [TODO] TemplateCommand > download
     def download(self, url):
         """
         Download the given URL and return the file name.
@@ -354,6 +360,7 @@ class TemplateCommand(BaseCommand):
         # Giving up
         return the_path
 
+    # [TODO] TemplateCommand > splitext
     def splitext(self, the_path):
         """
         Like os.path.splitext, but takes off .tar, too
@@ -364,6 +371,7 @@ class TemplateCommand(BaseCommand):
             base = base[:-4]
         return base, ext
 
+    # [TODO] TemplateCommand > extract
     def extract(self, filename):
         """
         Extract the given file to a temporary directory and return
@@ -382,6 +390,7 @@ class TemplateCommand(BaseCommand):
                 "couldn't extract file %s to %s: %s" % (filename, tempdir, e)
             )
 
+    # [TODO] TemplateCommand > is_url
     def is_url(self, template):
         """Return True if the name looks like a URL."""
         if ":" not in template:
@@ -389,12 +398,14 @@ class TemplateCommand(BaseCommand):
         scheme = template.split(":", 1)[0].lower()
         return scheme in self.url_schemes
 
+    # [TODO] TemplateCommand > apply_umask
     def apply_umask(self, old_path, new_path):
         current_umask = os.umask(0)
         os.umask(current_umask)
         current_mode = stat.S_IMODE(os.stat(old_path).st_mode)
         os.chmod(new_path, current_mode & ~current_umask)
 
+    # [TODO] TemplateCommand > make_writeable
     def make_writeable(self, filename):
         """
         Make sure that the file is writeable.

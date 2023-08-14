@@ -15,16 +15,19 @@ from django.contrib.sessions.exceptions import InvalidSessionKey
 from django.core.exceptions import ImproperlyConfigured, SuspiciousOperation
 
 
+# [TODO] SessionStore
 class SessionStore(SessionBase):
     """
     Implement a file based session store.
     """
 
+    # [TODO] SessionStore > __init__
     def __init__(self, session_key=None):
         self.storage_path = self._get_storage_path()
         self.file_prefix = settings.SESSION_COOKIE_NAME
         super().__init__(session_key)
 
+    # [TODO] SessionStore > _get_storage_path
     @classmethod
     def _get_storage_path(cls):
         try:
@@ -44,6 +47,7 @@ class SessionStore(SessionBase):
             cls._storage_path = storage_path
             return storage_path
 
+    # [TODO] SessionStore > _key_to_file
     def _key_to_file(self, session_key=None):
         """
         Get the file associated with this session key.
@@ -59,6 +63,7 @@ class SessionStore(SessionBase):
 
         return os.path.join(self.storage_path, self.file_prefix + session_key)
 
+    # [TODO] SessionStore > _last_modification
     def _last_modification(self):
         """
         Return the modification time of the file storing the session's content.
@@ -67,6 +72,7 @@ class SessionStore(SessionBase):
         tz = datetime.timezone.utc if settings.USE_TZ else None
         return datetime.datetime.fromtimestamp(modification, tz=tz)
 
+    # [TODO] SessionStore > _expiry_date
     def _expiry_date(self, session_data):
         """
         Return the expiry time of the file storing the session's content.
@@ -76,6 +82,7 @@ class SessionStore(SessionBase):
             + datetime.timedelta(seconds=self.get_session_cookie_age())
         )
 
+    # [TODO] SessionStore > load
     def load(self):
         session_data = {}
         try:
@@ -104,6 +111,7 @@ class SessionStore(SessionBase):
             self._session_key = None
         return session_data
 
+    # [TODO] SessionStore > create
     def create(self):
         while True:
             self._session_key = self._get_new_session_key()
@@ -114,6 +122,7 @@ class SessionStore(SessionBase):
             self.modified = True
             return
 
+    # [TODO] SessionStore > save
     def save(self, must_create=False):
         if self.session_key is None:
             return self.create()
@@ -177,9 +186,11 @@ class SessionStore(SessionBase):
         except (EOFError, OSError):
             pass
 
+    # [TODO] SessionStore > exists
     def exists(self, session_key):
         return os.path.exists(self._key_to_file(session_key))
 
+    # [TODO] SessionStore > delete
     def delete(self, session_key=None):
         if session_key is None:
             if self.session_key is None:
@@ -190,9 +201,11 @@ class SessionStore(SessionBase):
         except OSError:
             pass
 
+    # [TODO] SessionStore > clean
     def clean(self):
         pass
 
+    # [TODO] SessionStore > clear_expired
     @classmethod
     def clear_expired(cls):
         storage_path = cls._get_storage_path()

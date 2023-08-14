@@ -142,34 +142,40 @@ E024 = Error(
 W025 = Warning(SECRET_KEY_WARNING_MSG, id="security.W025")
 
 
+# [TODO] _security_middleware
 def _security_middleware():
     return "django.middleware.security.SecurityMiddleware" in settings.MIDDLEWARE
 
 
+# [TODO] _xframe_middleware
 def _xframe_middleware():
     return (
         "django.middleware.clickjacking.XFrameOptionsMiddleware" in settings.MIDDLEWARE
     )
 
 
+# [TODO] check_security_middleware
 @register(Tags.security, deploy=True)
 def check_security_middleware(app_configs, **kwargs):
     passed_check = _security_middleware()
     return [] if passed_check else [W001]
 
 
+# [TODO] check_xframe_options_middleware
 @register(Tags.security, deploy=True)
 def check_xframe_options_middleware(app_configs, **kwargs):
     passed_check = _xframe_middleware()
     return [] if passed_check else [W002]
 
 
+# [TODO] check_sts
 @register(Tags.security, deploy=True)
 def check_sts(app_configs, **kwargs):
     passed_check = not _security_middleware() or settings.SECURE_HSTS_SECONDS
     return [] if passed_check else [W004]
 
 
+# [TODO] check_sts_include_subdomains
 @register(Tags.security, deploy=True)
 def check_sts_include_subdomains(app_configs, **kwargs):
     passed_check = (
@@ -180,6 +186,7 @@ def check_sts_include_subdomains(app_configs, **kwargs):
     return [] if passed_check else [W005]
 
 
+# [TODO] check_sts_preload
 @register(Tags.security, deploy=True)
 def check_sts_preload(app_configs, **kwargs):
     passed_check = (
@@ -190,6 +197,7 @@ def check_sts_preload(app_configs, **kwargs):
     return [] if passed_check else [W021]
 
 
+# [TODO] check_content_type_nosniff
 @register(Tags.security, deploy=True)
 def check_content_type_nosniff(app_configs, **kwargs):
     passed_check = (
@@ -198,12 +206,14 @@ def check_content_type_nosniff(app_configs, **kwargs):
     return [] if passed_check else [W006]
 
 
+# [TODO] check_ssl_redirect
 @register(Tags.security, deploy=True)
 def check_ssl_redirect(app_configs, **kwargs):
     passed_check = not _security_middleware() or settings.SECURE_SSL_REDIRECT is True
     return [] if passed_check else [W008]
 
 
+# [TODO] _check_secret_key
 def _check_secret_key(secret_key):
     return (
         len(set(secret_key)) >= SECRET_KEY_MIN_UNIQUE_CHARACTERS
@@ -212,6 +222,7 @@ def _check_secret_key(secret_key):
     )
 
 
+# [TODO] check_secret_key
 @register(Tags.security, deploy=True)
 def check_secret_key(app_configs, **kwargs):
     try:
@@ -223,6 +234,7 @@ def check_secret_key(app_configs, **kwargs):
     return [] if passed_check else [W009]
 
 
+# [TODO] check_secret_key_fallbacks
 @register(Tags.security, deploy=True)
 def check_secret_key_fallbacks(app_configs, **kwargs):
     warnings = []
@@ -239,23 +251,27 @@ def check_secret_key_fallbacks(app_configs, **kwargs):
     return warnings
 
 
+# [TODO] check_debug
 @register(Tags.security, deploy=True)
 def check_debug(app_configs, **kwargs):
     passed_check = not settings.DEBUG
     return [] if passed_check else [W018]
 
 
+# [TODO] check_xframe_deny
 @register(Tags.security, deploy=True)
 def check_xframe_deny(app_configs, **kwargs):
     passed_check = not _xframe_middleware() or settings.X_FRAME_OPTIONS == "DENY"
     return [] if passed_check else [W019]
 
 
+# [TODO] check_allowed_hosts
 @register(Tags.security, deploy=True)
 def check_allowed_hosts(app_configs, **kwargs):
     return [] if settings.ALLOWED_HOSTS else [W020]
 
 
+# [TODO] check_referrer_policy
 @register(Tags.security, deploy=True)
 def check_referrer_policy(app_configs, **kwargs):
     if _security_middleware():
@@ -271,6 +287,7 @@ def check_referrer_policy(app_configs, **kwargs):
     return []
 
 
+# [TODO] check_cross_origin_opener_policy
 @register(Tags.security, deploy=True)
 def check_cross_origin_opener_policy(app_configs, **kwargs):
     if (

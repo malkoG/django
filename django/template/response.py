@@ -3,13 +3,16 @@ from django.http import HttpResponse
 from .loader import get_template, select_template
 
 
+# [TODO] ContentNotRenderedError
 class ContentNotRenderedError(Exception):
     pass
 
 
+# [TODO] SimpleTemplateResponse
 class SimpleTemplateResponse(HttpResponse):
     rendering_attrs = ["template_name", "context_data", "_post_render_callbacks"]
 
+    # [TODO] SimpleTemplateResponse > __init__
     def __init__(
         self,
         template,
@@ -50,6 +53,7 @@ class SimpleTemplateResponse(HttpResponse):
         # True, so we initialize it to False after the call to super __init__.
         self._is_rendered = False
 
+    # [TODO] SimpleTemplateResponse > __getstate__
     def __getstate__(self):
         """
         Raise an exception if trying to pickle an unrendered response. Pickle
@@ -66,6 +70,7 @@ class SimpleTemplateResponse(HttpResponse):
 
         return obj_dict
 
+    # [TODO] SimpleTemplateResponse > resolve_template
     def resolve_template(self, template):
         """Accept a template object, path-to-template, or list of paths."""
         if isinstance(template, (list, tuple)):
@@ -75,9 +80,11 @@ class SimpleTemplateResponse(HttpResponse):
         else:
             return template
 
+    # [TODO] SimpleTemplateResponse > resolve_context
     def resolve_context(self, context):
         return context
 
+    # [TODO] SimpleTemplateResponse > rendered_content
     @property
     def rendered_content(self):
         """Return the freshly rendered content for the template and context
@@ -91,6 +98,7 @@ class SimpleTemplateResponse(HttpResponse):
         context = self.resolve_context(self.context_data)
         return template.render(context, self._request)
 
+    # [TODO] SimpleTemplateResponse > add_post_render_callback
     def add_post_render_callback(self, callback):
         """Add a new post-rendering callback.
 
@@ -102,6 +110,7 @@ class SimpleTemplateResponse(HttpResponse):
         else:
             self._post_render_callbacks.append(callback)
 
+    # [TODO] SimpleTemplateResponse > render
     def render(self):
         """Render (thereby finalizing) the content of the response.
 
@@ -118,10 +127,12 @@ class SimpleTemplateResponse(HttpResponse):
                     retval = newretval
         return retval
 
+    # [TODO] SimpleTemplateResponse > is_rendered
     @property
     def is_rendered(self):
         return self._is_rendered
 
+    # [TODO] SimpleTemplateResponse > __iter__
     def __iter__(self):
         if not self._is_rendered:
             raise ContentNotRenderedError(
@@ -129,6 +140,7 @@ class SimpleTemplateResponse(HttpResponse):
             )
         return super().__iter__()
 
+    # [TODO] SimpleTemplateResponse > content
     @property
     def content(self):
         if not self._is_rendered:
@@ -137,6 +149,7 @@ class SimpleTemplateResponse(HttpResponse):
             )
         return super().content
 
+    # [TODO] SimpleTemplateResponse > content
     @content.setter
     def content(self, value):
         """Set the content for the response."""
@@ -144,9 +157,11 @@ class SimpleTemplateResponse(HttpResponse):
         self._is_rendered = True
 
 
+# [TODO] TemplateResponse
 class TemplateResponse(SimpleTemplateResponse):
     rendering_attrs = SimpleTemplateResponse.rendering_attrs + ["_request"]
 
+    # [TODO] TemplateResponse > __init__
     def __init__(
         self,
         request,

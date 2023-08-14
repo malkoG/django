@@ -64,6 +64,7 @@ DEFAULT_LOGGING = {
 }
 
 
+# [TODO] configure_logging
 def configure_logging(logging_config, logging_settings):
     if logging_config:
         # First find the logging configuration function ...
@@ -76,6 +77,7 @@ def configure_logging(logging_config, logging_settings):
             logging_config_func(logging_settings)
 
 
+# [TODO] AdminEmailHandler
 class AdminEmailHandler(logging.Handler):
     """An exception log handler that emails log entries to site admins.
 
@@ -83,6 +85,7 @@ class AdminEmailHandler(logging.Handler):
     request data will be provided in the email report.
     """
 
+    # [TODO] AdminEmailHandler > __init__
     def __init__(self, include_html=False, email_backend=None, reporter_class=None):
         super().__init__()
         self.include_html = include_html
@@ -91,6 +94,7 @@ class AdminEmailHandler(logging.Handler):
             reporter_class or settings.DEFAULT_EXCEPTION_REPORTER
         )
 
+    # [TODO] AdminEmailHandler > emit
     def emit(self, record):
         try:
             request = record.request
@@ -127,14 +131,17 @@ class AdminEmailHandler(logging.Handler):
         html_message = reporter.get_traceback_html() if self.include_html else None
         self.send_mail(subject, message, fail_silently=True, html_message=html_message)
 
+    # [TODO] AdminEmailHandler > send_mail
     def send_mail(self, subject, message, *args, **kwargs):
         mail.mail_admins(
             subject, message, *args, connection=self.connection(), **kwargs
         )
 
+    # [TODO] AdminEmailHandler > connection
     def connection(self):
         return get_connection(backend=self.email_backend, fail_silently=True)
 
+    # [TODO] AdminEmailHandler > format_subject
     def format_subject(self, subject):
         """
         Escape CR and LF characters.
@@ -142,6 +149,7 @@ class AdminEmailHandler(logging.Handler):
         return subject.replace("\n", "\\n").replace("\r", "\\r")
 
 
+# [TODO] CallbackFilter
 class CallbackFilter(logging.Filter):
     """
     A logging filter that checks the return value of a given callable (which
@@ -149,32 +157,41 @@ class CallbackFilter(logging.Filter):
     log a record.
     """
 
+    # [TODO] CallbackFilter > __init__
     def __init__(self, callback):
         self.callback = callback
 
+    # [TODO] CallbackFilter > filter
     def filter(self, record):
         if self.callback(record):
             return 1
         return 0
 
 
+# [TODO] RequireDebugFalse
 class RequireDebugFalse(logging.Filter):
+    # [TODO] RequireDebugFalse > filter
     def filter(self, record):
         return not settings.DEBUG
 
 
+# [TODO] RequireDebugTrue
 class RequireDebugTrue(logging.Filter):
+    # [TODO] RequireDebugTrue > filter
     def filter(self, record):
         return settings.DEBUG
 
 
+# [TODO] ServerFormatter
 class ServerFormatter(logging.Formatter):
     default_time_format = "%d/%b/%Y %H:%M:%S"
 
+    # [TODO] ServerFormatter > __init__
     def __init__(self, *args, **kwargs):
         self.style = color_style()
         super().__init__(*args, **kwargs)
 
+    # [TODO] ServerFormatter > format
     def format(self, record):
         msg = record.msg
         status_code = getattr(record, "status_code", None)
@@ -203,10 +220,12 @@ class ServerFormatter(logging.Formatter):
         record.msg = msg
         return super().format(record)
 
+    # [TODO] ServerFormatter > uses_server_time
     def uses_server_time(self):
         return self._fmt.find("{server_time}") >= 0
 
 
+# [TODO] log_response
 def log_response(
     message,
     *args,

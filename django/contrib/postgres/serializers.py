@@ -1,7 +1,9 @@
 from django.db.migrations.serializer import BaseSerializer
 
 
+# [TODO] RangeSerializer
 class RangeSerializer(BaseSerializer):
+    # [TODO] RangeSerializer > serialize
     def serialize(self):
         module = self.value.__class__.__module__
         # Ranges are implemented in psycopg2._range but the public import

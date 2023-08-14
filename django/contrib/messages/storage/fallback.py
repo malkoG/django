@@ -3,6 +3,7 @@ from django.contrib.messages.storage.cookie import CookieStorage
 from django.contrib.messages.storage.session import SessionStorage
 
 
+# [TODO] FallbackStorage
 class FallbackStorage(BaseStorage):
     """
     Try to store all messages in the first backend. Store any unstored
@@ -11,6 +12,7 @@ class FallbackStorage(BaseStorage):
 
     storage_classes = (CookieStorage, SessionStorage)
 
+    # [TODO] FallbackStorage > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.storages = [
@@ -18,6 +20,7 @@ class FallbackStorage(BaseStorage):
         ]
         self._used_storages = set()
 
+    # [TODO] FallbackStorage > _get
     def _get(self, *args, **kwargs):
         """
         Get a single list of messages from all storage backends.
@@ -37,6 +40,7 @@ class FallbackStorage(BaseStorage):
                 break
         return all_messages, all_retrieved
 
+    # [TODO] FallbackStorage > _store
     def _store(self, messages, response, *args, **kwargs):
         """
         Store the messages and return any unstored messages after trying all

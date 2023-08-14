@@ -10,17 +10,20 @@ from django.contrib.gis.gdal.libgdal import lgdal
 
 # Helper routines for retrieving pointers and/or values from
 # arguments passed in by reference.
+# [TODO] arg_byref
 def arg_byref(args, offset=-1):
     "Return the pointer argument's by-reference value."
     return args[offset]._obj.value
 
 
+# [TODO] ptr_byref
 def ptr_byref(args, offset=-1):
     "Return the pointer argument passed in by-reference."
     return args[offset]._obj
 
 
 # ### String checking Routines ###
+# [TODO] check_const_string
 def check_const_string(result, func, cargs, offset=None, cpl=False):
     """
     Similar functionality to `check_string`, but does not free the pointer.
@@ -33,6 +36,7 @@ def check_const_string(result, func, cargs, offset=None, cpl=False):
         return result
 
 
+# [TODO] check_string
 def check_string(result, func, cargs, offset=-1, str_result=False):
     """
     Check the string output returned from the given function, and free
@@ -66,12 +70,14 @@ def check_string(result, func, cargs, offset=-1, str_result=False):
 
 
 # ### Envelope checking ###
+# [TODO] check_envelope
 def check_envelope(result, func, cargs, offset=-1):
     "Check a function that returns an OGR Envelope by reference."
     return ptr_byref(cargs, offset)
 
 
 # ### Geometry error-checking routines ###
+# [TODO] check_geom
 def check_geom(result, func, cargs):
     "Check a function that returns a geometry."
     # OGR_G_Clone may return an integer, even though the
@@ -85,6 +91,7 @@ def check_geom(result, func, cargs):
     return result
 
 
+# [TODO] check_geom_offset
 def check_geom_offset(result, func, cargs, offset=-1):
     "Check the geometry at the given offset in the C parameter list."
     check_err(result)
@@ -93,6 +100,7 @@ def check_geom_offset(result, func, cargs, offset=-1):
 
 
 # ### Spatial Reference error-checking routines ###
+# [TODO] check_srs
 def check_srs(result, func, cargs):
     if isinstance(result, int):
         result = c_void_p(result)
@@ -104,6 +112,7 @@ def check_srs(result, func, cargs):
 
 
 # ### Other error-checking routines ###
+# [TODO] check_arg_errcode
 def check_arg_errcode(result, func, cargs, cpl=False):
     """
     The error code is returned in the last argument, by reference.
@@ -113,6 +122,7 @@ def check_arg_errcode(result, func, cargs, cpl=False):
     return result
 
 
+# [TODO] check_errcode
 def check_errcode(result, func, cargs, cpl=False):
     """
     Check the error code returned (c_int).
@@ -120,6 +130,7 @@ def check_errcode(result, func, cargs, cpl=False):
     check_err(result, cpl=cpl)
 
 
+# [TODO] check_pointer
 def check_pointer(result, func, cargs):
     "Make sure the result pointer is valid."
     if isinstance(result, int):
@@ -130,6 +141,7 @@ def check_pointer(result, func, cargs):
         raise GDALException('Invalid pointer returned from "%s"' % func.__name__)
 
 
+# [TODO] check_str_arg
 def check_str_arg(result, func, cargs):
     """
     This is for the OSRGet[Angular|Linear]Units functions, which

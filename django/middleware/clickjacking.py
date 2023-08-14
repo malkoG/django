@@ -9,6 +9,7 @@ from django.conf import settings
 from django.utils.deprecation import MiddlewareMixin
 
 
+# [TODO] XFrameOptionsMiddleware
 class XFrameOptionsMiddleware(MiddlewareMixin):
     """
     Set the X-Frame-Options HTTP header in HTTP responses.
@@ -22,6 +23,7 @@ class XFrameOptionsMiddleware(MiddlewareMixin):
     X_FRAME_OPTIONS in your project's Django settings to 'SAMEORIGIN'.
     """
 
+    # [TODO] XFrameOptionsMiddleware > process_response
     def process_response(self, request, response):
         # Don't set it if it's already in the response
         if response.get("X-Frame-Options") is not None:
@@ -37,6 +39,7 @@ class XFrameOptionsMiddleware(MiddlewareMixin):
         )
         return response
 
+    # [TODO] XFrameOptionsMiddleware > get_xframe_options_value
     def get_xframe_options_value(self, request, response):
         """
         Get the value to set for the X_FRAME_OPTIONS header. Use the value from

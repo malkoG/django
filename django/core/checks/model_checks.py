@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.checks import Error, Tags, Warning, register
 
 
+# [TODO] check_all_models
 @register(Tags.models)
 def check_all_models(app_configs=None, **kwargs):
     db_table_models = defaultdict(list)
@@ -90,6 +91,7 @@ def check_all_models(app_configs=None, **kwargs):
     return errors
 
 
+# [TODO] _check_lazy_references
 def _check_lazy_references(apps, ignore=None):
     """
     Ensure all lazy (i.e. string) model references have been resolved.
@@ -222,6 +224,7 @@ def _check_lazy_references(apps, ignore=None):
     )
 
 
+# [TODO] check_lazy_references
 @register(Tags.models)
 def check_lazy_references(app_configs=None, **kwargs):
     return _check_lazy_references(apps)

@@ -6,6 +6,7 @@ from .operations import MySQLOperations
 from .schema import MySQLGISSchemaEditor
 
 
+# [TODO] DatabaseWrapper
 class DatabaseWrapper(MySQLDatabaseWrapper):
     SchemaEditorClass = MySQLGISSchemaEditor
     # Classes instantiated in __init__().

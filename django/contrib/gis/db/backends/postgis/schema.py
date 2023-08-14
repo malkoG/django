@@ -2,6 +2,7 @@ from django.db.backends.postgresql.schema import DatabaseSchemaEditor
 from django.db.models.expressions import Col, Func
 
 
+# [TODO] PostGISSchemaEditor
 class PostGISSchemaEditor(DatabaseSchemaEditor):
     geom_index_type = "GIST"
     geom_index_ops_nd = "GIST_GEOMETRY_OPS_ND"
@@ -14,14 +15,17 @@ class PostGISSchemaEditor(DatabaseSchemaEditor):
         "ALTER COLUMN %(column)s TYPE %(type)s USING ST_Force2D(%(column)s)::%(type)s"
     )
 
+    # [TODO] PostGISSchemaEditor > geo_quote_name
     def geo_quote_name(self, name):
         return self.connection.ops.geo_quote_name(name)
 
+    # [TODO] PostGISSchemaEditor > _field_should_be_indexed
     def _field_should_be_indexed(self, model, field):
         if getattr(field, "spatial_index", False):
             return True
         return super()._field_should_be_indexed(model, field)
 
+    # [TODO] PostGISSchemaEditor > _create_index_sql
     def _create_index_sql(self, model, *, fields=None, **kwargs):
         if fields is None or len(fields) != 1 or not hasattr(fields[0], "geodetic"):
             return super()._create_index_sql(model, fields=fields, **kwargs)
@@ -50,6 +54,7 @@ class PostGISSchemaEditor(DatabaseSchemaEditor):
             expressions=expressions,
         )
 
+    # [TODO] PostGISSchemaEditor > _alter_column_type_sql
     def _alter_column_type_sql(
         self, table, old_field, new_field, new_type, old_collation, new_collation
     ):

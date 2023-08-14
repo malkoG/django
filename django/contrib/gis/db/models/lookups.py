@@ -6,11 +6,14 @@ from django.db.models.sql.query import Query
 from django.utils.regex_helper import _lazy_re_compile
 
 
+# [TODO] RasterBandTransform
 class RasterBandTransform(Transform):
+    # [TODO] RasterBandTransform > as_sql
     def as_sql(self, compiler, connection):
         return compiler.compile(self.lhs)
 
 
+# [TODO] GISLookup
 class GISLookup(Lookup):
     sql_template = None
     transform_func = None
@@ -18,12 +21,14 @@ class GISLookup(Lookup):
     band_rhs = None
     band_lhs = None
 
+    # [TODO] GISLookup > __init__
     def __init__(self, lhs, rhs):
         rhs, *self.rhs_params = rhs if isinstance(rhs, (list, tuple)) else [rhs]
         super().__init__(lhs, rhs)
         self.template_params = {}
         self.process_rhs_params()
 
+    # [TODO] GISLookup > process_rhs_params
     def process_rhs_params(self):
         if self.rhs_params:
             # Check if a band index was passed in the query argument.
@@ -34,6 +39,7 @@ class GISLookup(Lookup):
         elif isinstance(self.lhs, RasterBandTransform):
             self.process_band_indices(only_lhs=True)
 
+    # [TODO] GISLookup > process_band_indices
     def process_band_indices(self, only_lhs=False):
         """
         Extract the lhs band index from the band transform class and the rhs
@@ -53,10 +59,12 @@ class GISLookup(Lookup):
 
         self.band_rhs, *self.rhs_params = self.rhs_params
 
+    # [TODO] GISLookup > get_db_prep_lookup
     def get_db_prep_lookup(self, value, connection):
         # get_db_prep_lookup is called by process_rhs from super class
         return ("%s", [connection.ops.Adapter(value)])
 
+    # [TODO] GISLookup > process_rhs
     def process_rhs(self, compiler, connection):
         if isinstance(self.rhs, Query):
             # If rhs is some Query, don't touch it.
@@ -69,12 +77,14 @@ class GISLookup(Lookup):
         )
         return placeholder % rhs, rhs_params
 
+    # [TODO] GISLookup > get_rhs_op
     def get_rhs_op(self, connection, rhs):
         # Unlike BuiltinLookup, the GIS get_rhs_op() implementation should return
         # an object (SpatialOperator) with an as_sql() method to allow for more
         # complex computations (where the lhs part can be mixed in).
         return connection.ops.gis_operators[self.lookup_name]
 
+    # [TODO] GISLookup > as_sql
     def as_sql(self, compiler, connection):
         lhs_sql, lhs_params = self.process_lhs(compiler, connection)
         rhs_sql, rhs_params = self.process_rhs(compiler, connection)
@@ -95,6 +105,7 @@ class GISLookup(Lookup):
 # ------------------
 
 
+# [TODO] OverlapsLeftLookup
 @BaseSpatialField.register_lookup
 class OverlapsLeftLookup(GISLookup):
     """
@@ -105,6 +116,7 @@ class OverlapsLeftLookup(GISLookup):
     lookup_name = "overlaps_left"
 
 
+# [TODO] OverlapsRightLookup
 @BaseSpatialField.register_lookup
 class OverlapsRightLookup(GISLookup):
     """
@@ -115,6 +127,7 @@ class OverlapsRightLookup(GISLookup):
     lookup_name = "overlaps_right"
 
 
+# [TODO] OverlapsBelowLookup
 @BaseSpatialField.register_lookup
 class OverlapsBelowLookup(GISLookup):
     """
@@ -125,6 +138,7 @@ class OverlapsBelowLookup(GISLookup):
     lookup_name = "overlaps_below"
 
 
+# [TODO] OverlapsAboveLookup
 @BaseSpatialField.register_lookup
 class OverlapsAboveLookup(GISLookup):
     """
@@ -135,6 +149,7 @@ class OverlapsAboveLookup(GISLookup):
     lookup_name = "overlaps_above"
 
 
+# [TODO] LeftLookup
 @BaseSpatialField.register_lookup
 class LeftLookup(GISLookup):
     """
@@ -145,6 +160,7 @@ class LeftLookup(GISLookup):
     lookup_name = "left"
 
 
+# [TODO] RightLookup
 @BaseSpatialField.register_lookup
 class RightLookup(GISLookup):
     """
@@ -155,6 +171,7 @@ class RightLookup(GISLookup):
     lookup_name = "right"
 
 
+# [TODO] StrictlyBelowLookup
 @BaseSpatialField.register_lookup
 class StrictlyBelowLookup(GISLookup):
     """
@@ -165,6 +182,7 @@ class StrictlyBelowLookup(GISLookup):
     lookup_name = "strictly_below"
 
 
+# [TODO] StrictlyAboveLookup
 @BaseSpatialField.register_lookup
 class StrictlyAboveLookup(GISLookup):
     """
@@ -175,6 +193,7 @@ class StrictlyAboveLookup(GISLookup):
     lookup_name = "strictly_above"
 
 
+# [TODO] SameAsLookup
 @BaseSpatialField.register_lookup
 class SameAsLookup(GISLookup):
     """
@@ -189,6 +208,7 @@ class SameAsLookup(GISLookup):
 BaseSpatialField.register_lookup(SameAsLookup, "exact")
 
 
+# [TODO] BBContainsLookup
 @BaseSpatialField.register_lookup
 class BBContainsLookup(GISLookup):
     """
@@ -199,6 +219,7 @@ class BBContainsLookup(GISLookup):
     lookup_name = "bbcontains"
 
 
+# [TODO] BBOverlapsLookup
 @BaseSpatialField.register_lookup
 class BBOverlapsLookup(GISLookup):
     """
@@ -209,6 +230,7 @@ class BBOverlapsLookup(GISLookup):
     lookup_name = "bboverlaps"
 
 
+# [TODO] ContainedLookup
 @BaseSpatialField.register_lookup
 class ContainedLookup(GISLookup):
     """
@@ -224,51 +246,61 @@ class ContainedLookup(GISLookup):
 # ------------------
 
 
+# [TODO] ContainsLookup
 @BaseSpatialField.register_lookup
 class ContainsLookup(GISLookup):
     lookup_name = "contains"
 
 
+# [TODO] ContainsProperlyLookup
 @BaseSpatialField.register_lookup
 class ContainsProperlyLookup(GISLookup):
     lookup_name = "contains_properly"
 
 
+# [TODO] CoveredByLookup
 @BaseSpatialField.register_lookup
 class CoveredByLookup(GISLookup):
     lookup_name = "coveredby"
 
 
+# [TODO] CoversLookup
 @BaseSpatialField.register_lookup
 class CoversLookup(GISLookup):
     lookup_name = "covers"
 
 
+# [TODO] CrossesLookup
 @BaseSpatialField.register_lookup
 class CrossesLookup(GISLookup):
     lookup_name = "crosses"
 
 
+# [TODO] DisjointLookup
 @BaseSpatialField.register_lookup
 class DisjointLookup(GISLookup):
     lookup_name = "disjoint"
 
 
+# [TODO] EqualsLookup
 @BaseSpatialField.register_lookup
 class EqualsLookup(GISLookup):
     lookup_name = "equals"
 
 
+# [TODO] IntersectsLookup
 @BaseSpatialField.register_lookup
 class IntersectsLookup(GISLookup):
     lookup_name = "intersects"
 
 
+# [TODO] OverlapsLookup
 @BaseSpatialField.register_lookup
 class OverlapsLookup(GISLookup):
     lookup_name = "overlaps"
 
 
+# [TODO] RelateLookup
 @BaseSpatialField.register_lookup
 class RelateLookup(GISLookup):
     lookup_name = "relate"
@@ -287,20 +319,24 @@ class RelateLookup(GISLookup):
         return sql, params + [pattern]
 
 
+# [TODO] TouchesLookup
 @BaseSpatialField.register_lookup
 class TouchesLookup(GISLookup):
     lookup_name = "touches"
 
 
+# [TODO] WithinLookup
 @BaseSpatialField.register_lookup
 class WithinLookup(GISLookup):
     lookup_name = "within"
 
 
+# [TODO] DistanceLookupBase
 class DistanceLookupBase(GISLookup):
     distance = True
     sql_template = "%(func)s(%(lhs)s, %(rhs)s) %(op)s %(value)s"
 
+    # [TODO] DistanceLookupBase > process_rhs_params
     def process_rhs_params(self):
         if not 1 <= len(self.rhs_params) <= 3:
             raise ValueError(
@@ -316,6 +352,7 @@ class DistanceLookupBase(GISLookup):
         if len(self.rhs_params) > 1 and self.rhs_params[1] != "spheroid":
             self.process_band_indices()
 
+    # [TODO] DistanceLookupBase > process_distance
     def process_distance(self, compiler, connection):
         dist_param = self.rhs_params[0]
         return (
@@ -330,6 +367,7 @@ class DistanceLookupBase(GISLookup):
         )
 
 
+# [TODO] DWithinLookup
 @BaseSpatialField.register_lookup
 class DWithinLookup(DistanceLookupBase):
     lookup_name = "dwithin"
@@ -355,7 +393,9 @@ class DWithinLookup(DistanceLookupBase):
         return rhs_sql, params + dist_params
 
 
+# [TODO] DistanceLookupFromFunction
 class DistanceLookupFromFunction(DistanceLookupBase):
+    # [TODO] DistanceLookupFromFunction > as_sql
     def as_sql(self, compiler, connection):
         spheroid = (
             len(self.rhs_params) == 2 and self.rhs_params[-1] == "spheroid"
@@ -371,24 +411,28 @@ class DistanceLookupFromFunction(DistanceLookupBase):
         )
 
 
+# [TODO] DistanceGTLookup
 @BaseSpatialField.register_lookup
 class DistanceGTLookup(DistanceLookupFromFunction):
     lookup_name = "distance_gt"
     op = ">"
 
 
+# [TODO] DistanceGTELookup
 @BaseSpatialField.register_lookup
 class DistanceGTELookup(DistanceLookupFromFunction):
     lookup_name = "distance_gte"
     op = ">="
 
 
+# [TODO] DistanceLTLookup
 @BaseSpatialField.register_lookup
 class DistanceLTLookup(DistanceLookupFromFunction):
     lookup_name = "distance_lt"
     op = "<"
 
 
+# [TODO] DistanceLTELookup
 @BaseSpatialField.register_lookup
 class DistanceLTELookup(DistanceLookupFromFunction):
     lookup_name = "distance_lte"

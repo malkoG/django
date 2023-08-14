@@ -32,19 +32,23 @@ STATICFILES_STORAGE_DEPRECATED_MSG = (
 )
 
 
+# [TODO] SettingsReference
 class SettingsReference(str):
     """
     String subclass which references a current settings value. It's treated as
     the value in memory but serializes to a settings.NAME attribute reference.
     """
 
+    # [TODO] SettingsReference > __new__
     def __new__(self, value, setting_name):
         return str.__new__(self, value)
 
+    # [TODO] SettingsReference > __init__
     def __init__(self, value, setting_name):
         self.setting_name = setting_name
 
 
+# [TODO] LazySettings
 class LazySettings(LazyObject):
     """
     A lazy proxy for either global Django settings or a custom settings object.
@@ -52,6 +56,7 @@ class LazySettings(LazyObject):
     Django uses the settings module pointed to by DJANGO_SETTINGS_MODULE.
     """
 
+    # [TODO] LazySettings > _setup
     def _setup(self, name=None):
         """
         Load the settings module pointed to by the environment variable. This
@@ -70,6 +75,7 @@ class LazySettings(LazyObject):
 
         self._wrapped = Settings(settings_module)
 
+    # [TODO] LazySettings > __repr__
     def __repr__(self):
         # Hardcode the class name as otherwise it yields 'Settings'.
         if self._wrapped is empty:
@@ -78,6 +84,7 @@ class LazySettings(LazyObject):
             "settings_module": self._wrapped.SETTINGS_MODULE,
         }
 
+    # [TODO] LazySettings > __getattr__
     def __getattr__(self, name):
         """Return the value of a setting and cache it in self.__dict__."""
         if (_wrapped := self._wrapped) is empty:
@@ -95,6 +102,7 @@ class LazySettings(LazyObject):
         self.__dict__[name] = val
         return val
 
+    # [TODO] LazySettings > __setattr__
     def __setattr__(self, name, value):
         """
         Set the value of setting. Clear all cached values if _wrapped changes
@@ -106,11 +114,13 @@ class LazySettings(LazyObject):
             self.__dict__.pop(name, None)
         super().__setattr__(name, value)
 
+    # [TODO] LazySettings > __delattr__
     def __delattr__(self, name):
         """Delete a setting and clear it from cache if needed."""
         super().__delattr__(name)
         self.__dict__.pop(name, None)
 
+    # [TODO] LazySettings > configure
     def configure(self, default_settings=global_settings, **options):
         """
         Called to manually configure the settings. The 'default_settings'
@@ -126,6 +136,7 @@ class LazySettings(LazyObject):
             setattr(holder, name, value)
         self._wrapped = holder
 
+    # [TODO] LazySettings > _add_script_prefix
     @staticmethod
     def _add_script_prefix(value):
         """
@@ -141,11 +152,13 @@ class LazySettings(LazyObject):
 
         return "%s%s" % (get_script_prefix(), value)
 
+    # [TODO] LazySettings > configured
     @property
     def configured(self):
         """Return True if the settings have already been configured."""
         return self._wrapped is not empty
 
+    # [TODO] LazySettings > _show_deprecation_warning
     def _show_deprecation_warning(self, message, category):
         stack = traceback.extract_stack()
         # Show a warning if the setting is used outside of Django.
@@ -156,6 +169,7 @@ class LazySettings(LazyObject):
             warnings.warn(message, category, stacklevel=2)
 
     # RemovedInDjango51Warning.
+    # [TODO] LazySettings > DEFAULT_FILE_STORAGE
     @property
     def DEFAULT_FILE_STORAGE(self):
         self._show_deprecation_warning(
@@ -164,6 +178,7 @@ class LazySettings(LazyObject):
         return self.__getattr__("DEFAULT_FILE_STORAGE")
 
     # RemovedInDjango51Warning.
+    # [TODO] LazySettings > STATICFILES_STORAGE
     @property
     def STATICFILES_STORAGE(self):
         self._show_deprecation_warning(
@@ -172,7 +187,9 @@ class LazySettings(LazyObject):
         return self.__getattr__("STATICFILES_STORAGE")
 
 
+# [TODO] Settings
 class Settings:
+    # [TODO] Settings > __init__
     def __init__(self, settings_module):
         # update this dict from global settings (but only for ALL_CAPS settings)
         for setting in dir(global_settings):
@@ -231,9 +248,11 @@ class Settings:
                 )
             warnings.warn(STATICFILES_STORAGE_DEPRECATED_MSG, RemovedInDjango51Warning)
 
+    # [TODO] Settings > is_overridden
     def is_overridden(self, setting):
         return setting in self._explicit_settings
 
+    # [TODO] Settings > __repr__
     def __repr__(self):
         return '<%(cls)s "%(settings_module)s">' % {
             "cls": self.__class__.__name__,
@@ -241,6 +260,7 @@ class Settings:
         }
 
 
+# [TODO] UserSettingsHolder
 class UserSettingsHolder:
     """Holder for user configured settings."""
 
@@ -248,6 +268,7 @@ class UserSettingsHolder:
     # (standalone) case.
     SETTINGS_MODULE = None
 
+    # [TODO] UserSettingsHolder > __init__
     def __init__(self, default_settings):
         """
         Requests for configuration variables not in this class are satisfied
@@ -256,11 +277,13 @@ class UserSettingsHolder:
         self.__dict__["_deleted"] = set()
         self.default_settings = default_settings
 
+    # [TODO] UserSettingsHolder > __getattr__
     def __getattr__(self, name):
         if not name.isupper() or name in self._deleted:
             raise AttributeError
         return getattr(self.default_settings, name)
 
+    # [TODO] UserSettingsHolder > __setattr__
     def __setattr__(self, name, value):
         self._deleted.discard(name)
         if name == "DEFAULT_FILE_STORAGE":
@@ -285,11 +308,13 @@ class UserSettingsHolder:
                 {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
             )
 
+    # [TODO] UserSettingsHolder > __delattr__
     def __delattr__(self, name):
         self._deleted.add(name)
         if hasattr(self, name):
             super().__delattr__(name)
 
+    # [TODO] UserSettingsHolder > __dir__
     def __dir__(self):
         return sorted(
             s
@@ -297,6 +322,7 @@ class UserSettingsHolder:
             if s not in self._deleted
         )
 
+    # [TODO] UserSettingsHolder > is_overridden
     def is_overridden(self, setting):
         deleted = setting in self._deleted
         set_locally = setting in self.__dict__
@@ -305,6 +331,7 @@ class UserSettingsHolder:
         )(setting)
         return deleted or set_locally or set_on_default
 
+    # [TODO] UserSettingsHolder > __repr__
     def __repr__(self):
         return "<%(cls)s>" % {
             "cls": self.__class__.__name__,

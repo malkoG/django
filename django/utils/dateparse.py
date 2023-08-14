@@ -64,6 +64,7 @@ postgres_interval_re = _lazy_re_compile(
 )
 
 
+# [TODO] parse_date
 def parse_date(value):
     """Parse a string and return a datetime.date.
 
@@ -78,6 +79,7 @@ def parse_date(value):
             return datetime.date(**kw)
 
 
+# [TODO] parse_time
 def parse_time(value):
     """Parse a string and return a datetime.time.
 
@@ -101,6 +103,7 @@ def parse_time(value):
             return datetime.time(**kw)
 
 
+# [TODO] parse_datetime
 def parse_datetime(value):
     """Parse a string and return a datetime.datetime.
 
@@ -129,6 +132,7 @@ def parse_datetime(value):
             return datetime.datetime(**kw, tzinfo=tzinfo)
 
 
+# [TODO] parse_duration
 def parse_duration(value):
     """Parse a duration string and return a datetime.timedelta.
 

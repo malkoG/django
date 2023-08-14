@@ -17,12 +17,14 @@ from .exception import convert_exception_to_response
 logger = logging.getLogger("django.request")
 
 
+# [TODO] BaseHandler
 class BaseHandler:
     _view_middleware = None
     _template_response_middleware = None
     _exception_middleware = None
     _middleware_chain = None
 
+    # [TODO] BaseHandler > load_middleware
     def load_middleware(self, is_async=False):
         """
         Populate middleware lists from settings.MIDDLEWARE.
@@ -101,6 +103,7 @@ class BaseHandler:
         # as a flag for initialization being complete.
         self._middleware_chain = handler
 
+    # [TODO] BaseHandler > adapt_method_mode
     def adapt_method_mode(
         self,
         is_async,
@@ -133,6 +136,7 @@ class BaseHandler:
             return async_to_sync(method)
         return method
 
+    # [TODO] BaseHandler > get_response
     def get_response(self, request):
         """Return an HttpResponse object for the given HttpRequest."""
         # Setup default url resolver for this thread
@@ -149,6 +153,7 @@ class BaseHandler:
             )
         return response
 
+    # [TODO] BaseHandler > get_response_async
     async def get_response_async(self, request):
         """
         Asynchronous version of get_response.
@@ -171,6 +176,7 @@ class BaseHandler:
             )
         return response
 
+    # [TODO] BaseHandler > _get_response
     def _get_response(self, request):
         """
         Resolve and call the view, then apply view, exception, and
@@ -225,6 +231,7 @@ class BaseHandler:
 
         return response
 
+    # [TODO] BaseHandler > _get_response_async
     async def _get_response_async(self, request):
         """
         Resolve and call the view, then apply view, exception, and
@@ -297,6 +304,7 @@ class BaseHandler:
             raise RuntimeError("Response is still a coroutine.")
         return response
 
+    # [TODO] BaseHandler > resolve_request
     def resolve_request(self, request):
         """
         Retrieve/set the urlconf for the request. Return the view resolved,
@@ -314,6 +322,7 @@ class BaseHandler:
         request.resolver_match = resolver_match
         return resolver_match
 
+    # [TODO] BaseHandler > check_response
     def check_response(self, response, callback, name=None):
         """
         Raise an error if the view returned None or an uncalled coroutine.
@@ -342,6 +351,7 @@ class BaseHandler:
 
     # Other utility methods.
 
+    # [TODO] BaseHandler > make_view_atomic
     def make_view_atomic(self, view):
         non_atomic_requests = getattr(view, "_non_atomic_requests", set())
         for alias, settings_dict in connections.settings.items():
@@ -353,6 +363,7 @@ class BaseHandler:
                 view = transaction.atomic(using=alias)(view)
         return view
 
+    # [TODO] BaseHandler > process_exception_by_middleware
     def process_exception_by_middleware(self, exception, request):
         """
         Pass the exception to the exception middleware. If no middleware
@@ -365,6 +376,7 @@ class BaseHandler:
         return None
 
 
+# [TODO] reset_urlconf
 def reset_urlconf(sender, **kwargs):
     """Reset the URLconf after each request is finished."""
     set_urlconf(None)

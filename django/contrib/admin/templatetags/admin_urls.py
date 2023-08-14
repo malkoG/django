@@ -8,16 +8,19 @@ from django.utils.http import urlencode
 register = template.Library()
 
 
+# [TODO] admin_urlname
 @register.filter
 def admin_urlname(value, arg):
     return "admin:%s_%s_%s" % (value.app_label, value.model_name, arg)
 
 
+# [TODO] admin_urlquote
 @register.filter
 def admin_urlquote(value):
     return quote(value)
 
 
+# [TODO] add_preserved_filters
 @register.simple_tag(takes_context=True)
 def add_preserved_filters(context, url, popup=False, to_field=None):
     opts = context.get("opts")

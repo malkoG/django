@@ -14,7 +14,9 @@ from django.db.models.utils import AltersData
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] FieldFile
 class FieldFile(File, AltersData):
+    # [TODO] FieldFile > __init__
     def __init__(self, instance, field, name):
         super().__init__(None, name)
         self.instance = instance
@@ -22,6 +24,7 @@ class FieldFile(File, AltersData):
         self.storage = field.storage
         self._committed = True
 
+    # [TODO] FieldFile > __eq__
     def __eq__(self, other):
         # Older code may be expecting FileField values to be simple strings.
         # By overriding the == operator, it can remain backwards compatibility.
@@ -29,6 +32,7 @@ class FieldFile(File, AltersData):
             return self.name == other.name
         return self.name == other
 
+    # [TODO] FieldFile > __hash__
     def __hash__(self):
         return hash(self.name)
 
@@ -36,36 +40,43 @@ class FieldFile(File, AltersData):
     # FieldFiles can be instantiated without a name, so that needs to
     # be checked for here.
 
+    # [TODO] FieldFile > _require_file
     def _require_file(self):
         if not self:
             raise ValueError(
                 "The '%s' attribute has no file associated with it." % self.field.name
             )
 
+    # [TODO] FieldFile > _get_file
     def _get_file(self):
         self._require_file()
         if getattr(self, "_file", None) is None:
             self._file = self.storage.open(self.name, "rb")
         return self._file
 
+    # [TODO] FieldFile > _set_file
     def _set_file(self, file):
         self._file = file
 
+    # [TODO] FieldFile > _del_file
     def _del_file(self):
         del self._file
 
     file = property(_get_file, _set_file, _del_file)
 
+    # [TODO] FieldFile > path
     @property
     def path(self):
         self._require_file()
         return self.storage.path(self.name)
 
+    # [TODO] FieldFile > url
     @property
     def url(self):
         self._require_file()
         return self.storage.url(self.name)
 
+    # [TODO] FieldFile > size
     @property
     def size(self):
         self._require_file()
@@ -73,6 +84,7 @@ class FieldFile(File, AltersData):
             return self.file.size
         return self.storage.size(self.name)
 
+    # [TODO] FieldFile > open
     def open(self, mode="rb"):
         self._require_file()
         if getattr(self, "_file", None) is None:
@@ -88,6 +100,7 @@ class FieldFile(File, AltersData):
     # to further manipulate the underlying file, as well as update the
     # associated model instance.
 
+    # [TODO] FieldFile > save
     def save(self, name, content, save=True):
         name = self.field.generate_filename(self.instance, name)
         self.name = self.storage.save(name, content, max_length=self.field.max_length)
@@ -100,6 +113,7 @@ class FieldFile(File, AltersData):
 
     save.alters_data = True
 
+    # [TODO] FieldFile > delete
     def delete(self, save=True):
         if not self:
             return
@@ -120,16 +134,19 @@ class FieldFile(File, AltersData):
 
     delete.alters_data = True
 
+    # [TODO] FieldFile > closed
     @property
     def closed(self):
         file = getattr(self, "_file", None)
         return file is None or file.closed
 
+    # [TODO] FieldFile > close
     def close(self):
         file = getattr(self, "_file", None)
         if file is not None:
             file.close()
 
+    # [TODO] FieldFile > __getstate__
     def __getstate__(self):
         # FieldFile needs access to its associated model field, an instance and
         # the file's name. Everything else will be restored later, by
@@ -143,11 +160,13 @@ class FieldFile(File, AltersData):
             "field": self.field,
         }
 
+    # [TODO] FieldFile > __setstate__
     def __setstate__(self, state):
         self.__dict__.update(state)
         self.storage = self.field.storage
 
 
+# [TODO] FileDescriptor
 class FileDescriptor(DeferredAttribute):
     """
     The descriptor for the file attribute on the model instance. Return a
@@ -163,6 +182,7 @@ class FileDescriptor(DeferredAttribute):
         ...     instance.file = File(f)
     """
 
+    # [TODO] FileDescriptor > __get__
     def __get__(self, instance, cls=None):
         if instance is None:
             return self
@@ -217,10 +237,12 @@ class FileDescriptor(DeferredAttribute):
         # That was fun, wasn't it?
         return instance.__dict__[self.field.attname]
 
+    # [TODO] FileDescriptor > __set__
     def __set__(self, instance, value):
         instance.__dict__[self.field.attname] = value
 
 
+# [TODO] FileField
 class FileField(Field):
     # The class to wrap instance attributes in. Accessing the file object off
     # the instance will always return an instance of attr_class.
@@ -231,6 +253,7 @@ class FileField(Field):
 
     description = _("File")
 
+    # [TODO] FileField > __init__
     def __init__(
         self, verbose_name=None, name=None, upload_to="", storage=None, **kwargs
     ):
@@ -255,6 +278,7 @@ class FileField(Field):
         kwargs.setdefault("max_length", 100)
         super().__init__(verbose_name, name, **kwargs)
 
+    # [TODO] FileField > check
     def check(self, **kwargs):
         return [
             *super().check(**kwargs),
@@ -262,6 +286,7 @@ class FileField(Field):
             *self._check_upload_to(),
         ]
 
+    # [TODO] FileField > _check_primary_key
     def _check_primary_key(self):
         if self._primary_key_set_explicitly:
             return [
@@ -275,6 +300,7 @@ class FileField(Field):
         else:
             return []
 
+    # [TODO] FileField > _check_upload_to
     def _check_upload_to(self):
         if isinstance(self.upload_to, str) and self.upload_to.startswith("/"):
             return [
@@ -289,6 +315,7 @@ class FileField(Field):
         else:
             return []
 
+    # [TODO] FileField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if kwargs.get("max_length") == 100:
@@ -299,9 +326,11 @@ class FileField(Field):
             kwargs["storage"] = storage
         return name, path, args, kwargs
 
+    # [TODO] FileField > get_internal_type
     def get_internal_type(self):
         return "FileField"
 
+    # [TODO] FileField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         # Need to convert File objects provided via a form to string for
@@ -310,6 +339,7 @@ class FileField(Field):
             return None
         return str(value)
 
+    # [TODO] FileField > pre_save
     def pre_save(self, model_instance, add):
         file = super().pre_save(model_instance, add)
         if file and not file._committed:
@@ -317,10 +347,12 @@ class FileField(Field):
             file.save(file.name, file.file, save=False)
         return file
 
+    # [TODO] FileField > contribute_to_class
     def contribute_to_class(self, cls, name, **kwargs):
         super().contribute_to_class(cls, name, **kwargs)
         setattr(cls, self.attname, self.descriptor_class(self))
 
+    # [TODO] FileField > generate_filename
     def generate_filename(self, instance, filename):
         """
         Apply (if callable) or prepend (if a string) upload_to to the filename,
@@ -336,6 +368,7 @@ class FileField(Field):
         filename = validate_file_name(filename, allow_relative_path=True)
         return self.storage.generate_filename(filename)
 
+    # [TODO] FileField > save_form_data
     def save_form_data(self, instance, data):
         # Important: None means "no change", other false value means "clear"
         # This subtle distinction (rather than a more explicit marker) is
@@ -346,6 +379,7 @@ class FileField(Field):
             # database, so leaving False as-is is not acceptable.
             setattr(instance, self.name, data or "")
 
+    # [TODO] FileField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -356,12 +390,14 @@ class FileField(Field):
         )
 
 
+# [TODO] ImageFileDescriptor
 class ImageFileDescriptor(FileDescriptor):
     """
     Just like the FileDescriptor, but for ImageFields. The only difference is
     assigning the width/height to the width_field/height_field, if appropriate.
     """
 
+    # [TODO] ImageFileDescriptor > __set__
     def __set__(self, instance, value):
         previous_file = instance.__dict__.get(self.field.attname)
         super().__set__(instance, value)
@@ -379,7 +415,9 @@ class ImageFileDescriptor(FileDescriptor):
             self.field.update_dimension_fields(instance, force=True)
 
 
+# [TODO] ImageFieldFile
 class ImageFieldFile(ImageFile, FieldFile):
+    # [TODO] ImageFieldFile > delete
     def delete(self, save=True):
         # Clear the image dimensions cache
         if hasattr(self, "_dimensions_cache"):
@@ -387,11 +425,13 @@ class ImageFieldFile(ImageFile, FieldFile):
         super().delete(save)
 
 
+# [TODO] ImageField
 class ImageField(FileField):
     attr_class = ImageFieldFile
     descriptor_class = ImageFileDescriptor
     description = _("Image")
 
+    # [TODO] ImageField > __init__
     def __init__(
         self,
         verbose_name=None,
@@ -403,12 +443,14 @@ class ImageField(FileField):
         self.width_field, self.height_field = width_field, height_field
         super().__init__(verbose_name, name, **kwargs)
 
+    # [TODO] ImageField > check
     def check(self, **kwargs):
         return [
             *super().check(**kwargs),
             *self._check_image_library_installed(),
         ]
 
+    # [TODO] ImageField > _check_image_library_installed
     def _check_image_library_installed(self):
         try:
             from PIL import Image  # NOQA
@@ -427,6 +469,7 @@ class ImageField(FileField):
         else:
             return []
 
+    # [TODO] ImageField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if self.width_field:
@@ -435,6 +478,7 @@ class ImageField(FileField):
             kwargs["height_field"] = self.height_field
         return name, path, args, kwargs
 
+    # [TODO] ImageField > contribute_to_class
     def contribute_to_class(self, cls, name, **kwargs):
         super().contribute_to_class(cls, name, **kwargs)
         # Attach update_dimension_fields so that dimension fields declared
@@ -445,6 +489,7 @@ class ImageField(FileField):
         if not cls._meta.abstract and (self.width_field or self.height_field):
             signals.post_init.connect(self.update_dimension_fields, sender=cls)
 
+    # [TODO] ImageField > update_dimension_fields
     def update_dimension_fields(self, instance, force=False, *args, **kwargs):
         """
         Update field's width and height fields, if defined.
@@ -502,6 +547,7 @@ class ImageField(FileField):
         if self.height_field:
             setattr(instance, self.height_field, height)
 
+    # [TODO] ImageField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{

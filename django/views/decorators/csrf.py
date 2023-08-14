@@ -14,8 +14,10 @@ using the decorator multiple times, is harmless and efficient.
 """
 
 
+# [TODO] _EnsureCsrfToken
 class _EnsureCsrfToken(CsrfViewMiddleware):
     # Behave like CsrfViewMiddleware but don't reject requests or log warnings.
+    # [TODO] _EnsureCsrfToken > _reject
     def _reject(self, request, reason):
         return None
 
@@ -29,10 +31,13 @@ enforces.
 """
 
 
+# [TODO] _EnsureCsrfCookie
 class _EnsureCsrfCookie(CsrfViewMiddleware):
+    # [TODO] _EnsureCsrfCookie > _reject
     def _reject(self, request, reason):
         return None
 
+    # [TODO] _EnsureCsrfCookie > process_view
     def process_view(self, request, callback, callback_args, callback_kwargs):
         retval = super().process_view(request, callback, callback_args, callback_kwargs)
         # Force process_response to send the cookie
@@ -48,6 +53,7 @@ uses the csrf_token template tag, or the CsrfViewMiddleware is used.
 """
 
 
+# [TODO] csrf_exempt
 def csrf_exempt(view_func):
     """Mark a view function as being exempt from the CSRF view protection."""
 

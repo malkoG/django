@@ -12,11 +12,13 @@ from django.db import (
 )
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = "Creates the tables needed to use the SQL cache backend."
 
     requires_system_checks = []
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "args",
@@ -39,6 +41,7 @@ class Command(BaseCommand):
             help="Does not create the table, just prints the SQL that would be run.",
         )
 
+    # [TODO] Command > handle
     def handle(self, *tablenames, **options):
         db = options["database"]
         self.verbosity = options["verbosity"]
@@ -53,6 +56,7 @@ class Command(BaseCommand):
                 if isinstance(cache, BaseDatabaseCache):
                     self.create_table(db, cache._table, dry_run)
 
+    # [TODO] Command > create_table
     def create_table(self, database, tablename, dry_run):
         cache = BaseDatabaseCache(tablename, {})
         if not router.allow_migrate_model(database, cache.cache_model_class):

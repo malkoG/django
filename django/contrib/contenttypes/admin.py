@@ -13,11 +13,14 @@ from django.forms import ALL_FIELDS
 from django.forms.models import modelform_defines_fields
 
 
+# [TODO] GenericInlineModelAdminChecks
 class GenericInlineModelAdminChecks(InlineModelAdminChecks):
+    # [TODO] GenericInlineModelAdminChecks > _check_exclude_of_parent_model
     def _check_exclude_of_parent_model(self, obj, parent_model):
         # There's no FK to exclude, so no exclusion checks are required.
         return []
 
+    # [TODO] GenericInlineModelAdminChecks > _check_relation
     def _check_relation(self, obj, parent_model):
         # There's no FK, but we do need to confirm that the ct_field and
         # ct_fk_field are valid, and that they are part of a GenericForeignKey.
@@ -88,6 +91,7 @@ class GenericInlineModelAdminChecks(InlineModelAdminChecks):
             ]
 
 
+# [TODO] GenericInlineModelAdmin
 class GenericInlineModelAdmin(InlineModelAdmin):
     ct_field = "content_type"
     ct_fk_field = "object_id"
@@ -95,6 +99,7 @@ class GenericInlineModelAdmin(InlineModelAdmin):
 
     checks_class = GenericInlineModelAdminChecks
 
+    # [TODO] GenericInlineModelAdmin > get_formset
     def get_formset(self, request, obj=None, **kwargs):
         if "fields" in kwargs:
             fields = kwargs.pop("fields")
@@ -135,9 +140,11 @@ class GenericInlineModelAdmin(InlineModelAdmin):
         return generic_inlineformset_factory(self.model, **defaults)
 
 
+# [TODO] GenericStackedInline
 class GenericStackedInline(GenericInlineModelAdmin):
     template = "admin/edit_inline/stacked.html"
 
 
+# [TODO] GenericTabularInline
 class GenericTabularInline(GenericInlineModelAdmin):
     template = "admin/edit_inline/tabular.html"

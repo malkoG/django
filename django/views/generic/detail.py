@@ -5,6 +5,7 @@ from django.utils.translation import gettext as _
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, View
 
 
+# [TODO] SingleObjectMixin
 class SingleObjectMixin(ContextMixin):
     """
     Provide the ability to retrieve a single object for further manipulation.
@@ -18,6 +19,7 @@ class SingleObjectMixin(ContextMixin):
     pk_url_kwarg = "pk"
     query_pk_and_slug = False
 
+    # [TODO] SingleObjectMixin > get_object
     def get_object(self, queryset=None):
         """
         Return the object the view is displaying.
@@ -58,6 +60,7 @@ class SingleObjectMixin(ContextMixin):
             )
         return obj
 
+    # [TODO] SingleObjectMixin > get_queryset
     def get_queryset(self):
         """
         Return the `QuerySet` that will be used to look up the object.
@@ -76,10 +79,12 @@ class SingleObjectMixin(ContextMixin):
                 )
         return self.queryset.all()
 
+    # [TODO] SingleObjectMixin > get_slug_field
     def get_slug_field(self):
         """Get the name of a slug field to be used to look up by slug."""
         return self.slug_field
 
+    # [TODO] SingleObjectMixin > get_context_object_name
     def get_context_object_name(self, obj):
         """Get the name to use for the object."""
         if self.context_object_name:
@@ -89,6 +94,7 @@ class SingleObjectMixin(ContextMixin):
         else:
             return None
 
+    # [TODO] SingleObjectMixin > get_context_data
     def get_context_data(self, **kwargs):
         """Insert the single object into the context dict."""
         context = {}
@@ -101,19 +107,23 @@ class SingleObjectMixin(ContextMixin):
         return super().get_context_data(**context)
 
 
+# [TODO] BaseDetailView
 class BaseDetailView(SingleObjectMixin, View):
     """A base view for displaying a single object."""
 
+    # [TODO] BaseDetailView > get
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
 
 
+# [TODO] SingleObjectTemplateResponseMixin
 class SingleObjectTemplateResponseMixin(TemplateResponseMixin):
     template_name_field = None
     template_name_suffix = "_detail"
 
+    # [TODO] SingleObjectTemplateResponseMixin > get_template_names
     def get_template_names(self):
         """
         Return a list of template names to be used for the request. May not be
@@ -171,6 +181,7 @@ class SingleObjectTemplateResponseMixin(TemplateResponseMixin):
         return names
 
 
+# [TODO] DetailView
 class DetailView(SingleObjectTemplateResponseMixin, BaseDetailView):
     """
     Render a "detail" view of an object.

@@ -33,6 +33,7 @@ __all__ = [
 ]
 
 
+# [TODO] TranslatorCommentWarning
 class TranslatorCommentWarning(SyntaxWarning):
     pass
 
@@ -46,6 +47,7 @@ class TranslatorCommentWarning(SyntaxWarning):
 # settings).
 
 
+# [TODO] Trans
 class Trans:
     """
     The purpose of this class is to store the actual translation function upon
@@ -59,6 +61,7 @@ class Trans:
     instead of using __getattr__.
     """
 
+    # [TODO] Trans > __getattr__
     def __getattr__(self, real_name):
         from django.conf import settings
 
@@ -87,22 +90,27 @@ _trans = Trans()
 del Trans
 
 
+# [TODO] gettext_noop
 def gettext_noop(message):
     return _trans.gettext_noop(message)
 
 
+# [TODO] gettext
 def gettext(message):
     return _trans.gettext(message)
 
 
+# [TODO] ngettext
 def ngettext(singular, plural, number):
     return _trans.ngettext(singular, plural, number)
 
 
+# [TODO] pgettext
 def pgettext(context, message):
     return _trans.pgettext(context, message)
 
 
+# [TODO] npgettext
 def npgettext(context, singular, plural, number):
     return _trans.npgettext(context, singular, plural, number)
 
@@ -111,6 +119,7 @@ gettext_lazy = lazy(gettext, str)
 pgettext_lazy = lazy(pgettext, str)
 
 
+# [TODO] lazy_number
 def lazy_number(func, resultclass, number=None, **kwargs):
     if isinstance(number, int):
         kwargs["number"] = number
@@ -163,33 +172,41 @@ def lazy_number(func, resultclass, number=None, **kwargs):
     return proxy
 
 
+# [TODO] _lazy_number_unpickle
 def _lazy_number_unpickle(func, resultclass, number, kwargs):
     return lazy_number(func, resultclass, number=number, **kwargs)
 
 
+# [TODO] ngettext_lazy
 def ngettext_lazy(singular, plural, number=None):
     return lazy_number(ngettext, str, singular=singular, plural=plural, number=number)
 
 
+# [TODO] npgettext_lazy
 def npgettext_lazy(context, singular, plural, number=None):
     return lazy_number(
         npgettext, str, context=context, singular=singular, plural=plural, number=number
     )
 
 
+# [TODO] activate
 def activate(language):
     return _trans.activate(language)
 
 
+# [TODO] deactivate
 def deactivate():
     return _trans.deactivate()
 
 
+# [TODO] override
 class override(ContextDecorator):
+    # [TODO] override > __init__
     def __init__(self, language, deactivate=False):
         self.language = language
         self.deactivate = deactivate
 
+    # [TODO] override > __enter__
     def __enter__(self):
         self.old_language = get_language()
         if self.language is not None:
@@ -197,6 +214,7 @@ class override(ContextDecorator):
         else:
             deactivate_all()
 
+    # [TODO] override > __exit__
     def __exit__(self, exc_type, exc_value, traceback):
         if self.old_language is None:
             deactivate_all()
@@ -206,18 +224,22 @@ class override(ContextDecorator):
             activate(self.old_language)
 
 
+# [TODO] get_language
 def get_language():
     return _trans.get_language()
 
 
+# [TODO] get_language_bidi
 def get_language_bidi():
     return _trans.get_language_bidi()
 
 
+# [TODO] check_for_language
 def check_for_language(lang_code):
     return _trans.check_for_language(lang_code)
 
 
+# [TODO] to_language
 def to_language(locale):
     """Turn a locale name (en_US) into a language name (en-us)."""
     p = locale.find("_")
@@ -227,6 +249,7 @@ def to_language(locale):
         return locale.lower()
 
 
+# [TODO] to_locale
 def to_locale(language):
     """Turn a language name (en-us) into a locale name (en_US)."""
     lang, _, country = language.lower().partition("-")
@@ -243,28 +266,34 @@ def to_locale(language):
     return lang + "_" + country
 
 
+# [TODO] get_language_from_request
 def get_language_from_request(request, check_path=False):
     return _trans.get_language_from_request(request, check_path)
 
 
+# [TODO] get_language_from_path
 def get_language_from_path(path):
     return _trans.get_language_from_path(path)
 
 
+# [TODO] get_supported_language_variant
 def get_supported_language_variant(lang_code, *, strict=False):
     return _trans.get_supported_language_variant(lang_code, strict)
 
 
+# [TODO] templatize
 def templatize(src, **kwargs):
     from .template import templatize
 
     return templatize(src, **kwargs)
 
 
+# [TODO] deactivate_all
 def deactivate_all():
     return _trans.deactivate_all()
 
 
+# [TODO] get_language_info
 def get_language_info(lang_code):
     from django.conf.locale import LANG_INFO
 
@@ -293,9 +322,11 @@ def get_language_info(lang_code):
 trim_whitespace_re = _lazy_re_compile(r"\s*\n\s*")
 
 
+# [TODO] trim_whitespace
 def trim_whitespace(s):
     return trim_whitespace_re.sub(" ", s.strip())
 
 
+# [TODO] round_away_from_one
 def round_away_from_one(value):
     return int(Decimal(value - 1).quantize(Decimal("0"), rounding=ROUND_UP)) + 1

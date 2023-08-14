@@ -7,6 +7,7 @@ from django.utils._os import to_path
 from django.utils.autoreload import autoreload_started, file_changed, is_django_path
 
 
+# [TODO] get_template_directories
 def get_template_directories():
     # Iterate through each template backend and find
     # any template_loader that has a 'get_dirs' method.
@@ -30,6 +31,7 @@ def get_template_directories():
     return items
 
 
+# [TODO] reset_loaders
 def reset_loaders():
     from django.forms.renderers import get_default_renderer
 
@@ -45,12 +47,14 @@ def reset_loaders():
             loader.reset()
 
 
+# [TODO] watch_for_template_changes
 @receiver(autoreload_started, dispatch_uid="template_loaders_watch_changes")
 def watch_for_template_changes(sender, **kwargs):
     for directory in get_template_directories():
         sender.watch_dir(directory, "**/*")
 
 
+# [TODO] template_changed
 @receiver(file_changed, dispatch_uid="template_loaders_file_changed")
 def template_changed(sender, file_path, **kwargs):
     if file_path.suffix == ".py":

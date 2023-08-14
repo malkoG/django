@@ -6,9 +6,11 @@ from django.utils.functional import Promise
 __all__ = ["Choices", "IntegerChoices", "TextChoices"]
 
 
+# [TODO] ChoicesMeta
 class ChoicesMeta(enum.EnumMeta):
     """A metaclass for creating a enum choices."""
 
+    # [TODO] ChoicesMeta > __new__
     def __new__(metacls, classname, bases, classdict, **kwds):
         labels = []
         for key in classdict._member_names:
@@ -31,42 +33,51 @@ class ChoicesMeta(enum.EnumMeta):
             member._label_ = label
         return enum.unique(cls)
 
+    # [TODO] ChoicesMeta > __contains__
     def __contains__(cls, member):
         if not isinstance(member, enum.Enum):
             # Allow non-enums to match against member values.
             return any(x.value == member for x in cls)
         return super().__contains__(member)
 
+    # [TODO] ChoicesMeta > names
     @property
     def names(cls):
         empty = ["__empty__"] if hasattr(cls, "__empty__") else []
         return empty + [member.name for member in cls]
 
+    # [TODO] ChoicesMeta > choices
     @property
     def choices(cls):
         empty = [(None, cls.__empty__)] if hasattr(cls, "__empty__") else []
         return empty + [(member.value, member.label) for member in cls]
 
+    # [TODO] ChoicesMeta > labels
     @property
     def labels(cls):
         return [label for _, label in cls.choices]
 
+    # [TODO] ChoicesMeta > values
     @property
     def values(cls):
         return [value for value, _ in cls.choices]
 
 
+# [TODO] Choices
 class Choices(enum.Enum, metaclass=ChoicesMeta):
     """Class for creating enumerated choices."""
 
+    # [TODO] Choices > label
     @DynamicClassAttribute
     def label(self):
         return self._label_
 
+    # [TODO] Choices > do_not_call_in_templates
     @property
     def do_not_call_in_templates(self):
         return True
 
+    # [TODO] Choices > __str__
     def __str__(self):
         """
         Use value when cast to str, so that Choices set as model instance
@@ -75,18 +86,22 @@ class Choices(enum.Enum, metaclass=ChoicesMeta):
         return str(self.value)
 
     # A similar format was proposed for Python 3.10.
+    # [TODO] Choices > __repr__
     def __repr__(self):
         return f"{self.__class__.__qualname__}.{self._name_}"
 
 
+# [TODO] IntegerChoices
 class IntegerChoices(int, Choices):
     """Class for creating enumerated integer choices."""
 
     pass
 
 
+# [TODO] TextChoices
 class TextChoices(str, Choices):
     """Class for creating enumerated string choices."""
 
+    # [TODO] TextChoices > _generate_next_value_
     def _generate_next_value_(name, start, count, last_values):
         return name

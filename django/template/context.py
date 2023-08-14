@@ -5,46 +5,58 @@ from copy import copy
 _builtin_context_processors = ("django.template.context_processors.csrf",)
 
 
+# [TODO] ContextPopException
 class ContextPopException(Exception):
     "pop() has been called more times than push()"
     pass
 
 
+# [TODO] ContextDict
 class ContextDict(dict):
+    # [TODO] ContextDict > __init__
     def __init__(self, context, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         context.dicts.append(self)
         self.context = context
 
+    # [TODO] ContextDict > __enter__
     def __enter__(self):
         return self
 
+    # [TODO] ContextDict > __exit__
     def __exit__(self, *args, **kwargs):
         self.context.pop()
 
 
+# [TODO] BaseContext
 class BaseContext:
+    # [TODO] BaseContext > __init__
     def __init__(self, dict_=None):
         self._reset_dicts(dict_)
 
+    # [TODO] BaseContext > _reset_dicts
     def _reset_dicts(self, value=None):
         builtins = {"True": True, "False": False, "None": None}
         self.dicts = [builtins]
         if value is not None:
             self.dicts.append(value)
 
+    # [TODO] BaseContext > __copy__
     def __copy__(self):
         duplicate = copy(super())
         duplicate.dicts = self.dicts[:]
         return duplicate
 
+    # [TODO] BaseContext > __repr__
     def __repr__(self):
         return repr(self.dicts)
 
+    # [TODO] BaseContext > __iter__
     def __iter__(self):
         return reversed(self.dicts)
 
+    # [TODO] BaseContext > push
     def push(self, *args, **kwargs):
         dicts = []
         for d in args:
@@ -54,15 +66,18 @@ class BaseContext:
                 dicts.append(d)
         return ContextDict(self, *dicts, **kwargs)
 
+    # [TODO] BaseContext > pop
     def pop(self):
         if len(self.dicts) == 1:
             raise ContextPopException
         return self.dicts.pop()
 
+    # [TODO] BaseContext > __setitem__
     def __setitem__(self, key, value):
         "Set a variable in the current context"
         self.dicts[-1][key] = value
 
+    # [TODO] BaseContext > set_upward
     def set_upward(self, key, value):
         """
         Set a variable in one of the higher contexts if it exists there,
@@ -75,6 +90,7 @@ class BaseContext:
                 break
         context[key] = value
 
+    # [TODO] BaseContext > __getitem__
     def __getitem__(self, key):
         "Get a variable's value, starting at the current context and going upward"
         for d in reversed(self.dicts):
@@ -82,19 +98,23 @@ class BaseContext:
                 return d[key]
         raise KeyError(key)
 
+    # [TODO] BaseContext > __delitem__
     def __delitem__(self, key):
         "Delete a variable from the current context"
         del self.dicts[-1][key]
 
+    # [TODO] BaseContext > __contains__
     def __contains__(self, key):
         return any(key in d for d in self.dicts)
 
+    # [TODO] BaseContext > get
     def get(self, key, otherwise=None):
         for d in reversed(self.dicts):
             if key in d:
                 return d[key]
         return otherwise
 
+    # [TODO] BaseContext > setdefault
     def setdefault(self, key, default=None):
         try:
             return self[key]
@@ -102,6 +122,7 @@ class BaseContext:
             self[key] = default
         return default
 
+    # [TODO] BaseContext > new
     def new(self, values=None):
         """
         Return a new context with the same properties, but with only the
@@ -111,6 +132,7 @@ class BaseContext:
         new_context._reset_dicts(values)
         return new_context
 
+    # [TODO] BaseContext > flatten
     def flatten(self):
         """
         Return self.dicts as one dictionary.
@@ -120,6 +142,7 @@ class BaseContext:
             flat.update(d)
         return flat
 
+    # [TODO] BaseContext > __eq__
     def __eq__(self, other):
         """
         Compare two contexts by comparing theirs 'dicts' attributes.
@@ -130,9 +153,11 @@ class BaseContext:
         return self.flatten() == other.flatten()
 
 
+# [TODO] Context
 class Context(BaseContext):
     "A stack container for variable context"
 
+    # [TODO] Context > __init__
     def __init__(self, dict_=None, autoescape=True, use_l10n=None, use_tz=None):
         self.autoescape = autoescape
         self.use_l10n = use_l10n
@@ -144,6 +169,7 @@ class Context(BaseContext):
         self.template = None
         super().__init__(dict_)
 
+    # [TODO] Context > bind_template
     @contextmanager
     def bind_template(self, template):
         if self.template is not None:
@@ -154,11 +180,13 @@ class Context(BaseContext):
         finally:
             self.template = None
 
+    # [TODO] Context > __copy__
     def __copy__(self):
         duplicate = super().__copy__()
         duplicate.render_context = copy(self.render_context)
         return duplicate
 
+    # [TODO] Context > update
     def update(self, other_dict):
         "Push other_dict to the stack of dictionaries in the Context"
         if not hasattr(other_dict, "__getitem__"):
@@ -168,6 +196,7 @@ class Context(BaseContext):
         return ContextDict(self, other_dict)
 
 
+# [TODO] RenderContext
 class RenderContext(BaseContext):
     """
     A stack container for storing Template state.
@@ -186,18 +215,23 @@ class RenderContext(BaseContext):
 
     template = None
 
+    # [TODO] RenderContext > __iter__
     def __iter__(self):
         yield from self.dicts[-1]
 
+    # [TODO] RenderContext > __contains__
     def __contains__(self, key):
         return key in self.dicts[-1]
 
+    # [TODO] RenderContext > get
     def get(self, key, otherwise=None):
         return self.dicts[-1].get(key, otherwise)
 
+    # [TODO] RenderContext > __getitem__
     def __getitem__(self, key):
         return self.dicts[-1][key]
 
+    # [TODO] RenderContext > push_state
     @contextmanager
     def push_state(self, template, isolated_context=True):
         initial = self.template
@@ -212,6 +246,7 @@ class RenderContext(BaseContext):
                 self.pop()
 
 
+# [TODO] RequestContext
 class RequestContext(Context):
     """
     This subclass of template.Context automatically populates itself using
@@ -220,6 +255,7 @@ class RequestContext(Context):
     using the "processors" keyword argument.
     """
 
+    # [TODO] RequestContext > __init__
     def __init__(
         self,
         request,
@@ -241,6 +277,7 @@ class RequestContext(Context):
         # (so that context processors don't overwrite them)
         self.update({})
 
+    # [TODO] RequestContext > bind_template
     @contextmanager
     def bind_template(self, template):
         if self.template is not None:
@@ -269,6 +306,7 @@ class RequestContext(Context):
             # Unset context processors.
             self.dicts[self._processors_index] = {}
 
+    # [TODO] RequestContext > new
     def new(self, values=None):
         new_context = super().new(values)
         # This is for backwards-compatibility: RequestContexts created via
@@ -278,6 +316,7 @@ class RequestContext(Context):
         return new_context
 
 
+# [TODO] make_context
 def make_context(context, request=None, **kwargs):
     """
     Create a suitable Context from a plain dict and optionally an HttpRequest.

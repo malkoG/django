@@ -19,38 +19,46 @@ __all__ = [
 ]
 
 
+# [TODO] ArrayAgg
 class ArrayAgg(OrderableAggMixin, Aggregate):
     function = "ARRAY_AGG"
     template = "%(function)s(%(distinct)s%(expressions)s %(ordering)s)"
     allow_distinct = True
 
+    # [TODO] ArrayAgg > output_field
     @property
     def output_field(self):
         return ArrayField(self.source_expressions[0].output_field)
 
 
+# [TODO] BitAnd
 class BitAnd(Aggregate):
     function = "BIT_AND"
 
 
+# [TODO] BitOr
 class BitOr(Aggregate):
     function = "BIT_OR"
 
 
+# [TODO] BitXor
 class BitXor(Aggregate):
     function = "BIT_XOR"
 
 
+# [TODO] BoolAnd
 class BoolAnd(Aggregate):
     function = "BOOL_AND"
     output_field = BooleanField()
 
 
+# [TODO] BoolOr
 class BoolOr(Aggregate):
     function = "BOOL_OR"
     output_field = BooleanField()
 
 
+# [TODO] JSONBAgg
 class JSONBAgg(OrderableAggMixin, Aggregate):
     function = "JSONB_AGG"
     template = "%(function)s(%(distinct)s%(expressions)s %(ordering)s)"
@@ -58,6 +66,7 @@ class JSONBAgg(OrderableAggMixin, Aggregate):
     output_field = JSONField()
 
     # RemovedInDjango51Warning: When the deprecation ends, remove __init__().
+    # [TODO] JSONBAgg > __init__
     def __init__(self, *expressions, default=None, **extra):
         super().__init__(*expressions, default=default, **extra)
         if (
@@ -87,12 +96,14 @@ class JSONBAgg(OrderableAggMixin, Aggregate):
                 )
 
 
+# [TODO] StringAgg
 class StringAgg(OrderableAggMixin, Aggregate):
     function = "STRING_AGG"
     template = "%(function)s(%(distinct)s%(expressions)s %(ordering)s)"
     allow_distinct = True
     output_field = TextField()
 
+    # [TODO] StringAgg > __init__
     def __init__(self, expression, delimiter, **extra):
         delimiter_expr = Value(str(delimiter))
         super().__init__(expression, delimiter_expr, **extra)

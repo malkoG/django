@@ -7,6 +7,7 @@ from django.contrib.gis.gdal.prototypes import raster as rcapi
 from django.utils.encoding import force_bytes, force_str
 
 
+# [TODO] Driver
 class Driver(GDALBase):
     """
     Wrap a GDAL/OGR Data Source Driver.
@@ -33,6 +34,7 @@ class Driver(GDALBase):
         "jpg": "JPEG",
     }
 
+    # [TODO] Driver > __init__
     def __init__(self, dr_input):
         """
         Initialize an GDAL/OGR driver on either a string or integer input.
@@ -73,9 +75,11 @@ class Driver(GDALBase):
             )
         self.ptr = driver
 
+    # [TODO] Driver > __str__
     def __str__(self):
         return self.name
 
+    # [TODO] Driver > ensure_registered
     @classmethod
     def ensure_registered(cls):
         """
@@ -88,6 +92,7 @@ class Driver(GDALBase):
         if not rcapi.get_driver_count():
             rcapi.register_all()
 
+    # [TODO] Driver > driver_count
     @classmethod
     def driver_count(cls):
         """
@@ -95,6 +100,7 @@ class Driver(GDALBase):
         """
         return vcapi.get_driver_count() + rcapi.get_driver_count()
 
+    # [TODO] Driver > name
     @property
     def name(self):
         """

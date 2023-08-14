@@ -2,6 +2,7 @@ from django.core.management.base import AppCommand
 from django.db import DEFAULT_DB_ALIAS, connections
 
 
+# [TODO] Command
 class Command(AppCommand):
     help = (
         "Prints the SQL statements for resetting sequences for the given app name(s)."
@@ -9,6 +10,7 @@ class Command(AppCommand):
 
     output_transaction = True
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         super().add_arguments(parser)
         parser.add_argument(
@@ -20,6 +22,7 @@ class Command(AppCommand):
             ),
         )
 
+    # [TODO] Command > handle_app_config
     def handle_app_config(self, app_config, **options):
         if app_config.models_module is None:
             return

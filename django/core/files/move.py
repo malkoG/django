@@ -13,6 +13,7 @@ from django.core.files import locks
 __all__ = ["file_move_safe"]
 
 
+# [TODO] _samefile
 def _samefile(src, dst):
     # Macintosh, Unix.
     if hasattr(os.path, "samefile"):
@@ -27,6 +28,7 @@ def _samefile(src, dst):
     )
 
 
+# [TODO] file_move_safe
 def file_move_safe(
     old_file_name, new_file_name, chunk_size=1024 * 64, allow_overwrite=False
 ):

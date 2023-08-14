@@ -4,17 +4,21 @@ from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 
 
+# [TODO] InvalidStorageError
 class InvalidStorageError(ImproperlyConfigured):
     pass
 
 
+# [TODO] StorageHandler
 class StorageHandler:
+    # [TODO] StorageHandler > __init__
     def __init__(self, backends=None):
         # backends is an optional dict of storage backend definitions
         # (structured like settings.STORAGES).
         self._backends = backends
         self._storages = {}
 
+    # [TODO] StorageHandler > backends
     @cached_property
     def backends(self):
         if self._backends is None:
@@ -30,6 +34,7 @@ class StorageHandler:
                 }
         return self._backends
 
+    # [TODO] StorageHandler > __getitem__
     def __getitem__(self, alias):
         try:
             return self._storages[alias]
@@ -44,6 +49,7 @@ class StorageHandler:
             self._storages[alias] = storage
             return storage
 
+    # [TODO] StorageHandler > create_storage
     def create_storage(self, params):
         params = params.copy()
         backend = params.pop("BACKEND")

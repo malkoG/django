@@ -13,6 +13,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, pgettext
 
 
+# [TODO] capfirst
 @keep_lazy_text
 def capfirst(x):
     """Capitalize the first letter of a string."""
@@ -31,6 +32,7 @@ re_newlines = _lazy_re_compile(r"\r\n|\r")  # Used in normalize_newlines
 re_camel_case = _lazy_re_compile(r"(((?<=[a-z])[A-Z])|([A-Z](?![A-Z]|$)))")
 
 
+# [TODO] wrap
 @keep_lazy_text
 def wrap(text, width):
     """
@@ -64,6 +66,7 @@ def wrap(text, width):
     return "".join(_generator())
 
 
+# [TODO] add_truncation_text
 def add_truncation_text(text, truncate=None):
     if truncate is None:
         truncate = pgettext(
@@ -80,14 +83,17 @@ def add_truncation_text(text, truncate=None):
     return f"{text}{truncate}"
 
 
+# [TODO] Truncator
 class Truncator(SimpleLazyObject):
     """
     An object used to truncate text, either by characters or words.
     """
 
+    # [TODO] Truncator > __init__
     def __init__(self, text):
         super().__init__(lambda: str(text))
 
+    # [TODO] Truncator > chars
     def chars(self, num, truncate=None, html=False):
         """
         Return the text truncated to be no longer than the specified number
@@ -111,6 +117,7 @@ class Truncator(SimpleLazyObject):
             return self._truncate_html(length, truncate, text, truncate_len, False)
         return self._text_chars(length, truncate, text, truncate_len)
 
+    # [TODO] Truncator > _text_chars
     def _text_chars(self, length, truncate, text, truncate_len):
         """Truncate a string after a certain number of chars."""
         s_len = 0
@@ -130,6 +137,7 @@ class Truncator(SimpleLazyObject):
         # Return the original string since no truncation was necessary
         return text
 
+    # [TODO] Truncator > words
     def words(self, num, truncate=None, html=False):
         """
         Truncate a string after a certain number of words. `truncate` specifies
@@ -142,6 +150,7 @@ class Truncator(SimpleLazyObject):
             return self._truncate_html(length, truncate, self._wrapped, length, True)
         return self._text_words(length, truncate)
 
+    # [TODO] Truncator > _text_words
     def _text_words(self, length, truncate):
         """
         Truncate a string after a certain number of words.
@@ -154,6 +163,7 @@ class Truncator(SimpleLazyObject):
             return add_truncation_text(" ".join(words), truncate)
         return " ".join(words)
 
+    # [TODO] Truncator > _truncate_html
     def _truncate_html(self, length, truncate, text, truncate_len, words):
         """
         Truncate HTML to a certain number of chars (not counting tags and
@@ -234,6 +244,7 @@ class Truncator(SimpleLazyObject):
         return out
 
 
+# [TODO] get_valid_filename
 @keep_lazy_text
 def get_valid_filename(name):
     """
@@ -251,6 +262,7 @@ def get_valid_filename(name):
     return s
 
 
+# [TODO] get_text_list
 @keep_lazy_text
 def get_text_list(list_, last_word=gettext_lazy("or")):
     """
@@ -277,12 +289,14 @@ def get_text_list(list_, last_word=gettext_lazy("or")):
     )
 
 
+# [TODO] normalize_newlines
 @keep_lazy_text
 def normalize_newlines(text):
     """Normalize CRLF and CR newlines to just LF."""
     return re_newlines.sub("\n", str(text))
 
 
+# [TODO] phone2numeric
 @keep_lazy_text
 def phone2numeric(phone):
     """Convert a phone number with letters into its numeric equivalent."""
@@ -317,10 +331,12 @@ def phone2numeric(phone):
     return "".join(char2number.get(c, c) for c in phone.lower())
 
 
+# [TODO] _get_random_filename
 def _get_random_filename(max_random_bytes):
     return b"a" * secrets.randbelow(max_random_bytes)
 
 
+# [TODO] compress_string
 def compress_string(s, *, max_random_bytes=None):
     compressed_data = gzip_compress(s, compresslevel=6, mtime=0)
 
@@ -336,7 +352,9 @@ def compress_string(s, *, max_random_bytes=None):
     return bytes(header) + filename + compressed_view[10:]
 
 
+# [TODO] StreamingBuffer
 class StreamingBuffer(BytesIO):
+    # [TODO] StreamingBuffer > read
     def read(self):
         ret = self.getvalue()
         self.seek(0)
@@ -345,6 +363,7 @@ class StreamingBuffer(BytesIO):
 
 
 # Like compress_string, but for iterators of strings.
+# [TODO] compress_sequence
 def compress_sequence(sequence, *, max_random_bytes=None):
     buf = StreamingBuffer()
     filename = _get_random_filename(max_random_bytes) if max_random_bytes else None
@@ -377,6 +396,7 @@ smart_split_re = _lazy_re_compile(
 )
 
 
+# [TODO] smart_split
 def smart_split(text):
     r"""
     Generator that splits a string by spaces, leaving quoted phrases together.
@@ -396,6 +416,7 @@ def smart_split(text):
         yield bit[0]
 
 
+# [TODO] unescape_string_literal
 @keep_lazy_text
 def unescape_string_literal(s):
     r"""
@@ -417,6 +438,7 @@ def unescape_string_literal(s):
     return s[1:-1].replace(r"\%s" % quote, quote).replace(r"\\", "\\")
 
 
+# [TODO] slugify
 @keep_lazy_text
 def slugify(value, allow_unicode=False):
     """
@@ -438,6 +460,7 @@ def slugify(value, allow_unicode=False):
     return re.sub(r"[-\s]+", "-", value).strip("-_")
 
 
+# [TODO] camel_case_to_spaces
 def camel_case_to_spaces(value):
     """
     Split CamelCase and convert to lowercase. Strip surrounding whitespace.
@@ -445,6 +468,7 @@ def camel_case_to_spaces(value):
     return re_camel_case.sub(r" \1", value).strip().lower()
 
 
+# [TODO] _format_lazy
 def _format_lazy(format_string, *args, **kwargs):
     """
     Apply str.format() on 'format_string' where format_string, args,

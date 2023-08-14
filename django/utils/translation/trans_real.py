@@ -56,6 +56,7 @@ language_code_re = _lazy_re_compile(
 language_code_prefix_re = _lazy_re_compile(r"^/(\w+([@-]\w+){0,2})(/|$)")
 
 
+# [TODO] reset_cache
 @receiver(setting_changed)
 def reset_cache(*, setting, **kwargs):
     """
@@ -68,16 +69,19 @@ def reset_cache(*, setting, **kwargs):
         get_supported_language_variant.cache_clear()
 
 
+# [TODO] TranslationCatalog
 class TranslationCatalog:
     """
     Simulate a dict for DjangoTranslation._catalog so as multiple catalogs
     with different plural equations are kept separate.
     """
 
+    # [TODO] TranslationCatalog > __init__
     def __init__(self, trans=None):
         self._catalogs = [trans._catalog.copy()] if trans else [{}]
         self._plurals = [trans.plural] if trans else [lambda n: int(n != 1)]
 
+    # [TODO] TranslationCatalog > __getitem__
     def __getitem__(self, key):
         for cat in self._catalogs:
             try:
@@ -86,20 +90,25 @@ class TranslationCatalog:
                 pass
         raise KeyError(key)
 
+    # [TODO] TranslationCatalog > __setitem__
     def __setitem__(self, key, value):
         self._catalogs[0][key] = value
 
+    # [TODO] TranslationCatalog > __contains__
     def __contains__(self, key):
         return any(key in cat for cat in self._catalogs)
 
+    # [TODO] TranslationCatalog > items
     def items(self):
         for cat in self._catalogs:
             yield from cat.items()
 
+    # [TODO] TranslationCatalog > keys
     def keys(self):
         for cat in self._catalogs:
             yield from cat.keys()
 
+    # [TODO] TranslationCatalog > update
     def update(self, trans):
         # Merge if plural function is the same, else prepend.
         for cat, plural in zip(self._catalogs, self._plurals):
@@ -110,6 +119,7 @@ class TranslationCatalog:
             self._catalogs.insert(0, trans._catalog.copy())
             self._plurals.insert(0, trans.plural)
 
+    # [TODO] TranslationCatalog > get
     def get(self, key, default=None):
         missing = object()
         for cat in self._catalogs:
@@ -118,6 +128,7 @@ class TranslationCatalog:
                 return result
         return default
 
+    # [TODO] TranslationCatalog > plural
     def plural(self, msgid, num):
         for cat, plural in zip(self._catalogs, self._plurals):
             tmsg = cat.get((msgid, plural(num)))
@@ -126,6 +137,7 @@ class TranslationCatalog:
         raise KeyError
 
 
+# [TODO] DjangoTranslation
 class DjangoTranslation(gettext_module.GNUTranslations):
     """
     Set up the GNUTranslations context with regard to output charset.
@@ -138,6 +150,7 @@ class DjangoTranslation(gettext_module.GNUTranslations):
 
     domain = "django"
 
+    # [TODO] DjangoTranslation > __init__
     def __init__(self, language, domain=None, localedirs=None):
         """Create a GNUTranslations() using many locale directories"""
         gettext_module.GNUTranslations.__init__(self)
@@ -184,9 +197,11 @@ class DjangoTranslation(gettext_module.GNUTranslations):
             # No catalogs found for this language, set an empty catalog.
             self._catalog = TranslationCatalog()
 
+    # [TODO] DjangoTranslation > __repr__
     def __repr__(self):
         return "<DjangoTranslation lang:%s>" % self.__language
 
+    # [TODO] DjangoTranslation > _new_gnu_trans
     def _new_gnu_trans(self, localedir, use_null_fallback=True):
         """
         Return a mergeable gettext.GNUTranslations instance.
@@ -202,6 +217,7 @@ class DjangoTranslation(gettext_module.GNUTranslations):
             fallback=use_null_fallback,
         )
 
+    # [TODO] DjangoTranslation > _init_translation_catalog
     def _init_translation_catalog(self):
         """Create a base catalog using global django translations."""
         settingsfile = sys.modules[settings.__module__].__file__
@@ -209,6 +225,7 @@ class DjangoTranslation(gettext_module.GNUTranslations):
         translation = self._new_gnu_trans(localedir)
         self.merge(translation)
 
+    # [TODO] DjangoTranslation > _add_installed_apps_translations
     def _add_installed_apps_translations(self):
         """Merge translations from each installed app."""
         try:
@@ -225,12 +242,14 @@ class DjangoTranslation(gettext_module.GNUTranslations):
                 translation = self._new_gnu_trans(localedir)
                 self.merge(translation)
 
+    # [TODO] DjangoTranslation > _add_local_translations
     def _add_local_translations(self):
         """Merge translations defined in LOCALE_PATHS."""
         for localedir in reversed(settings.LOCALE_PATHS):
             translation = self._new_gnu_trans(localedir)
             self.merge(translation)
 
+    # [TODO] DjangoTranslation > _add_fallback
     def _add_fallback(self, localedirs=None):
         """Set the GNUTranslations() fallback with the default language."""
         # Don't set a fallback for the default language or any English variant
@@ -248,6 +267,7 @@ class DjangoTranslation(gettext_module.GNUTranslations):
             )
         self.add_fallback(default_translation)
 
+    # [TODO] DjangoTranslation > merge
     def merge(self, other):
         """Merge another translation into this catalog."""
         if not getattr(other, "_catalog", None):
@@ -262,14 +282,17 @@ class DjangoTranslation(gettext_module.GNUTranslations):
         if other._fallback:
             self.add_fallback(other._fallback)
 
+    # [TODO] DjangoTranslation > language
     def language(self):
         """Return the translation language."""
         return self.__language
 
+    # [TODO] DjangoTranslation > to_language
     def to_language(self):
         """Return the translation language name."""
         return self.__to_language
 
+    # [TODO] DjangoTranslation > ngettext
     def ngettext(self, msgid1, msgid2, n):
         try:
             tmsg = self._catalog.plural(msgid1, n)
@@ -283,6 +306,7 @@ class DjangoTranslation(gettext_module.GNUTranslations):
         return tmsg
 
 
+# [TODO] translation
 def translation(language):
     """
     Return a translation object in the default 'django' domain.
@@ -293,6 +317,7 @@ def translation(language):
     return _translations[language]
 
 
+# [TODO] activate
 def activate(language):
     """
     Fetch the translation object for a given language and install it as the
@@ -303,6 +328,7 @@ def activate(language):
     _active.value = translation(language)
 
 
+# [TODO] deactivate
 def deactivate():
     """
     Uninstall the active translation object so that further _() calls resolve
@@ -312,6 +338,7 @@ def deactivate():
         del _active.value
 
 
+# [TODO] deactivate_all
 def deactivate_all():
     """
     Make the active translation object a NullTranslations() instance. This is
@@ -322,6 +349,7 @@ def deactivate_all():
     _active.value.to_language = lambda *args: None
 
 
+# [TODO] get_language
 def get_language():
     """Return the currently selected language."""
     t = getattr(_active, "value", None)
@@ -334,6 +362,7 @@ def get_language():
     return settings.LANGUAGE_CODE
 
 
+# [TODO] get_language_bidi
 def get_language_bidi():
     """
     Return selected language's BiDi layout.
@@ -349,6 +378,7 @@ def get_language_bidi():
         return base_lang in settings.LANGUAGES_BIDI
 
 
+# [TODO] catalog
 def catalog():
     """
     Return the current active catalog for further processing.
@@ -365,6 +395,7 @@ def catalog():
     return _default
 
 
+# [TODO] gettext
 def gettext(message):
     """
     Translate the 'message' string. It uses the current thread to find the
@@ -391,6 +422,7 @@ def gettext(message):
     return result
 
 
+# [TODO] pgettext
 def pgettext(context, message):
     msg_with_ctxt = "%s%s%s" % (context, CONTEXT_SEPARATOR, message)
     result = gettext(msg_with_ctxt)
@@ -402,6 +434,7 @@ def pgettext(context, message):
     return result
 
 
+# [TODO] gettext_noop
 def gettext_noop(message):
     """
     Mark strings for translation but don't translate them now. This can be
@@ -412,6 +445,7 @@ def gettext_noop(message):
     return message
 
 
+# [TODO] do_ntranslate
 def do_ntranslate(singular, plural, number, translation_function):
     global _default
 
@@ -423,6 +457,7 @@ def do_ntranslate(singular, plural, number, translation_function):
     return getattr(_default, translation_function)(singular, plural, number)
 
 
+# [TODO] ngettext
 def ngettext(singular, plural, number):
     """
     Return a string of the translation of either the singular or plural,
@@ -431,6 +466,7 @@ def ngettext(singular, plural, number):
     return do_ntranslate(singular, plural, number, "ngettext")
 
 
+# [TODO] npgettext
 def npgettext(context, singular, plural, number):
     msgs_with_ctxt = (
         "%s%s%s" % (context, CONTEXT_SEPARATOR, singular),
@@ -444,6 +480,7 @@ def npgettext(context, singular, plural, number):
     return result
 
 
+# [TODO] all_locale_paths
 def all_locale_paths():
     """
     Return a list of paths to user-provides languages files.
@@ -459,6 +496,7 @@ def all_locale_paths():
     return [globalpath, *settings.LOCALE_PATHS, *app_paths]
 
 
+# [TODO] check_for_language
 @functools.lru_cache(maxsize=1000)
 def check_for_language(lang_code):
     """
@@ -479,6 +517,7 @@ def check_for_language(lang_code):
     )
 
 
+# [TODO] get_languages
 @functools.lru_cache
 def get_languages():
     """
@@ -488,6 +527,7 @@ def get_languages():
     return {key.lower(): value for key, value in dict(settings.LANGUAGES).items()}
 
 
+# [TODO] get_supported_language_variant
 @functools.lru_cache(maxsize=1000)
 def get_supported_language_variant(lang_code, strict=False):
     """
@@ -526,6 +566,7 @@ def get_supported_language_variant(lang_code, strict=False):
     raise LookupError(lang_code)
 
 
+# [TODO] get_language_from_path
 def get_language_from_path(path, strict=False):
     """
     Return the language code if there's a valid language code found in `path`.
@@ -543,6 +584,7 @@ def get_language_from_path(path, strict=False):
         return None
 
 
+# [TODO] get_language_from_request
 def get_language_from_request(request, check_path=False):
     """
     Analyze the request to find what language the user wants the system to
@@ -590,6 +632,7 @@ def get_language_from_request(request, check_path=False):
         return settings.LANGUAGE_CODE
 
 
+# [TODO] _parse_accept_lang_header
 @functools.lru_cache(maxsize=1000)
 def _parse_accept_lang_header(lang_string):
     """
@@ -615,6 +658,7 @@ def _parse_accept_lang_header(lang_string):
     return tuple(result)
 
 
+# [TODO] parse_accept_lang_header
 def parse_accept_lang_header(lang_string):
     """
     Parse the value of the Accept-Language header up to a maximum length.

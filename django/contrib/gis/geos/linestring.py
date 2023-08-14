@@ -6,11 +6,13 @@ from django.contrib.gis.geos.point import Point
 from django.contrib.gis.shortcuts import numpy
 
 
+# [TODO] LineString
 class LineString(LinearGeometryMixin, GEOSGeometry):
     _init_func = capi.create_linestring
     _minlength = 2
     has_cs = True
 
+    # [TODO] LineString > __init__
     def __init__(self, *args, **kwargs):
         """
         Initialize on the given sequence -- may take lists, tuples, NumPy arrays
@@ -96,20 +98,24 @@ class LineString(LinearGeometryMixin, GEOSGeometry):
         #  from the function.
         super().__init__(self._init_func(cs.ptr), srid=srid)
 
+    # [TODO] LineString > __iter__
     def __iter__(self):
         "Allow iteration over this LineString."
         for i in range(len(self)):
             yield self[i]
 
+    # [TODO] LineString > __len__
     def __len__(self):
         "Return the number of points in this LineString."
         return len(self._cs)
 
+    # [TODO] LineString > _get_single_external
     def _get_single_external(self, index):
         return self._cs[index]
 
     _get_single_internal = _get_single_external
 
+    # [TODO] LineString > _set_list
     def _set_list(self, length, items):
         ndim = self._cs.dims
         hasz = self._cs.hasz  # I don't understand why these are different
@@ -131,14 +137,17 @@ class LineString(LinearGeometryMixin, GEOSGeometry):
             # can this happen?
             raise GEOSException("Geometry resulting from slice deletion was invalid.")
 
+    # [TODO] LineString > _set_single
     def _set_single(self, index, value):
         self._cs[index] = value
 
+    # [TODO] LineString > _checkdim
     def _checkdim(self, dim):
         if dim not in (2, 3):
             raise TypeError("Dimension mismatch.")
 
     # #### Sequence Properties ####
+    # [TODO] LineString > tuple
     @property
     def tuple(self):
         "Return a tuple version of the geometry from the coordinate sequence."
@@ -146,6 +155,7 @@ class LineString(LinearGeometryMixin, GEOSGeometry):
 
     coords = tuple
 
+    # [TODO] LineString > _listarr
     def _listarr(self, func):
         """
         Return a sequence (list) corresponding with the given function.
@@ -157,21 +167,25 @@ class LineString(LinearGeometryMixin, GEOSGeometry):
         else:
             return lst
 
+    # [TODO] LineString > array
     @property
     def array(self):
         "Return a numpy array for the LineString."
         return self._listarr(self._cs.__getitem__)
 
+    # [TODO] LineString > x
     @property
     def x(self):
         "Return a list or numpy array of the X variable."
         return self._listarr(self._cs.getX)
 
+    # [TODO] LineString > y
     @property
     def y(self):
         "Return a list or numpy array of the Y variable."
         return self._listarr(self._cs.getY)
 
+    # [TODO] LineString > z
     @property
     def z(self):
         "Return a list or numpy array of the Z variable."
@@ -182,10 +196,12 @@ class LineString(LinearGeometryMixin, GEOSGeometry):
 
 
 # LinearRings are LineStrings used within Polygons.
+# [TODO] LinearRing
 class LinearRing(LineString):
     _minlength = 4
     _init_func = capi.create_linearring
 
+    # [TODO] LinearRing > is_counterclockwise
     @property
     def is_counterclockwise(self):
         if self.empty:

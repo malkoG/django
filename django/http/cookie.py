@@ -4,6 +4,7 @@ from http import cookies
 SimpleCookie = cookies.SimpleCookie
 
 
+# [TODO] parse_cookie
 def parse_cookie(cookie):
     """
     Return a dictionary parsed from a `Cookie:` header string.

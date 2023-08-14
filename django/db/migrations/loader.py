@@ -17,6 +17,7 @@ from .exceptions import (
 MIGRATIONS_MODULE_NAME = "migrations"
 
 
+# [TODO] MigrationLoader
 class MigrationLoader:
     """
     Load migration files from disk and their status from the database.
@@ -42,6 +43,7 @@ class MigrationLoader:
     in memory.
     """
 
+    # [TODO] MigrationLoader > __init__
     def __init__(
         self,
         connection,
@@ -57,6 +59,7 @@ class MigrationLoader:
         if load:
             self.build_graph()
 
+    # [TODO] MigrationLoader > migrations_module
     @classmethod
     def migrations_module(cls, app_label):
         """
@@ -70,6 +73,7 @@ class MigrationLoader:
             app_package_name = apps.get_app_config(app_label).name
             return "%s.%s" % (app_package_name, MIGRATIONS_MODULE_NAME), False
 
+    # [TODO] MigrationLoader > load_disk
     def load_disk(self):
         """Load the migrations from all INSTALLED_APPS from disk."""
         self.disk_migrations = {}
@@ -138,10 +142,12 @@ class MigrationLoader:
                     app_config.label,
                 )
 
+    # [TODO] MigrationLoader > get_migration
     def get_migration(self, app_label, name_prefix):
         """Return the named migration or raise NodeNotFoundError."""
         return self.graph.nodes[app_label, name_prefix]
 
+    # [TODO] MigrationLoader > get_migration_by_prefix
     def get_migration_by_prefix(self, app_label, name_prefix):
         """
         Return the migration(s) which match the given app label and name_prefix.
@@ -166,6 +172,7 @@ class MigrationLoader:
         else:
             return self.disk_migrations[results[0]]
 
+    # [TODO] MigrationLoader > check_key
     def check_key(self, key, current_app):
         if (key[1] != "__first__" and key[1] != "__latest__") or key in self.graph:
             return key
@@ -196,6 +203,7 @@ class MigrationLoader:
                     )
         raise ValueError("Dependency on unknown app: %s" % key[0])
 
+    # [TODO] MigrationLoader > add_internal_dependencies
     def add_internal_dependencies(self, key, migration):
         """
         Internal dependencies need to be added first to ensure `__first__`
@@ -206,6 +214,7 @@ class MigrationLoader:
             if parent[0] == key[0] and parent[1] != "__first__":
                 self.graph.add_dependency(migration, key, parent, skip_validation=True)
 
+    # [TODO] MigrationLoader > add_external_dependencies
     def add_external_dependencies(self, key, migration):
         for parent in migration.dependencies:
             # Skip internal dependencies
@@ -219,6 +228,7 @@ class MigrationLoader:
             if child is not None:
                 self.graph.add_dependency(migration, child, key, skip_validation=True)
 
+    # [TODO] MigrationLoader > build_graph
     def build_graph(self):
         """
         Build a migration dependency graph using both the disk and database.
@@ -304,6 +314,7 @@ class MigrationLoader:
             raise
         self.graph.ensure_not_cyclic()
 
+    # [TODO] MigrationLoader > check_consistent_history
     def check_consistent_history(self, connection):
         """
         Raise InconsistentMigrationHistory if any applied migrations have
@@ -335,6 +346,7 @@ class MigrationLoader:
                         )
                     )
 
+    # [TODO] MigrationLoader > detect_conflicts
     def detect_conflicts(self):
         """
         Look through the loaded graph and detect any conflicts - apps
@@ -351,6 +363,7 @@ class MigrationLoader:
             app_label: sorted(seen_apps[app_label]) for app_label in conflicting_apps
         }
 
+    # [TODO] MigrationLoader > project_state
     def project_state(self, nodes=None, at_end=True):
         """
         Return a ProjectState object representing the most recent state
@@ -362,6 +375,7 @@ class MigrationLoader:
             nodes=nodes, at_end=at_end, real_apps=self.unmigrated_apps
         )
 
+    # [TODO] MigrationLoader > collect_sql
     def collect_sql(self, plan):
         """
         Take a migration plan and return a list of collected SQL statements

@@ -10,6 +10,7 @@ from django.db import DEFAULT_DB_ALIAS, models
 from django.utils.encoding import is_protected_type
 
 
+# [TODO] Serializer
 class Serializer(base.Serializer):
     """
     Serialize a QuerySet to basic Python objects.
@@ -17,20 +18,25 @@ class Serializer(base.Serializer):
 
     internal_use_only = True
 
+    # [TODO] Serializer > start_serialization
     def start_serialization(self):
         self._current = None
         self.objects = []
 
+    # [TODO] Serializer > end_serialization
     def end_serialization(self):
         pass
 
+    # [TODO] Serializer > start_object
     def start_object(self, obj):
         self._current = {}
 
+    # [TODO] Serializer > end_object
     def end_object(self, obj):
         self.objects.append(self.get_dump_object(obj))
         self._current = None
 
+    # [TODO] Serializer > get_dump_object
     def get_dump_object(self, obj):
         data = {"model": str(obj._meta)}
         if not self.use_natural_primary_keys or not hasattr(obj, "natural_key"):
@@ -38,6 +44,7 @@ class Serializer(base.Serializer):
         data["fields"] = self._current
         return data
 
+    # [TODO] Serializer > _value_from_field
     def _value_from_field(self, obj, field):
         value = field.value_from_object(obj)
         # Protected types (i.e., primitives like None, numbers, dates,
@@ -45,9 +52,11 @@ class Serializer(base.Serializer):
         # converted to string first.
         return value if is_protected_type(value) else field.value_to_string(obj)
 
+    # [TODO] Serializer > handle_field
     def handle_field(self, obj, field):
         self._current[field.name] = self._value_from_field(obj, field)
 
+    # [TODO] Serializer > handle_fk_field
     def handle_fk_field(self, obj, field):
         if self.use_natural_foreign_keys and hasattr(
             field.remote_field.model, "natural_key"
@@ -61,6 +70,7 @@ class Serializer(base.Serializer):
             value = self._value_from_field(obj, field)
         self._current[field.name] = value
 
+    # [TODO] Serializer > handle_m2m_field
     def handle_m2m_field(self, obj, field):
         if field.remote_field.through._meta.auto_created:
             if self.use_natural_foreign_keys and hasattr(
@@ -89,10 +99,12 @@ class Serializer(base.Serializer):
             )
             self._current[field.name] = [m2m_value(related) for related in m2m_iter]
 
+    # [TODO] Serializer > getvalue
     def getvalue(self):
         return self.objects
 
 
+# [TODO] Deserializer
 def Deserializer(
     object_list, *, using=DEFAULT_DB_ALIAS, ignorenonexistent=False, **options
 ):
@@ -182,6 +194,7 @@ def Deserializer(
         yield base.DeserializedObject(obj, m2m_data, deferred_fields)
 
 
+# [TODO] _get_model
 def _get_model(model_identifier):
     """Look up a model from an "app_label.model_name" string."""
     try:

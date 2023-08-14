@@ -24,6 +24,7 @@ from .operations import DatabaseOperations
 from .schema import DatabaseSchemaEditor
 
 
+# [TODO] decoder
 def decoder(conv_func):
     """
     Convert bytestrings from Python's sqlite3 interface to a regular string.
@@ -31,10 +32,12 @@ def decoder(conv_func):
     return lambda s: conv_func(s.decode())
 
 
+# [TODO] adapt_date
 def adapt_date(val):
     return val.isoformat()
 
 
+# [TODO] adapt_datetime
 def adapt_datetime(val):
     return val.isoformat(" ")
 
@@ -50,6 +53,7 @@ Database.register_adapter(datetime.date, adapt_date)
 Database.register_adapter(datetime.datetime, adapt_datetime)
 
 
+# [TODO] DatabaseWrapper
 class DatabaseWrapper(BaseDatabaseWrapper):
     vendor = "sqlite"
     display_name = "SQLite"
@@ -143,6 +147,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     introspection_class = DatabaseIntrospection
     ops_class = DatabaseOperations
 
+    # [TODO] DatabaseWrapper > get_connection_params
     def get_connection_params(self):
         settings_dict = self.settings_dict
         if not settings_dict["NAME"]:
@@ -172,9 +177,11 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         kwargs.update({"check_same_thread": False, "uri": True})
         return kwargs
 
+    # [TODO] DatabaseWrapper > get_database_version
     def get_database_version(self):
         return self.Database.sqlite_version_info
 
+    # [TODO] DatabaseWrapper > get_new_connection
     @async_unsafe
     def get_new_connection(self, conn_params):
         conn = Database.connect(**conn_params)
@@ -186,9 +193,11 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         conn.execute("PRAGMA legacy_alter_table = OFF")
         return conn
 
+    # [TODO] DatabaseWrapper > create_cursor
     def create_cursor(self, name=None):
         return self.connection.cursor(factory=SQLiteCursorWrapper)
 
+    # [TODO] DatabaseWrapper > close
     @async_unsafe
     def close(self):
         self.validate_thread_sharing()
@@ -198,6 +207,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         if not self.is_in_memory_db():
             BaseDatabaseWrapper.close(self)
 
+    # [TODO] DatabaseWrapper > _savepoint_allowed
     def _savepoint_allowed(self):
         # When 'isolation_level' is not None, sqlite3 commits before each
         # savepoint; it's a bug. When it is None, savepoints don't make sense
@@ -206,6 +216,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         # transaction explicitly rather than simply disable autocommit.
         return self.in_atomic_block
 
+    # [TODO] DatabaseWrapper > _set_autocommit
     def _set_autocommit(self, autocommit):
         if autocommit:
             level = None
@@ -218,6 +229,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         with self.wrap_database_errors:
             self.connection.isolation_level = level
 
+    # [TODO] DatabaseWrapper > disable_constraint_checking
     def disable_constraint_checking(self):
         with self.cursor() as cursor:
             cursor.execute("PRAGMA foreign_keys = OFF")
@@ -227,10 +239,12 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             enabled = cursor.execute("PRAGMA foreign_keys").fetchone()[0]
         return not bool(enabled)
 
+    # [TODO] DatabaseWrapper > enable_constraint_checking
     def enable_constraint_checking(self):
         with self.cursor() as cursor:
             cursor.execute("PRAGMA foreign_keys = ON")
 
+    # [TODO] DatabaseWrapper > check_constraints
     def check_constraints(self, table_names=None):
         """
         Check each table name in `table_names` for rows with invalid foreign
@@ -287,9 +301,11 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                     )
                 )
 
+    # [TODO] DatabaseWrapper > is_usable
     def is_usable(self):
         return True
 
+    # [TODO] DatabaseWrapper > _start_transaction_under_autocommit
     def _start_transaction_under_autocommit(self):
         """
         Start a transaction explicitly in autocommit mode.
@@ -299,6 +315,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         """
         self.cursor().execute("BEGIN")
 
+    # [TODO] DatabaseWrapper > is_in_memory_db
     def is_in_memory_db(self):
         return self.creation.is_in_memory_db(self.settings_dict["NAME"])
 
@@ -306,6 +323,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 FORMAT_QMARK_REGEX = _lazy_re_compile(r"(?<!%)%s")
 
 
+# [TODO] SQLiteCursorWrapper
 class SQLiteCursorWrapper(Database.Cursor):
     """
     Django uses the "format" and "pyformat" styles, but Python's sqlite3 module
@@ -319,6 +337,7 @@ class SQLiteCursorWrapper(Database.Cursor):
     In both cases, if you want to use a literal "%s", you'll need to use "%%s".
     """
 
+    # [TODO] SQLiteCursorWrapper > execute
     def execute(self, query, params=None):
         if params is None:
             return super().execute(query)
@@ -327,6 +346,7 @@ class SQLiteCursorWrapper(Database.Cursor):
         query = self.convert_query(query, param_names=param_names)
         return super().execute(query, params)
 
+    # [TODO] SQLiteCursorWrapper > executemany
     def executemany(self, query, param_list):
         # Extract names if params is a mapping, i.e. "pyformat" style is used.
         # Peek carefully as a generator can be passed instead of a list/tuple.
@@ -338,6 +358,7 @@ class SQLiteCursorWrapper(Database.Cursor):
         query = self.convert_query(query, param_names=param_names)
         return super().executemany(query, param_list)
 
+    # [TODO] SQLiteCursorWrapper > convert_query
     def convert_query(self, query, *, param_names=None):
         if param_names is None:
             # Convert from "format" style to "qmark" style.

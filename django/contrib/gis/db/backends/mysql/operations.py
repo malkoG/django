@@ -9,28 +9,34 @@ from django.db.backends.mysql.operations import DatabaseOperations
 from django.utils.functional import cached_property
 
 
+# [TODO] MySQLOperations
 class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
     name = "mysql"
     geom_func_prefix = "ST_"
 
     Adapter = WKTAdapter
 
+    # [TODO] MySQLOperations > mariadb
     @cached_property
     def mariadb(self):
         return self.connection.mysql_is_mariadb
 
+    # [TODO] MySQLOperations > mysql
     @cached_property
     def mysql(self):
         return not self.connection.mysql_is_mariadb
 
+    # [TODO] MySQLOperations > select
     @cached_property
     def select(self):
         return self.geom_func_prefix + "AsBinary(%s)"
 
+    # [TODO] MySQLOperations > from_text
     @cached_property
     def from_text(self):
         return self.geom_func_prefix + "GeomFromText"
 
+    # [TODO] MySQLOperations > gis_operators
     @cached_property
     def gis_operators(self):
         operators = {
@@ -67,6 +73,7 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         "FromWKT": "ST_GeomFromText",
     }
 
+    # [TODO] MySQLOperations > unsupported_functions
     @cached_property
     def unsupported_functions(self):
         unsupported = {
@@ -95,9 +102,11 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
             unsupported.update({"GeoHash", "IsValid"})
         return unsupported
 
+    # [TODO] MySQLOperations > geo_db_type
     def geo_db_type(self, f):
         return f.geom_type
 
+    # [TODO] MySQLOperations > get_distance
     def get_distance(self, f, value, lookup_type):
         value = value[0]
         if isinstance(value, Distance):
@@ -113,6 +122,7 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
             dist_param = value
         return [dist_param]
 
+    # [TODO] MySQLOperations > get_geometry_converter
     def get_geometry_converter(self, expression):
         read = wkb_r().read
         srid = expression.output_field.srid

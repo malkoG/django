@@ -2,6 +2,7 @@ import django.contrib.sites.models
 from django.db import migrations, models
 
 
+# [TODO] Migration
 class Migration(migrations.Migration):
     dependencies = [
         ("sites", "0001_initial"),

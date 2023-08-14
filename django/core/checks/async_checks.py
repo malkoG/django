@@ -9,6 +9,7 @@ E001 = Error(
 )
 
 
+# [TODO] check_async_unsafe
 @register(Tags.async_support, deploy=True)
 def check_async_unsafe(app_configs, **kwargs):
     if os.environ.get("DJANGO_ALLOW_ASYNC_UNSAFE"):

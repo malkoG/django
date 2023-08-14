@@ -14,6 +14,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
 
+# [TODO] builtin_template_path
 def builtin_template_path(name):
     """
     Return a path to a builtin template.
@@ -24,6 +25,7 @@ def builtin_template_path(name):
     return Path(__file__).parent / "templates" / name
 
 
+# [TODO] serve
 def serve(request, path, document_root=None, show_indexes=False):
     """
     Serve static files below a given point in the directory structure.
@@ -67,6 +69,7 @@ def serve(request, path, document_root=None, show_indexes=False):
 template_translatable = gettext_lazy("Index of %(directory)s")
 
 
+# [TODO] directory_index
 def directory_index(path, fullpath):
     try:
         t = loader.select_template(
@@ -99,6 +102,7 @@ def directory_index(path, fullpath):
     return HttpResponse(t.render(c))
 
 
+# [TODO] was_modified_since
 def was_modified_since(header=None, mtime=0):
     """
     Was something modified since the user last downloaded it?

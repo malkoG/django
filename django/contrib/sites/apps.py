@@ -7,11 +7,13 @@ from django.utils.translation import gettext_lazy as _
 from .management import create_default_site
 
 
+# [TODO] SitesConfig
 class SitesConfig(AppConfig):
     default_auto_field = "django.db.models.AutoField"
     name = "django.contrib.sites"
     verbose_name = _("Sites")
 
+    # [TODO] SitesConfig > ready
     def ready(self):
         post_migrate.connect(create_default_site, sender=self)
         checks.register(check_site_id, checks.Tags.sites)

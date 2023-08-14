@@ -8,7 +8,9 @@ Thanks to Robert Coup for providing this functionality (see #4322).
 from django.db.models.query_utils import DeferredAttribute
 
 
+# [TODO] SpatialProxy
 class SpatialProxy(DeferredAttribute):
+    # [TODO] SpatialProxy > __init__
     def __init__(self, klass, field, load_func=None):
         """
         Initialize on the given Geometry or Raster class (not an instance)
@@ -18,6 +20,7 @@ class SpatialProxy(DeferredAttribute):
         self._load_func = load_func or klass
         super().__init__(field)
 
+    # [TODO] SpatialProxy > __get__
     def __get__(self, instance, cls=None):
         """
         Retrieve the geometry or raster, initializing it using the
@@ -46,6 +49,7 @@ class SpatialProxy(DeferredAttribute):
             setattr(instance, self.field.attname, geo_obj)
         return geo_obj
 
+    # [TODO] SpatialProxy > __set__
     def __set__(self, instance, value):
         """
         Retrieve the proxied geometry or raster with the corresponding class

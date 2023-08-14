@@ -35,26 +35,32 @@ from django.utils.encoding import force_str
 
 
 # LayerMapping exceptions.
+# [TODO] LayerMapError
 class LayerMapError(Exception):
     pass
 
 
+# [TODO] InvalidString
 class InvalidString(LayerMapError):
     pass
 
 
+# [TODO] InvalidDecimal
 class InvalidDecimal(LayerMapError):
     pass
 
 
+# [TODO] InvalidInteger
 class InvalidInteger(LayerMapError):
     pass
 
 
+# [TODO] MissingForeignKey
 class MissingForeignKey(LayerMapError):
     pass
 
 
+# [TODO] LayerMapping
 class LayerMapping:
     "A class that maps OGR Layers to GeoDjango Models."
 
@@ -93,6 +99,7 @@ class LayerMapping:
         models.PositiveSmallIntegerField: (OFTInteger, OFTReal, OFTString),
     }
 
+    # [TODO] LayerMapping > __init__
     def __init__(
         self,
         model,
@@ -176,6 +183,7 @@ class LayerMapping:
             raise LayerMapError("Unrecognized transaction mode: %s" % transaction_mode)
 
     # #### Checking routines used during initialization ####
+    # [TODO] LayerMapping > check_fid_range
     def check_fid_range(self, fid_range):
         "Check the `fid_range` keyword."
         if fid_range:
@@ -188,6 +196,7 @@ class LayerMapping:
         else:
             return None
 
+    # [TODO] LayerMapping > check_layer
     def check_layer(self):
         """
         Check the Layer metadata and ensure that it's compatible with the
@@ -305,6 +314,7 @@ class LayerMapping:
 
             self.fields[field_name] = fields_val
 
+    # [TODO] LayerMapping > check_srs
     def check_srs(self, source_srs):
         "Check the compatibility of the given spatial reference object."
 
@@ -323,6 +333,7 @@ class LayerMapping:
         else:
             return sr
 
+    # [TODO] LayerMapping > check_unique
     def check_unique(self, unique):
         "Check the `unique` keyword parameter -- may be a sequence or string."
         if isinstance(unique, (list, tuple)):
@@ -340,6 +351,7 @@ class LayerMapping:
             )
 
     # Keyword argument retrieval routines ####
+    # [TODO] LayerMapping > feature_kwargs
     def feature_kwargs(self, feat):
         """
         Given an OGR Feature, return a dictionary of keyword arguments for
@@ -373,6 +385,7 @@ class LayerMapping:
 
         return kwargs
 
+    # [TODO] LayerMapping > unique_kwargs
     def unique_kwargs(self, kwargs):
         """
         Given the feature keyword arguments (from `feature_kwargs`), construct
@@ -385,6 +398,7 @@ class LayerMapping:
             return {fld: kwargs[fld] for fld in self.unique}
 
     # #### Verification routines used in constructing model keyword arguments. ####
+    # [TODO] LayerMapping > verify_ogr_field
     def verify_ogr_field(self, ogr_field, model_field):
         """
         Verify if the OGR Field contents are acceptable to the model field. If
@@ -457,6 +471,7 @@ class LayerMapping:
             val = ogr_field.value
         return val
 
+    # [TODO] LayerMapping > verify_fk
     def verify_fk(self, feat, rel_model, rel_mapping):
         """
         Given an OGR Feature, the related model and its dictionary mapping,
@@ -482,6 +497,7 @@ class LayerMapping:
                 % (rel_model.__name__, fk_kwargs)
             )
 
+    # [TODO] LayerMapping > verify_geom
     def verify_geom(self, geom, model_field):
         """
         Verify the geometry -- construct and return a GeometryCollection
@@ -510,6 +526,7 @@ class LayerMapping:
         return g.wkt
 
     # #### Other model methods ####
+    # [TODO] LayerMapping > coord_transform
     def coord_transform(self):
         "Return the coordinate transformation object."
         SpatialRefSys = self.spatial_backend.spatial_ref_sys()
@@ -528,6 +545,7 @@ class LayerMapping:
                 "Could not translate between the data source and model geometry."
             ) from exc
 
+    # [TODO] LayerMapping > geometry_field
     def geometry_field(self):
         "Return the GeometryField instance associated with the geographic column."
         # Use `get_field()` on the model's options so that we
@@ -535,6 +553,7 @@ class LayerMapping:
         opts = self.model._meta
         return opts.get_field(self.geom_field)
 
+    # [TODO] LayerMapping > make_multi
     def make_multi(self, geom_type, model_field):
         """
         Given the OGRGeomType for a geometry and its associated GeometryField,
@@ -545,6 +564,7 @@ class LayerMapping:
             and model_field.__class__.__name__ == "Multi%s" % geom_type.django
         )
 
+    # [TODO] LayerMapping > save
     def save(
         self,
         verbose=False,

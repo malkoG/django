@@ -18,17 +18,20 @@ c_uchar_p = POINTER(c_ubyte)
 # the return type would just be omitted and the integer address would be
 # used -- but this allows us to be specific in the function definition and
 # keeps the reference so it may be free'd.
+# [TODO] geos_char_p
 class geos_char_p(c_char_p):
     pass
 
 
 # ### ctypes factory classes ###
+# [TODO] GeomOutput
 class GeomOutput(GEOSFuncFactory):
     "For GEOS routines that return a geometry."
     restype = GEOM_PTR
     errcheck = staticmethod(check_geom)
 
 
+# [TODO] IntFromGeom
 class IntFromGeom(GEOSFuncFactory):
     "Argument is a geometry, return type is an integer."
     argtypes = [GEOM_PTR]
@@ -36,6 +39,7 @@ class IntFromGeom(GEOSFuncFactory):
     errcheck = staticmethod(check_minus_one)
 
 
+# [TODO] StringFromGeom
 class StringFromGeom(GEOSFuncFactory):
     "Argument is a Geometry, return type is a string."
     argtypes = [GEOM_PTR]

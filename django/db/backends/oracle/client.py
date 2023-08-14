@@ -3,10 +3,12 @@ import shutil
 from django.db.backends.base.client import BaseDatabaseClient
 
 
+# [TODO] DatabaseClient
 class DatabaseClient(BaseDatabaseClient):
     executable_name = "sqlplus"
     wrapper_name = "rlwrap"
 
+    # [TODO] DatabaseClient > connect_string
     @staticmethod
     def connect_string(settings_dict):
         from django.db.backends.oracle.utils import dsn
@@ -17,6 +19,7 @@ class DatabaseClient(BaseDatabaseClient):
             dsn(settings_dict),
         )
 
+    # [TODO] DatabaseClient > settings_to_cmd_args_env
     @classmethod
     def settings_to_cmd_args_env(cls, settings_dict, parameters):
         args = [cls.executable_name, "-L", cls.connect_string(settings_dict)]

@@ -18,6 +18,7 @@ from django.utils.functional import classproperty
 logger = logging.getLogger("django.request")
 
 
+# [TODO] ContextMixin
 class ContextMixin:
     """
     A default context mixin that passes the keyword arguments received by
@@ -26,6 +27,7 @@ class ContextMixin:
 
     extra_context = None
 
+    # [TODO] ContextMixin > get_context_data
     def get_context_data(self, **kwargs):
         kwargs.setdefault("view", self)
         if self.extra_context is not None:
@@ -33,6 +35,7 @@ class ContextMixin:
         return kwargs
 
 
+# [TODO] View
 class View:
     """
     Intentionally simple parent class for all views. Only implements
@@ -50,6 +53,7 @@ class View:
         "trace",
     ]
 
+    # [TODO] View > __init__
     def __init__(self, **kwargs):
         """
         Constructor. Called in the URLconf; can contain helpful extra
@@ -60,6 +64,7 @@ class View:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+    # [TODO] View > view_is_async
     @classproperty
     def view_is_async(cls):
         handlers = [
@@ -77,6 +82,7 @@ class View:
             )
         return is_async
 
+    # [TODO] View > as_view
     @classonlymethod
     def as_view(cls, **initkwargs):
         """Main entry point for a request-response process."""
@@ -122,6 +128,7 @@ class View:
 
         return view
 
+    # [TODO] View > setup
     def setup(self, request, *args, **kwargs):
         """Initialize attributes shared by all view methods."""
         if hasattr(self, "get") and not hasattr(self, "head"):
@@ -130,6 +137,7 @@ class View:
         self.args = args
         self.kwargs = kwargs
 
+    # [TODO] View > dispatch
     def dispatch(self, request, *args, **kwargs):
         # Try to dispatch to the right method; if a method doesn't exist,
         # defer to the error handler. Also defer to the error handler if the
@@ -142,6 +150,7 @@ class View:
             handler = self.http_method_not_allowed
         return handler(request, *args, **kwargs)
 
+    # [TODO] View > http_method_not_allowed
     def http_method_not_allowed(self, request, *args, **kwargs):
         logger.warning(
             "Method Not Allowed (%s): %s",
@@ -160,6 +169,7 @@ class View:
         else:
             return response
 
+    # [TODO] View > options
     def options(self, request, *args, **kwargs):
         """Handle responding to requests for the OPTIONS HTTP verb."""
         response = HttpResponse()
@@ -175,10 +185,12 @@ class View:
         else:
             return response
 
+    # [TODO] View > _allowed_methods
     def _allowed_methods(self):
         return [m.upper() for m in self.http_method_names if hasattr(self, m)]
 
 
+# [TODO] TemplateResponseMixin
 class TemplateResponseMixin:
     """A mixin that can be used to render a template."""
 
@@ -187,6 +199,7 @@ class TemplateResponseMixin:
     response_class = TemplateResponse
     content_type = None
 
+    # [TODO] TemplateResponseMixin > render_to_response
     def render_to_response(self, context, **response_kwargs):
         """
         Return a response, using the `response_class` for this view, with a
@@ -203,6 +216,7 @@ class TemplateResponseMixin:
             **response_kwargs,
         )
 
+    # [TODO] TemplateResponseMixin > get_template_names
     def get_template_names(self):
         """
         Return a list of template names to be used for the request. Must return
@@ -217,16 +231,19 @@ class TemplateResponseMixin:
             return [self.template_name]
 
 
+# [TODO] TemplateView
 class TemplateView(TemplateResponseMixin, ContextMixin, View):
     """
     Render a template. Pass keyword arguments from the URLconf to the context.
     """
 
+    # [TODO] TemplateView > get
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
 
+# [TODO] RedirectView
 class RedirectView(View):
     """Provide a redirect on any GET request."""
 
@@ -235,6 +252,7 @@ class RedirectView(View):
     pattern_name = None
     query_string = False
 
+    # [TODO] RedirectView > get_redirect_url
     def get_redirect_url(self, *args, **kwargs):
         """
         Return the URL redirect to. Keyword arguments from the URL pattern
@@ -253,6 +271,7 @@ class RedirectView(View):
             url = "%s?%s" % (url, args)
         return url
 
+    # [TODO] RedirectView > get
     def get(self, request, *args, **kwargs):
         url = self.get_redirect_url(*args, **kwargs)
         if url:
@@ -266,20 +285,26 @@ class RedirectView(View):
             )
             return HttpResponseGone()
 
+    # [TODO] RedirectView > head
     def head(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
 
+    # [TODO] RedirectView > post
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
 
+    # [TODO] RedirectView > options
     def options(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
 
+    # [TODO] RedirectView > delete
     def delete(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
 
+    # [TODO] RedirectView > put
     def put(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
 
+    # [TODO] RedirectView > patch
     def patch(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)

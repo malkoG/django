@@ -22,10 +22,12 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] ListFilter
 class ListFilter:
     title = None  # Human-readable title to appear in the right sidebar.
     template = "admin/filter.html"
 
+    # [TODO] ListFilter > __init__
     def __init__(self, request, params, model, model_admin):
         self.request = request
         # This dictionary will eventually contain the request's query string
@@ -37,6 +39,7 @@ class ListFilter:
                 % self.__class__.__name__
             )
 
+    # [TODO] ListFilter > has_output
     def has_output(self):
         """
         Return True if some choices would be output for this filter.
@@ -45,6 +48,7 @@ class ListFilter:
             "subclasses of ListFilter must provide a has_output() method"
         )
 
+    # [TODO] ListFilter > choices
     def choices(self, changelist):
         """
         Return choices ready to be output in the template.
@@ -55,6 +59,7 @@ class ListFilter:
             "subclasses of ListFilter must provide a choices() method"
         )
 
+    # [TODO] ListFilter > queryset
     def queryset(self, request, queryset):
         """
         Return the filtered queryset.
@@ -63,6 +68,7 @@ class ListFilter:
             "subclasses of ListFilter must provide a queryset() method"
         )
 
+    # [TODO] ListFilter > expected_parameters
     def expected_parameters(self):
         """
         Return the list of parameter names that are expected from the
@@ -73,12 +79,15 @@ class ListFilter:
         )
 
 
+# [TODO] FacetsMixin
 class FacetsMixin:
+    # [TODO] FacetsMixin > get_facet_counts
     def get_facet_counts(self, pk_attname, filtered_qs):
         raise NotImplementedError(
             "subclasses of FacetsMixin must provide a get_facet_counts() method."
         )
 
+    # [TODO] FacetsMixin > get_facet_queryset
     def get_facet_queryset(self, changelist):
         filtered_qs = changelist.get_queryset(
             self.request, exclude_parameters=self.expected_parameters()
@@ -88,10 +97,12 @@ class FacetsMixin:
         )
 
 
+# [TODO] SimpleListFilter
 class SimpleListFilter(FacetsMixin, ListFilter):
     # The parameter that should be used in the query string for that filter.
     parameter_name = None
 
+    # [TODO] SimpleListFilter > __init__
     def __init__(self, request, params, model, model_admin):
         super().__init__(request, params, model, model_admin)
         if self.parameter_name is None:
@@ -107,9 +118,11 @@ class SimpleListFilter(FacetsMixin, ListFilter):
             lookup_choices = ()
         self.lookup_choices = list(lookup_choices)
 
+    # [TODO] SimpleListFilter > has_output
     def has_output(self):
         return len(self.lookup_choices) > 0
 
+    # [TODO] SimpleListFilter > value
     def value(self):
         """
         Return the value (in string format) provided in the request's
@@ -118,6 +131,7 @@ class SimpleListFilter(FacetsMixin, ListFilter):
         """
         return self.used_parameters.get(self.parameter_name)
 
+    # [TODO] SimpleListFilter > lookups
     def lookups(self, request, model_admin):
         """
         Must be overridden to return a list of tuples (value, verbose value)
@@ -127,9 +141,11 @@ class SimpleListFilter(FacetsMixin, ListFilter):
             "return a list of tuples (value, verbose value)."
         )
 
+    # [TODO] SimpleListFilter > expected_parameters
     def expected_parameters(self):
         return [self.parameter_name]
 
+    # [TODO] SimpleListFilter > get_facet_counts
     def get_facet_counts(self, pk_attname, filtered_qs):
         original_value = self.used_parameters.get(self.parameter_name)
         counts = {}
@@ -144,6 +160,7 @@ class SimpleListFilter(FacetsMixin, ListFilter):
         self.used_parameters[self.parameter_name] = original_value
         return counts
 
+    # [TODO] SimpleListFilter > choices
     def choices(self, changelist):
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
@@ -167,11 +184,13 @@ class SimpleListFilter(FacetsMixin, ListFilter):
             }
 
 
+# [TODO] FieldListFilter
 class FieldListFilter(FacetsMixin, ListFilter):
     _field_list_filters = []
     _take_priority_index = 0
     list_separator = ","
 
+    # [TODO] FieldListFilter > __init__
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.field = field
         self.field_path = field_path
@@ -184,9 +203,11 @@ class FieldListFilter(FacetsMixin, ListFilter):
                     p, value, self.list_separator
                 )
 
+    # [TODO] FieldListFilter > has_output
     def has_output(self):
         return True
 
+    # [TODO] FieldListFilter > queryset
     def queryset(self, request, queryset):
         try:
             q_object = build_q_object_from_lookup_parameters(self.used_parameters)
@@ -196,6 +217,7 @@ class FieldListFilter(FacetsMixin, ListFilter):
             # the parameters to the correct type.
             raise IncorrectLookupParameters(e)
 
+    # [TODO] FieldListFilter > register
     @classmethod
     def register(cls, test, list_filter_class, take_priority=False):
         if take_priority:
@@ -209,6 +231,7 @@ class FieldListFilter(FacetsMixin, ListFilter):
         else:
             cls._field_list_filters.append((test, list_filter_class))
 
+    # [TODO] FieldListFilter > create
     @classmethod
     def create(cls, field, request, params, model, model_admin, field_path):
         for test, list_filter_class in cls._field_list_filters:
@@ -218,7 +241,9 @@ class FieldListFilter(FacetsMixin, ListFilter):
                 )
 
 
+# [TODO] RelatedFieldListFilter
 class RelatedFieldListFilter(FieldListFilter):
+    # [TODO] RelatedFieldListFilter > __init__
     def __init__(self, field, request, params, model, model_admin, field_path):
         other_model = get_model_from_relation(field)
         self.lookup_kwarg = "%s__%s__exact" % (field_path, field.target_field.name)
@@ -236,6 +261,7 @@ class RelatedFieldListFilter(FieldListFilter):
         self.title = self.lookup_title
         self.empty_value_display = model_admin.get_empty_value_display()
 
+    # [TODO] RelatedFieldListFilter > include_empty_choice
     @property
     def include_empty_choice(self):
         """
@@ -244,6 +270,7 @@ class RelatedFieldListFilter(FieldListFilter):
         """
         return self.field.null or (self.field.is_relation and self.field.many_to_many)
 
+    # [TODO] RelatedFieldListFilter > has_output
     def has_output(self):
         if self.include_empty_choice:
             extra = 1
@@ -251,9 +278,11 @@ class RelatedFieldListFilter(FieldListFilter):
             extra = 0
         return len(self.lookup_choices) + extra > 1
 
+    # [TODO] RelatedFieldListFilter > expected_parameters
     def expected_parameters(self):
         return [self.lookup_kwarg, self.lookup_kwarg_isnull]
 
+    # [TODO] RelatedFieldListFilter > field_admin_ordering
     def field_admin_ordering(self, field, request, model_admin):
         """
         Return the model admin's ordering for related field, if provided.
@@ -267,10 +296,12 @@ class RelatedFieldListFilter(FieldListFilter):
         else:
             return related_admin.get_ordering(request)
 
+    # [TODO] RelatedFieldListFilter > field_choices
     def field_choices(self, field, request, model_admin):
         ordering = self.field_admin_ordering(field, request, model_admin)
         return field.get_choices(include_blank=False, ordering=ordering)
 
+    # [TODO] RelatedFieldListFilter > get_facet_counts
     def get_facet_counts(self, pk_attname, filtered_qs):
         counts = {
             f"{pk_val}__c": models.Count(
@@ -284,6 +315,7 @@ class RelatedFieldListFilter(FieldListFilter):
             )
         return counts
 
+    # [TODO] RelatedFieldListFilter > choices
     def choices(self, changelist):
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
@@ -324,7 +356,9 @@ class RelatedFieldListFilter(FieldListFilter):
 FieldListFilter.register(lambda f: f.remote_field, RelatedFieldListFilter)
 
 
+# [TODO] BooleanFieldListFilter
 class BooleanFieldListFilter(FieldListFilter):
+    # [TODO] BooleanFieldListFilter > __init__
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.lookup_kwarg = "%s__exact" % field_path
         self.lookup_kwarg2 = "%s__isnull" % field_path
@@ -340,9 +374,11 @@ class BooleanFieldListFilter(FieldListFilter):
                 int(self.used_parameters[self.lookup_kwarg])
             )
 
+    # [TODO] BooleanFieldListFilter > expected_parameters
     def expected_parameters(self):
         return [self.lookup_kwarg, self.lookup_kwarg2]
 
+    # [TODO] BooleanFieldListFilter > get_facet_counts
     def get_facet_counts(self, pk_attname, filtered_qs):
         return {
             "true__c": models.Count(
@@ -356,6 +392,7 @@ class BooleanFieldListFilter(FieldListFilter):
             ),
         }
 
+    # [TODO] BooleanFieldListFilter > choices
     def choices(self, changelist):
         field_choices = dict(self.field.flatchoices)
         add_facets = changelist.add_facets
@@ -395,7 +432,9 @@ FieldListFilter.register(
 )
 
 
+# [TODO] ChoicesFieldListFilter
 class ChoicesFieldListFilter(FieldListFilter):
+    # [TODO] ChoicesFieldListFilter > __init__
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.lookup_kwarg = "%s__exact" % field_path
         self.lookup_kwarg_isnull = "%s__isnull" % field_path
@@ -405,9 +444,11 @@ class ChoicesFieldListFilter(FieldListFilter):
         )
         super().__init__(field, request, params, model, model_admin, field_path)
 
+    # [TODO] ChoicesFieldListFilter > expected_parameters
     def expected_parameters(self):
         return [self.lookup_kwarg, self.lookup_kwarg_isnull]
 
+    # [TODO] ChoicesFieldListFilter > get_facet_counts
     def get_facet_counts(self, pk_attname, filtered_qs):
         return {
             f"{i}__c": models.Count(
@@ -421,6 +462,7 @@ class ChoicesFieldListFilter(FieldListFilter):
             for i, (value, _) in enumerate(self.field.flatchoices)
         }
 
+    # [TODO] ChoicesFieldListFilter > choices
     def choices(self, changelist):
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
@@ -460,7 +502,9 @@ class ChoicesFieldListFilter(FieldListFilter):
 FieldListFilter.register(lambda f: bool(f.choices), ChoicesFieldListFilter)
 
 
+# [TODO] DateFieldListFilter
 class DateFieldListFilter(FieldListFilter):
+    # [TODO] DateFieldListFilter > __init__
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.field_generic = "%s__" % field_path
         self.date_params = {
@@ -525,18 +569,21 @@ class DateFieldListFilter(FieldListFilter):
             )
         super().__init__(field, request, params, model, model_admin, field_path)
 
+    # [TODO] DateFieldListFilter > expected_parameters
     def expected_parameters(self):
         params = [self.lookup_kwarg_since, self.lookup_kwarg_until]
         if self.field.null:
             params.append(self.lookup_kwarg_isnull)
         return params
 
+    # [TODO] DateFieldListFilter > get_facet_counts
     def get_facet_counts(self, pk_attname, filtered_qs):
         return {
             f"{i}__c": models.Count(pk_attname, filter=models.Q(**param_dict))
             for i, (_, param_dict) in enumerate(self.links)
         }
 
+    # [TODO] DateFieldListFilter > choices
     def choices(self, changelist):
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
@@ -560,7 +607,9 @@ FieldListFilter.register(lambda f: isinstance(f, models.DateField), DateFieldLis
 # This should be registered last, because it's a last resort. For example,
 # if a field is eligible to use the BooleanFieldListFilter, that'd be much
 # more appropriate, and the AllValuesFieldListFilter won't get used for it.
+# [TODO] AllValuesFieldListFilter
 class AllValuesFieldListFilter(FieldListFilter):
+    # [TODO] AllValuesFieldListFilter > __init__
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.lookup_kwarg = field_path
         self.lookup_kwarg_isnull = "%s__isnull" % field_path
@@ -580,9 +629,11 @@ class AllValuesFieldListFilter(FieldListFilter):
         )
         super().__init__(field, request, params, model, model_admin, field_path)
 
+    # [TODO] AllValuesFieldListFilter > expected_parameters
     def expected_parameters(self):
         return [self.lookup_kwarg, self.lookup_kwarg_isnull]
 
+    # [TODO] AllValuesFieldListFilter > get_facet_counts
     def get_facet_counts(self, pk_attname, filtered_qs):
         return {
             f"{i}__c": models.Count(
@@ -596,6 +647,7 @@ class AllValuesFieldListFilter(FieldListFilter):
             for i, value in enumerate(self.lookup_choices)
         }
 
+    # [TODO] AllValuesFieldListFilter > choices
     def choices(self, changelist):
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
@@ -637,7 +689,9 @@ class AllValuesFieldListFilter(FieldListFilter):
 FieldListFilter.register(lambda f: True, AllValuesFieldListFilter)
 
 
+# [TODO] RelatedOnlyFieldListFilter
 class RelatedOnlyFieldListFilter(RelatedFieldListFilter):
+    # [TODO] RelatedOnlyFieldListFilter > field_choices
     def field_choices(self, field, request, model_admin):
         pk_qs = (
             model_admin.get_queryset(request)
@@ -650,7 +704,9 @@ class RelatedOnlyFieldListFilter(RelatedFieldListFilter):
         )
 
 
+# [TODO] EmptyFieldListFilter
 class EmptyFieldListFilter(FieldListFilter):
+    # [TODO] EmptyFieldListFilter > __init__
     def __init__(self, field, request, params, model, model_admin, field_path):
         if not field.empty_strings_allowed and not field.null:
             raise ImproperlyConfigured(
@@ -665,6 +721,7 @@ class EmptyFieldListFilter(FieldListFilter):
         self.lookup_val = get_last_value_from_parameters(params, self.lookup_kwarg)
         super().__init__(field, request, params, model, model_admin, field_path)
 
+    # [TODO] EmptyFieldListFilter > get_lookup_condition
     def get_lookup_condition(self):
         lookup_conditions = []
         if self.field.empty_strings_allowed:
@@ -673,6 +730,7 @@ class EmptyFieldListFilter(FieldListFilter):
             lookup_conditions.append((f"{self.field_path}__isnull", True))
         return models.Q.create(lookup_conditions, connector=models.Q.OR)
 
+    # [TODO] EmptyFieldListFilter > queryset
     def queryset(self, request, queryset):
         if self.lookup_kwarg not in self.used_parameters:
             return queryset
@@ -684,9 +742,11 @@ class EmptyFieldListFilter(FieldListFilter):
             return queryset.filter(lookup_condition)
         return queryset.exclude(lookup_condition)
 
+    # [TODO] EmptyFieldListFilter > expected_parameters
     def expected_parameters(self):
         return [self.lookup_kwarg]
 
+    # [TODO] EmptyFieldListFilter > get_facet_counts
     def get_facet_counts(self, pk_attname, filtered_qs):
         lookup_condition = self.get_lookup_condition()
         return {
@@ -694,6 +754,7 @@ class EmptyFieldListFilter(FieldListFilter):
             "not_empty__c": models.Count(pk_attname, filter=~lookup_condition),
         }
 
+    # [TODO] EmptyFieldListFilter > choices
     def choices(self, changelist):
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None

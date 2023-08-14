@@ -2,6 +2,7 @@ from django.db import migrations, models
 from django.utils import timezone
 
 
+# [TODO] Migration
 class Migration(migrations.Migration):
     dependencies = [
         ("admin", "0001_initial"),

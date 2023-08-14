@@ -8,7 +8,9 @@ __all__ = ["CICharField", "CIEmailField", "CIText", "CITextField"]
 
 
 # RemovedInDjango51Warning.
+# [TODO] CIText
 class CIText:
+    # [TODO] CIText > __init__
     def __init__(self, *args, **kwargs):
         warnings.warn(
             "django.contrib.postgres.fields.CIText mixin is deprecated.",
@@ -17,13 +19,16 @@ class CIText:
         )
         super().__init__(*args, **kwargs)
 
+    # [TODO] CIText > get_internal_type
     def get_internal_type(self):
         return "CI" + super().get_internal_type()
 
+    # [TODO] CIText > db_type
     def db_type(self, connection):
         return "citext"
 
 
+# [TODO] CICharField
 class CICharField(CIText, CharField):
     system_check_deprecated_details = {
         "msg": (
@@ -37,11 +42,13 @@ class CICharField(CIText, CharField):
         "id": "fields.W905",
     }
 
+    # [TODO] CICharField > __init__
     def __init__(self, *args, **kwargs):
         with ignore_warnings(category=RemovedInDjango51Warning):
             super().__init__(*args, **kwargs)
 
 
+# [TODO] CIEmailField
 class CIEmailField(CIText, EmailField):
     system_check_deprecated_details = {
         "msg": (
@@ -55,11 +62,13 @@ class CIEmailField(CIText, EmailField):
         "id": "fields.W906",
     }
 
+    # [TODO] CIEmailField > __init__
     def __init__(self, *args, **kwargs):
         with ignore_warnings(category=RemovedInDjango51Warning):
             super().__init__(*args, **kwargs)
 
 
+# [TODO] CITextField
 class CITextField(CIText, TextField):
     system_check_deprecated_details = {
         "msg": (
@@ -73,6 +82,7 @@ class CITextField(CIText, TextField):
         "id": "fields.W907",
     }
 
+    # [TODO] CITextField > __init__
     def __init__(self, *args, **kwargs):
         with ignore_warnings(category=RemovedInDjango51Warning):
             super().__init__(*args, **kwargs)

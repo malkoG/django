@@ -7,14 +7,17 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 
 
+# [TODO] SessionStore
 class SessionStore(SessionBase):
     """
     Implement database session store.
     """
 
+    # [TODO] SessionStore > __init__
     def __init__(self, session_key=None):
         super().__init__(session_key)
 
+    # [TODO] SessionStore > get_model_class
     @classmethod
     def get_model_class(cls):
         # Avoids a circular import and allows importing SessionStore when
@@ -23,10 +26,12 @@ class SessionStore(SessionBase):
 
         return Session
 
+    # [TODO] SessionStore > model
     @cached_property
     def model(self):
         return self.get_model_class()
 
+    # [TODO] SessionStore > _get_session_from_db
     def _get_session_from_db(self):
         try:
             return self.model.objects.get(
@@ -38,13 +43,16 @@ class SessionStore(SessionBase):
                 logger.warning(str(e))
             self._session_key = None
 
+    # [TODO] SessionStore > load
     def load(self):
         s = self._get_session_from_db()
         return self.decode(s.session_data) if s else {}
 
+    # [TODO] SessionStore > exists
     def exists(self, session_key):
         return self.model.objects.filter(session_key=session_key).exists()
 
+    # [TODO] SessionStore > create
     def create(self):
         while True:
             self._session_key = self._get_new_session_key()
@@ -58,6 +66,7 @@ class SessionStore(SessionBase):
             self.modified = True
             return
 
+    # [TODO] SessionStore > create_model_instance
     def create_model_instance(self, data):
         """
         Return a new instance of the session model object, which represents the
@@ -70,6 +79,7 @@ class SessionStore(SessionBase):
             expire_date=self.get_expiry_date(),
         )
 
+    # [TODO] SessionStore > save
     def save(self, must_create=False):
         """
         Save the current session data to the database. If 'must_create' is
@@ -95,6 +105,7 @@ class SessionStore(SessionBase):
                 raise UpdateError
             raise
 
+    # [TODO] SessionStore > delete
     def delete(self, session_key=None):
         if session_key is None:
             if self.session_key is None:
@@ -105,6 +116,7 @@ class SessionStore(SessionBase):
         except self.model.DoesNotExist:
             pass
 
+    # [TODO] SessionStore > clear_expired
     @classmethod
     def clear_expired(cls):
         cls.get_model_class().objects.filter(expire_date__lt=timezone.now()).delete()

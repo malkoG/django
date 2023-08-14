@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.core.management.utils import find_command, is_ignored_path, popen_wrapper
 
 
+# [TODO] has_bom
 def has_bom(fn):
     with fn.open("rb") as f:
         sample = f.read(4)
@@ -16,6 +17,7 @@ def has_bom(fn):
     )
 
 
+# [TODO] is_writable
 def is_writable(path):
     # Known side effect: updating file access/modified time to current time if
     # it is writable.
@@ -27,6 +29,7 @@ def is_writable(path):
     return True
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = "Compiles .po files to .mo files for use with builtin gettext support."
 
@@ -35,6 +38,7 @@ class Command(BaseCommand):
     program = "msgfmt"
     program_options = ["--check-format"]
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "--locale",
@@ -69,6 +73,7 @@ class Command(BaseCommand):
             "Use multiple times to ignore more.",
         )
 
+    # [TODO] Command > handle
     def handle(self, **options):
         locale = options["locale"]
         exclude = options["exclude"]
@@ -139,6 +144,7 @@ class Command(BaseCommand):
         if self.has_errors:
             raise CommandError("compilemessages generated one or more errors.")
 
+    # [TODO] Command > compile_messages
     def compile_messages(self, locations):
         """
         Locations is a list of tuples: [(directory, file), ...]

@@ -2,6 +2,7 @@ from django.contrib.auth import validators
 from django.db import migrations, models
 
 
+# [TODO] Migration
 class Migration(migrations.Migration):
     dependencies = [
         ("auth", "0003_alter_user_email_max_length"),

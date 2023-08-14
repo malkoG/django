@@ -16,6 +16,7 @@ from django.utils.translation import ngettext_lazy
 EMPTY_VALUES = (None, "", [], (), {})
 
 
+# [TODO] RegexValidator
 @deconstructible
 class RegexValidator:
     regex = ""
@@ -65,6 +66,7 @@ class RegexValidator:
         )
 
 
+# [TODO] URLValidator
 @deconstructible
 class URLValidator(RegexValidator):
     ul = "\u00a1-\uffff"  # Unicode letters range (must not be a raw string).
@@ -167,10 +169,12 @@ integer_validator = RegexValidator(
 )
 
 
+# [TODO] validate_integer
 def validate_integer(value):
     return integer_validator(value)
 
 
+# [TODO] EmailValidator
 @deconstructible
 class EmailValidator:
     message = _("Enter a valid email address.")
@@ -271,6 +275,7 @@ validate_unicode_slug = RegexValidator(
 )
 
 
+# [TODO] validate_ipv4_address
 def validate_ipv4_address(value):
     try:
         ipaddress.IPv4Address(value)
@@ -280,6 +285,7 @@ def validate_ipv4_address(value):
         )
 
 
+# [TODO] validate_ipv6_address
 def validate_ipv6_address(value):
     if not is_valid_ipv6_address(value):
         raise ValidationError(
@@ -287,6 +293,7 @@ def validate_ipv6_address(value):
         )
 
 
+# [TODO] validate_ipv46_address
 def validate_ipv46_address(value):
     try:
         validate_ipv4_address(value)
@@ -308,6 +315,7 @@ ip_address_validator_map = {
 }
 
 
+# [TODO] ip_address_validators
 def ip_address_validators(protocol, unpack_ipv4):
     """
     Depending on the given parameters, return the appropriate validators for
@@ -326,6 +334,7 @@ def ip_address_validators(protocol, unpack_ipv4):
         )
 
 
+# [TODO] int_list_validator
 def int_list_validator(sep=",", message=None, code="invalid", allow_negative=False):
     regexp = _lazy_re_compile(
         r"^%(neg)s\d+(?:%(sep)s%(neg)s\d+)*\Z"
@@ -342,6 +351,7 @@ validate_comma_separated_integer_list = int_list_validator(
 )
 
 
+# [TODO] BaseValidator
 @deconstructible
 class BaseValidator:
     message = _("Ensure this value is %(limit_value)s (it is %(show_value)s).")
@@ -377,6 +387,7 @@ class BaseValidator:
         return x
 
 
+# [TODO] MaxValueValidator
 @deconstructible
 class MaxValueValidator(BaseValidator):
     message = _("Ensure this value is less than or equal to %(limit_value)s.")
@@ -386,6 +397,7 @@ class MaxValueValidator(BaseValidator):
         return a > b
 
 
+# [TODO] MinValueValidator
 @deconstructible
 class MinValueValidator(BaseValidator):
     message = _("Ensure this value is greater than or equal to %(limit_value)s.")
@@ -395,6 +407,7 @@ class MinValueValidator(BaseValidator):
         return a < b
 
 
+# [TODO] StepValueValidator
 @deconstructible
 class StepValueValidator(BaseValidator):
     message = _("Ensure this value is a multiple of step size %(limit_value)s.")
@@ -433,6 +446,7 @@ class StepValueValidator(BaseValidator):
         return not math.isclose(math.remainder(a - offset, b), 0, abs_tol=1e-9)
 
 
+# [TODO] MinLengthValidator
 @deconstructible
 class MinLengthValidator(BaseValidator):
     message = ngettext_lazy(
@@ -451,6 +465,7 @@ class MinLengthValidator(BaseValidator):
         return len(x)
 
 
+# [TODO] MaxLengthValidator
 @deconstructible
 class MaxLengthValidator(BaseValidator):
     message = ngettext_lazy(
@@ -469,6 +484,7 @@ class MaxLengthValidator(BaseValidator):
         return len(x)
 
 
+# [TODO] DecimalValidator
 @deconstructible
 class DecimalValidator:
     """
@@ -557,6 +573,7 @@ class DecimalValidator:
         )
 
 
+# [TODO] FileExtensionValidator
 @deconstructible
 class FileExtensionValidator:
     message = _(
@@ -601,6 +618,7 @@ class FileExtensionValidator:
         )
 
 
+# [TODO] get_available_image_extensions
 def get_available_image_extensions():
     try:
         from PIL import Image
@@ -611,12 +629,14 @@ def get_available_image_extensions():
         return [ext.lower()[1:] for ext in Image.EXTENSION]
 
 
+# [TODO] validate_image_file_extension
 def validate_image_file_extension(value):
     return FileExtensionValidator(allowed_extensions=get_available_image_extensions())(
         value
     )
 
 
+# [TODO] ProhibitNullCharactersValidator
 @deconstructible
 class ProhibitNullCharactersValidator:
     """Validate that the string doesn't contain the null character."""

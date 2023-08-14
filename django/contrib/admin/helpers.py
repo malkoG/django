@@ -26,6 +26,7 @@ from django.utils.translation import gettext_lazy as _
 ACTION_CHECKBOX_NAME = "_selected_action"
 
 
+# [TODO] ActionForm
 class ActionForm(forms.Form):
     action = forms.ChoiceField(label=_("Action:"))
     select_across = forms.BooleanField(
@@ -36,7 +37,9 @@ class ActionForm(forms.Form):
     )
 
 
+# [TODO] AdminForm
 class AdminForm:
+    # [TODO] AdminForm > __init__
     def __init__(
         self,
         form,
@@ -55,6 +58,7 @@ class AdminForm:
             readonly_fields = ()
         self.readonly_fields = readonly_fields
 
+    # [TODO] AdminForm > __repr__
     def __repr__(self):
         return (
             f"<{self.__class__.__qualname__}: "
@@ -62,6 +66,7 @@ class AdminForm:
             f"fieldsets={self.fieldsets!r}>"
         )
 
+    # [TODO] AdminForm > __iter__
     def __iter__(self):
         for name, options in self.fieldsets:
             yield Fieldset(
@@ -72,22 +77,27 @@ class AdminForm:
                 **options,
             )
 
+    # [TODO] AdminForm > errors
     @property
     def errors(self):
         return self.form.errors
 
+    # [TODO] AdminForm > non_field_errors
     @property
     def non_field_errors(self):
         return self.form.non_field_errors
 
+    # [TODO] AdminForm > fields
     @property
     def fields(self):
         return self.form.fields
 
+    # [TODO] AdminForm > is_bound
     @property
     def is_bound(self):
         return self.form.is_bound
 
+    # [TODO] AdminForm > media
     @property
     def media(self):
         media = self.form.media
@@ -96,7 +106,9 @@ class AdminForm:
         return media
 
 
+# [TODO] Fieldset
 class Fieldset:
+    # [TODO] Fieldset > __init__
     def __init__(
         self,
         form,
@@ -114,12 +126,14 @@ class Fieldset:
         self.model_admin = model_admin
         self.readonly_fields = readonly_fields
 
+    # [TODO] Fieldset > media
     @property
     def media(self):
         if "collapse" in self.classes:
             return forms.Media(js=["admin/js/collapse.js"])
         return forms.Media()
 
+    # [TODO] Fieldset > __iter__
     def __iter__(self):
         for field in self.fields:
             yield Fieldline(
@@ -127,7 +141,9 @@ class Fieldset:
             )
 
 
+# [TODO] Fieldline
 class Fieldline:
+    # [TODO] Fieldline > __init__
     def __init__(self, form, field, readonly_fields=None, model_admin=None):
         self.form = form  # A django.forms.Form instance
         if not hasattr(field, "__iter__") or isinstance(field, str):
@@ -143,6 +159,7 @@ class Fieldline:
             readonly_fields = ()
         self.readonly_fields = readonly_fields
 
+    # [TODO] Fieldline > __iter__
     def __iter__(self):
         for i, field in enumerate(self.fields):
             if field in self.readonly_fields:
@@ -152,6 +169,7 @@ class Fieldline:
             else:
                 yield AdminField(self.form, field, is_first=(i == 0))
 
+    # [TODO] Fieldline > errors
     def errors(self):
         return mark_safe(
             "\n".join(
@@ -162,13 +180,16 @@ class Fieldline:
         )
 
 
+# [TODO] AdminField
 class AdminField:
+    # [TODO] AdminField > __init__
     def __init__(self, form, field, is_first):
         self.field = form[field]  # A django.forms.BoundField instance
         self.is_first = is_first  # Whether this field is first on the line
         self.is_checkbox = isinstance(self.field.field.widget, forms.CheckboxInput)
         self.is_readonly = False
 
+    # [TODO] AdminField > label_tag
     def label_tag(self):
         classes = []
         contents = conditional_escape(self.field.label)
@@ -188,11 +209,14 @@ class AdminField:
             label_suffix="" if self.is_checkbox else None,
         )
 
+    # [TODO] AdminField > errors
     def errors(self):
         return mark_safe(self.field.errors.as_ul())
 
 
+# [TODO] AdminReadonlyField
 class AdminReadonlyField:
+    # [TODO] AdminReadonlyField > __init__
     def __init__(self, form, field, is_first, model_admin=None):
         # Make self.field look a little bit like a field. This means that
         # {{ field.name }} must be a useful class name to identify the field.
@@ -231,6 +255,7 @@ class AdminReadonlyField:
         self.is_readonly = True
         self.empty_value_display = model_admin.get_empty_value_display()
 
+    # [TODO] AdminReadonlyField > label_tag
     def label_tag(self):
         attrs = {}
         if not self.is_first:
@@ -243,6 +268,7 @@ class AdminReadonlyField:
             self.form.label_suffix,
         )
 
+    # [TODO] AdminReadonlyField > get_admin_url
     def get_admin_url(self, remote_field, remote_obj):
         url_name = "admin:%s_%s_change" % (
             remote_field.model._meta.app_label,
@@ -258,6 +284,7 @@ class AdminReadonlyField:
         except NoReverseMatch:
             return str(remote_obj)
 
+    # [TODO] AdminReadonlyField > contents
     def contents(self):
         from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
@@ -299,11 +326,13 @@ class AdminReadonlyField:
         return conditional_escape(result_repr)
 
 
+# [TODO] InlineAdminFormSet
 class InlineAdminFormSet:
     """
     A wrapper around an inline formset for use in the admin system.
     """
 
+    # [TODO] InlineAdminFormSet > __init__
     def __init__(
         self,
         inline,
@@ -333,6 +362,7 @@ class InlineAdminFormSet:
         self.has_delete_permission = has_delete_permission
         self.has_view_permission = has_view_permission
 
+    # [TODO] InlineAdminFormSet > __iter__
     def __iter__(self):
         if self.has_change_permission:
             readonly_fields_for_editing = self.readonly_fields
@@ -376,6 +406,7 @@ class InlineAdminFormSet:
                 model_admin=self.opts,
             )
 
+    # [TODO] InlineAdminFormSet > fields
     def fields(self):
         fk = getattr(self.formset, "fk", None)
         empty_form = self.formset.empty_form
@@ -418,6 +449,7 @@ class InlineAdminFormSet:
                     "help_text": form_field.help_text,
                 }
 
+    # [TODO] InlineAdminFormSet > inline_formset_data
     def inline_formset_data(self):
         verbose_name = self.opts.verbose_name
         return json.dumps(
@@ -434,21 +466,26 @@ class InlineAdminFormSet:
             }
         )
 
+    # [TODO] InlineAdminFormSet > forms
     @property
     def forms(self):
         return self.formset.forms
 
+    # [TODO] InlineAdminFormSet > non_form_errors
     def non_form_errors(self):
         return self.formset.non_form_errors()
 
+    # [TODO] InlineAdminFormSet > is_bound
     @property
     def is_bound(self):
         return self.formset.is_bound
 
+    # [TODO] InlineAdminFormSet > total_form_count
     @property
     def total_form_count(self):
         return self.formset.total_form_count
 
+    # [TODO] InlineAdminFormSet > media
     @property
     def media(self):
         media = self.opts.media + self.formset.media
@@ -457,11 +494,13 @@ class InlineAdminFormSet:
         return media
 
 
+# [TODO] InlineAdminForm
 class InlineAdminForm(AdminForm):
     """
     A wrapper around an inline form for use in the admin system.
     """
 
+    # [TODO] InlineAdminForm > __init__
     def __init__(
         self,
         formset,
@@ -482,6 +521,7 @@ class InlineAdminForm(AdminForm):
             form, fieldsets, prepopulated_fields, readonly_fields, model_admin
         )
 
+    # [TODO] InlineAdminForm > __iter__
     def __iter__(self):
         for name, options in self.fieldsets:
             yield InlineFieldset(
@@ -493,6 +533,7 @@ class InlineAdminForm(AdminForm):
                 **options,
             )
 
+    # [TODO] InlineAdminForm > needs_explicit_pk_field
     def needs_explicit_pk_field(self):
         return (
             # Auto fields are editable, so check for auto or non-editable pk.
@@ -508,9 +549,11 @@ class InlineAdminForm(AdminForm):
             )
         )
 
+    # [TODO] InlineAdminForm > pk_field
     def pk_field(self):
         return AdminField(self.form, self.formset._pk_field.name, False)
 
+    # [TODO] InlineAdminForm > fk_field
     def fk_field(self):
         fk = getattr(self.formset, "fk", None)
         if fk:
@@ -518,17 +561,21 @@ class InlineAdminForm(AdminForm):
         else:
             return ""
 
+    # [TODO] InlineAdminForm > deletion_field
     def deletion_field(self):
         from django.forms.formsets import DELETION_FIELD_NAME
 
         return AdminField(self.form, DELETION_FIELD_NAME, False)
 
 
+# [TODO] InlineFieldset
 class InlineFieldset(Fieldset):
+    # [TODO] InlineFieldset > __init__
     def __init__(self, formset, *args, **kwargs):
         self.formset = formset
         super().__init__(*args, **kwargs)
 
+    # [TODO] InlineFieldset > __iter__
     def __iter__(self):
         fk = getattr(self.formset, "fk", None)
         for field in self.fields:
@@ -538,9 +585,11 @@ class InlineFieldset(Fieldset):
                 )
 
 
+# [TODO] AdminErrorList
 class AdminErrorList(forms.utils.ErrorList):
     """Store errors for the form/formsets in an add/change view."""
 
+    # [TODO] AdminErrorList > __init__
     def __init__(self, form, inline_formsets):
         super().__init__()
 

@@ -37,6 +37,7 @@ VOID_ELEMENTS = {
 }
 
 
+# [TODO] escape
 @keep_lazy(SafeString)
 def escape(text):
     """
@@ -69,6 +70,7 @@ _js_escapes = {
 _js_escapes.update((ord("%c" % z), "\\u%04X" % z) for z in range(32))
 
 
+# [TODO] escapejs
 @keep_lazy(SafeString)
 def escapejs(value):
     """Hex encode characters for use in JavaScript strings."""
@@ -82,6 +84,7 @@ _json_script_escapes = {
 }
 
 
+# [TODO] json_script
 def json_script(value, element_id=None, encoder=None):
     """
     Escape all the HTML/XML special characters with their unicode escapes, so
@@ -102,6 +105,7 @@ def json_script(value, element_id=None, encoder=None):
     return format_html(template, *args)
 
 
+# [TODO] conditional_escape
 def conditional_escape(text):
     """
     Similar to escape(), except that it doesn't operate on pre-escaped strings.
@@ -117,6 +121,7 @@ def conditional_escape(text):
         return escape(text)
 
 
+# [TODO] format_html
 def format_html(format_string, *args, **kwargs):
     """
     Similar to str.format, but pass all arguments through conditional_escape(),
@@ -135,6 +140,7 @@ def format_html(format_string, *args, **kwargs):
     return mark_safe(format_string.format(*args_safe, **kwargs_safe))
 
 
+# [TODO] format_html_join
 def format_html_join(sep, format_string, args_generator):
     """
     A wrapper of format_html, for the common case of a group of arguments that
@@ -156,6 +162,7 @@ def format_html_join(sep, format_string, args_generator):
     )
 
 
+# [TODO] linebreaks
 @keep_lazy_text
 def linebreaks(value, autoescape=False):
     """Convert newlines into <p> and <br>s."""
@@ -168,25 +175,32 @@ def linebreaks(value, autoescape=False):
     return "\n\n".join(paras)
 
 
+# [TODO] MLStripper
 class MLStripper(HTMLParser):
+    # [TODO] MLStripper > __init__
     def __init__(self):
         super().__init__(convert_charrefs=False)
         self.reset()
         self.fed = []
 
+    # [TODO] MLStripper > handle_data
     def handle_data(self, d):
         self.fed.append(d)
 
+    # [TODO] MLStripper > handle_entityref
     def handle_entityref(self, name):
         self.fed.append("&%s;" % name)
 
+    # [TODO] MLStripper > handle_charref
     def handle_charref(self, name):
         self.fed.append("&#%s;" % name)
 
+    # [TODO] MLStripper > get_data
     def get_data(self):
         return "".join(self.fed)
 
 
+# [TODO] _strip_once
 def _strip_once(value):
     """
     Internal tag stripping utility used by strip_tags.
@@ -197,6 +211,7 @@ def _strip_once(value):
     return s.get_data()
 
 
+# [TODO] strip_tags
 @keep_lazy_text
 def strip_tags(value):
     """Return the given HTML with all tags stripped."""
@@ -212,12 +227,14 @@ def strip_tags(value):
     return value
 
 
+# [TODO] strip_spaces_between_tags
 @keep_lazy_text
 def strip_spaces_between_tags(value):
     """Return the given HTML with spaces between tags removed."""
     return re.sub(r">\s+<", "><", str(value))
 
 
+# [TODO] smart_urlquote
 def smart_urlquote(url):
     """Quote a URL if it isn't already quoted."""
 
@@ -255,6 +272,7 @@ def smart_urlquote(url):
     return urlunsplit((scheme, netloc, path, query, fragment))
 
 
+# [TODO] Urlizer
 class Urlizer:
     """
     Convert any URLs in text into clickable links.
@@ -277,6 +295,7 @@ class Urlizer:
     mailto_template = "mailto:{local}@{domain}"
     url_template = '<a href="{href}"{attrs}>{url}</a>'
 
+    # [TODO] Urlizer > __call__
     def __call__(self, text, trim_url_limit=None, nofollow=False, autoescape=False):
         """
         If trim_url_limit is not None, truncate the URLs in the link text
@@ -303,6 +322,7 @@ class Urlizer:
             ]
         )
 
+    # [TODO] Urlizer > handle_word
     def handle_word(
         self,
         word,
@@ -355,11 +375,13 @@ class Urlizer:
             return escape(word)
         return word
 
+    # [TODO] Urlizer > trim_url
     def trim_url(self, x, *, limit):
         if limit is None or len(x) <= limit:
             return x
         return "%s…" % x[: max(0, limit - 1)]
 
+    # [TODO] Urlizer > trim_punctuation
     def trim_punctuation(self, word):
         """
         Trim trailing and wrapping punctuation from `word`. Return the items of
@@ -396,6 +418,7 @@ class Urlizer:
                 trimmed_something = True
         return lead, middle, trail
 
+    # [TODO] Urlizer > is_email_simple
     @staticmethod
     def is_email_simple(value):
         """Return True if value looks like an email address."""
@@ -416,6 +439,7 @@ class Urlizer:
 urlizer = Urlizer()
 
 
+# [TODO] urlize
 @keep_lazy_text
 def urlize(text, trim_url_limit=None, nofollow=False, autoescape=False):
     return urlizer(
@@ -423,6 +447,7 @@ def urlize(text, trim_url_limit=None, nofollow=False, autoescape=False):
     )
 
 
+# [TODO] avoid_wrapping
 def avoid_wrapping(value):
     """
     Avoid text wrapping in the middle of a phrase by adding non-breaking
@@ -431,6 +456,7 @@ def avoid_wrapping(value):
     return value.replace(" ", "\xa0")
 
 
+# [TODO] html_safe
 def html_safe(klass):
     """
     A decorator that defines the __html__ method. This helps non-Django

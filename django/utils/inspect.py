@@ -2,6 +2,7 @@ import functools
 import inspect
 
 
+# [TODO] _get_func_parameters
 @functools.lru_cache(maxsize=512)
 def _get_func_parameters(func, remove_first):
     parameters = tuple(inspect.signature(func).parameters.values())
@@ -10,12 +11,14 @@ def _get_func_parameters(func, remove_first):
     return parameters
 
 
+# [TODO] _get_callable_parameters
 def _get_callable_parameters(meth_or_func):
     is_method = inspect.ismethod(meth_or_func)
     func = meth_or_func.__func__ if is_method else meth_or_func
     return _get_func_parameters(func, remove_first=is_method)
 
 
+# [TODO] get_func_args
 def get_func_args(func):
     params = _get_callable_parameters(func)
     return [
@@ -25,6 +28,7 @@ def get_func_args(func):
     ]
 
 
+# [TODO] get_func_full_args
 def get_func_full_args(func):
     """
     Return a list of (argument name, default value) tuples. If the argument
@@ -49,11 +53,13 @@ def get_func_full_args(func):
     return args
 
 
+# [TODO] func_accepts_kwargs
 def func_accepts_kwargs(func):
     """Return True if function 'func' accepts keyword arguments **kwargs."""
     return any(p for p in _get_callable_parameters(func) if p.kind == p.VAR_KEYWORD)
 
 
+# [TODO] func_accepts_var_args
 def func_accepts_var_args(func):
     """
     Return True if function 'func' accepts positional arguments *args.
@@ -61,6 +67,7 @@ def func_accepts_var_args(func):
     return any(p for p in _get_callable_parameters(func) if p.kind == p.VAR_POSITIONAL)
 
 
+# [TODO] method_has_no_args
 def method_has_no_args(meth):
     """Return True if a method only accepts 'self'."""
     count = len(
@@ -69,5 +76,6 @@ def method_has_no_args(meth):
     return count == 0 if inspect.ismethod(meth) else count == 1
 
 
+# [TODO] func_supports_parameter
 def func_supports_parameter(func, name):
     return any(param.name == name for param in _get_callable_parameters(func))

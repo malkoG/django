@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, View
 
 
+# [TODO] MultipleObjectMixin
 class MultipleObjectMixin(ContextMixin):
     """A mixin for views manipulating multiple objects."""
 
@@ -19,6 +20,7 @@ class MultipleObjectMixin(ContextMixin):
     page_kwarg = "page"
     ordering = None
 
+    # [TODO] MultipleObjectMixin > get_queryset
     def get_queryset(self):
         """
         Return the list of items for this view.
@@ -46,10 +48,12 @@ class MultipleObjectMixin(ContextMixin):
 
         return queryset
 
+    # [TODO] MultipleObjectMixin > get_ordering
     def get_ordering(self):
         """Return the field or fields to use for ordering the queryset."""
         return self.ordering
 
+    # [TODO] MultipleObjectMixin > paginate_queryset
     def paginate_queryset(self, queryset, page_size):
         """Paginate the queryset, if needed."""
         paginator = self.get_paginator(
@@ -78,12 +82,14 @@ class MultipleObjectMixin(ContextMixin):
                 % {"page_number": page_number, "message": str(e)}
             )
 
+    # [TODO] MultipleObjectMixin > get_paginate_by
     def get_paginate_by(self, queryset):
         """
         Get the number of items to paginate by, or ``None`` for no pagination.
         """
         return self.paginate_by
 
+    # [TODO] MultipleObjectMixin > get_paginator
     def get_paginator(
         self, queryset, per_page, orphans=0, allow_empty_first_page=True, **kwargs
     ):
@@ -96,6 +102,7 @@ class MultipleObjectMixin(ContextMixin):
             **kwargs,
         )
 
+    # [TODO] MultipleObjectMixin > get_paginate_orphans
     def get_paginate_orphans(self):
         """
         Return the maximum number of orphans extend the last page by when
@@ -103,6 +110,7 @@ class MultipleObjectMixin(ContextMixin):
         """
         return self.paginate_orphans
 
+    # [TODO] MultipleObjectMixin > get_allow_empty
     def get_allow_empty(self):
         """
         Return ``True`` if the view should display empty lists and ``False``
@@ -110,6 +118,7 @@ class MultipleObjectMixin(ContextMixin):
         """
         return self.allow_empty
 
+    # [TODO] MultipleObjectMixin > get_context_object_name
     def get_context_object_name(self, object_list):
         """Get the name of the item to be used in the context."""
         if self.context_object_name:
@@ -119,6 +128,7 @@ class MultipleObjectMixin(ContextMixin):
         else:
             return None
 
+    # [TODO] MultipleObjectMixin > get_context_data
     def get_context_data(self, *, object_list=None, **kwargs):
         """Get the context for this view."""
         queryset = object_list if object_list is not None else self.object_list
@@ -147,9 +157,11 @@ class MultipleObjectMixin(ContextMixin):
         return super().get_context_data(**context)
 
 
+# [TODO] BaseListView
 class BaseListView(MultipleObjectMixin, View):
     """A base view for displaying a list of objects."""
 
+    # [TODO] BaseListView > get
     def get(self, request, *args, **kwargs):
         self.object_list = self.get_queryset()
         allow_empty = self.get_allow_empty()
@@ -175,11 +187,13 @@ class BaseListView(MultipleObjectMixin, View):
         return self.render_to_response(context)
 
 
+# [TODO] MultipleObjectTemplateResponseMixin
 class MultipleObjectTemplateResponseMixin(TemplateResponseMixin):
     """Mixin for responding with a template and list of objects."""
 
     template_name_suffix = "_list"
 
+    # [TODO] MultipleObjectTemplateResponseMixin > get_template_names
     def get_template_names(self):
         """
         Return a list of template names to be used for the request. Must return
@@ -213,6 +227,7 @@ class MultipleObjectTemplateResponseMixin(TemplateResponseMixin):
         return names
 
 
+# [TODO] ListView
 class ListView(MultipleObjectTemplateResponseMixin, BaseListView):
     """
     Render some list of objects, set by `self.model` or `self.queryset`.

@@ -5,6 +5,7 @@ from django.contrib.messages.storage.cookie import MessageDecoder, MessageEncode
 from django.core.exceptions import ImproperlyConfigured
 
 
+# [TODO] SessionStorage
 class SessionStorage(BaseStorage):
     """
     Store messages in the session (that is, django.contrib.sessions).
@@ -12,6 +13,7 @@ class SessionStorage(BaseStorage):
 
     session_key = "_messages"
 
+    # [TODO] SessionStorage > __init__
     def __init__(self, request, *args, **kwargs):
         if not hasattr(request, "session"):
             raise ImproperlyConfigured(
@@ -21,6 +23,7 @@ class SessionStorage(BaseStorage):
             )
         super().__init__(request, *args, **kwargs)
 
+    # [TODO] SessionStorage > _get
     def _get(self, *args, **kwargs):
         """
         Retrieve a list of messages from the request's session. This storage
@@ -32,6 +35,7 @@ class SessionStorage(BaseStorage):
             True,
         )
 
+    # [TODO] SessionStorage > _store
     def _store(self, messages, response, *args, **kwargs):
         """
         Store a list of messages to the request's session.
@@ -42,10 +46,12 @@ class SessionStorage(BaseStorage):
             self.request.session.pop(self.session_key, None)
         return []
 
+    # [TODO] SessionStorage > serialize_messages
     def serialize_messages(self, messages):
         encoder = MessageEncoder()
         return encoder.encode(messages)
 
+    # [TODO] SessionStorage > deserialize_messages
     def deserialize_messages(self, data):
         if data and isinstance(data, str):
             return json.loads(data, cls=MessageDecoder)

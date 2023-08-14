@@ -3,6 +3,7 @@ from django.conf import settings
 from .. import Tags, Warning, register
 
 
+# [TODO] add_session_cookie_message
 def add_session_cookie_message(message):
     return message + (
         " Using a secure-only session cookie makes it more difficult for "
@@ -33,6 +34,7 @@ W012 = Warning(
 )
 
 
+# [TODO] add_httponly_message
 def add_httponly_message(message):
     return message + (
         " Using an HttpOnly session cookie makes it more difficult for "
@@ -63,6 +65,7 @@ W015 = Warning(
 )
 
 
+# [TODO] check_session_cookie_secure
 @register(Tags.security, deploy=True)
 def check_session_cookie_secure(app_configs, **kwargs):
     if settings.SESSION_COOKIE_SECURE is True:
@@ -77,6 +80,7 @@ def check_session_cookie_secure(app_configs, **kwargs):
     return errors
 
 
+# [TODO] check_session_cookie_httponly
 @register(Tags.security, deploy=True)
 def check_session_cookie_httponly(app_configs, **kwargs):
     if settings.SESSION_COOKIE_HTTPONLY is True:
@@ -91,9 +95,11 @@ def check_session_cookie_httponly(app_configs, **kwargs):
     return errors
 
 
+# [TODO] _session_middleware
 def _session_middleware():
     return "django.contrib.sessions.middleware.SessionMiddleware" in settings.MIDDLEWARE
 
 
+# [TODO] _session_app
 def _session_app():
     return "django.contrib.sessions" in settings.INSTALLED_APPS

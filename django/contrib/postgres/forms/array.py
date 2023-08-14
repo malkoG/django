@@ -12,11 +12,13 @@ from django.utils.translation import gettext_lazy as _
 from ..utils import prefix_validation_error
 
 
+# [TODO] SimpleArrayField
 class SimpleArrayField(forms.CharField):
     default_error_messages = {
         "item_invalid": _("Item %(nth)s in the array did not validate:"),
     }
 
+    # [TODO] SimpleArrayField > __init__
     def __init__(
         self, base_field, *, delimiter=",", max_length=None, min_length=None, **kwargs
     ):
@@ -30,10 +32,12 @@ class SimpleArrayField(forms.CharField):
             self.max_length = max_length
             self.validators.append(ArrayMaxLengthValidator(int(max_length)))
 
+    # [TODO] SimpleArrayField > clean
     def clean(self, value):
         value = super().clean(value)
         return [self.base_field.clean(val) for val in value]
 
+    # [TODO] SimpleArrayField > prepare_value
     def prepare_value(self, value):
         if isinstance(value, list):
             return self.delimiter.join(
@@ -41,6 +45,7 @@ class SimpleArrayField(forms.CharField):
             )
         return value
 
+    # [TODO] SimpleArrayField > to_python
     def to_python(self, value):
         if isinstance(value, list):
             items = value
@@ -66,6 +71,7 @@ class SimpleArrayField(forms.CharField):
             raise ValidationError(errors)
         return values
 
+    # [TODO] SimpleArrayField > validate
     def validate(self, value):
         super().validate(value)
         errors = []
@@ -84,6 +90,7 @@ class SimpleArrayField(forms.CharField):
         if errors:
             raise ValidationError(errors)
 
+    # [TODO] SimpleArrayField > run_validators
     def run_validators(self, value):
         super().run_validators(value)
         errors = []
@@ -102,6 +109,7 @@ class SimpleArrayField(forms.CharField):
         if errors:
             raise ValidationError(errors)
 
+    # [TODO] SimpleArrayField > has_changed
     def has_changed(self, initial, data):
         try:
             value = self.to_python(data)
@@ -113,36 +121,43 @@ class SimpleArrayField(forms.CharField):
         return super().has_changed(initial, data)
 
 
+# [TODO] SplitArrayWidget
 class SplitArrayWidget(forms.Widget):
     template_name = "postgres/widgets/split_array.html"
 
+    # [TODO] SplitArrayWidget > __init__
     def __init__(self, widget, size, **kwargs):
         self.widget = widget() if isinstance(widget, type) else widget
         self.size = size
         super().__init__(**kwargs)
 
+    # [TODO] SplitArrayWidget > is_hidden
     @property
     def is_hidden(self):
         return self.widget.is_hidden
 
+    # [TODO] SplitArrayWidget > value_from_datadict
     def value_from_datadict(self, data, files, name):
         return [
             self.widget.value_from_datadict(data, files, "%s_%s" % (name, index))
             for index in range(self.size)
         ]
 
+    # [TODO] SplitArrayWidget > value_omitted_from_data
     def value_omitted_from_data(self, data, files, name):
         return all(
             self.widget.value_omitted_from_data(data, files, "%s_%s" % (name, index))
             for index in range(self.size)
         )
 
+    # [TODO] SplitArrayWidget > id_for_label
     def id_for_label(self, id_):
         # See the comment for RadioSelect.id_for_label()
         if id_:
             id_ += "_0"
         return id_
 
+    # [TODO] SplitArrayWidget > get_context
     def get_context(self, name, value, attrs=None):
         attrs = {} if attrs is None else attrs
         context = super().get_context(name, value, attrs)
@@ -166,25 +181,30 @@ class SplitArrayWidget(forms.Widget):
             )
         return context
 
+    # [TODO] SplitArrayWidget > media
     @property
     def media(self):
         return self.widget.media
 
+    # [TODO] SplitArrayWidget > __deepcopy__
     def __deepcopy__(self, memo):
         obj = super().__deepcopy__(memo)
         obj.widget = copy.deepcopy(self.widget)
         return obj
 
+    # [TODO] SplitArrayWidget > needs_multipart_form
     @property
     def needs_multipart_form(self):
         return self.widget.needs_multipart_form
 
 
+# [TODO] SplitArrayField
 class SplitArrayField(forms.Field):
     default_error_messages = {
         "item_invalid": _("Item %(nth)s in the array did not validate:"),
     }
 
+    # [TODO] SplitArrayField > __init__
     def __init__(self, base_field, size, *, remove_trailing_nulls=False, **kwargs):
         self.base_field = base_field
         self.size = size
@@ -193,6 +213,7 @@ class SplitArrayField(forms.Field):
         kwargs.setdefault("widget", widget)
         super().__init__(**kwargs)
 
+    # [TODO] SplitArrayField > _remove_trailing_nulls
     def _remove_trailing_nulls(self, values):
         index = None
         if self.remove_trailing_nulls:
@@ -205,10 +226,12 @@ class SplitArrayField(forms.Field):
                 values = values[:index]
         return values, index
 
+    # [TODO] SplitArrayField > to_python
     def to_python(self, value):
         value = super().to_python(value)
         return [self.base_field.to_python(item) for item in value]
 
+    # [TODO] SplitArrayField > clean
     def clean(self, value):
         cleaned_data = []
         errors = []
@@ -239,6 +262,7 @@ class SplitArrayField(forms.Field):
             raise ValidationError(list(chain.from_iterable(errors)))
         return cleaned_data
 
+    # [TODO] SplitArrayField > has_changed
     def has_changed(self, initial, data):
         try:
             data = self.to_python(data)

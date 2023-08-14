@@ -7,6 +7,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import resolve_url
 
 
+# [TODO] user_passes_test
 def user_passes_test(
     test_func, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME
 ):
@@ -40,6 +41,7 @@ def user_passes_test(
     return decorator
 
 
+# [TODO] login_required
 def login_required(
     function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None
 ):
@@ -57,6 +59,7 @@ def login_required(
     return actual_decorator
 
 
+# [TODO] permission_required
 def permission_required(perm, login_url=None, raise_exception=False):
     """
     Decorator for views that checks whether a user has a particular permission

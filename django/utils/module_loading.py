@@ -5,6 +5,7 @@ from importlib import import_module
 from importlib.util import find_spec as importlib_find
 
 
+# [TODO] cached_import
 def cached_import(module_path, class_name):
     # Check whether module is loaded and fully initialized.
     if not (
@@ -16,6 +17,7 @@ def cached_import(module_path, class_name):
     return getattr(module, class_name)
 
 
+# [TODO] import_string
 def import_string(dotted_path):
     """
     Import a dotted module path and return the attribute/class designated by the
@@ -35,6 +37,7 @@ def import_string(dotted_path):
         ) from err
 
 
+# [TODO] autodiscover_modules
 def autodiscover_modules(*args, **kwargs):
     """
     Auto-discover INSTALLED_APPS modules and fail silently when
@@ -71,6 +74,7 @@ def autodiscover_modules(*args, **kwargs):
                     raise
 
 
+# [TODO] module_has_submodule
 def module_has_submodule(package, module_name):
     """See if 'module' is in 'package'."""
     try:
@@ -89,6 +93,7 @@ def module_has_submodule(package, module_name):
         return False
 
 
+# [TODO] module_dir
 def module_dir(module):
     """
     Find the name of the directory that contains a module, if possible.

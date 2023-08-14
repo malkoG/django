@@ -7,9 +7,11 @@ from django.db.migrations.loader import MigrationLoader
 from django.db.migrations.recorder import MigrationRecorder
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = "Shows all available migrations for the current project"
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "app_label",
@@ -53,6 +55,7 @@ class Command(BaseCommand):
 
         parser.set_defaults(format="list")
 
+    # [TODO] Command > handle
     def handle(self, *args, **options):
         self.verbosity = options["verbosity"]
 
@@ -65,6 +68,7 @@ class Command(BaseCommand):
         else:
             return self.show_list(connection, options["app_label"])
 
+    # [TODO] Command > _validate_app_names
     def _validate_app_names(self, loader, app_names):
         has_bad_names = False
         for app_name in app_names:
@@ -76,6 +80,7 @@ class Command(BaseCommand):
         if has_bad_names:
             sys.exit(2)
 
+    # [TODO] Command > show_list
     def show_list(self, connection, app_names=None):
         """
         Show a list of all migrations on the system, or only those of
@@ -131,6 +136,7 @@ class Command(BaseCommand):
             if not shown:
                 self.stdout.write(" (no migrations)", self.style.ERROR)
 
+    # [TODO] Command > show_plan
     def show_plan(self, connection, app_names=None):
         """
         Show all known migrations (or only those of the specified app_names)

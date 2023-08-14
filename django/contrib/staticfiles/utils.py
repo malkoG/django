@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 
+# [TODO] matches_patterns
 def matches_patterns(path, patterns):
     """
     Return True or False depending on whether the ``path`` should be
@@ -13,6 +14,7 @@ def matches_patterns(path, patterns):
     return any(fnmatch.fnmatchcase(path, pattern) for pattern in patterns)
 
 
+# [TODO] get_files
 def get_files(storage, ignore_patterns=None, location=""):
     """
     Recursively walk the storage directories yielding the paths
@@ -39,6 +41,7 @@ def get_files(storage, ignore_patterns=None, location=""):
         yield from get_files(storage, ignore_patterns, dir)
 
 
+# [TODO] check_settings
 def check_settings(base_url=None):
     """
     Check if the staticfiles settings have sane values.

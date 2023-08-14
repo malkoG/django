@@ -1,3 +1,4 @@
+# [TODO] action
 def action(function=None, *, permissions=None, description=None):
     """
     Conveniently add attributes to an action function::
@@ -31,6 +32,7 @@ def action(function=None, *, permissions=None, description=None):
         return decorator(function)
 
 
+# [TODO] display
 def display(
     function=None, *, boolean=None, ordering=None, description=None, empty_value=None
 ):
@@ -77,6 +79,7 @@ def display(
         return decorator(function)
 
 
+# [TODO] register
 def register(*models, site=None):
     """
     Register the given model(s) classes and wrapped ModelAdmin class with

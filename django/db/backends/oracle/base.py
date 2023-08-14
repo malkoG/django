@@ -20,6 +20,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.functional import cached_property
 
 
+# [TODO] _setup_environment
 def _setup_environment(environ):
     # Cygwin requires some special voodoo to set the environment variables
     # properly so that Oracle will see them.
@@ -62,6 +63,7 @@ from .utils import Oracle_datetime, dsn  # NOQA
 from .validation import DatabaseValidation  # NOQA
 
 
+# [TODO] wrap_oracle_errors
 @contextmanager
 def wrap_oracle_errors():
     try:
@@ -88,7 +90,9 @@ def wrap_oracle_errors():
         raise
 
 
+# [TODO] _UninitializedOperatorsDescriptor
 class _UninitializedOperatorsDescriptor:
+    # [TODO] _UninitializedOperatorsDescriptor > __get__
     def __get__(self, instance, cls=None):
         # If connection.operators is looked up before a connection has been
         # created, transparently initialize connection.operators to avert an
@@ -100,6 +104,7 @@ class _UninitializedOperatorsDescriptor:
         return instance.__dict__["operators"]
 
 
+# [TODO] DatabaseWrapper
 class DatabaseWrapper(BaseDatabaseWrapper):
     vendor = "oracle"
     display_name = "Oracle"
@@ -230,6 +235,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     ops_class = DatabaseOperations
     validation_class = DatabaseValidation
 
+    # [TODO] DatabaseWrapper > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         use_returning_into = self.settings_dict["OPTIONS"].get(
@@ -237,15 +243,18 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         )
         self.features.can_return_columns_from_insert = use_returning_into
 
+    # [TODO] DatabaseWrapper > get_database_version
     def get_database_version(self):
         return self.oracle_version
 
+    # [TODO] DatabaseWrapper > get_connection_params
     def get_connection_params(self):
         conn_params = self.settings_dict["OPTIONS"].copy()
         if "use_returning_into" in conn_params:
             del conn_params["use_returning_into"]
         return conn_params
 
+    # [TODO] DatabaseWrapper > get_new_connection
     @async_unsafe
     def get_new_connection(self, conn_params):
         return Database.connect(
@@ -255,6 +264,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             **conn_params,
         )
 
+    # [TODO] DatabaseWrapper > init_connection_state
     def init_connection_state(self):
         super().init_connection_state()
         cursor = self.create_cursor()
@@ -298,10 +308,12 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         if not self.get_autocommit():
             self.commit()
 
+    # [TODO] DatabaseWrapper > create_cursor
     @async_unsafe
     def create_cursor(self, name=None):
         return FormatStylePlaceholderCursor(self.connection)
 
+    # [TODO] DatabaseWrapper > _commit
     def _commit(self):
         if self.connection is not None:
             with debug_transaction(self, "COMMIT"), wrap_oracle_errors():
@@ -309,6 +321,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     # Oracle doesn't support releasing savepoints. But we fake them when query
     # logging is enabled to keep query counts consistent with other backends.
+    # [TODO] DatabaseWrapper > _savepoint_commit
     def _savepoint_commit(self, sid):
         if self.queries_logged:
             self.queries_log.append(
@@ -318,10 +331,12 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                 }
             )
 
+    # [TODO] DatabaseWrapper > _set_autocommit
     def _set_autocommit(self, autocommit):
         with self.wrap_database_errors:
             self.connection.autocommit = autocommit
 
+    # [TODO] DatabaseWrapper > check_constraints
     def check_constraints(self, table_names=None):
         """
         Check constraints by setting them to immediate. Return them to deferred
@@ -331,6 +346,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             cursor.execute("SET CONSTRAINTS ALL IMMEDIATE")
             cursor.execute("SET CONSTRAINTS ALL DEFERRED")
 
+    # [TODO] DatabaseWrapper > is_usable
     def is_usable(self):
         try:
             self.connection.ping()
@@ -339,12 +355,14 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         else:
             return True
 
+    # [TODO] DatabaseWrapper > oracle_version
     @cached_property
     def oracle_version(self):
         with self.temporary_connection():
             return tuple(int(x) for x in self.connection.version.split("."))
 
 
+# [TODO] OracleParam
 class OracleParam:
     """
     Wrapper object for formatting parameters for Oracle. If the string
@@ -355,6 +373,7 @@ class OracleParam:
     parameter when executing the query.
     """
 
+    # [TODO] OracleParam > __init__
     def __init__(self, param, cursor, strings_only=False):
         # With raw SQL queries, datetimes can reach this function
         # without being converted by DateTimeField.get_db_prep_value.
@@ -393,6 +412,7 @@ class OracleParam:
             self.input_size = None
 
 
+# [TODO] VariableWrapper
 class VariableWrapper:
     """
     An adapter class for cursor variables that prevents the wrapped object
@@ -401,15 +421,19 @@ class VariableWrapper:
     Cursor.execute as-is.
     """
 
+    # [TODO] VariableWrapper > __init__
     def __init__(self, var):
         self.var = var
 
+    # [TODO] VariableWrapper > bind_parameter
     def bind_parameter(self, cursor):
         return self.var
 
+    # [TODO] VariableWrapper > __getattr__
     def __getattr__(self, key):
         return getattr(self.var, key)
 
+    # [TODO] VariableWrapper > __setattr__
     def __setattr__(self, key, value):
         if key == "var":
             self.__dict__[key] = value
@@ -417,6 +441,7 @@ class VariableWrapper:
             setattr(self.var, key, value)
 
 
+# [TODO] FormatStylePlaceholderCursor
 class FormatStylePlaceholderCursor:
     """
     Django uses "format" (e.g. '%s') style placeholders, but Oracle uses ":var"
@@ -426,14 +451,17 @@ class FormatStylePlaceholderCursor:
 
     charset = "utf-8"
 
+    # [TODO] FormatStylePlaceholderCursor > __init__
     def __init__(self, connection):
         self.cursor = connection.cursor()
         self.cursor.outputtypehandler = self._output_type_handler
 
+    # [TODO] FormatStylePlaceholderCursor > _output_number_converter
     @staticmethod
     def _output_number_converter(value):
         return decimal.Decimal(value) if "." in value else int(value)
 
+    # [TODO] FormatStylePlaceholderCursor > _get_decimal_converter
     @staticmethod
     def _get_decimal_converter(precision, scale):
         if scale == 0:
@@ -442,6 +470,7 @@ class FormatStylePlaceholderCursor:
         quantize_value = decimal.Decimal(1).scaleb(-scale)
         return lambda v: decimal.Decimal(v).quantize(quantize_value, context=context)
 
+    # [TODO] FormatStylePlaceholderCursor > _output_type_handler
     @staticmethod
     def _output_type_handler(cursor, name, defaultType, length, precision, scale):
         """
@@ -477,12 +506,14 @@ class FormatStylePlaceholderCursor:
                 outconverter=outconverter,
             )
 
+    # [TODO] FormatStylePlaceholderCursor > _format_params
     def _format_params(self, params):
         try:
             return {k: OracleParam(v, self, True) for k, v in params.items()}
         except AttributeError:
             return tuple(OracleParam(p, self, True) for p in params)
 
+    # [TODO] FormatStylePlaceholderCursor > _guess_input_sizes
     def _guess_input_sizes(self, params_list):
         # Try dict handling; if that fails, treat as sequence
         if hasattr(params_list[0], "keys"):
@@ -503,6 +534,7 @@ class FormatStylePlaceholderCursor:
             if sizes:
                 self.setinputsizes(*sizes)
 
+    # [TODO] FormatStylePlaceholderCursor > _param_generator
     def _param_generator(self, params):
         # Try dict handling; if that fails, treat as sequence
         if hasattr(params, "items"):
@@ -510,6 +542,7 @@ class FormatStylePlaceholderCursor:
         else:
             return [p.force_bytes for p in params]
 
+    # [TODO] FormatStylePlaceholderCursor > _fix_for_params
     def _fix_for_params(self, query, params, unify_by_values=False):
         # oracledb wants no trailing ';' for SQL statements.  For PL/SQL, it
         # it does want a trailing ';' but not a trailing '/'.  However, these
@@ -543,12 +576,14 @@ class FormatStylePlaceholderCursor:
             query %= tuple(args)
         return query, self._format_params(params)
 
+    # [TODO] FormatStylePlaceholderCursor > execute
     def execute(self, query, params=None):
         query, params = self._fix_for_params(query, params, unify_by_values=True)
         self._guess_input_sizes([params])
         with wrap_oracle_errors():
             return self.cursor.execute(query, self._param_generator(params))
 
+    # [TODO] FormatStylePlaceholderCursor > executemany
     def executemany(self, query, params=None):
         if not params:
             # No params given, nothing to do
@@ -565,6 +600,7 @@ class FormatStylePlaceholderCursor:
                 query, [self._param_generator(p) for p in formatted]
             )
 
+    # [TODO] FormatStylePlaceholderCursor > close
     def close(self):
         try:
             self.cursor.close()
@@ -572,14 +608,18 @@ class FormatStylePlaceholderCursor:
             # already closed
             pass
 
+    # [TODO] FormatStylePlaceholderCursor > var
     def var(self, *args):
         return VariableWrapper(self.cursor.var(*args))
 
+    # [TODO] FormatStylePlaceholderCursor > arrayvar
     def arrayvar(self, *args):
         return VariableWrapper(self.cursor.arrayvar(*args))
 
+    # [TODO] FormatStylePlaceholderCursor > __getattr__
     def __getattr__(self, attr):
         return getattr(self.cursor, attr)
 
+    # [TODO] FormatStylePlaceholderCursor > __iter__
     def __iter__(self):
         return iter(self.cursor)

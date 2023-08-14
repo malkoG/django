@@ -8,10 +8,13 @@ from django.utils.html import conditional_escape
 register = template.Library()
 
 
+# [TODO] PrefixNode
 class PrefixNode(template.Node):
+    # [TODO] PrefixNode > __repr__
     def __repr__(self):
         return "<PrefixNode for %r>" % self.name
 
+    # [TODO] PrefixNode > __init__
     def __init__(self, varname=None, name=None):
         if name is None:
             raise template.TemplateSyntaxError(
@@ -20,6 +23,7 @@ class PrefixNode(template.Node):
         self.varname = varname
         self.name = name
 
+    # [TODO] PrefixNode > handle_token
     @classmethod
     def handle_token(cls, parser, token, name):
         """
@@ -38,6 +42,7 @@ class PrefixNode(template.Node):
             varname = None
         return cls(varname, name)
 
+    # [TODO] PrefixNode > handle_simple
     @classmethod
     def handle_simple(cls, name):
         try:
@@ -48,6 +53,7 @@ class PrefixNode(template.Node):
             prefix = iri_to_uri(getattr(settings, name, ""))
         return prefix
 
+    # [TODO] PrefixNode > render
     def render(self, context):
         prefix = self.handle_simple(self.name)
         if self.varname is None:
@@ -56,6 +62,7 @@ class PrefixNode(template.Node):
         return ""
 
 
+# [TODO] get_static_prefix
 @register.tag
 def get_static_prefix(parser, token):
     """
@@ -74,6 +81,7 @@ def get_static_prefix(parser, token):
     return PrefixNode.handle_token(parser, token, "STATIC_URL")
 
 
+# [TODO] get_media_prefix
 @register.tag
 def get_media_prefix(parser, token):
     """
@@ -92,9 +100,11 @@ def get_media_prefix(parser, token):
     return PrefixNode.handle_token(parser, token, "MEDIA_URL")
 
 
+# [TODO] StaticNode
 class StaticNode(template.Node):
     child_nodelists = ()
 
+    # [TODO] StaticNode > __init__
     def __init__(self, varname=None, path=None):
         if path is None:
             raise template.TemplateSyntaxError(
@@ -103,15 +113,18 @@ class StaticNode(template.Node):
         self.path = path
         self.varname = varname
 
+    # [TODO] StaticNode > __repr__
     def __repr__(self):
         return (
             f"{self.__class__.__name__}(varname={self.varname!r}, path={self.path!r})"
         )
 
+    # [TODO] StaticNode > url
     def url(self, context):
         path = self.path.resolve(context)
         return self.handle_simple(path)
 
+    # [TODO] StaticNode > render
     def render(self, context):
         url = self.url(context)
         if context.autoescape:
@@ -121,6 +134,7 @@ class StaticNode(template.Node):
         context[self.varname] = url
         return ""
 
+    # [TODO] StaticNode > handle_simple
     @classmethod
     def handle_simple(cls, path):
         if apps.is_installed("django.contrib.staticfiles"):
@@ -130,6 +144,7 @@ class StaticNode(template.Node):
         else:
             return urljoin(PrefixNode.handle_simple("STATIC_URL"), quote(path))
 
+    # [TODO] StaticNode > handle_token
     @classmethod
     def handle_token(cls, parser, token):
         """
@@ -152,6 +167,7 @@ class StaticNode(template.Node):
         return cls(varname, path)
 
 
+# [TODO] do_static
 @register.tag("static")
 def do_static(parser, token):
     """
@@ -171,6 +187,7 @@ def do_static(parser, token):
     return StaticNode.handle_token(parser, token)
 
 
+# [TODO] static
 def static(path):
     """
     Given a relative path to a static asset, return the absolute path to the

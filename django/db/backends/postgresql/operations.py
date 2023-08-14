@@ -16,6 +16,7 @@ from django.db.models.functions import Cast
 from django.utils.regex_helper import _lazy_re_compile
 
 
+# [TODO] get_json_dumps
 @lru_cache
 def get_json_dumps(encoder):
     if encoder is None:
@@ -23,6 +24,7 @@ def get_json_dumps(encoder):
     return partial(json.dumps, cls=encoder)
 
 
+# [TODO] DatabaseOperations
 class DatabaseOperations(BaseDatabaseOperations):
     cast_char_field_without_max_length = "varchar"
     explain_prefix = "EXPLAIN"
@@ -56,6 +58,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             "PositiveBigIntegerField": numeric.Int8,
         }
 
+    # [TODO] DatabaseOperations > unification_cast_sql
     def unification_cast_sql(self, output_field):
         internal_type = output_field.get_internal_type()
         if internal_type in (
@@ -79,6 +82,7 @@ class DatabaseOperations(BaseDatabaseOperations):
     # EXTRACT format cannot be passed in parameters.
     _extract_format_re = _lazy_re_compile(r"[A-Z_]+")
 
+    # [TODO] DatabaseOperations > date_extract_sql
     def date_extract_sql(self, lookup_type, sql, params):
         # https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT
         if lookup_type == "week_day":
@@ -94,11 +98,13 @@ class DatabaseOperations(BaseDatabaseOperations):
             raise ValueError(f"Invalid lookup type: {lookup_type!r}")
         return f"EXTRACT({lookup_type} FROM {sql})", params
 
+    # [TODO] DatabaseOperations > date_trunc_sql
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TRUNC
         return f"DATE_TRUNC(%s, {sql})", (lookup_type, *params)
 
+    # [TODO] DatabaseOperations > _prepare_tzname_delta
     def _prepare_tzname_delta(self, tzname):
         tzname, sign, offset = split_tzname_delta(tzname)
         if offset:
@@ -106,20 +112,24 @@ class DatabaseOperations(BaseDatabaseOperations):
             return f"{tzname}{sign}{offset}"
         return tzname
 
+    # [TODO] DatabaseOperations > _convert_sql_to_tz
     def _convert_sql_to_tz(self, sql, params, tzname):
         if tzname and settings.USE_TZ:
             tzname_param = self._prepare_tzname_delta(tzname)
             return f"{sql} AT TIME ZONE %s", (*params, tzname_param)
         return sql, params
 
+    # [TODO] DatabaseOperations > datetime_cast_date_sql
     def datetime_cast_date_sql(self, sql, params, tzname):
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"({sql})::date", params
 
+    # [TODO] DatabaseOperations > datetime_cast_time_sql
     def datetime_cast_time_sql(self, sql, params, tzname):
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"({sql})::time", params
 
+    # [TODO] DatabaseOperations > datetime_extract_sql
     def datetime_extract_sql(self, lookup_type, sql, params, tzname):
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         if lookup_type == "second":
@@ -127,24 +137,29 @@ class DatabaseOperations(BaseDatabaseOperations):
             return f"EXTRACT(SECOND FROM DATE_TRUNC(%s, {sql}))", ("second", *params)
         return self.date_extract_sql(lookup_type, sql, params)
 
+    # [TODO] DatabaseOperations > datetime_trunc_sql
     def datetime_trunc_sql(self, lookup_type, sql, params, tzname):
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TRUNC
         return f"DATE_TRUNC(%s, {sql})", (lookup_type, *params)
 
+    # [TODO] DatabaseOperations > time_extract_sql
     def time_extract_sql(self, lookup_type, sql, params):
         if lookup_type == "second":
             # Truncate fractional seconds.
             return f"EXTRACT(SECOND FROM DATE_TRUNC(%s, {sql}))", ("second", *params)
         return self.date_extract_sql(lookup_type, sql, params)
 
+    # [TODO] DatabaseOperations > time_trunc_sql
     def time_trunc_sql(self, lookup_type, sql, params, tzname=None):
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"DATE_TRUNC(%s, {sql})::time", (lookup_type, *params)
 
+    # [TODO] DatabaseOperations > deferrable_sql
     def deferrable_sql(self):
         return " DEFERRABLE INITIALLY DEFERRED"
 
+    # [TODO] DatabaseOperations > fetch_returned_insert_rows
     def fetch_returned_insert_rows(self, cursor):
         """
         Given a cursor object that has just performed an INSERT...RETURNING
@@ -152,6 +167,7 @@ class DatabaseOperations(BaseDatabaseOperations):
         """
         return cursor.fetchall()
 
+    # [TODO] DatabaseOperations > lookup_cast
     def lookup_cast(self, lookup_type, internal_type=None):
         lookup = "%s"
 
@@ -191,23 +207,29 @@ class DatabaseOperations(BaseDatabaseOperations):
 
         return lookup
 
+    # [TODO] DatabaseOperations > no_limit_value
     def no_limit_value(self):
         return None
 
+    # [TODO] DatabaseOperations > prepare_sql_script
     def prepare_sql_script(self, sql):
         return [sql]
 
+    # [TODO] DatabaseOperations > quote_name
     def quote_name(self, name):
         if name.startswith('"') and name.endswith('"'):
             return name  # Quoting once is enough.
         return '"%s"' % name
 
+    # [TODO] DatabaseOperations > compose_sql
     def compose_sql(self, sql, params):
         return mogrify(sql, params, self.connection)
 
+    # [TODO] DatabaseOperations > set_time_zone_sql
     def set_time_zone_sql(self):
         return "SELECT set_config('TimeZone', %s, false)"
 
+    # [TODO] DatabaseOperations > sql_flush
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
         if not tables:
             return []
@@ -224,6 +246,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             sql_parts.append(style.SQL_KEYWORD("CASCADE"))
         return ["%s;" % " ".join(sql_parts)]
 
+    # [TODO] DatabaseOperations > sequence_reset_by_name_sql
     def sequence_reset_by_name_sql(self, style, sequences):
         # 'ALTER SEQUENCE sequence_name RESTART WITH 1;'... style SQL statements
         # to reset sequence indices
@@ -243,12 +266,14 @@ class DatabaseOperations(BaseDatabaseOperations):
             )
         return sql
 
+    # [TODO] DatabaseOperations > tablespace_sql
     def tablespace_sql(self, tablespace, inline=False):
         if inline:
             return "USING INDEX TABLESPACE %s" % self.quote_name(tablespace)
         else:
             return "TABLESPACE %s" % self.quote_name(tablespace)
 
+    # [TODO] DatabaseOperations > sequence_reset_sql
     def sequence_reset_sql(self, style, model_list):
         from django.db import models
 
@@ -283,9 +308,11 @@ class DatabaseOperations(BaseDatabaseOperations):
                     break
         return output
 
+    # [TODO] DatabaseOperations > prep_for_iexact_query
     def prep_for_iexact_query(self, x):
         return x
 
+    # [TODO] DatabaseOperations > max_name_length
     def max_name_length(self):
         """
         Return the maximum length of an identifier.
@@ -299,6 +326,7 @@ class DatabaseOperations(BaseDatabaseOperations):
         """
         return 63
 
+    # [TODO] DatabaseOperations > distinct_sql
     def distinct_sql(self, fields, params):
         if fields:
             params = [param for param_list in params for param in param_list]
@@ -323,6 +351,7 @@ class DatabaseOperations(BaseDatabaseOperations):
                 return cursor.query.decode()
             return None
 
+    # [TODO] DatabaseOperations > return_insert_columns
     def return_insert_columns(self, fields):
         if not fields:
             return "", ()
@@ -336,6 +365,7 @@ class DatabaseOperations(BaseDatabaseOperations):
         ]
         return "RETURNING %s" % ", ".join(columns), ()
 
+    # [TODO] DatabaseOperations > bulk_insert_sql
     def bulk_insert_sql(self, fields, placeholder_rows):
         placeholder_rows_sql = (", ".join(row) for row in placeholder_rows)
         values_sql = ", ".join("(%s)" % sql for sql in placeholder_rows_sql)
@@ -348,26 +378,33 @@ class DatabaseOperations(BaseDatabaseOperations):
                 return value
             return self.integerfield_type_map[internal_type](value)
 
+    # [TODO] DatabaseOperations > adapt_datefield_value
     def adapt_datefield_value(self, value):
         return value
 
+    # [TODO] DatabaseOperations > adapt_datetimefield_value
     def adapt_datetimefield_value(self, value):
         return value
 
+    # [TODO] DatabaseOperations > adapt_timefield_value
     def adapt_timefield_value(self, value):
         return value
 
+    # [TODO] DatabaseOperations > adapt_decimalfield_value
     def adapt_decimalfield_value(self, value, max_digits=None, decimal_places=None):
         return value
 
+    # [TODO] DatabaseOperations > adapt_ipaddressfield_value
     def adapt_ipaddressfield_value(self, value):
         if value:
             return Inet(value)
         return None
 
+    # [TODO] DatabaseOperations > adapt_json_value
     def adapt_json_value(self, value, encoder):
         return Jsonb(value, dumps=get_json_dumps(encoder))
 
+    # [TODO] DatabaseOperations > subtract_temporals
     def subtract_temporals(self, internal_type, lhs, rhs):
         if internal_type == "DateField":
             lhs_sql, lhs_params = lhs
@@ -376,6 +413,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             return "(interval '1 day' * (%s - %s))" % (lhs_sql, rhs_sql), params
         return super().subtract_temporals(internal_type, lhs, rhs)
 
+    # [TODO] DatabaseOperations > explain_query_prefix
     def explain_query_prefix(self, format=None, **options):
         extra = {}
         # Normalize options.
@@ -395,6 +433,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             prefix += " (%s)" % ", ".join("%s %s" % i for i in extra.items())
         return prefix
 
+    # [TODO] DatabaseOperations > on_conflict_suffix_sql
     def on_conflict_suffix_sql(self, fields, on_conflict, update_fields, unique_fields):
         if on_conflict == OnConflict.IGNORE:
             return "ON CONFLICT DO NOTHING"
@@ -415,6 +454,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             unique_fields,
         )
 
+    # [TODO] DatabaseOperations > prepare_join_on_clause
     def prepare_join_on_clause(self, lhs_table, lhs_field, rhs_table, rhs_field):
         lhs_expr, rhs_expr = super().prepare_join_on_clause(
             lhs_table, lhs_field, rhs_table, rhs_field

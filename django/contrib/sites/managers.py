@@ -4,20 +4,24 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 
 
+# [TODO] CurrentSiteManager
 class CurrentSiteManager(models.Manager):
     "Use this to limit objects to those associated with the current site."
 
     use_in_migrations = True
 
+    # [TODO] CurrentSiteManager > __init__
     def __init__(self, field_name=None):
         super().__init__()
         self.__field_name = field_name
 
+    # [TODO] CurrentSiteManager > check
     def check(self, **kwargs):
         errors = super().check(**kwargs)
         errors.extend(self._check_field_name())
         return errors
 
+    # [TODO] CurrentSiteManager > _check_field_name
     def _check_field_name(self):
         field_name = self._get_field_name()
         try:
@@ -45,6 +49,7 @@ class CurrentSiteManager(models.Manager):
 
         return []
 
+    # [TODO] CurrentSiteManager > _get_field_name
     def _get_field_name(self):
         """Return self.__field_name or 'site' or 'sites'."""
 
@@ -57,6 +62,7 @@ class CurrentSiteManager(models.Manager):
                 self.__field_name = "site"
         return self.__field_name
 
+    # [TODO] CurrentSiteManager > get_queryset
     def get_queryset(self):
         return (
             super()

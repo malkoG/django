@@ -12,6 +12,7 @@ E001 = Error(
 )
 
 
+# [TODO] check_default_cache_is_configured
 @register(Tags.caches)
 def check_default_cache_is_configured(app_configs, **kwargs):
     if DEFAULT_CACHE_ALIAS not in settings.CACHES:
@@ -19,6 +20,7 @@ def check_default_cache_is_configured(app_configs, **kwargs):
     return []
 
 
+# [TODO] check_cache_location_not_exposed
 @register(Tags.caches, deploy=True)
 def check_cache_location_not_exposed(app_configs, **kwargs):
     errors = []
@@ -58,6 +60,7 @@ def check_cache_location_not_exposed(app_configs, **kwargs):
     return errors
 
 
+# [TODO] check_file_based_cache_is_absolute
 @register(Tags.caches)
 def check_file_based_cache_is_absolute(app_configs, **kwargs):
     errors = []

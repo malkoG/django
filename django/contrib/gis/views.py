@@ -2,6 +2,7 @@ from django.http import Http404
 from django.utils.translation import gettext as _
 
 
+# [TODO] feed
 def feed(request, url, feed_dict=None):
     """Provided for backwards compatibility."""
     if not feed_dict:

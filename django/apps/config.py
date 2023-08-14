@@ -10,9 +10,11 @@ APPS_MODULE_NAME = "apps"
 MODELS_MODULE_NAME = "models"
 
 
+# [TODO] AppConfig
 class AppConfig:
     """Class representing a Django application and its configuration."""
 
+    # [TODO] AppConfig > __init__
     def __init__(self, app_name, app_module):
         # Full Python path to the application e.g. 'django.contrib.admin'.
         self.name = app_name
@@ -55,19 +57,23 @@ class AppConfig:
         # None to prevent accidental access before import_models() runs.
         self.models = None
 
+    # [TODO] AppConfig > __repr__
     def __repr__(self):
         return "<%s: %s>" % (self.__class__.__name__, self.label)
 
+    # [TODO] AppConfig > default_auto_field
     @cached_property
     def default_auto_field(self):
         from django.conf import settings
 
         return settings.DEFAULT_AUTO_FIELD
 
+    # [TODO] AppConfig > _is_default_auto_field_overridden
     @property
     def _is_default_auto_field_overridden(self):
         return self.__class__.default_auto_field is not AppConfig.default_auto_field
 
+    # [TODO] AppConfig > _path_from_module
     def _path_from_module(self, module):
         """Attempt to determine app's filesystem path from its module."""
         # See #21874 for extended discussion of the behavior of this method in
@@ -96,6 +102,7 @@ class AppConfig:
             )
         return paths[0]
 
+    # [TODO] AppConfig > create
     @classmethod
     def create(cls, entry):
         """
@@ -221,6 +228,7 @@ class AppConfig:
         # Entry is a path to an app config class.
         return app_config_class(app_name, app_module)
 
+    # [TODO] AppConfig > get_model
     def get_model(self, model_name, require_ready=True):
         """
         Return the model with the given case-insensitive model_name.
@@ -238,6 +246,7 @@ class AppConfig:
                 "App '%s' doesn't have a '%s' model." % (self.label, model_name)
             )
 
+    # [TODO] AppConfig > get_models
     def get_models(self, include_auto_created=False, include_swapped=False):
         """
         Return an iterable of models.
@@ -259,6 +268,7 @@ class AppConfig:
                 continue
             yield model
 
+    # [TODO] AppConfig > import_models
     def import_models(self):
         # Dictionary of models for this app, primarily maintained in the
         # 'all_models' attribute of the Apps this AppConfig is attached to.
@@ -268,6 +278,7 @@ class AppConfig:
             models_module_name = "%s.%s" % (self.name, MODELS_MODULE_NAME)
             self.models_module = import_module(models_module_name)
 
+    # [TODO] AppConfig > ready
     def ready(self):
         """
         Override this method in subclasses to run code when Django starts.

@@ -82,7 +82,9 @@ from django.db.models.utils import AltersData, resolve_callables
 from django.utils.functional import cached_property
 
 
+# [TODO] ForeignKeyDeferredAttribute
 class ForeignKeyDeferredAttribute(DeferredAttribute):
+    # [TODO] ForeignKeyDeferredAttribute > __set__
     def __set__(self, instance, value):
         if instance.__dict__.get(self.field.attname) != value and self.field.is_cached(
             instance
@@ -91,6 +93,7 @@ class ForeignKeyDeferredAttribute(DeferredAttribute):
         instance.__dict__[self.field.attname] = value
 
 
+# [TODO] _filter_prefetch_queryset
 def _filter_prefetch_queryset(queryset, field_name, instances):
     predicate = Q(**{f"{field_name}__in": instances})
     db = queryset._db or DEFAULT_DB_ALIAS
@@ -112,6 +115,7 @@ def _filter_prefetch_queryset(queryset, field_name, instances):
     return queryset.filter(predicate)
 
 
+# [TODO] ForwardManyToOneDescriptor
 class ForwardManyToOneDescriptor:
     """
     Accessor to the related object on the forward side of a many-to-one or
@@ -125,9 +129,11 @@ class ForwardManyToOneDescriptor:
     ``Child.parent`` is a ``ForwardManyToOneDescriptor`` instance.
     """
 
+    # [TODO] ForwardManyToOneDescriptor > __init__
     def __init__(self, field_with_rel):
         self.field = field_with_rel
 
+    # [TODO] ForwardManyToOneDescriptor > RelatedObjectDoesNotExist
     @cached_property
     def RelatedObjectDoesNotExist(self):
         # The exception can't be created at initialization time since the
@@ -146,12 +152,15 @@ class ForwardManyToOneDescriptor:
             },
         )
 
+    # [TODO] ForwardManyToOneDescriptor > is_cached
     def is_cached(self, instance):
         return self.field.is_cached(instance)
 
+    # [TODO] ForwardManyToOneDescriptor > get_queryset
     def get_queryset(self, **hints):
         return self.field.remote_field.model._base_manager.db_manager(hints=hints).all()
 
+    # [TODO] ForwardManyToOneDescriptor > get_prefetch_queryset
     def get_prefetch_queryset(self, instances, queryset=None):
         if queryset is None:
             queryset = self.get_queryset()
@@ -193,11 +202,13 @@ class ForwardManyToOneDescriptor:
             False,
         )
 
+    # [TODO] ForwardManyToOneDescriptor > get_object
     def get_object(self, instance):
         qs = self.get_queryset(instance=instance)
         # Assuming the database enforces foreign keys, this won't fail.
         return qs.get(self.field.get_reverse_related_filter(instance))
 
+    # [TODO] ForwardManyToOneDescriptor > __get__
     def __get__(self, instance, cls=None):
         """
         Get the related instance through the forward relation.
@@ -249,6 +260,7 @@ class ForwardManyToOneDescriptor:
         else:
             return rel_obj
 
+    # [TODO] ForwardManyToOneDescriptor > __set__
     def __set__(self, instance, value):
         """
         Set the related instance through the forward relation.
@@ -325,6 +337,7 @@ class ForwardManyToOneDescriptor:
         if value is not None and not remote_field.multiple:
             remote_field.set_cached_value(value, instance)
 
+    # [TODO] ForwardManyToOneDescriptor > __reduce__
     def __reduce__(self):
         """
         Pickling should return the instance attached by self.field on the
@@ -334,6 +347,7 @@ class ForwardManyToOneDescriptor:
         return getattr, (self.field.model, self.field.name)
 
 
+# [TODO] ForwardOneToOneDescriptor
 class ForwardOneToOneDescriptor(ForwardManyToOneDescriptor):
     """
     Accessor to the related object on the forward side of a one-to-one relation.
@@ -346,6 +360,7 @@ class ForwardOneToOneDescriptor(ForwardManyToOneDescriptor):
     ``Restaurant.place`` is a ``ForwardOneToOneDescriptor`` instance.
     """
 
+    # [TODO] ForwardOneToOneDescriptor > get_object
     def get_object(self, instance):
         if self.field.remote_field.parent_link:
             deferred = instance.get_deferred_fields()
@@ -365,6 +380,7 @@ class ForwardOneToOneDescriptor(ForwardManyToOneDescriptor):
                 return obj
         return super().get_object(instance)
 
+    # [TODO] ForwardOneToOneDescriptor > __set__
     def __set__(self, instance, value):
         super().__set__(instance, value)
         # If the primary key is a link to a parent model and a parent instance
@@ -385,6 +401,7 @@ class ForwardOneToOneDescriptor(ForwardManyToOneDescriptor):
                 setattr(instance, rel_model_pk_name, raw_value)
 
 
+# [TODO] ReverseOneToOneDescriptor
 class ReverseOneToOneDescriptor:
     """
     Accessor to the related object on the reverse side of a one-to-one
@@ -398,11 +415,13 @@ class ReverseOneToOneDescriptor:
     ``Place.restaurant`` is a ``ReverseOneToOneDescriptor`` instance.
     """
 
+    # [TODO] ReverseOneToOneDescriptor > __init__
     def __init__(self, related):
         # Following the example above, `related` is an instance of OneToOneRel
         # which represents the reverse restaurant field (place.restaurant).
         self.related = related
 
+    # [TODO] ReverseOneToOneDescriptor > RelatedObjectDoesNotExist
     @cached_property
     def RelatedObjectDoesNotExist(self):
         # The exception isn't created at initialization time for the sake of
@@ -420,12 +439,15 @@ class ReverseOneToOneDescriptor:
             },
         )
 
+    # [TODO] ReverseOneToOneDescriptor > is_cached
     def is_cached(self, instance):
         return self.related.is_cached(instance)
 
+    # [TODO] ReverseOneToOneDescriptor > get_queryset
     def get_queryset(self, **hints):
         return self.related.related_model._base_manager.db_manager(hints=hints).all()
 
+    # [TODO] ReverseOneToOneDescriptor > get_prefetch_queryset
     def get_prefetch_queryset(self, instances, queryset=None):
         if queryset is None:
             queryset = self.get_queryset()
@@ -451,6 +473,7 @@ class ReverseOneToOneDescriptor:
             False,
         )
 
+    # [TODO] ReverseOneToOneDescriptor > __get__
     def __get__(self, instance, cls=None):
         """
         Get the related instance through the reverse relation.
@@ -496,6 +519,7 @@ class ReverseOneToOneDescriptor:
         else:
             return rel_obj
 
+    # [TODO] ReverseOneToOneDescriptor > __set__
     def __set__(self, instance, value):
         """
         Set the related instance through the reverse relation.
@@ -567,11 +591,13 @@ class ReverseOneToOneDescriptor:
             # instance to avoid an extra SQL query if it's accessed later on.
             self.related.field.set_cached_value(value, instance)
 
+    # [TODO] ReverseOneToOneDescriptor > __reduce__
     def __reduce__(self):
         # Same purpose as ForwardManyToOneDescriptor.__reduce__().
         return getattr, (self.related.model, self.related.name)
 
 
+# [TODO] ReverseManyToOneDescriptor
 class ReverseManyToOneDescriptor:
     """
     Accessor to the related objects manager on the reverse side of a
@@ -588,10 +614,12 @@ class ReverseManyToOneDescriptor:
     class built by ``create_forward_many_to_many_manager()`` defined below.
     """
 
+    # [TODO] ReverseManyToOneDescriptor > __init__
     def __init__(self, rel):
         self.rel = rel
         self.field = rel.field
 
+    # [TODO] ReverseManyToOneDescriptor > related_manager_cls
     @cached_property
     def related_manager_cls(self):
         related_model = self.rel.related_model
@@ -601,6 +629,7 @@ class ReverseManyToOneDescriptor:
             self.rel,
         )
 
+    # [TODO] ReverseManyToOneDescriptor > __get__
     def __get__(self, instance, cls=None):
         """
         Get the related objects through the reverse relation.
@@ -616,12 +645,14 @@ class ReverseManyToOneDescriptor:
 
         return self.related_manager_cls(instance)
 
+    # [TODO] ReverseManyToOneDescriptor > _get_set_deprecation_msg_params
     def _get_set_deprecation_msg_params(self):
         return (
             "reverse side of a related set",
             self.rel.get_accessor_name(),
         )
 
+    # [TODO] ReverseManyToOneDescriptor > __set__
     def __set__(self, instance, value):
         raise TypeError(
             "Direct assignment to the %s is prohibited. Use %s.set() instead."
@@ -629,6 +660,7 @@ class ReverseManyToOneDescriptor:
         )
 
 
+# [TODO] create_reverse_many_to_one_manager
 def create_reverse_many_to_one_manager(superclass, rel):
     """
     Create a manager for the reverse side of a many-to-one relation.
@@ -928,6 +960,7 @@ def create_reverse_many_to_one_manager(superclass, rel):
     return RelatedManager
 
 
+# [TODO] ManyToManyDescriptor
 class ManyToManyDescriptor(ReverseManyToOneDescriptor):
     """
     Accessor to the related objects manager on the forward and reverse sides of
@@ -945,11 +978,13 @@ class ManyToManyDescriptor(ReverseManyToOneDescriptor):
     class built by ``create_forward_many_to_many_manager()`` defined below.
     """
 
+    # [TODO] ManyToManyDescriptor > __init__
     def __init__(self, rel, reverse=False):
         super().__init__(rel)
 
         self.reverse = reverse
 
+    # [TODO] ManyToManyDescriptor > through
     @property
     def through(self):
         # through is provided so that you have easy access to the through
@@ -957,6 +992,7 @@ class ManyToManyDescriptor(ReverseManyToOneDescriptor):
         # a property to ensure that the fully resolved value is returned.
         return self.rel.through
 
+    # [TODO] ManyToManyDescriptor > related_manager_cls
     @cached_property
     def related_manager_cls(self):
         related_model = self.rel.related_model if self.reverse else self.rel.model
@@ -967,6 +1003,7 @@ class ManyToManyDescriptor(ReverseManyToOneDescriptor):
             reverse=self.reverse,
         )
 
+    # [TODO] ManyToManyDescriptor > _get_set_deprecation_msg_params
     def _get_set_deprecation_msg_params(self):
         return (
             "%s side of a many-to-many set"
@@ -975,6 +1012,7 @@ class ManyToManyDescriptor(ReverseManyToOneDescriptor):
         )
 
 
+# [TODO] create_forward_many_to_many_manager
 def create_forward_many_to_many_manager(superclass, rel, reverse):
     """
     Create a manager for the either side of a many-to-many relation.

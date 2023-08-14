@@ -4,12 +4,14 @@ from django.contrib.gis.gdal import OGRGeomType
 from django.db.backends.mysql.introspection import DatabaseIntrospection
 
 
+# [TODO] MySQLIntrospection
 class MySQLIntrospection(DatabaseIntrospection):
     # Updating the data_types_reverse dictionary with the appropriate
     # type for Geometry fields.
     data_types_reverse = DatabaseIntrospection.data_types_reverse.copy()
     data_types_reverse[FIELD_TYPE.GEOMETRY] = "GeometryField"
 
+    # [TODO] MySQLIntrospection > get_geometry_type
     def get_geometry_type(self, table_name, description):
         with self.connection.cursor() as cursor:
             # In order to get the specific geometry type of the field,
@@ -27,6 +29,7 @@ class MySQLIntrospection(DatabaseIntrospection):
                     break
         return field_type, field_params
 
+    # [TODO] MySQLIntrospection > supports_spatial_index
     def supports_spatial_index(self, cursor, table_name):
         # Supported with MyISAM, Aria, or InnoDB.
         storage_engine = self.get_storage_engine(cursor, table_name)

@@ -4,6 +4,7 @@ import operator
 from functools import wraps
 
 
+# [TODO] cached_property
 class cached_property:
     """
     Decorator that converts a method with a single self argument into a
@@ -15,6 +16,7 @@ class cached_property:
 
     name = None
 
+    # [TODO] cached_property > func
     @staticmethod
     def func(instance):
         raise TypeError(
@@ -22,10 +24,12 @@ class cached_property:
             "__set_name__() on it."
         )
 
+    # [TODO] cached_property > __init__
     def __init__(self, func):
         self.real_func = func
         self.__doc__ = getattr(func, "__doc__")
 
+    # [TODO] cached_property > __set_name__
     def __set_name__(self, owner, name):
         if self.name is None:
             self.name = name
@@ -36,6 +40,7 @@ class cached_property:
                 "(%r and %r)." % (self.name, name)
             )
 
+    # [TODO] cached_property > __get__
     def __get__(self, instance, cls=None):
         """
         Call the function and put the return value in instance.__dict__ so that
@@ -48,23 +53,28 @@ class cached_property:
         return res
 
 
+# [TODO] classproperty
 class classproperty:
     """
     Decorator that converts a method with a single cls argument into a property
     that can be accessed directly from the class.
     """
 
+    # [TODO] classproperty > __init__
     def __init__(self, method=None):
         self.fget = method
 
+    # [TODO] classproperty > __get__
     def __get__(self, instance, cls=None):
         return self.fget(cls)
 
+    # [TODO] classproperty > getter
     def getter(self, method):
         self.fget = method
         return self
 
 
+# [TODO] Promise
 class Promise:
     """
     Base class for the proxy class created in the closure of the lazy function.
@@ -74,6 +84,7 @@ class Promise:
     pass
 
 
+# [TODO] lazy
 def lazy(func, *resultclasses):
     """
     Turn any callable into a lazy evaluated callable. result classes or types
@@ -197,10 +208,12 @@ def lazy(func, *resultclasses):
     return __wrapper__
 
 
+# [TODO] _lazy_proxy_unpickle
 def _lazy_proxy_unpickle(func, args, kwargs, *resultclasses):
     return lazy(func, *resultclasses)(*args, **kwargs)
 
 
+# [TODO] lazystr
 def lazystr(text):
     """
     Shortcut for the common case of a lazy callable that returns str.
@@ -208,6 +221,7 @@ def lazystr(text):
     return lazy(str, str)(text)
 
 
+# [TODO] keep_lazy
 def keep_lazy(*resultclasses):
     """
     A decorator that allows a function to be called with one or more lazy
@@ -235,6 +249,7 @@ def keep_lazy(*resultclasses):
     return decorator
 
 
+# [TODO] keep_lazy_text
 def keep_lazy_text(func):
     """
     A decorator for functions that accept lazy arguments and return text.
@@ -245,6 +260,7 @@ def keep_lazy_text(func):
 empty = object()
 
 
+# [TODO] new_method_proxy
 def new_method_proxy(func):
     def inner(self, *args):
         if (_wrapped := self._wrapped) is empty:
@@ -256,6 +272,7 @@ def new_method_proxy(func):
     return inner
 
 
+# [TODO] LazyObject
 class LazyObject:
     """
     A wrapper for another class that can be used to delay instantiation of the
@@ -268,11 +285,13 @@ class LazyObject:
     # Avoid infinite recursion when tracing __init__ (#19456).
     _wrapped = None
 
+    # [TODO] LazyObject > __init__
     def __init__(self):
         # Note: if a subclass overrides __init__(), it will likely need to
         # override __copy__() and __deepcopy__() as well.
         self._wrapped = empty
 
+    # [TODO] LazyObject > __getattribute__
     def __getattribute__(self, name):
         if name == "_wrapped":
             # Avoid recursion when getting wrapped object.
@@ -286,6 +305,7 @@ class LazyObject:
 
     __getattr__ = new_method_proxy(getattr)
 
+    # [TODO] LazyObject > __setattr__
     def __setattr__(self, name, value):
         if name == "_wrapped":
             # Assign to __dict__ to avoid infinite __setattr__ loops.
@@ -295,6 +315,7 @@ class LazyObject:
                 self._setup()
             setattr(self._wrapped, name, value)
 
+    # [TODO] LazyObject > __delattr__
     def __delattr__(self, name):
         if name == "_wrapped":
             raise TypeError("can't delete _wrapped.")
@@ -302,6 +323,7 @@ class LazyObject:
             self._setup()
         delattr(self._wrapped, name)
 
+    # [TODO] LazyObject > _setup
     def _setup(self):
         """
         Must be implemented by subclasses to initialize the wrapped object.
@@ -324,11 +346,13 @@ class LazyObject:
     # pickle the wrapped object as the unpickler's argument, so that pickle
     # will pickle it normally, and then the unpickler simply returns its
     # argument.
+    # [TODO] LazyObject > __reduce__
     def __reduce__(self):
         if self._wrapped is empty:
             self._setup()
         return (unpickle_lazyobject, (self._wrapped,))
 
+    # [TODO] LazyObject > __copy__
     def __copy__(self):
         if self._wrapped is empty:
             # If uninitialized, copy the wrapper. Use type(self), not
@@ -338,6 +362,7 @@ class LazyObject:
             # If initialized, return a copy of the wrapped object.
             return copy.copy(self._wrapped)
 
+    # [TODO] LazyObject > __deepcopy__
     def __deepcopy__(self, memo):
         if self._wrapped is empty:
             # We have to use type(self), not self.__class__, because the
@@ -372,6 +397,7 @@ class LazyObject:
     __contains__ = new_method_proxy(operator.contains)
 
 
+# [TODO] unpickle_lazyobject
 def unpickle_lazyobject(wrapped):
     """
     Used to unpickle lazy objects. Just return its argument, which will be the
@@ -380,6 +406,7 @@ def unpickle_lazyobject(wrapped):
     return wrapped
 
 
+# [TODO] SimpleLazyObject
 class SimpleLazyObject(LazyObject):
     """
     A lazy object initialized from any function.
@@ -388,6 +415,7 @@ class SimpleLazyObject(LazyObject):
     known type, use django.utils.functional.lazy.
     """
 
+    # [TODO] SimpleLazyObject > __init__
     def __init__(self, func):
         """
         Pass in a callable that returns the object to be wrapped.
@@ -400,11 +428,13 @@ class SimpleLazyObject(LazyObject):
         self.__dict__["_setupfunc"] = func
         super().__init__()
 
+    # [TODO] SimpleLazyObject > _setup
     def _setup(self):
         self._wrapped = self._setupfunc()
 
     # Return a meaningful representation of the lazy object for debugging
     # without evaluating the wrapped object.
+    # [TODO] SimpleLazyObject > __repr__
     def __repr__(self):
         if self._wrapped is empty:
             repr_attr = self._setupfunc
@@ -412,6 +442,7 @@ class SimpleLazyObject(LazyObject):
             repr_attr = self._wrapped
         return "<%s: %r>" % (type(self).__name__, repr_attr)
 
+    # [TODO] SimpleLazyObject > __copy__
     def __copy__(self):
         if self._wrapped is empty:
             # If uninitialized, copy the wrapper. Use SimpleLazyObject, not
@@ -421,6 +452,7 @@ class SimpleLazyObject(LazyObject):
             # If initialized, return a copy of the wrapped object.
             return copy.copy(self._wrapped)
 
+    # [TODO] SimpleLazyObject > __deepcopy__
     def __deepcopy__(self, memo):
         if self._wrapped is empty:
             # We have to use SimpleLazyObject, not self.__class__, because the
@@ -432,11 +464,13 @@ class SimpleLazyObject(LazyObject):
 
     __add__ = new_method_proxy(operator.add)
 
+    # [TODO] SimpleLazyObject > __radd__
     @new_method_proxy
     def __radd__(self, other):
         return other + self
 
 
+# [TODO] partition
 def partition(predicate, values):
     """
     Split the values into two sets, based on the return value of the function

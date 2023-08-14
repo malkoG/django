@@ -11,9 +11,11 @@ from .base import BaseEngine
 from .utils import csrf_input_lazy, csrf_token_lazy
 
 
+# [TODO] Jinja2
 class Jinja2(BaseEngine):
     app_dirname = "jinja2"
 
+    # [TODO] Jinja2 > __init__
     def __init__(self, params):
         params = params.copy()
         options = params.pop("OPTIONS").copy()
@@ -34,9 +36,11 @@ class Jinja2(BaseEngine):
 
         self.env = environment_cls(**options)
 
+    # [TODO] Jinja2 > from_string
     def from_string(self, template_code):
         return Template(self.env.from_string(template_code), self)
 
+    # [TODO] Jinja2 > get_template
     def get_template(self, template_name):
         try:
             return Template(self.env.get_template(template_name), self)
@@ -47,12 +51,15 @@ class Jinja2(BaseEngine):
             new.template_debug = get_exception_info(exc)
             raise new from exc
 
+    # [TODO] Jinja2 > template_context_processors
     @cached_property
     def template_context_processors(self):
         return [import_string(path) for path in self.context_processors]
 
 
+# [TODO] Template
 class Template:
+    # [TODO] Template > __init__
     def __init__(self, template, backend):
         self.template = template
         self.backend = backend
@@ -61,6 +68,7 @@ class Template:
             template_name=template.name,
         )
 
+    # [TODO] Template > render
     def render(self, context=None, request=None):
         if context is None:
             context = {}
@@ -78,17 +86,20 @@ class Template:
             raise new from exc
 
 
+# [TODO] Origin
 class Origin:
     """
     A container to hold debug information as described in the template API
     documentation.
     """
 
+    # [TODO] Origin > __init__
     def __init__(self, name, template_name):
         self.name = name
         self.template_name = template_name
 
 
+# [TODO] get_exception_info
 def get_exception_info(exception):
     """
     Format exception information for display on the debug page using the

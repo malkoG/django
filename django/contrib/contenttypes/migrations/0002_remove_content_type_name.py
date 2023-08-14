@@ -1,6 +1,7 @@
 from django.db import migrations, models
 
 
+# [TODO] add_legacy_name
 def add_legacy_name(apps, schema_editor):
     alias = schema_editor.connection.alias
     ContentType = apps.get_model("contenttypes", "ContentType")
@@ -12,6 +13,7 @@ def add_legacy_name(apps, schema_editor):
         ct.save()
 
 
+# [TODO] Migration
 class Migration(migrations.Migration):
     dependencies = [
         ("contenttypes", "0001_initial"),

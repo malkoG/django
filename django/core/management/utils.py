@@ -12,6 +12,7 @@ from django.utils.encoding import DEFAULT_LOCALE_ENCODING
 from .base import CommandError, CommandParser
 
 
+# [TODO] popen_wrapper
 def popen_wrapper(args, stdout_encoding="utf-8"):
     """
     Friendly wrapper around Popen.
@@ -29,6 +30,7 @@ def popen_wrapper(args, stdout_encoding="utf-8"):
     )
 
 
+# [TODO] handle_extensions
 def handle_extensions(extensions):
     """
     Organize multiple extensions that are separated with commas or passed by
@@ -51,6 +53,7 @@ def handle_extensions(extensions):
     return set(ext_list)
 
 
+# [TODO] find_command
 def find_command(cmd, path=None, pathext=None):
     if path is None:
         path = os.environ.get("PATH", "").split(os.pathsep)
@@ -76,6 +79,7 @@ def find_command(cmd, path=None, pathext=None):
     return None
 
 
+# [TODO] get_random_secret_key
 def get_random_secret_key():
     """
     Return a 50 character random string usable as a SECRET_KEY setting value.
@@ -84,6 +88,7 @@ def get_random_secret_key():
     return get_random_string(50, chars)
 
 
+# [TODO] parse_apps_and_model_labels
 def parse_apps_and_model_labels(labels):
     """
     Parse a list of "app_label.ModelName" or "app_label" strings into actual
@@ -111,6 +116,7 @@ def parse_apps_and_model_labels(labels):
     return models, apps
 
 
+# [TODO] get_command_line_option
 def get_command_line_option(argv, option):
     """
     Return the value of a command line option (which should include leading
@@ -127,6 +133,7 @@ def get_command_line_option(argv, option):
         return options.value
 
 
+# [TODO] normalize_path_patterns
 def normalize_path_patterns(patterns):
     """Normalize an iterable of glob style patterns based on OS."""
     patterns = [os.path.normcase(p) for p in patterns]
@@ -142,6 +149,7 @@ def normalize_path_patterns(patterns):
     return norm_patterns
 
 
+# [TODO] is_ignored_path
 def is_ignored_path(path, ignore_patterns):
     """
     Check if the given path should be ignored or not based on matching
@@ -157,10 +165,12 @@ def is_ignored_path(path, ignore_patterns):
     return any(ignore(pattern) for pattern in normalize_path_patterns(ignore_patterns))
 
 
+# [TODO] find_formatters
 def find_formatters():
     return {"black_path": shutil.which("black")}
 
 
+# [TODO] run_formatters
 def run_formatters(written_files, black_path=(sentinel := object())):
     """
     Run the black formatter on the specified files.

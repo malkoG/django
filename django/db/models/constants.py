@@ -7,6 +7,7 @@ from enum import Enum
 LOOKUP_SEP = "__"
 
 
+# [TODO] OnConflict
 class OnConflict(Enum):
     IGNORE = "ignore"
     UPDATE = "update"

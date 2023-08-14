@@ -10,6 +10,7 @@ from .exceptions import TemplateDoesNotExist
 from .library import import_library
 
 
+# [TODO] Engine
 class Engine:
     default_builtins = [
         "django.template.defaulttags",
@@ -17,6 +18,7 @@ class Engine:
         "django.template.loader_tags",
     ]
 
+    # [TODO] Engine > __init__
     def __init__(
         self,
         dirs=None,
@@ -62,6 +64,7 @@ class Engine:
         self.builtins = self.default_builtins + builtins
         self.template_builtins = self.get_template_builtins(self.builtins)
 
+    # [TODO] Engine > __repr__
     def __repr__(self):
         return (
             "<%s:%s app_dirs=%s%s debug=%s loaders=%s string_if_invalid=%s "
@@ -82,6 +85,7 @@ class Engine:
             repr(self.autoescape),
         )
 
+    # [TODO] Engine > get_default
     @staticmethod
     @functools.lru_cache
     def get_default():
@@ -109,25 +113,30 @@ class Engine:
                 return engine.engine
         raise ImproperlyConfigured("No DjangoTemplates backend is configured.")
 
+    # [TODO] Engine > template_context_processors
     @cached_property
     def template_context_processors(self):
         context_processors = _builtin_context_processors
         context_processors += tuple(self.context_processors)
         return tuple(import_string(path) for path in context_processors)
 
+    # [TODO] Engine > get_template_builtins
     def get_template_builtins(self, builtins):
         return [import_library(x) for x in builtins]
 
+    # [TODO] Engine > get_template_libraries
     def get_template_libraries(self, libraries):
         loaded = {}
         for name, path in libraries.items():
             loaded[name] = import_library(path)
         return loaded
 
+    # [TODO] Engine > template_loaders
     @cached_property
     def template_loaders(self):
         return self.get_template_loaders(self.loaders)
 
+    # [TODO] Engine > get_template_loaders
     def get_template_loaders(self, template_loaders):
         loaders = []
         for template_loader in template_loaders:
@@ -136,6 +145,7 @@ class Engine:
                 loaders.append(loader)
         return loaders
 
+    # [TODO] Engine > find_template_loader
     def find_template_loader(self, loader):
         if isinstance(loader, (tuple, list)):
             loader, *args = loader
@@ -150,6 +160,7 @@ class Engine:
                 "Invalid value in template loaders configuration: %r" % loader
             )
 
+    # [TODO] Engine > find_template
     def find_template(self, name, dirs=None, skip=None):
         tried = []
         for loader in self.template_loaders:
@@ -160,6 +171,7 @@ class Engine:
                 tried.extend(e.tried)
         raise TemplateDoesNotExist(name, tried=tried)
 
+    # [TODO] Engine > from_string
     def from_string(self, template_code):
         """
         Return a compiled Template object for the given template code,
@@ -167,6 +179,7 @@ class Engine:
         """
         return Template(template_code, engine=self)
 
+    # [TODO] Engine > get_template
     def get_template(self, template_name):
         """
         Return a compiled Template object for the given template name,
@@ -178,6 +191,7 @@ class Engine:
             template = Template(template, origin, template_name, engine=self)
         return template
 
+    # [TODO] Engine > render_to_string
     def render_to_string(self, template_name, context=None):
         """
         Render the template specified by template_name with the given context.
@@ -194,6 +208,7 @@ class Engine:
         else:
             return t.render(Context(context, autoescape=self.autoescape))
 
+    # [TODO] Engine > select_template
     def select_template(self, template_name_list):
         """
         Given a list of template names, return the first that can be loaded.

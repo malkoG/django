@@ -8,9 +8,11 @@ from .base import BaseEngine
 from .utils import csrf_input_lazy, csrf_token_lazy
 
 
+# [TODO] TemplateStrings
 class TemplateStrings(BaseEngine):
     app_dirname = "template_strings"
 
+    # [TODO] TemplateStrings > __init__
     def __init__(self, params):
         params = params.copy()
         options = params.pop("OPTIONS").copy()
@@ -18,9 +20,11 @@ class TemplateStrings(BaseEngine):
             raise ImproperlyConfigured("Unknown options: {}".format(", ".join(options)))
         super().__init__(params)
 
+    # [TODO] TemplateStrings > from_string
     def from_string(self, template_code):
         return Template(template_code)
 
+    # [TODO] TemplateStrings > get_template
     def get_template(self, template_name):
         tried = []
         for template_file in self.iter_template_filenames(template_name):
@@ -39,7 +43,9 @@ class TemplateStrings(BaseEngine):
         raise TemplateDoesNotExist(template_name, tried=tried, backend=self)
 
 
+# [TODO] Template
 class Template(string.Template):
+    # [TODO] Template > render
     def render(self, context=None, request=None):
         if context is None:
             context = {}

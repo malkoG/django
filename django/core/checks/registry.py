@@ -4,6 +4,7 @@ from django.utils.inspect import func_accepts_kwargs
 from django.utils.itercompat import is_iterable
 
 
+# [TODO] Tags
 class Tags:
     """
     Built-in tags for internal checks.
@@ -25,11 +26,14 @@ class Tags:
     urls = "urls"
 
 
+# [TODO] CheckRegistry
 class CheckRegistry:
+    # [TODO] CheckRegistry > __init__
     def __init__(self):
         self.registered_checks = set()
         self.deployment_checks = set()
 
+    # [TODO] CheckRegistry > register
     def register(self, check=None, *tags, **kwargs):
         """
         Can be used as a function or a decorator. Register given function
@@ -68,6 +72,7 @@ class CheckRegistry:
                 tags += (check,)
             return inner
 
+    # [TODO] CheckRegistry > run_checks
     def run_checks(
         self,
         app_configs=None,
@@ -94,9 +99,11 @@ class CheckRegistry:
             errors.extend(new_errors)
         return errors
 
+    # [TODO] CheckRegistry > tag_exists
     def tag_exists(self, tag, include_deployment_checks=False):
         return tag in self.tags_available(include_deployment_checks)
 
+    # [TODO] CheckRegistry > tags_available
     def tags_available(self, deployment_checks=False):
         return set(
             chain.from_iterable(
@@ -104,6 +111,7 @@ class CheckRegistry:
             )
         )
 
+    # [TODO] CheckRegistry > get_checks
     def get_checks(self, include_deployment_checks=False):
         checks = list(self.registered_checks)
         if include_deployment_checks:

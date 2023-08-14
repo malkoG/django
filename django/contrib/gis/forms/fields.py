@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from .widgets import OpenLayersWidget
 
 
+# [TODO] GeometryField
 class GeometryField(forms.Field):
     """
     This is the basic form field for a Geometry.  Any textual input that is
@@ -27,6 +28,7 @@ class GeometryField(forms.Field):
         ),
     }
 
+    # [TODO] GeometryField > __init__
     def __init__(self, *, srid=None, geom_type=None, **kwargs):
         self.srid = srid
         if geom_type is not None:
@@ -34,6 +36,7 @@ class GeometryField(forms.Field):
         super().__init__(**kwargs)
         self.widget.attrs["geom_type"] = self.geom_type
 
+    # [TODO] GeometryField > to_python
     def to_python(self, value):
         """Transform the value to a Geometry object."""
         if value in self.empty_values:
@@ -64,6 +67,7 @@ class GeometryField(forms.Field):
                     value.srid = self.srid
         return value
 
+    # [TODO] GeometryField > clean
     def clean(self, value):
         """
         Validate that the input value can be converted to a Geometry object
@@ -95,6 +99,7 @@ class GeometryField(forms.Field):
 
         return geom
 
+    # [TODO] GeometryField > has_changed
     def has_changed(self, initial, data):
         """Compare geographic value of data with its initial value."""
 
@@ -116,29 +121,36 @@ class GeometryField(forms.Field):
             return bool(initial) != bool(data)
 
 
+# [TODO] GeometryCollectionField
 class GeometryCollectionField(GeometryField):
     geom_type = "GEOMETRYCOLLECTION"
 
 
+# [TODO] PointField
 class PointField(GeometryField):
     geom_type = "POINT"
 
 
+# [TODO] MultiPointField
 class MultiPointField(GeometryField):
     geom_type = "MULTIPOINT"
 
 
+# [TODO] LineStringField
 class LineStringField(GeometryField):
     geom_type = "LINESTRING"
 
 
+# [TODO] MultiLineStringField
 class MultiLineStringField(GeometryField):
     geom_type = "MULTILINESTRING"
 
 
+# [TODO] PolygonField
 class PolygonField(GeometryField):
     geom_type = "POLYGON"
 
 
+# [TODO] MultiPolygonField
 class MultiPolygonField(GeometryField):
     geom_type = "MULTIPOLYGON"

@@ -6,7 +6,9 @@ from django.contrib.sites.shortcuts import get_current_site
 register = template.Library()
 
 
+# [TODO] FlatpageNode
 class FlatpageNode(template.Node):
+    # [TODO] FlatpageNode > __init__
     def __init__(self, context_name, starts_with=None, user=None):
         self.context_name = context_name
         if starts_with:
@@ -18,6 +20,7 @@ class FlatpageNode(template.Node):
         else:
             self.user = None
 
+    # [TODO] FlatpageNode > render
     def render(self, context):
         if "request" in context:
             site_pk = get_current_site(context["request"]).pk
@@ -43,6 +46,7 @@ class FlatpageNode(template.Node):
         return ""
 
 
+# [TODO] get_flatpages
 @register.tag
 def get_flatpages(parser, token):
     """

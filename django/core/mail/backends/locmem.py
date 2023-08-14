@@ -6,6 +6,7 @@ from django.core import mail
 from django.core.mail.backends.base import BaseEmailBackend
 
 
+# [TODO] EmailBackend
 class EmailBackend(BaseEmailBackend):
     """
     An email backend for use during test sessions.
@@ -16,11 +17,13 @@ class EmailBackend(BaseEmailBackend):
     The dummy outbox is accessible through the outbox instance attribute.
     """
 
+    # [TODO] EmailBackend > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not hasattr(mail, "outbox"):
             mail.outbox = []
 
+    # [TODO] EmailBackend > send_messages
     def send_messages(self, messages):
         """Redirect messages to the dummy outbox"""
         msg_count = 0

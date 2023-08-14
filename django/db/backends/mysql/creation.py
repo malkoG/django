@@ -7,7 +7,9 @@ from django.db.backends.base.creation import BaseDatabaseCreation
 from .client import DatabaseClient
 
 
+# [TODO] DatabaseCreation
 class DatabaseCreation(BaseDatabaseCreation):
+    # [TODO] DatabaseCreation > sql_table_creation_suffix
     def sql_table_creation_suffix(self):
         suffix = []
         test_settings = self.connection.settings_dict["TEST"]
@@ -17,6 +19,7 @@ class DatabaseCreation(BaseDatabaseCreation):
             suffix.append("COLLATE %s" % test_settings["COLLATION"])
         return " ".join(suffix)
 
+    # [TODO] DatabaseCreation > _execute_create_test_db
     def _execute_create_test_db(self, cursor, parameters, keepdb=False):
         try:
             super()._execute_create_test_db(cursor, parameters, keepdb)
@@ -28,6 +31,7 @@ class DatabaseCreation(BaseDatabaseCreation):
             else:
                 raise
 
+    # [TODO] DatabaseCreation > _clone_test_db
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
         source_database_name = self.connection.settings_dict["NAME"]
         target_database_name = self.get_test_db_clone_settings(suffix)["NAME"]
@@ -59,6 +63,7 @@ class DatabaseCreation(BaseDatabaseCreation):
                     sys.exit(2)
         self._clone_db(source_database_name, target_database_name)
 
+    # [TODO] DatabaseCreation > _clone_db
     def _clone_db(self, source_database_name, target_database_name):
         cmd_args, cmd_env = DatabaseClient.settings_to_cmd_args_env(
             self.connection.settings_dict, []

@@ -6,12 +6,14 @@ from django.dispatch import Signal
 class_prepared = Signal()
 
 
+# [TODO] ModelSignal
 class ModelSignal(Signal):
     """
     Signal subclass that allows the sender to be lazily specified as a string
     of the `app_label.ModelName` form.
     """
 
+    # [TODO] ModelSignal > _lazy_method
     def _lazy_method(self, method, apps, receiver, sender, **kwargs):
         from django.db.models.options import Options
 
@@ -23,6 +25,7 @@ class ModelSignal(Signal):
         else:
             return partial_method(sender)
 
+    # [TODO] ModelSignal > connect
     def connect(self, receiver, sender=None, weak=True, dispatch_uid=None, apps=None):
         self._lazy_method(
             super().connect,
@@ -33,6 +36,7 @@ class ModelSignal(Signal):
             dispatch_uid=dispatch_uid,
         )
 
+    # [TODO] ModelSignal > disconnect
     def disconnect(self, receiver=None, sender=None, dispatch_uid=None, apps=None):
         return self._lazy_method(
             super().disconnect, apps, receiver, sender, dispatch_uid=dispatch_uid

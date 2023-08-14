@@ -4,11 +4,13 @@ from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.migrations.loader import AmbiguityError, MigrationLoader
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = "Prints the SQL statements for the named migration."
 
     output_transaction = True
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "app_label", help="App label of the application containing the migration."
@@ -30,6 +32,7 @@ class Command(BaseCommand):
             help="Creates SQL to unapply the migration, rather than to apply it",
         )
 
+    # [TODO] Command > execute
     def execute(self, *args, **options):
         # sqlmigrate doesn't support coloring its output but we need to force
         # no_color=True so that the BEGIN/COMMIT statements added by
@@ -37,6 +40,7 @@ class Command(BaseCommand):
         options["no_color"] = True
         return super().execute(*args, **options)
 
+    # [TODO] Command > handle
     def handle(self, *args, **options):
         # Get the database we're operating from
         connection = connections[options["database"]]

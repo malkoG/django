@@ -8,6 +8,7 @@ from .base import InclusionAdminNode
 register = template.Library()
 
 
+# [TODO] prepopulated_fields_js
 def prepopulated_fields_js(context):
     """
     Create a list of prepopulated_fields that should render JavaScript for
@@ -48,6 +49,7 @@ def prepopulated_fields_js(context):
     return context
 
 
+# [TODO] prepopulated_fields_js_tag
 @register.tag(name="prepopulated_fields_js")
 def prepopulated_fields_js_tag(parser, token):
     return InclusionAdminNode(
@@ -58,6 +60,7 @@ def prepopulated_fields_js_tag(parser, token):
     )
 
 
+# [TODO] submit_row
 def submit_row(context):
     """
     Display the row of buttons for delete and save.
@@ -112,6 +115,7 @@ def submit_row(context):
     return ctx
 
 
+# [TODO] submit_row_tag
 @register.tag(name="submit_row")
 def submit_row_tag(parser, token):
     return InclusionAdminNode(
@@ -119,6 +123,7 @@ def submit_row_tag(parser, token):
     )
 
 
+# [TODO] change_form_object_tools_tag
 @register.tag(name="change_form_object_tools")
 def change_form_object_tools_tag(parser, token):
     """Display the row of change form object tools."""
@@ -130,6 +135,7 @@ def change_form_object_tools_tag(parser, token):
     )
 
 
+# [TODO] cell_count
 @register.filter
 def cell_count(inline_admin_form):
     """Return the number of cells used in a tabular inline."""

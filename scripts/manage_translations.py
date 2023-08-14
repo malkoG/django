@@ -29,6 +29,7 @@ from django.core.management import call_command
 HAVE_JS = ["admin"]
 
 
+# [TODO] _get_locale_dirs
 def _get_locale_dirs(resources, include_core=True):
     """
     Return a tuple (contrib name, absolute path) for all locale directories,
@@ -61,6 +62,7 @@ def _get_locale_dirs(resources, include_core=True):
     return dirs
 
 
+# [TODO] _tx_resource_for_name
 def _tx_resource_for_name(name):
     """Return the Transifex resource name"""
     if name == "core":
@@ -69,6 +71,7 @@ def _tx_resource_for_name(name):
         return "django.contrib-%s" % name
 
 
+# [TODO] _check_diff
 def _check_diff(cat_name, base_path):
     """
     Output the approximate number of changed/added strings in the en catalog.
@@ -86,6 +89,7 @@ def _check_diff(cat_name, base_path):
     print("%d changed/added messages in '%s' catalog." % (num_changes, cat_name))
 
 
+# [TODO] update_catalogs
 def update_catalogs(resources=None, languages=None):
     """
     Update the en/LC_MESSAGES/django.po (main and contrib) files with
@@ -109,6 +113,7 @@ def update_catalogs(resources=None, languages=None):
         _check_diff(name, dir_)
 
 
+# [TODO] lang_stats
 def lang_stats(resources=None, languages=None):
     """
     Output language statistics of committed translation files for each
@@ -144,6 +149,7 @@ def lang_stats(resources=None, languages=None):
                 )
 
 
+# [TODO] fetch
 def fetch(resources=None, languages=None):
     """
     Fetch translations from Transifex, wrap long lines, generate mo files.

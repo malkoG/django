@@ -4,6 +4,7 @@ from django.apps import apps
 from django.core.checks import Error
 
 
+# [TODO] check_generic_foreign_keys
 def check_generic_foreign_keys(app_configs=None, **kwargs):
     from .fields import GenericForeignKey
 
@@ -25,6 +26,7 @@ def check_generic_foreign_keys(app_configs=None, **kwargs):
     return errors
 
 
+# [TODO] check_model_name_lengths
 def check_model_name_lengths(app_configs=None, **kwargs):
     if app_configs is None:
         models = apps.get_models()

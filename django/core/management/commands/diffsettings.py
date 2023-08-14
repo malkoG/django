@@ -1,17 +1,20 @@
 from django.core.management.base import BaseCommand
 
 
+# [TODO] module_to_dict
 def module_to_dict(module, omittable=lambda k: k.startswith("_") or not k.isupper()):
     """Convert a module namespace to a Python dictionary."""
     return {k: repr(getattr(module, k)) for k in dir(module) if not omittable(k)}
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = """Displays differences between the current settings.py and Django's
     default settings."""
 
     requires_system_checks = []
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "--all",
@@ -42,6 +45,7 @@ class Command(BaseCommand):
             ),
         )
 
+    # [TODO] Command > handle
     def handle(self, **options):
         from django.conf import Settings, global_settings, settings
 
@@ -60,6 +64,7 @@ class Command(BaseCommand):
         }[options["output"]]
         return "\n".join(output_func(user_settings, default_settings, **options))
 
+    # [TODO] Command > output_hash
     def output_hash(self, user_settings, default_settings, **options):
         # Inspired by Postfix's "postconf -n".
         output = []
@@ -72,6 +77,7 @@ class Command(BaseCommand):
                 output.append("### %s = %s" % (key, user_settings[key]))
         return output
 
+    # [TODO] Command > output_unified
     def output_unified(self, user_settings, default_settings, **options):
         output = []
         for key in sorted(user_settings):

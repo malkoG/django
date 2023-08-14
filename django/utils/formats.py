@@ -48,6 +48,7 @@ FORMAT_SETTINGS = frozenset(
 )
 
 
+# [TODO] reset_format_cache
 def reset_format_cache():
     """Clear any cached formats.
 
@@ -59,6 +60,7 @@ def reset_format_cache():
     _format_modules_cache = {}
 
 
+# [TODO] iter_format_modules
 def iter_format_modules(lang, format_module_path=None):
     """Find format modules."""
     if not check_for_language(lang):
@@ -86,6 +88,7 @@ def iter_format_modules(lang, format_module_path=None):
                 pass
 
 
+# [TODO] get_format_modules
 def get_format_modules(lang=None):
     """Return a list of the format modules found."""
     if lang is None:
@@ -97,6 +100,7 @@ def get_format_modules(lang=None):
     return _format_modules_cache[lang]
 
 
+# [TODO] get_format
 def get_format(format_type, lang=None, use_l10n=None):
     """
     For a specific format type, return the format for the current
@@ -144,6 +148,7 @@ def get_format(format_type, lang=None, use_l10n=None):
 get_format_lazy = lazy(get_format, str, list, tuple)
 
 
+# [TODO] date_format
 def date_format(value, format=None, use_l10n=None):
     """
     Format a datetime.date or datetime.datetime object using a
@@ -157,6 +162,7 @@ def date_format(value, format=None, use_l10n=None):
     )
 
 
+# [TODO] time_format
 def time_format(value, format=None, use_l10n=None):
     """
     Format a datetime.time object using a localizable format.
@@ -169,6 +175,7 @@ def time_format(value, format=None, use_l10n=None):
     )
 
 
+# [TODO] number_format
 def number_format(value, decimal_pos=None, use_l10n=None, force_grouping=False):
     """
     Format a numeric value using localization settings.
@@ -190,6 +197,7 @@ def number_format(value, decimal_pos=None, use_l10n=None, force_grouping=False):
     )
 
 
+# [TODO] localize
 def localize(value, use_l10n=None):
     """
     Check if value is a localizable type (date, number...) and return it
@@ -215,6 +223,7 @@ def localize(value, use_l10n=None):
     return value
 
 
+# [TODO] localize_input
 def localize_input(value, default=None):
     """
     Check if an input value is a localizable type and return it
@@ -240,6 +249,7 @@ def localize_input(value, default=None):
     return value
 
 
+# [TODO] sanitize_strftime_format
 @functools.lru_cache
 def sanitize_strftime_format(fmt):
     """
@@ -273,6 +283,7 @@ def sanitize_strftime_format(fmt):
     )
 
 
+# [TODO] sanitize_separators
 def sanitize_separators(value):
     """
     Sanitize a value according to the current decimal and

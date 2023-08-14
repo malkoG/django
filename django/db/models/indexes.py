@@ -10,12 +10,14 @@ from django.utils.functional import partition
 __all__ = ["Index"]
 
 
+# [TODO] Index
 class Index:
     suffix = "idx"
     # The max length of the name of the index (restricted to 30 for
     # cross-database compatibility with Oracle)
     max_name_length = 30
 
+    # [TODO] Index > __init__
     def __init__(
         self,
         *expressions,
@@ -78,10 +80,12 @@ class Index:
             for expression in expressions
         )
 
+    # [TODO] Index > contains_expressions
     @property
     def contains_expressions(self):
         return bool(self.expressions)
 
+    # [TODO] Index > _get_condition_sql
     def _get_condition_sql(self, model, schema_editor):
         if self.condition is None:
             return None
@@ -91,6 +95,7 @@ class Index:
         sql, params = where.as_sql(compiler, schema_editor.connection)
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
+    # [TODO] Index > create_sql
     def create_sql(self, model, schema_editor, using="", **kwargs):
         include = [
             model._meta.get_field(field_name).column for field_name in self.include
@@ -131,9 +136,11 @@ class Index:
             **kwargs,
         )
 
+    # [TODO] Index > remove_sql
     def remove_sql(self, model, schema_editor, **kwargs):
         return schema_editor._delete_index_sql(model, self.name, **kwargs)
 
+    # [TODO] Index > deconstruct
     def deconstruct(self):
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         path = path.replace("django.db.models.indexes", "django.db.models")
@@ -150,11 +157,13 @@ class Index:
             kwargs["include"] = self.include
         return (path, self.expressions, kwargs)
 
+    # [TODO] Index > clone
     def clone(self):
         """Create a copy of this Index."""
         _, args, kwargs = self.deconstruct()
         return self.__class__(*args, **kwargs)
 
+    # [TODO] Index > set_name_with_model
     def set_name_with_model(self, model):
         """
         Generate a unique name for the index.
@@ -190,6 +199,7 @@ class Index:
         if self.name[0] == "_" or self.name[0].isdigit():
             self.name = "D%s" % self.name[1:]
 
+    # [TODO] Index > __repr__
     def __repr__(self):
         return "<%s:%s%s%s%s%s%s%s>" % (
             self.__class__.__qualname__,
@@ -204,18 +214,21 @@ class Index:
             "" if not self.opclasses else " opclasses=%s" % repr(self.opclasses),
         )
 
+    # [TODO] Index > __eq__
     def __eq__(self, other):
         if self.__class__ == other.__class__:
             return self.deconstruct() == other.deconstruct()
         return NotImplemented
 
 
+# [TODO] IndexExpression
 class IndexExpression(Func):
     """Order and wrap expressions for CREATE INDEX statements."""
 
     template = "%(expressions)s"
     wrapper_classes = (OrderBy, Collate)
 
+    # [TODO] IndexExpression > set_wrapper_classes
     def set_wrapper_classes(self, connection=None):
         # Some databases (e.g. MySQL) treats COLLATE as an indexed expression.
         if connection and connection.features.collate_as_index_expression:
@@ -227,10 +240,12 @@ class IndexExpression(Func):
                 ]
             )
 
+    # [TODO] IndexExpression > register_wrappers
     @classmethod
     def register_wrappers(cls, *wrapper_classes):
         cls.wrapper_classes = wrapper_classes
 
+    # [TODO] IndexExpression > resolve_expression
     def resolve_expression(
         self,
         query=None,
@@ -292,6 +307,7 @@ class IndexExpression(Func):
             query, allow_joins, reuse, summarize, for_save
         )
 
+    # [TODO] IndexExpression > as_sqlite
     def as_sqlite(self, compiler, connection, **extra_context):
         # Casting to numeric is unnecessary.
         return self.as_sql(compiler, connection, **extra_context)

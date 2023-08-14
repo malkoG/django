@@ -19,6 +19,7 @@ else:
     docutils_is_available = True
 
 
+# [TODO] get_view_name
 def get_view_name(view_func):
     if hasattr(view_func, "view_class"):
         klass = view_func.view_class
@@ -28,6 +29,7 @@ def get_view_name(view_func):
     return mod_name + "." + view_name
 
 
+# [TODO] parse_docstring
 def parse_docstring(docstring):
     """
     Parse out the parts of a docstring.  Return (title, body, metadata).
@@ -56,6 +58,7 @@ def parse_docstring(docstring):
     return title, body, metadata
 
 
+# [TODO] parse_rst
 def parse_rst(text, default_reference_context, thing_being_parsed=None):
     """
     Convert the string from reST to an XHTML fragment.
@@ -100,6 +103,7 @@ ROLES = {
 }
 
 
+# [TODO] create_reference_role
 def create_reference_role(rolename, urlbase):
     # Views and template names are case-sensitive.
     is_case_sensitive = rolename in ["template", "view"]
@@ -124,6 +128,7 @@ def create_reference_role(rolename, urlbase):
     docutils.parsers.rst.roles.register_canonical_role(rolename, _role)
 
 
+# [TODO] default_reference_role
 def default_reference_role(
     name, rawtext, text, lineno, inliner, options=None, content=None
 ):
@@ -159,6 +164,7 @@ unnamed_group_matcher = _lazy_re_compile(r"\(")
 non_capturing_group_matcher = _lazy_re_compile(r"\(\?\:")
 
 
+# [TODO] replace_metacharacters
 def replace_metacharacters(pattern):
     """Remove unescaped metacharacters from the pattern."""
     return re.sub(
@@ -168,6 +174,7 @@ def replace_metacharacters(pattern):
     )
 
 
+# [TODO] _get_group_start_end
 def _get_group_start_end(start, end, pattern):
     # Handle nested parentheses, e.g. '^(?P<a>(x|y))/b' or '^b/((x|y)\w+)$'.
     unmatched_open_brackets, prev_char = 1, None
@@ -185,6 +192,7 @@ def _get_group_start_end(start, end, pattern):
             return start, end + idx + 1
 
 
+# [TODO] _find_groups
 def _find_groups(pattern, group_matcher):
     prev_end = None
     for match in group_matcher.finditer(pattern):
@@ -195,6 +203,7 @@ def _find_groups(pattern, group_matcher):
             prev_end = end
 
 
+# [TODO] replace_named_groups
 def replace_named_groups(pattern):
     r"""
     Find named groups in `pattern` and replace them with the group name. E.g.,
@@ -212,6 +221,7 @@ def replace_named_groups(pattern):
     return pattern
 
 
+# [TODO] replace_unnamed_groups
 def replace_unnamed_groups(pattern):
     r"""
     Find unnamed groups in `pattern` and replace them with '<var>'. E.g.,
@@ -229,6 +239,7 @@ def replace_unnamed_groups(pattern):
     return final_pattern + pattern[prev_end:]
 
 
+# [TODO] remove_non_capturing_groups
 def remove_non_capturing_groups(pattern):
     r"""
     Find non-capturing groups in the given `pattern` and remove them, e.g.

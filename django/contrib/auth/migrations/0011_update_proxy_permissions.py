@@ -14,6 +14,7 @@ WARNING = """
 """
 
 
+# [TODO] update_proxy_model_permissions
 def update_proxy_model_permissions(apps, schema_editor, reverse=False):
     """
     Update the content_type of proxy model permissions to use the ContentType
@@ -56,6 +57,7 @@ def update_proxy_model_permissions(apps, schema_editor, reverse=False):
             )
 
 
+# [TODO] revert_proxy_model_permissions
 def revert_proxy_model_permissions(apps, schema_editor):
     """
     Update the content_type of proxy model permissions to use the ContentType
@@ -64,6 +66,7 @@ def revert_proxy_model_permissions(apps, schema_editor):
     update_proxy_model_permissions(apps, schema_editor, reverse=True)
 
 
+# [TODO] Migration
 class Migration(migrations.Migration):
     dependencies = [
         ("auth", "0010_alter_group_name_max_length"),

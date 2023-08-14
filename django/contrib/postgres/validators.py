@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy
 
 
+# [TODO] ArrayMaxLengthValidator
 class ArrayMaxLengthValidator(MaxLengthValidator):
     message = ngettext_lazy(
         "List contains %(show_value)d item, it should contain no more than "
@@ -20,6 +21,7 @@ class ArrayMaxLengthValidator(MaxLengthValidator):
     )
 
 
+# [TODO] ArrayMinLengthValidator
 class ArrayMinLengthValidator(MinLengthValidator):
     message = ngettext_lazy(
         "List contains %(show_value)d item, it should contain no fewer than "
@@ -30,6 +32,7 @@ class ArrayMinLengthValidator(MinLengthValidator):
     )
 
 
+# [TODO] KeysValidator
 @deconstructible
 class KeysValidator:
     """A validator designed for HStore to require/restrict keys."""
@@ -73,7 +76,9 @@ class KeysValidator:
         )
 
 
+# [TODO] RangeMaxValueValidator
 class RangeMaxValueValidator(MaxValueValidator):
+    # [TODO] RangeMaxValueValidator > compare
     def compare(self, a, b):
         return a.upper is None or a.upper > b
 
@@ -82,7 +87,9 @@ class RangeMaxValueValidator(MaxValueValidator):
     )
 
 
+# [TODO] RangeMinValueValidator
 class RangeMinValueValidator(MinValueValidator):
+    # [TODO] RangeMinValueValidator > compare
     def compare(self, a, b):
         return a.lower is None or a.lower < b
 

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 
 
+# [TODO] format
 def format(
     number,
     decimal_sep,

@@ -3,6 +3,7 @@ from hashlib import md5
 TEMPLATE_FRAGMENT_KEY_TEMPLATE = "template.cache.%s.%s"
 
 
+# [TODO] make_template_fragment_key
 def make_template_fragment_key(fragment_name, vary_on=None):
     hasher = md5(usedforsecurity=False)
     if vary_on is not None:

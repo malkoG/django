@@ -19,6 +19,7 @@ PY311 = sys.version_info >= (3, 11)
 PY312 = sys.version_info >= (3, 12)
 
 
+# [TODO] get_version
 def get_version(version=None):
     """Return a PEP 440-compliant version number from VERSION."""
     version = get_complete_version(version)
@@ -43,6 +44,7 @@ def get_version(version=None):
     return main + sub
 
 
+# [TODO] get_main_version
 def get_main_version(version=None):
     """Return main version (X.Y[.Z]) from VERSION."""
     version = get_complete_version(version)
@@ -50,6 +52,7 @@ def get_main_version(version=None):
     return ".".join(str(x) for x in version[:parts])
 
 
+# [TODO] get_complete_version
 def get_complete_version(version=None):
     """
     Return a tuple of the django version. If version argument is non-empty,
@@ -64,6 +67,7 @@ def get_complete_version(version=None):
     return version
 
 
+# [TODO] get_docs_version
 def get_docs_version(version=None):
     version = get_complete_version(version)
     if version[3] != "final":
@@ -72,6 +76,7 @@ def get_docs_version(version=None):
         return "%d.%d" % version[:2]
 
 
+# [TODO] get_git_changeset
 @functools.lru_cache
 def get_git_changeset():
     """Return a numeric identifier of the latest git changeset.
@@ -104,6 +109,7 @@ def get_git_changeset():
 version_component_re = _lazy_re_compile(r"(\d+|[a-z]+|\.)")
 
 
+# [TODO] get_version_tuple
 def get_version_tuple(version):
     """
     Return a tuple of version numbers (e.g. (1, 2, 3)) from the version

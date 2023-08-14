@@ -13,6 +13,7 @@ from django.contrib.gis.geos.prototypes.errcheck import (
 from django.contrib.gis.geos.prototypes.geom import geos_char_p
 
 
+# [TODO] Topology
 class Topology(GEOSFuncFactory):
     "For GEOS unary topology functions."
     argtypes = [GEOM_PTR]

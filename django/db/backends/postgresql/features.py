@@ -6,6 +6,7 @@ from django.db.backends.postgresql.psycopg_any import is_psycopg3
 from django.utils.functional import cached_property
 
 
+# [TODO] DatabaseFeatures
 class DatabaseFeatures(BaseDatabaseFeatures):
     minimum_database_version = (12,)
     allows_group_by_selected_pks = True
@@ -88,6 +89,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
         },
     }
 
+    # [TODO] DatabaseFeatures > django_test_expected_failures
     @cached_property
     def django_test_expected_failures(self):
         expected_failures = set()
@@ -103,11 +105,13 @@ class DatabaseFeatures(BaseDatabaseFeatures):
             )
         return expected_failures
 
+    # [TODO] DatabaseFeatures > uses_server_side_binding
     @cached_property
     def uses_server_side_binding(self):
         options = self.connection.settings_dict["OPTIONS"]
         return is_psycopg3 and options.get("server_side_binding") is True
 
+    # [TODO] DatabaseFeatures > prohibits_null_characters_in_text_exception
     @cached_property
     def prohibits_null_characters_in_text_exception(self):
         if is_psycopg3:
@@ -115,6 +119,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
         else:
             return ValueError, "A string literal cannot contain NUL (0x00) characters."
 
+    # [TODO] DatabaseFeatures > introspected_field_types
     @cached_property
     def introspected_field_types(self):
         return {
@@ -124,14 +129,17 @@ class DatabaseFeatures(BaseDatabaseFeatures):
             "PositiveSmallIntegerField": "SmallIntegerField",
         }
 
+    # [TODO] DatabaseFeatures > is_postgresql_13
     @cached_property
     def is_postgresql_13(self):
         return self.connection.pg_version >= 130000
 
+    # [TODO] DatabaseFeatures > is_postgresql_14
     @cached_property
     def is_postgresql_14(self):
         return self.connection.pg_version >= 140000
 
+    # [TODO] DatabaseFeatures > is_postgresql_15
     @cached_property
     def is_postgresql_15(self):
         return self.connection.pg_version >= 150000

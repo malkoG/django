@@ -46,15 +46,18 @@ CSRF_ALLOWED_CHARS = string.ascii_letters + string.digits
 CSRF_SESSION_KEY = "_csrftoken"
 
 
+# [TODO] _get_failure_view
 def _get_failure_view():
     """Return the view to be used for CSRF rejections."""
     return get_callable(settings.CSRF_FAILURE_VIEW)
 
 
+# [TODO] _get_new_csrf_string
 def _get_new_csrf_string():
     return get_random_string(CSRF_SECRET_LENGTH, allowed_chars=CSRF_ALLOWED_CHARS)
 
 
+# [TODO] _mask_cipher_secret
 def _mask_cipher_secret(secret):
     """
     Given a secret (assumed to be a string of CSRF_ALLOWED_CHARS), generate a
@@ -67,6 +70,7 @@ def _mask_cipher_secret(secret):
     return mask + cipher
 
 
+# [TODO] _unmask_cipher_token
 def _unmask_cipher_token(token):
     """
     Given a token (assumed to be a string of CSRF_ALLOWED_CHARS, of length
@@ -80,6 +84,7 @@ def _unmask_cipher_token(token):
     return "".join(chars[x - y] for x, y in pairs)  # Note negative values are ok
 
 
+# [TODO] _add_new_csrf_cookie
 def _add_new_csrf_cookie(request):
     """Generate a new random CSRF_COOKIE value, and add it to request.META."""
     csrf_secret = _get_new_csrf_string()
@@ -92,6 +97,7 @@ def _add_new_csrf_cookie(request):
     return csrf_secret
 
 
+# [TODO] get_token
 def get_token(request):
     """
     Return the CSRF token required for a POST form. The token is an
@@ -113,6 +119,7 @@ def get_token(request):
     return _mask_cipher_secret(csrf_secret)
 
 
+# [TODO] rotate_token
 def rotate_token(request):
     """
     Change the CSRF token in use for a request - should be done on login
@@ -121,11 +128,14 @@ def rotate_token(request):
     _add_new_csrf_cookie(request)
 
 
+# [TODO] InvalidTokenFormat
 class InvalidTokenFormat(Exception):
+    # [TODO] InvalidTokenFormat > __init__
     def __init__(self, reason):
         self.reason = reason
 
 
+# [TODO] _check_token_format
 def _check_token_format(token):
     """
     Raise an InvalidTokenFormat error if the token has an invalid length or
@@ -139,6 +149,7 @@ def _check_token_format(token):
         raise InvalidTokenFormat(REASON_INVALID_CHARACTERS)
 
 
+# [TODO] _does_token_match
 def _does_token_match(request_csrf_token, csrf_secret):
     """
     Return whether the given CSRF token matches the given CSRF secret, after
@@ -156,11 +167,14 @@ def _does_token_match(request_csrf_token, csrf_secret):
     return constant_time_compare(request_csrf_token, csrf_secret)
 
 
+# [TODO] RejectRequest
 class RejectRequest(Exception):
+    # [TODO] RejectRequest > __init__
     def __init__(self, reason):
         self.reason = reason
 
 
+# [TODO] CsrfViewMiddleware
 class CsrfViewMiddleware(MiddlewareMixin):
     """
     Require a present and correct csrfmiddlewaretoken for POST requests that
@@ -170,6 +184,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
     template tag.
     """
 
+    # [TODO] CsrfViewMiddleware > csrf_trusted_origins_hosts
     @cached_property
     def csrf_trusted_origins_hosts(self):
         return [
@@ -177,10 +192,12 @@ class CsrfViewMiddleware(MiddlewareMixin):
             for origin in settings.CSRF_TRUSTED_ORIGINS
         ]
 
+    # [TODO] CsrfViewMiddleware > allowed_origins_exact
     @cached_property
     def allowed_origins_exact(self):
         return {origin for origin in settings.CSRF_TRUSTED_ORIGINS if "*" not in origin}
 
+    # [TODO] CsrfViewMiddleware > allowed_origin_subdomains
     @cached_property
     def allowed_origin_subdomains(self):
         """
@@ -198,6 +215,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
 
     # The _accept and _reject methods currently only exist for the sake of the
     # requires_csrf_token decorator.
+    # [TODO] CsrfViewMiddleware > _accept
     def _accept(self, request):
         # Avoid checking the request twice by adding a custom attribute to
         # request.  This will be relevant when both decorator and middleware
@@ -205,6 +223,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
         request.csrf_processing_done = True
         return None
 
+    # [TODO] CsrfViewMiddleware > _reject
     def _reject(self, request, reason):
         response = _get_failure_view()(request, reason=reason)
         log_response(
@@ -217,6 +236,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
         )
         return response
 
+    # [TODO] CsrfViewMiddleware > _get_secret
     def _get_secret(self, request):
         """
         Return the CSRF secret originally associated with the request, or None
@@ -249,6 +269,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
             csrf_secret = _unmask_cipher_token(csrf_secret)
         return csrf_secret
 
+    # [TODO] CsrfViewMiddleware > _set_csrf_cookie
     def _set_csrf_cookie(self, request, response):
         if settings.CSRF_USE_SESSIONS:
             if request.session.get(CSRF_SESSION_KEY) != request.META["CSRF_COOKIE"]:
@@ -267,6 +288,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
             # Set the Vary header since content varies with the CSRF cookie.
             patch_vary_headers(response, ("Cookie",))
 
+    # [TODO] CsrfViewMiddleware > _origin_verified
     def _origin_verified(self, request):
         request_origin = request.META["HTTP_ORIGIN"]
         try:
@@ -293,6 +315,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
             for host in self.allowed_origin_subdomains.get(request_scheme, ())
         )
 
+    # [TODO] CsrfViewMiddleware > _check_referer
     def _check_referer(self, request):
         referer = request.META.get("HTTP_REFERER")
         if referer is None:
@@ -338,6 +361,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
         if not is_same_domain(referer.netloc, good_referer):
             raise RejectRequest(REASON_BAD_REFERER % referer.geturl())
 
+    # [TODO] CsrfViewMiddleware > _bad_token_message
     def _bad_token_message(self, reason, token_source):
         if token_source != "POST":
             # Assume it is a settings.CSRF_HEADER_NAME value.
@@ -345,6 +369,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
             token_source = f"the {header_name!r} HTTP header"
         return f"CSRF token from {token_source} {reason}."
 
+    # [TODO] CsrfViewMiddleware > _check_token
     def _check_token(self, request):
         # Access csrf_secret via self._get_secret() as rotate_token() may have
         # been called by an authentication middleware during the
@@ -397,6 +422,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
             reason = self._bad_token_message("incorrect", token_source)
             raise RejectRequest(reason)
 
+    # [TODO] CsrfViewMiddleware > process_request
     def process_request(self, request):
         try:
             csrf_secret = self._get_secret(request)
@@ -410,6 +436,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
                 # saved anyways.
                 request.META["CSRF_COOKIE"] = csrf_secret
 
+    # [TODO] CsrfViewMiddleware > process_view
     def process_view(self, request, callback, callback_args, callback_kwargs):
         if getattr(request, "csrf_processing_done", False):
             return None
@@ -467,6 +494,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
 
         return self._accept(request)
 
+    # [TODO] CsrfViewMiddleware > process_response
     def process_response(self, request, response):
         if request.META.get("CSRF_COOKIE_NEEDS_UPDATE"):
             self._set_csrf_cookie(request, response)

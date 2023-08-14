@@ -11,6 +11,7 @@ from django.contrib.gis.geos.prototypes.geom import geos_char_p
 __all__ = ["geos_area", "geos_distance", "geos_length", "geos_isvalidreason"]
 
 
+# [TODO] DblFromGeom
 class DblFromGeom(GEOSFuncFactory):
     """
     Argument is a Geometry, return type is double that is passed

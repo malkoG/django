@@ -8,11 +8,14 @@ from urllib.parse import quote
 from django.utils.functional import Promise
 
 
+# [TODO] DjangoUnicodeDecodeError
 class DjangoUnicodeDecodeError(UnicodeDecodeError):
+    # [TODO] DjangoUnicodeDecodeError > __init__
     def __init__(self, obj, *args):
         self.obj = obj
         super().__init__(*args)
 
+    # [TODO] DjangoUnicodeDecodeError > __str__
     def __str__(self):
         return "%s. You passed in %r (%s)" % (
             super().__str__(),
@@ -21,6 +24,7 @@ class DjangoUnicodeDecodeError(UnicodeDecodeError):
         )
 
 
+# [TODO] smart_str
 def smart_str(s, encoding="utf-8", strings_only=False, errors="strict"):
     """
     Return a string representing 's'. Treat bytestrings using the 'encoding'
@@ -45,6 +49,7 @@ _PROTECTED_TYPES = (
 )
 
 
+# [TODO] is_protected_type
 def is_protected_type(obj):
     """Determine if the object instance is of a protected type.
 
@@ -54,6 +59,7 @@ def is_protected_type(obj):
     return isinstance(obj, _PROTECTED_TYPES)
 
 
+# [TODO] force_str
 def force_str(s, encoding="utf-8", strings_only=False, errors="strict"):
     """
     Similar to smart_str(), except that lazy instances are resolved to
@@ -76,6 +82,7 @@ def force_str(s, encoding="utf-8", strings_only=False, errors="strict"):
     return s
 
 
+# [TODO] smart_bytes
 def smart_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
     """
     Return a bytestring version of 's', encoded as specified in 'encoding'.
@@ -88,6 +95,7 @@ def smart_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
     return force_bytes(s, encoding, strings_only, errors)
 
 
+# [TODO] force_bytes
 def force_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
     """
     Similar to smart_bytes, except that lazy instances are resolved to
@@ -108,6 +116,7 @@ def force_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
     return str(s).encode(encoding, errors)
 
 
+# [TODO] iri_to_uri
 def iri_to_uri(iri):
     """
     Convert an Internationalized Resource Identifier (IRI) portion to a URI
@@ -156,6 +165,7 @@ _hextobyte.update(
 )
 
 
+# [TODO] uri_to_iri
 def uri_to_iri(uri):
     """
     Convert a Uniform Resource Identifier(URI) into an Internationalized
@@ -192,6 +202,7 @@ def uri_to_iri(uri):
     return repercent_broken_unicode(iri).decode()
 
 
+# [TODO] escape_uri_path
 def escape_uri_path(path):
     """
     Escape the unsafe characters from the path portion of a Uniform Resource
@@ -209,11 +220,13 @@ def escape_uri_path(path):
     return quote(path, safe="/:@&+$,-_.!~*'()")
 
 
+# [TODO] punycode
 def punycode(domain):
     """Return the Punycode of the given domain if it's non-ASCII."""
     return domain.encode("idna").decode("ascii")
 
 
+# [TODO] repercent_broken_unicode
 def repercent_broken_unicode(path):
     """
     As per RFC 3987 Section 3.2, step three of converting a URI into an IRI,
@@ -232,6 +245,7 @@ def repercent_broken_unicode(path):
             return path
 
 
+# [TODO] filepath_to_uri
 def filepath_to_uri(path):
     """Convert a file system path to a URI portion that is suitable for
     inclusion in a URL.
@@ -247,6 +261,7 @@ def filepath_to_uri(path):
     return quote(str(path).replace("\\", "/"), safe="/~!*()'")
 
 
+# [TODO] get_system_encoding
 def get_system_encoding():
     """
     The encoding for the character type functions. Fallback to 'ascii' if the

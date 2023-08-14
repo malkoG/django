@@ -3,6 +3,7 @@ from django.db.models import NOT_PROVIDED, F, UniqueConstraint
 from django.db.models.constants import LOOKUP_SEP
 
 
+# [TODO] DatabaseSchemaEditor
 class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     sql_rename_table = "RENAME TABLE %(old_table)s TO %(new_table)s"
 
@@ -34,6 +35,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     sql_alter_table_comment = "ALTER TABLE %(table)s COMMENT = %(comment)s"
     sql_alter_column_comment = None
 
+    # [TODO] DatabaseSchemaEditor > sql_delete_check
     @property
     def sql_delete_check(self):
         if self.connection.mysql_is_mariadb:
@@ -43,6 +45,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             return "ALTER TABLE %(table)s DROP CONSTRAINT IF EXISTS %(name)s"
         return "ALTER TABLE %(table)s DROP CHECK %(name)s"
 
+    # [TODO] DatabaseSchemaEditor > sql_rename_column
     @property
     def sql_rename_column(self):
         is_mariadb = self.connection.mysql_is_mariadb
@@ -52,6 +55,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             return "ALTER TABLE %(table)s CHANGE %(old_column)s %(new_column)s %(type)s"
         return super().sql_rename_column
 
+    # [TODO] DatabaseSchemaEditor > quote_value
     def quote_value(self, value):
         self.connection.ensure_connection()
         # MySQLdb escapes to string, PyMySQL to bytes.
@@ -62,6 +66,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             quoted = quoted.decode()
         return quoted
 
+    # [TODO] DatabaseSchemaEditor > _is_limited_data_type
     def _is_limited_data_type(self, field):
         db_type = field.db_type(self.connection)
         return (
@@ -69,11 +74,13 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             and db_type.lower() in self.connection._limited_data_types
         )
 
+    # [TODO] DatabaseSchemaEditor > skip_default
     def skip_default(self, field):
         if not self._supports_limited_data_type_defaults:
             return self._is_limited_data_type(field)
         return False
 
+    # [TODO] DatabaseSchemaEditor > skip_default_on_alter
     def skip_default_on_alter(self, field):
         if self._is_limited_data_type(field) and not self.connection.mysql_is_mariadb:
             # MySQL doesn't support defaults for BLOB and TEXT in the
@@ -81,6 +88,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             return True
         return False
 
+    # [TODO] DatabaseSchemaEditor > _supports_limited_data_type_defaults
     @property
     def _supports_limited_data_type_defaults(self):
         # MariaDB and MySQL >= 8.0.13 support defaults for BLOB and TEXT.
@@ -88,6 +96,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             return True
         return self.connection.mysql_version >= (8, 0, 13)
 
+    # [TODO] DatabaseSchemaEditor > _column_default_sql
     def _column_default_sql(self, field):
         if (
             not self.connection.mysql_is_mariadb
@@ -99,6 +108,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             return "(%s)"
         return super()._column_default_sql(field)
 
+    # [TODO] DatabaseSchemaEditor > add_field
     def add_field(self, model, field):
         super().add_field(model, field)
 
@@ -115,6 +125,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                 [effective_default],
             )
 
+    # [TODO] DatabaseSchemaEditor > remove_constraint
     def remove_constraint(self, model, constraint):
         if (
             isinstance(constraint, UniqueConstraint)
@@ -127,6 +138,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             )
         super().remove_constraint(model, constraint)
 
+    # [TODO] DatabaseSchemaEditor > remove_index
     def remove_index(self, model, index):
         self._create_missing_fk_index(
             model,
@@ -135,6 +147,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         )
         super().remove_index(model, index)
 
+    # [TODO] DatabaseSchemaEditor > _field_should_be_indexed
     def _field_should_be_indexed(self, model, field):
         if not super()._field_should_be_indexed(model, field):
             return False
@@ -153,6 +166,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             return False
         return not self._is_limited_data_type(field)
 
+    # [TODO] DatabaseSchemaEditor > _create_missing_fk_index
     def _create_missing_fk_index(
         self,
         model,
@@ -203,10 +217,12 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                     self._create_index_sql(model, fields=[first_field], suffix="")
                 )
 
+    # [TODO] DatabaseSchemaEditor > _delete_composed_index
     def _delete_composed_index(self, model, fields, *args):
         self._create_missing_fk_index(model, fields=fields)
         return super()._delete_composed_index(model, fields, *args)
 
+    # [TODO] DatabaseSchemaEditor > _set_field_new_type
     def _set_field_new_type(self, field, new_type):
         """
         Keep the NULL and DEFAULT properties of the old field. If it has
@@ -222,6 +238,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             new_type += " NOT NULL"
         return new_type
 
+    # [TODO] DatabaseSchemaEditor > _alter_column_type_sql
     def _alter_column_type_sql(
         self, model, old_field, new_field, new_type, old_collation, new_collation
     ):
@@ -230,6 +247,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             model, old_field, new_field, new_type, old_collation, new_collation
         )
 
+    # [TODO] DatabaseSchemaEditor > _field_db_check
     def _field_db_check(self, field, field_db_params):
         if self.connection.mysql_is_mariadb and self.connection.mysql_version >= (
             10,
@@ -243,18 +261,22 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         # renamed.
         return field_db_params["check"]
 
+    # [TODO] DatabaseSchemaEditor > _rename_field_sql
     def _rename_field_sql(self, table, old_field, new_field, new_type):
         new_type = self._set_field_new_type(old_field, new_type)
         return super()._rename_field_sql(table, old_field, new_field, new_type)
 
+    # [TODO] DatabaseSchemaEditor > _alter_column_comment_sql
     def _alter_column_comment_sql(self, model, new_field, new_type, new_db_comment):
         # Comment is alter when altering the column type.
         return "", []
 
+    # [TODO] DatabaseSchemaEditor > _comment_sql
     def _comment_sql(self, comment):
         comment_sql = super()._comment_sql(comment)
         return f" COMMENT {comment_sql}"
 
+    # [TODO] DatabaseSchemaEditor > _alter_column_null_sql
     def _alter_column_null_sql(self, model, old_field, new_field):
         if new_field.db_default is NOT_PROVIDED:
             return super()._alter_column_null_sql(model, old_field, new_field)

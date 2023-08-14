@@ -18,9 +18,11 @@ from .renderers import get_default_renderer
 __all__ = ("BaseForm", "Form")
 
 
+# [TODO] DeclarativeFieldsMetaclass
 class DeclarativeFieldsMetaclass(MediaDefiningClass):
     """Collect Fields declared on the base classes."""
 
+    # [TODO] DeclarativeFieldsMetaclass > __new__
     def __new__(mcs, name, bases, attrs):
         # Collect fields from current class and remove them from attrs.
         attrs["declared_fields"] = {
@@ -49,6 +51,7 @@ class DeclarativeFieldsMetaclass(MediaDefiningClass):
         return new_class
 
 
+# [TODO] BaseForm
 class BaseForm(RenderableFormMixin):
     """
     The main implementation of all the Form logic. Note that this class is
@@ -68,6 +71,7 @@ class BaseForm(RenderableFormMixin):
     template_name_ul = "django/forms/ul.html"
     template_name_label = "django/forms/label.html"
 
+    # [TODO] BaseForm > __init__
     def __init__(
         self,
         data=None,
@@ -124,6 +128,7 @@ class BaseForm(RenderableFormMixin):
                     renderer = renderer()
         self.renderer = renderer
 
+    # [TODO] BaseForm > order_fields
     def order_fields(self, field_order):
         """
         Rearrange the fields according to field_order.
@@ -146,6 +151,7 @@ class BaseForm(RenderableFormMixin):
         fields.update(self.fields)  # add remaining fields in original order
         self.fields = fields
 
+    # [TODO] BaseForm > __repr__
     def __repr__(self):
         if self._errors is None:
             is_valid = "Unknown"
@@ -158,16 +164,19 @@ class BaseForm(RenderableFormMixin):
             "fields": ";".join(self.fields),
         }
 
+    # [TODO] BaseForm > _bound_items
     def _bound_items(self):
         """Yield (name, bf) pairs, where bf is a BoundField object."""
         for name in self.fields:
             yield name, self[name]
 
+    # [TODO] BaseForm > __iter__
     def __iter__(self):
         """Yield the form's fields as BoundField objects."""
         for name in self.fields:
             yield self[name]
 
+    # [TODO] BaseForm > __getitem__
     def __getitem__(self, name):
         """Return a BoundField with the given name."""
         try:
@@ -185,6 +194,7 @@ class BaseForm(RenderableFormMixin):
             self._bound_fields_cache[name] = field.get_bound_field(self, name)
         return self._bound_fields_cache[name]
 
+    # [TODO] BaseForm > errors
     @property
     def errors(self):
         """Return an ErrorDict for the data provided for the form."""
@@ -192,10 +202,12 @@ class BaseForm(RenderableFormMixin):
             self.full_clean()
         return self._errors
 
+    # [TODO] BaseForm > is_valid
     def is_valid(self):
         """Return True if the form has no errors, or False otherwise."""
         return self.is_bound and not self.errors
 
+    # [TODO] BaseForm > add_prefix
     def add_prefix(self, field_name):
         """
         Return the field name with a prefix appended, if this Form has a
@@ -205,20 +217,24 @@ class BaseForm(RenderableFormMixin):
         """
         return "%s-%s" % (self.prefix, field_name) if self.prefix else field_name
 
+    # [TODO] BaseForm > add_initial_prefix
     def add_initial_prefix(self, field_name):
         """Add an 'initial' prefix for checking dynamic initial values."""
         return "initial-%s" % self.add_prefix(field_name)
 
+    # [TODO] BaseForm > _widget_data_value
     def _widget_data_value(self, widget, html_name):
         # value_from_datadict() gets the data from the data dictionaries.
         # Each widget type knows how to retrieve its own data, because some
         # widgets split data over several HTML fields.
         return widget.value_from_datadict(self.data, self.files, html_name)
 
+    # [TODO] BaseForm > template_name
     @property
     def template_name(self):
         return self.renderer.form_template_name
 
+    # [TODO] BaseForm > get_context
     def get_context(self):
         fields = []
         hidden_fields = []
@@ -243,6 +259,7 @@ class BaseForm(RenderableFormMixin):
             "errors": top_errors,
         }
 
+    # [TODO] BaseForm > non_field_errors
     def non_field_errors(self):
         """
         Return an ErrorList of errors that aren't associated with a particular
@@ -254,6 +271,7 @@ class BaseForm(RenderableFormMixin):
             self.error_class(error_class="nonfield", renderer=self.renderer),
         )
 
+    # [TODO] BaseForm > add_error
     def add_error(self, field, error):
         """
         Update the content of `self._errors`.
@@ -305,12 +323,14 @@ class BaseForm(RenderableFormMixin):
             if field in self.cleaned_data:
                 del self.cleaned_data[field]
 
+    # [TODO] BaseForm > has_error
     def has_error(self, field, code=None):
         return field in self.errors and (
             code is None
             or any(error.code == code for error in self.errors.as_data()[field])
         )
 
+    # [TODO] BaseForm > full_clean
     def full_clean(self):
         """
         Clean all of self.data and populate self._errors and self.cleaned_data.
@@ -328,6 +348,7 @@ class BaseForm(RenderableFormMixin):
         self._clean_form()
         self._post_clean()
 
+    # [TODO] BaseForm > _clean_fields
     def _clean_fields(self):
         for name, bf in self._bound_items():
             field = bf.field
@@ -344,6 +365,7 @@ class BaseForm(RenderableFormMixin):
             except ValidationError as e:
                 self.add_error(name, e)
 
+    # [TODO] BaseForm > _clean_form
     def _clean_form(self):
         try:
             cleaned_data = self.clean()
@@ -353,6 +375,7 @@ class BaseForm(RenderableFormMixin):
             if cleaned_data is not None:
                 self.cleaned_data = cleaned_data
 
+    # [TODO] BaseForm > _post_clean
     def _post_clean(self):
         """
         An internal hook for performing additional cleaning after form cleaning
@@ -360,6 +383,7 @@ class BaseForm(RenderableFormMixin):
         """
         pass
 
+    # [TODO] BaseForm > clean
     def clean(self):
         """
         Hook for doing any extra form-wide cleaning after Field.clean() has been
@@ -369,14 +393,17 @@ class BaseForm(RenderableFormMixin):
         """
         return self.cleaned_data
 
+    # [TODO] BaseForm > has_changed
     def has_changed(self):
         """Return True if data differs from initial."""
         return bool(self.changed_data)
 
+    # [TODO] BaseForm > changed_data
     @cached_property
     def changed_data(self):
         return [name for name, bf in self._bound_items() if bf._has_changed()]
 
+    # [TODO] BaseForm > media
     @property
     def media(self):
         """Return all media required to render the widgets on this form."""
@@ -385,6 +412,7 @@ class BaseForm(RenderableFormMixin):
             media += field.widget.media
         return media
 
+    # [TODO] BaseForm > is_multipart
     def is_multipart(self):
         """
         Return True if the form needs to be multipart-encoded, i.e. it has
@@ -392,6 +420,7 @@ class BaseForm(RenderableFormMixin):
         """
         return any(field.widget.needs_multipart_form for field in self.fields.values())
 
+    # [TODO] BaseForm > hidden_fields
     def hidden_fields(self):
         """
         Return a list of all the BoundField objects that are hidden fields.
@@ -399,6 +428,7 @@ class BaseForm(RenderableFormMixin):
         """
         return [field for field in self if field.is_hidden]
 
+    # [TODO] BaseForm > visible_fields
     def visible_fields(self):
         """
         Return a list of BoundField objects that aren't hidden fields.
@@ -406,6 +436,7 @@ class BaseForm(RenderableFormMixin):
         """
         return [field for field in self if not field.is_hidden]
 
+    # [TODO] BaseForm > get_initial_for_field
     def get_initial_for_field(self, field, field_name):
         """
         Return initial data for field on form. Use initial data from the form
@@ -424,6 +455,7 @@ class BaseForm(RenderableFormMixin):
         return value
 
 
+# [TODO] Form
 class Form(BaseForm, metaclass=DeclarativeFieldsMetaclass):
     "A collection of Fields, plus their associated data."
     # This is a separate class from BaseForm in order to abstract the way

@@ -30,7 +30,9 @@ from .exceptions import NoReverseMatch, Resolver404
 from .utils import get_callable
 
 
+# [TODO] ResolverMatch
 class ResolverMatch:
+    # [TODO] ResolverMatch > __init__
     def __init__(
         self,
         func,
@@ -72,9 +74,11 @@ class ResolverMatch:
         view_path = url_name or self._func_path
         self.view_name = ":".join(self.namespaces + [view_path])
 
+    # [TODO] ResolverMatch > __getitem__
     def __getitem__(self, index):
         return (self.func, self.args, self.kwargs)[index]
 
+    # [TODO] ResolverMatch > __repr__
     def __repr__(self):
         if isinstance(self.func, functools.partial):
             func = repr(self.func)
@@ -98,21 +102,25 @@ class ResolverMatch:
             )
         )
 
+    # [TODO] ResolverMatch > __reduce_ex__
     def __reduce_ex__(self, protocol):
         raise PicklingError(f"Cannot pickle {self.__class__.__qualname__}.")
 
 
+# [TODO] get_resolver
 def get_resolver(urlconf=None):
     if urlconf is None:
         urlconf = settings.ROOT_URLCONF
     return _get_cached_resolver(urlconf)
 
 
+# [TODO] _get_cached_resolver
 @functools.cache
 def _get_cached_resolver(urlconf=None):
     return URLResolver(RegexPattern(r"^/"), urlconf)
 
 
+# [TODO] get_ns_resolver
 @functools.cache
 def get_ns_resolver(ns_pattern, resolver, converters):
     # Build a namespaced resolver for the given parent URLconf pattern.
@@ -124,10 +132,13 @@ def get_ns_resolver(ns_pattern, resolver, converters):
     return URLResolver(RegexPattern(r"^/"), [ns_resolver])
 
 
+# [TODO] LocaleRegexDescriptor
 class LocaleRegexDescriptor:
+    # [TODO] LocaleRegexDescriptor > __init__
     def __init__(self, attr):
         self.attr = attr
 
+    # [TODO] LocaleRegexDescriptor > __get__
     def __get__(self, instance, cls=None):
         """
         Return a compiled regular expression based on the active language.
@@ -147,7 +158,9 @@ class LocaleRegexDescriptor:
         return instance._regex_dict[language_code]
 
 
+# [TODO] CheckURLMixin
 class CheckURLMixin:
+    # [TODO] CheckURLMixin > describe
     def describe(self):
         """
         Format the URL pattern for display in warning messages.
@@ -157,6 +170,7 @@ class CheckURLMixin:
             description += " [name='{}']".format(self.name)
         return description
 
+    # [TODO] CheckURLMixin > _check_pattern_startswith_slash
     def _check_pattern_startswith_slash(self):
         """
         Check that the pattern does not begin with a forward slash.
@@ -182,9 +196,11 @@ class CheckURLMixin:
             return []
 
 
+# [TODO] RegexPattern
 class RegexPattern(CheckURLMixin):
     regex = LocaleRegexDescriptor("_regex")
 
+    # [TODO] RegexPattern > __init__
     def __init__(self, regex, name=None, is_endpoint=False):
         self._regex = regex
         self._regex_dict = {}
@@ -192,6 +208,7 @@ class RegexPattern(CheckURLMixin):
         self.name = name
         self.converters = {}
 
+    # [TODO] RegexPattern > match
     def match(self, path):
         match = (
             self.regex.fullmatch(path)
@@ -208,6 +225,7 @@ class RegexPattern(CheckURLMixin):
             return path[match.end() :], args, kwargs
         return None
 
+    # [TODO] RegexPattern > check
     def check(self):
         warnings = []
         warnings.extend(self._check_pattern_startswith_slash())
@@ -215,6 +233,7 @@ class RegexPattern(CheckURLMixin):
             warnings.extend(self._check_include_trailing_dollar())
         return warnings
 
+    # [TODO] RegexPattern > _check_include_trailing_dollar
     def _check_include_trailing_dollar(self):
         regex_pattern = self.regex.pattern
         if regex_pattern.endswith("$") and not regex_pattern.endswith(r"\$"):
@@ -229,6 +248,7 @@ class RegexPattern(CheckURLMixin):
         else:
             return []
 
+    # [TODO] RegexPattern > _compile
     def _compile(self, regex):
         """Compile and return the given regular expression."""
         try:
@@ -238,6 +258,7 @@ class RegexPattern(CheckURLMixin):
                 '"%s" is not a valid regular expression: %s' % (regex, e)
             ) from e
 
+    # [TODO] RegexPattern > __str__
     def __str__(self):
         return str(self._regex)
 
@@ -247,6 +268,7 @@ _PATH_PARAMETER_COMPONENT_RE = _lazy_re_compile(
 )
 
 
+# [TODO] _route_to_regex
 def _route_to_regex(route, is_endpoint=False):
     """
     Convert a path pattern into a regular expression. Return the regular
@@ -293,9 +315,11 @@ def _route_to_regex(route, is_endpoint=False):
     return "".join(parts), converters
 
 
+# [TODO] RoutePattern
 class RoutePattern(CheckURLMixin):
     regex = LocaleRegexDescriptor("_route")
 
+    # [TODO] RoutePattern > __init__
     def __init__(self, route, name=None, is_endpoint=False):
         self._route = route
         self._regex_dict = {}
@@ -303,6 +327,7 @@ class RoutePattern(CheckURLMixin):
         self.name = name
         self.converters = _route_to_regex(str(route), is_endpoint)[1]
 
+    # [TODO] RoutePattern > match
     def match(self, path):
         match = self.regex.search(path)
         if match:
@@ -317,6 +342,7 @@ class RoutePattern(CheckURLMixin):
             return path[match.end() :], (), kwargs
         return None
 
+    # [TODO] RoutePattern > check
     def check(self):
         warnings = [
             *self._check_pattern_startswith_slash(),
@@ -334,6 +360,7 @@ class RoutePattern(CheckURLMixin):
             )
         return warnings
 
+    # [TODO] RoutePattern > _check_pattern_unmatched_angle_brackets
     def _check_pattern_unmatched_angle_brackets(self):
         warnings = []
         msg = "Your URL pattern %s has an unmatched '%s' bracket."
@@ -353,23 +380,29 @@ class RoutePattern(CheckURLMixin):
             warnings.append(Warning(msg % (self.describe(), "<"), id="urls.W010"))
         return warnings
 
+    # [TODO] RoutePattern > _compile
     def _compile(self, route):
         return re.compile(_route_to_regex(route, self._is_endpoint)[0])
 
+    # [TODO] RoutePattern > __str__
     def __str__(self):
         return str(self._route)
 
 
+# [TODO] LocalePrefixPattern
 class LocalePrefixPattern:
+    # [TODO] LocalePrefixPattern > __init__
     def __init__(self, prefix_default_language=True):
         self.prefix_default_language = prefix_default_language
         self.converters = {}
 
+    # [TODO] LocalePrefixPattern > regex
     @property
     def regex(self):
         # This is only used by reverse() and cached in _reverse_dict.
         return re.compile(re.escape(self.language_prefix))
 
+    # [TODO] LocalePrefixPattern > language_prefix
     @property
     def language_prefix(self):
         language_code = get_language() or settings.LANGUAGE_CODE
@@ -378,38 +411,47 @@ class LocalePrefixPattern:
         else:
             return "%s/" % language_code
 
+    # [TODO] LocalePrefixPattern > match
     def match(self, path):
         language_prefix = self.language_prefix
         if path.startswith(language_prefix):
             return path.removeprefix(language_prefix), (), {}
         return None
 
+    # [TODO] LocalePrefixPattern > check
     def check(self):
         return []
 
+    # [TODO] LocalePrefixPattern > describe
     def describe(self):
         return "'{}'".format(self)
 
+    # [TODO] LocalePrefixPattern > __str__
     def __str__(self):
         return self.language_prefix
 
 
+# [TODO] URLPattern
 class URLPattern:
+    # [TODO] URLPattern > __init__
     def __init__(self, pattern, callback, default_args=None, name=None):
         self.pattern = pattern
         self.callback = callback  # the view
         self.default_args = default_args or {}
         self.name = name
 
+    # [TODO] URLPattern > __repr__
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__, self.pattern.describe())
 
+    # [TODO] URLPattern > check
     def check(self):
         warnings = self._check_pattern_name()
         warnings.extend(self.pattern.check())
         warnings.extend(self._check_callback())
         return warnings
 
+    # [TODO] URLPattern > _check_pattern_name
     def _check_pattern_name(self):
         """
         Check that the pattern name does not contain a colon.
@@ -424,6 +466,7 @@ class URLPattern:
         else:
             return []
 
+    # [TODO] URLPattern > _check_callback
     def _check_callback(self):
         from django.views import View
 
@@ -443,6 +486,7 @@ class URLPattern:
             ]
         return []
 
+    # [TODO] URLPattern > resolve
     def resolve(self, path):
         match = self.pattern.match(path)
         if match:
@@ -459,6 +503,7 @@ class URLPattern:
                 extra_kwargs=self.default_args,
             )
 
+    # [TODO] URLPattern > lookup_str
     @cached_property
     def lookup_str(self):
         """
@@ -475,7 +520,9 @@ class URLPattern:
         return callback.__module__ + "." + callback.__qualname__
 
 
+# [TODO] URLResolver
 class URLResolver:
+    # [TODO] URLResolver > __init__
     def __init__(
         self, pattern, urlconf_name, default_kwargs=None, app_name=None, namespace=None
     ):
@@ -497,6 +544,7 @@ class URLResolver:
         self._populated = False
         self._local = Local()
 
+    # [TODO] URLResolver > __repr__
     def __repr__(self):
         if isinstance(self.urlconf_name, list) and self.urlconf_name:
             # Don't bother to output the whole list, it can be huge
@@ -511,6 +559,7 @@ class URLResolver:
             self.pattern.describe(),
         )
 
+    # [TODO] URLResolver > check
     def check(self):
         messages = []
         for pattern in self.url_patterns:
@@ -518,6 +567,7 @@ class URLResolver:
         messages.extend(self._check_custom_error_handlers())
         return messages or self.pattern.check()
 
+    # [TODO] URLResolver > _check_custom_error_handlers
     def _check_custom_error_handlers(self):
         messages = []
         # All handlers take (request, exception) arguments except handler500
@@ -549,6 +599,7 @@ class URLResolver:
                 messages.append(Error(msg, id="urls.E007"))
         return messages
 
+    # [TODO] URLResolver > _populate
     def _populate(self):
         # Short-circuit if called recursively in this thread to prevent
         # infinite recursion. Concurrent threads may call this at the same
@@ -633,6 +684,7 @@ class URLResolver:
         finally:
             self._local.populating = False
 
+    # [TODO] URLResolver > reverse_dict
     @property
     def reverse_dict(self):
         language_code = get_language()
@@ -640,6 +692,7 @@ class URLResolver:
             self._populate()
         return self._reverse_dict[language_code]
 
+    # [TODO] URLResolver > namespace_dict
     @property
     def namespace_dict(self):
         language_code = get_language()
@@ -647,6 +700,7 @@ class URLResolver:
             self._populate()
         return self._namespace_dict[language_code]
 
+    # [TODO] URLResolver > app_dict
     @property
     def app_dict(self):
         language_code = get_language()
@@ -654,6 +708,7 @@ class URLResolver:
             self._populate()
         return self._app_dict[language_code]
 
+    # [TODO] URLResolver > _extend_tried
     @staticmethod
     def _extend_tried(tried, pattern, sub_tried=None):
         if sub_tried is None:
@@ -661,6 +716,7 @@ class URLResolver:
         else:
             tried.extend([pattern, *t] for t in sub_tried)
 
+    # [TODO] URLResolver > _join_route
     @staticmethod
     def _join_route(route1, route2):
         """Join two routes, without the starting ^ in the second route."""
@@ -669,11 +725,13 @@ class URLResolver:
         route2 = route2.removeprefix("^")
         return route1 + route2
 
+    # [TODO] URLResolver > _is_callback
     def _is_callback(self, name):
         if not self._populated:
             self._populate()
         return name in self._callback_strs
 
+    # [TODO] URLResolver > resolve
     def resolve(self, path):
         path = str(path)  # path may be a reverse_lazy object
         tried = []
@@ -722,6 +780,7 @@ class URLResolver:
             raise Resolver404({"tried": tried, "path": new_path})
         raise Resolver404({"path": path})
 
+    # [TODO] URLResolver > urlconf_module
     @cached_property
     def urlconf_module(self):
         if isinstance(self.urlconf_name, str):
@@ -729,6 +788,7 @@ class URLResolver:
         else:
             return self.urlconf_name
 
+    # [TODO] URLResolver > url_patterns
     @cached_property
     def url_patterns(self):
         # urlconf_module might be a valid set of patterns, so we default to it
@@ -745,6 +805,7 @@ class URLResolver:
             raise ImproperlyConfigured(msg.format(name=self.urlconf_name)) from e
         return patterns
 
+    # [TODO] URLResolver > resolve_error_handler
     def resolve_error_handler(self, view_type):
         callback = getattr(self.urlconf_module, "handler%s" % view_type, None)
         if not callback:
@@ -755,9 +816,11 @@ class URLResolver:
             callback = getattr(urls, "handler%s" % view_type)
         return get_callable(callback)
 
+    # [TODO] URLResolver > reverse
     def reverse(self, lookup_view, *args, **kwargs):
         return self._reverse_with_prefix(lookup_view, "", *args, **kwargs)
 
+    # [TODO] URLResolver > _reverse_with_prefix
     def _reverse_with_prefix(self, lookup_view, _prefix, *args, **kwargs):
         if args and kwargs:
             raise ValueError("Don't mix *args and **kwargs in call to reverse()!")

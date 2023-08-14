@@ -11,6 +11,7 @@ from .operations import SpatiaLiteOperations
 from .schema import SpatialiteSchemaEditor
 
 
+# [TODO] DatabaseWrapper
 class DatabaseWrapper(SQLiteDatabaseWrapper):
     SchemaEditorClass = SpatialiteSchemaEditor
     # Classes instantiated in __init__().
@@ -19,6 +20,7 @@ class DatabaseWrapper(SQLiteDatabaseWrapper):
     introspection_class = SpatiaLiteIntrospection
     ops_class = SpatiaLiteOperations
 
+    # [TODO] DatabaseWrapper > __init__
     def __init__(self, *args, **kwargs):
         # Trying to find the location of the SpatiaLite library.
         # Here we are figuring out the path to the SpatiaLite library
@@ -37,6 +39,7 @@ class DatabaseWrapper(SQLiteDatabaseWrapper):
         ]
         super().__init__(*args, **kwargs)
 
+    # [TODO] DatabaseWrapper > get_new_connection
     def get_new_connection(self, conn_params):
         conn = super().get_new_connection(conn_params)
         # Enabling extension loading on the SQLite connection.
@@ -67,6 +70,7 @@ class DatabaseWrapper(SQLiteDatabaseWrapper):
             )
         return conn
 
+    # [TODO] DatabaseWrapper > prepare_database
     def prepare_database(self):
         super().prepare_database()
         # Check if spatial metadata have been initialized in the database

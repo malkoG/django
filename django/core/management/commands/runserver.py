@@ -22,6 +22,7 @@ naiveip_re = _lazy_re_compile(
 )
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = "Starts a lightweight web server for development."
 
@@ -36,6 +37,7 @@ class Command(BaseCommand):
     protocol = "http"
     server_cls = WSGIServer
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "addrport", nargs="?", help="Optional port number, or ipaddr:port"
@@ -65,6 +67,7 @@ class Command(BaseCommand):
             help="Skip system checks.",
         )
 
+    # [TODO] Command > execute
     def execute(self, *args, **options):
         if options["no_color"]:
             # We rely on the environment because it's currently the only
@@ -73,10 +76,12 @@ class Command(BaseCommand):
             os.environ["DJANGO_COLORS"] = "nocolor"
         super().execute(*args, **options)
 
+    # [TODO] Command > get_handler
     def get_handler(self, *args, **options):
         """Return the default WSGI handler for the runner."""
         return get_internal_wsgi_application()
 
+    # [TODO] Command > handle
     def handle(self, *args, **options):
         if not settings.DEBUG and not settings.ALLOWED_HOSTS:
             raise CommandError("You must set settings.ALLOWED_HOSTS if DEBUG is False.")
@@ -110,6 +115,7 @@ class Command(BaseCommand):
             self._raw_ipv6 = self.use_ipv6
         self.run(**options)
 
+    # [TODO] Command > run
     def run(self, **options):
         """Run the server, using the autoreloader if needed."""
         use_reloader = options["use_reloader"]
@@ -119,6 +125,7 @@ class Command(BaseCommand):
         else:
             self.inner_run(None, **options)
 
+    # [TODO] Command > inner_run
     def inner_run(self, *args, **options):
         # If an exception was silenced in ManagementUtility.execute in order
         # to be raised in the child process, raise it now.
@@ -165,6 +172,7 @@ class Command(BaseCommand):
                 self.stdout.write(shutdown_message)
             sys.exit(0)
 
+    # [TODO] Command > on_bind
     def on_bind(self, server_port):
         quit_command = "CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C"
 

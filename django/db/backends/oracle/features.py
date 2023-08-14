@@ -3,6 +3,7 @@ from django.db.backends.base.features import BaseDatabaseFeatures
 from django.utils.functional import cached_property
 
 
+# [TODO] DatabaseFeatures
 class DatabaseFeatures(BaseDatabaseFeatures):
     minimum_database_version = (19,)
     # Oracle crashes with "ORA-00932: inconsistent datatypes: expected - got
@@ -134,6 +135,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
         "INSERT INTO {} VALUES (DEFAULT, DEFAULT, DEFAULT)"
     )
 
+    # [TODO] DatabaseFeatures > introspected_field_types
     @cached_property
     def introspected_field_types(self):
         return {
@@ -146,6 +148,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
             "TimeField": "DateTimeField",
         }
 
+    # [TODO] DatabaseFeatures > supports_collation_on_charfield
     @cached_property
     def supports_collation_on_charfield(self):
         with self.connection.cursor() as cursor:
@@ -157,6 +160,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
                 raise
             return True
 
+    # [TODO] DatabaseFeatures > supports_primitives_in_json_field
     @cached_property
     def supports_primitives_in_json_field(self):
         return self.connection.oracle_version >= (21,)

@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 simple_option_desc_re = re.compile(r"([-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$)")
 
 
+# [TODO] setup
 def setup(app):
     app.add_crossref_type(
         directivename="setting",
@@ -71,6 +72,7 @@ def setup(app):
     return {"parallel_read_safe": True}
 
 
+# [TODO] VersionDirective
 class VersionDirective(Directive):
     has_content = True
     required_arguments = 1
@@ -78,6 +80,7 @@ class VersionDirective(Directive):
     final_argument_whitespace = True
     option_spec = {}
 
+    # [TODO] VersionDirective > run
     def run(self):
         if len(self.arguments) > 1:
             msg = """Only one argument accepted for directive '{directive_name}::'.
@@ -108,12 +111,14 @@ class VersionDirective(Directive):
         return ret
 
 
+# [TODO] DjangoHTMLTranslator
 class DjangoHTMLTranslator(HTMLTranslator):
     """
     Django-specific reST to HTML tweaks.
     """
 
     # Don't use border=1, which docutils does by default.
+    # [TODO] DjangoHTMLTranslator > visit_table
     def visit_table(self, node):
         self.context.append(self.compact_p)
         self.compact_p = True
@@ -121,11 +126,13 @@ class DjangoHTMLTranslator(HTMLTranslator):
         self._table_row_indices.append(0)
         self.body.append(self.starttag(node, "table", CLASS="docutils"))
 
+    # [TODO] DjangoHTMLTranslator > depart_table
     def depart_table(self, node):
         self.compact_p = self.context.pop()
         self._table_row_indices.pop()
         self.body.append("</table>\n")
 
+    # [TODO] DjangoHTMLTranslator > visit_desc_parameterlist
     def visit_desc_parameterlist(self, node):
         self.body.append("(")  # by default sphinx puts <big> around the "("
         self.optional_param_level = 0
@@ -146,6 +153,7 @@ class DjangoHTMLTranslator(HTMLTranslator):
             self.list_is_required_param = required_params
             self.multi_line_parameter_list = False
 
+    # [TODO] DjangoHTMLTranslator > depart_desc_parameterlist
     def depart_desc_parameterlist(self, node):
         self.body.append(")")
 
@@ -163,6 +171,7 @@ class DjangoHTMLTranslator(HTMLTranslator):
         "versionadded": "New in Django %s",
     }
 
+    # [TODO] DjangoHTMLTranslator > visit_versionmodified
     def visit_versionmodified(self, node):
         self.body.append(self.starttag(node, "div", CLASS=node["type"]))
         version_text = self.version_text.get(node["type"])
@@ -170,10 +179,12 @@ class DjangoHTMLTranslator(HTMLTranslator):
             title = "%s%s" % (version_text % node["version"], ":" if len(node) else ".")
             self.body.append('<span class="title">%s</span> ' % title)
 
+    # [TODO] DjangoHTMLTranslator > depart_versionmodified
     def depart_versionmodified(self, node):
         self.body.append("</div>\n")
 
     # Give each section a unique ID -- nice for custom CSS hooks
+    # [TODO] DjangoHTMLTranslator > visit_section
     def visit_section(self, node):
         old_ids = node.get("ids", [])
         node["ids"] = ["s-" + i for i in old_ids]
@@ -182,6 +193,7 @@ class DjangoHTMLTranslator(HTMLTranslator):
         node["ids"] = old_ids
 
 
+# [TODO] parse_django_admin_node
 def parse_django_admin_node(env, sig, signode):
     command = sig.split(" ")[0]
     env.ref_context["std:program"] = command
@@ -190,6 +202,7 @@ def parse_django_admin_node(env, sig, signode):
     return command
 
 
+# [TODO] DjangoStandaloneHTMLBuilder
 class DjangoStandaloneHTMLBuilder(StandaloneHTMLBuilder):
     """
     Subclass to add some extra things we need.
@@ -197,6 +210,7 @@ class DjangoStandaloneHTMLBuilder(StandaloneHTMLBuilder):
 
     name = "djangohtml"
 
+    # [TODO] DjangoStandaloneHTMLBuilder > finish
     def finish(self):
         super().finish()
         logger.info(bold("writing templatebuiltins.js..."))
@@ -220,6 +234,7 @@ class DjangoStandaloneHTMLBuilder(StandaloneHTMLBuilder):
             fp.write(";\n")
 
 
+# [TODO] ConsoleNode
 class ConsoleNode(nodes.literal_block):
     """
     Custom node to override the visit/depart event handlers at registration
@@ -228,25 +243,30 @@ class ConsoleNode(nodes.literal_block):
 
     tagname = "ConsoleNode"
 
+    # [TODO] ConsoleNode > __init__
     def __init__(self, litblk_obj):
         self.wrapped = litblk_obj
 
+    # [TODO] ConsoleNode > __getattr__
     def __getattr__(self, attr):
         if attr == "wrapped":
             return self.__dict__.wrapped
         return getattr(self.wrapped, attr)
 
 
+# [TODO] visit_console_dummy
 def visit_console_dummy(self, node):
     """Defer to the corresponding parent's handler."""
     self.visit_literal_block(node)
 
 
+# [TODO] depart_console_dummy
 def depart_console_dummy(self, node):
     """Defer to the corresponding parent's handler."""
     self.depart_literal_block(node)
 
 
+# [TODO] visit_console_html
 def visit_console_html(self, node):
     """Generate HTML for the console directive."""
     if self.builder.name in ("djangohtml", "json") and node["win_console_text"]:
@@ -292,6 +312,7 @@ checked>
         self.visit_literal_block(node)
 
 
+# [TODO] ConsoleDirective
 class ConsoleDirective(CodeBlock):
     """
     A reStructuredText directive which renders a two-tab code block in which
@@ -305,6 +326,7 @@ class ConsoleDirective(CodeBlock):
     # gray comment with no highlighting at all.
     WIN_PROMPT = r"...\> "
 
+    # [TODO] ConsoleDirective > run
     def run(self):
         def args_to_win(cmdline):
             changed = False
@@ -387,6 +409,7 @@ class ConsoleDirective(CodeBlock):
         return [ConsoleNode(lit_blk_obj)]
 
 
+# [TODO] html_page_context_hook
 def html_page_context_hook(app, pagename, templatename, context, doctree):
     # Put a bool on the context used to render the template. It's used to
     # control inclusion of console-tabs.css and activation of the JavaScript.
@@ -397,6 +420,7 @@ def html_page_context_hook(app, pagename, templatename, context, doctree):
     )
 
 
+# [TODO] default_role_error
 def default_role_error(
     name, rawtext, text, lineno, inliner, options=None, content=None
 ):

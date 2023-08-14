@@ -4,10 +4,12 @@ from django.core import checks
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] StaticFilesConfig
 class StaticFilesConfig(AppConfig):
     name = "django.contrib.staticfiles"
     verbose_name = _("Static Files")
     ignore_patterns = ["CVS", ".*", "*~"]
 
+    # [TODO] StaticFilesConfig > ready
     def ready(self):
         checks.register(check_finders, checks.Tags.staticfiles)

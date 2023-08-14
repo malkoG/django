@@ -34,10 +34,12 @@ host_validation_re = _lazy_re_compile(
 )
 
 
+# [TODO] UnreadablePostError
 class UnreadablePostError(OSError):
     pass
 
 
+# [TODO] RawPostDataException
 class RawPostDataException(Exception):
     """
     You cannot access raw_post_data from a request that has
@@ -48,6 +50,7 @@ class RawPostDataException(Exception):
     pass
 
 
+# [TODO] HttpRequest
 class HttpRequest:
     """A basic HTTP request."""
 
@@ -55,6 +58,7 @@ class HttpRequest:
     _encoding = None
     _upload_handlers = []
 
+    # [TODO] HttpRequest > __init__
     def __init__(self):
         # WARNING: The `WSGIRequest` subclass doesn't call `super`.
         # Any variable assignment made here should also happen in
@@ -73,6 +77,7 @@ class HttpRequest:
         self.content_type = None
         self.content_params = None
 
+    # [TODO] HttpRequest > __repr__
     def __repr__(self):
         if self.method is None or not self.get_full_path():
             return "<%s>" % self.__class__.__name__
@@ -82,20 +87,24 @@ class HttpRequest:
             self.get_full_path(),
         )
 
+    # [TODO] HttpRequest > headers
     @cached_property
     def headers(self):
         return HttpHeaders(self.META)
 
+    # [TODO] HttpRequest > accepted_types
     @cached_property
     def accepted_types(self):
         """Return a list of MediaType instances."""
         return parse_accept_header(self.headers.get("Accept", "*/*"))
 
+    # [TODO] HttpRequest > accepts
     def accepts(self, media_type):
         return any(
             accepted_type.match(media_type) for accepted_type in self.accepted_types
         )
 
+    # [TODO] HttpRequest > _set_content_type_params
     def _set_content_type_params(self, meta):
         """Set content_type, content_params, and encoding."""
         self.content_type, self.content_params = parse_header_parameters(
@@ -109,6 +118,7 @@ class HttpRequest:
             else:
                 self.encoding = self.content_params["charset"]
 
+    # [TODO] HttpRequest > _get_raw_host
     def _get_raw_host(self):
         """
         Return the HTTP host using the environment or request headers. Skip
@@ -127,6 +137,7 @@ class HttpRequest:
                 host = "%s:%s" % (host, server_port)
         return host
 
+    # [TODO] HttpRequest > get_host
     def get_host(self):
         """Return the HTTP host using the environment or request headers."""
         host = self._get_raw_host()
@@ -149,6 +160,7 @@ class HttpRequest:
                 )
             raise DisallowedHost(msg)
 
+    # [TODO] HttpRequest > get_port
     def get_port(self):
         """Return the port number for the request as a string."""
         if settings.USE_X_FORWARDED_PORT and "HTTP_X_FORWARDED_PORT" in self.META:
@@ -157,12 +169,15 @@ class HttpRequest:
             port = self.META["SERVER_PORT"]
         return str(port)
 
+    # [TODO] HttpRequest > get_full_path
     def get_full_path(self, force_append_slash=False):
         return self._get_full_path(self.path, force_append_slash)
 
+    # [TODO] HttpRequest > get_full_path_info
     def get_full_path_info(self, force_append_slash=False):
         return self._get_full_path(self.path_info, force_append_slash)
 
+    # [TODO] HttpRequest > _get_full_path
     def _get_full_path(self, path, force_append_slash):
         # RFC 3986 requires query string arguments to be in the ASCII range.
         # Rather than crash if this doesn't happen, we encode defensively.
@@ -174,6 +189,7 @@ class HttpRequest:
             else "",
         )
 
+    # [TODO] HttpRequest > get_signed_cookie
     def get_signed_cookie(self, key, default=RAISE_ERROR, salt="", max_age=None):
         """
         Attempt to return a signed cookie. If the signature fails or the
@@ -198,6 +214,7 @@ class HttpRequest:
                 raise
         return value
 
+    # [TODO] HttpRequest > build_absolute_uri
     def build_absolute_uri(self, location=None):
         """
         Build an absolute URI from the location and the variables available in
@@ -237,10 +254,12 @@ class HttpRequest:
                 location = urljoin(self._current_scheme_host + self.path, location)
         return iri_to_uri(location)
 
+    # [TODO] HttpRequest > _current_scheme_host
     @cached_property
     def _current_scheme_host(self):
         return "{}://{}".format(self.scheme, self.get_host())
 
+    # [TODO] HttpRequest > _get_scheme
     def _get_scheme(self):
         """
         Hook for subclasses like WSGIRequest to implement. Return 'http' by
@@ -248,6 +267,7 @@ class HttpRequest:
         """
         return "http"
 
+    # [TODO] HttpRequest > scheme
     @property
     def scheme(self):
         if settings.SECURE_PROXY_SSL_HEADER:
@@ -264,13 +284,16 @@ class HttpRequest:
                 return "https" if header_value.strip() == secure_value else "http"
         return self._get_scheme()
 
+    # [TODO] HttpRequest > is_secure
     def is_secure(self):
         return self.scheme == "https"
 
+    # [TODO] HttpRequest > encoding
     @property
     def encoding(self):
         return self._encoding
 
+    # [TODO] HttpRequest > encoding
     @encoding.setter
     def encoding(self, val):
         """
@@ -284,12 +307,14 @@ class HttpRequest:
         if hasattr(self, "_post"):
             del self._post
 
+    # [TODO] HttpRequest > _initialize_handlers
     def _initialize_handlers(self):
         self._upload_handlers = [
             uploadhandler.load_handler(handler, self)
             for handler in settings.FILE_UPLOAD_HANDLERS
         ]
 
+    # [TODO] HttpRequest > upload_handlers
     @property
     def upload_handlers(self):
         if not self._upload_handlers:
@@ -297,6 +322,7 @@ class HttpRequest:
             self._initialize_handlers()
         return self._upload_handlers
 
+    # [TODO] HttpRequest > upload_handlers
     @upload_handlers.setter
     def upload_handlers(self, upload_handlers):
         if hasattr(self, "_files"):
@@ -306,6 +332,7 @@ class HttpRequest:
             )
         self._upload_handlers = upload_handlers
 
+    # [TODO] HttpRequest > parse_file_upload
     def parse_file_upload(self, META, post_data):
         """Return a tuple of (POST QueryDict, FILES MultiValueDict)."""
         self.upload_handlers = ImmutableList(
@@ -318,6 +345,7 @@ class HttpRequest:
         parser = MultiPartParser(META, post_data, self.upload_handlers, self.encoding)
         return parser.parse()
 
+    # [TODO] HttpRequest > body
     @property
     def body(self):
         if not hasattr(self, "_body"):
@@ -345,10 +373,12 @@ class HttpRequest:
             self._stream = BytesIO(self._body)
         return self._body
 
+    # [TODO] HttpRequest > _mark_post_parse_error
     def _mark_post_parse_error(self):
         self._post = QueryDict()
         self._files = MultiValueDict()
 
+    # [TODO] HttpRequest > _load_post_and_files
     def _load_post_and_files(self):
         """Populate self._post and self._files if the content-type is a form type"""
         if self.method != "POST":
@@ -387,6 +417,7 @@ class HttpRequest:
                 MultiValueDict(),
             )
 
+    # [TODO] HttpRequest > close
     def close(self):
         if hasattr(self, "_files"):
             for f in chain.from_iterable(list_[1] for list_ in self._files.lists()):
@@ -400,6 +431,7 @@ class HttpRequest:
     # request.body, self._stream points to a BytesIO instance
     # containing that data.
 
+    # [TODO] HttpRequest > read
     def read(self, *args, **kwargs):
         self._read_started = True
         try:
@@ -407,6 +439,7 @@ class HttpRequest:
         except OSError as e:
             raise UnreadablePostError(*e.args) from e
 
+    # [TODO] HttpRequest > readline
     def readline(self, *args, **kwargs):
         self._read_started = True
         try:
@@ -414,18 +447,22 @@ class HttpRequest:
         except OSError as e:
             raise UnreadablePostError(*e.args) from e
 
+    # [TODO] HttpRequest > __iter__
     def __iter__(self):
         return iter(self.readline, b"")
 
+    # [TODO] HttpRequest > readlines
     def readlines(self):
         return list(self)
 
 
+# [TODO] HttpHeaders
 class HttpHeaders(CaseInsensitiveMapping):
     HTTP_PREFIX = "HTTP_"
     # PEP 333 gives two headers which aren't prepended with HTTP_.
     UNPREFIXED_HEADERS = {"CONTENT_TYPE", "CONTENT_LENGTH"}
 
+    # [TODO] HttpHeaders > __init__
     def __init__(self, environ):
         headers = {}
         for header, value in environ.items():
@@ -434,10 +471,12 @@ class HttpHeaders(CaseInsensitiveMapping):
                 headers[name] = value
         super().__init__(headers)
 
+    # [TODO] HttpHeaders > __getitem__
     def __getitem__(self, key):
         """Allow header lookup using underscores in place of hyphens."""
         return super().__getitem__(key.replace("_", "-"))
 
+    # [TODO] HttpHeaders > parse_header_name
     @classmethod
     def parse_header_name(cls, header):
         if header.startswith(cls.HTTP_PREFIX):
@@ -446,6 +485,7 @@ class HttpHeaders(CaseInsensitiveMapping):
             return None
         return header.replace("_", "-").title()
 
+    # [TODO] HttpHeaders > to_wsgi_name
     @classmethod
     def to_wsgi_name(cls, header):
         header = header.replace("-", "_").upper()
@@ -453,10 +493,12 @@ class HttpHeaders(CaseInsensitiveMapping):
             return header
         return f"{cls.HTTP_PREFIX}{header}"
 
+    # [TODO] HttpHeaders > to_asgi_name
     @classmethod
     def to_asgi_name(cls, header):
         return header.replace("-", "_").upper()
 
+    # [TODO] HttpHeaders > to_wsgi_names
     @classmethod
     def to_wsgi_names(cls, headers):
         return {
@@ -464,6 +506,7 @@ class HttpHeaders(CaseInsensitiveMapping):
             for header_name, value in headers.items()
         }
 
+    # [TODO] HttpHeaders > to_asgi_names
     @classmethod
     def to_asgi_names(cls, headers):
         return {
@@ -472,6 +515,7 @@ class HttpHeaders(CaseInsensitiveMapping):
         }
 
 
+# [TODO] QueryDict
 class QueryDict(MultiValueDict):
     """
     A specialized MultiValueDict which represents a query string.
@@ -492,6 +536,7 @@ class QueryDict(MultiValueDict):
     _mutable = True
     _encoding = None
 
+    # [TODO] QueryDict > __init__
     def __init__(self, query_string=None, mutable=False, encoding=None):
         super().__init__()
         self.encoding = encoding or settings.DEFAULT_CHARSET
@@ -522,6 +567,7 @@ class QueryDict(MultiValueDict):
             ) from e
         self._mutable = mutable
 
+    # [TODO] QueryDict > fromkeys
     @classmethod
     def fromkeys(cls, iterable, value="", mutable=False, encoding=None):
         """
@@ -535,36 +581,43 @@ class QueryDict(MultiValueDict):
             q._mutable = False
         return q
 
+    # [TODO] QueryDict > encoding
     @property
     def encoding(self):
         if self._encoding is None:
             self._encoding = settings.DEFAULT_CHARSET
         return self._encoding
 
+    # [TODO] QueryDict > encoding
     @encoding.setter
     def encoding(self, value):
         self._encoding = value
 
+    # [TODO] QueryDict > _assert_mutable
     def _assert_mutable(self):
         if not self._mutable:
             raise AttributeError("This QueryDict instance is immutable")
 
+    # [TODO] QueryDict > __setitem__
     def __setitem__(self, key, value):
         self._assert_mutable()
         key = bytes_to_text(key, self.encoding)
         value = bytes_to_text(value, self.encoding)
         super().__setitem__(key, value)
 
+    # [TODO] QueryDict > __delitem__
     def __delitem__(self, key):
         self._assert_mutable()
         super().__delitem__(key)
 
+    # [TODO] QueryDict > __copy__
     def __copy__(self):
         result = self.__class__("", mutable=True, encoding=self.encoding)
         for key, value in self.lists():
             result.setlist(key, value)
         return result
 
+    # [TODO] QueryDict > __deepcopy__
     def __deepcopy__(self, memo):
         result = self.__class__("", mutable=True, encoding=self.encoding)
         memo[id(self)] = result
@@ -572,44 +625,53 @@ class QueryDict(MultiValueDict):
             result.setlist(copy.deepcopy(key, memo), copy.deepcopy(value, memo))
         return result
 
+    # [TODO] QueryDict > setlist
     def setlist(self, key, list_):
         self._assert_mutable()
         key = bytes_to_text(key, self.encoding)
         list_ = [bytes_to_text(elt, self.encoding) for elt in list_]
         super().setlist(key, list_)
 
+    # [TODO] QueryDict > setlistdefault
     def setlistdefault(self, key, default_list=None):
         self._assert_mutable()
         return super().setlistdefault(key, default_list)
 
+    # [TODO] QueryDict > appendlist
     def appendlist(self, key, value):
         self._assert_mutable()
         key = bytes_to_text(key, self.encoding)
         value = bytes_to_text(value, self.encoding)
         super().appendlist(key, value)
 
+    # [TODO] QueryDict > pop
     def pop(self, key, *args):
         self._assert_mutable()
         return super().pop(key, *args)
 
+    # [TODO] QueryDict > popitem
     def popitem(self):
         self._assert_mutable()
         return super().popitem()
 
+    # [TODO] QueryDict > clear
     def clear(self):
         self._assert_mutable()
         super().clear()
 
+    # [TODO] QueryDict > setdefault
     def setdefault(self, key, default=None):
         self._assert_mutable()
         key = bytes_to_text(key, self.encoding)
         default = bytes_to_text(default, self.encoding)
         return super().setdefault(key, default)
 
+    # [TODO] QueryDict > copy
     def copy(self):
         """Return a mutable copy of this object."""
         return self.__deepcopy__({})
 
+    # [TODO] QueryDict > urlencode
     def urlencode(self, safe=None):
         """
         Return an encoded string of all query string arguments.
@@ -643,13 +705,16 @@ class QueryDict(MultiValueDict):
         return "&".join(output)
 
 
+# [TODO] MediaType
 class MediaType:
+    # [TODO] MediaType > __init__
     def __init__(self, media_type_raw_line):
         full_type, self.params = parse_header_parameters(
             media_type_raw_line if media_type_raw_line else ""
         )
         self.main_type, _, self.sub_type = full_type.partition("/")
 
+    # [TODO] MediaType > __str__
     def __str__(self):
         params_str = "".join("; %s=%s" % (k, v) for k, v in self.params.items())
         return "%s%s%s" % (
@@ -658,13 +723,16 @@ class MediaType:
             params_str,
         )
 
+    # [TODO] MediaType > __repr__
     def __repr__(self):
         return "<%s: %s>" % (self.__class__.__qualname__, self)
 
+    # [TODO] MediaType > is_all_types
     @property
     def is_all_types(self):
         return self.main_type == "*" and self.sub_type == "*"
 
+    # [TODO] MediaType > match
     def match(self, other):
         if self.is_all_types:
             return True
@@ -677,6 +745,7 @@ class MediaType:
 # It's neither necessary nor appropriate to use
 # django.utils.encoding.force_str() for parsing URLs and form inputs. Thus,
 # this slightly more restricted function, used by QueryDict.
+# [TODO] bytes_to_text
 def bytes_to_text(s, encoding):
     """
     Convert bytes objects to strings, using the given encoding. Illegally
@@ -691,6 +760,7 @@ def bytes_to_text(s, encoding):
         return s
 
 
+# [TODO] split_domain_port
 def split_domain_port(host):
     """
     Return a (domain, port) tuple from a given host.
@@ -705,6 +775,7 @@ def split_domain_port(host):
     return "", ""
 
 
+# [TODO] validate_host
 def validate_host(host, allowed_hosts):
     """
     Validate the given host for this site.
@@ -725,5 +796,6 @@ def validate_host(host, allowed_hosts):
     )
 
 
+# [TODO] parse_accept_header
 def parse_accept_header(header):
     return [MediaType(token) for token in header.split(",") if token.strip()]

@@ -14,6 +14,7 @@ from django.middleware.csrf import get_token
 from django.utils.functional import SimpleLazyObject, lazy
 
 
+# [TODO] csrf
 def csrf(request):
     """
     Context processor that provides a CSRF token, or the string 'NOTPROVIDED' if
@@ -33,6 +34,7 @@ def csrf(request):
     return {"csrf_token": SimpleLazyObject(_get_val)}
 
 
+# [TODO] debug
 def debug(request):
     """
     Return context variables helpful for debugging.
@@ -55,6 +57,7 @@ def debug(request):
     return context_extras
 
 
+# [TODO] i18n
 def i18n(request):
     from django.utils import translation
 
@@ -65,12 +68,14 @@ def i18n(request):
     }
 
 
+# [TODO] tz
 def tz(request):
     from django.utils import timezone
 
     return {"TIME_ZONE": timezone.get_current_timezone_name()}
 
 
+# [TODO] static
 def static(request):
     """
     Add static-related context variables to the context.
@@ -78,6 +83,7 @@ def static(request):
     return {"STATIC_URL": settings.STATIC_URL}
 
 
+# [TODO] media
 def media(request):
     """
     Add media-related context variables to the context.
@@ -85,5 +91,6 @@ def media(request):
     return {"MEDIA_URL": settings.MEDIA_URL}
 
 
+# [TODO] request
 def request(request):
     return {"request": request}

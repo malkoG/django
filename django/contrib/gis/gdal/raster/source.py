@@ -32,6 +32,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.functional import cached_property
 
 
+# [TODO] TransformPoint
 class TransformPoint(list):
     indices = {
         "origin": (0, 3),
@@ -39,6 +40,7 @@ class TransformPoint(list):
         "skew": (2, 4),
     }
 
+    # [TODO] TransformPoint > __init__
     def __init__(self, raster, prop):
         x = raster.geotransform[self.indices[prop][0]]
         y = raster.geotransform[self.indices[prop][1]]
@@ -46,20 +48,24 @@ class TransformPoint(list):
         self._raster = raster
         self._prop = prop
 
+    # [TODO] TransformPoint > x
     @property
     def x(self):
         return self[0]
 
+    # [TODO] TransformPoint > x
     @x.setter
     def x(self, value):
         gtf = self._raster.geotransform
         gtf[self.indices[self._prop][0]] = value
         self._raster.geotransform = gtf
 
+    # [TODO] TransformPoint > y
     @property
     def y(self):
         return self[1]
 
+    # [TODO] TransformPoint > y
     @y.setter
     def y(self, value):
         gtf = self._raster.geotransform
@@ -67,6 +73,7 @@ class TransformPoint(list):
         self._raster.geotransform = gtf
 
 
+# [TODO] GDALRaster
 class GDALRaster(GDALRasterBase):
     """
     Wrap a raster GDAL Data Source object.
@@ -74,6 +81,7 @@ class GDALRaster(GDALRasterBase):
 
     destructor = capi.close_ds
 
+    # [TODO] GDALRaster > __init__
     def __init__(self, ds_input, write=False):
         self._write = 1 if write else 0
         Driver.ensure_registered()
@@ -211,21 +219,25 @@ class GDALRaster(GDALRasterBase):
                 'Invalid data source input type: "{}".'.format(type(ds_input))
             )
 
+    # [TODO] GDALRaster > __del__
     def __del__(self):
         if self.is_vsi_based:
             # Remove the temporary file from the VSI in-memory filesystem.
             capi.unlink_vsi_file(force_bytes(self.name))
         super().__del__()
 
+    # [TODO] GDALRaster > __str__
     def __str__(self):
         return self.name
 
+    # [TODO] GDALRaster > __repr__
     def __repr__(self):
         """
         Short-hand representation because WKB may be very large.
         """
         return "<Raster object at %s>" % hex(addressof(self._ptr))
 
+    # [TODO] GDALRaster > _flush
     def _flush(self):
         """
         Flush all data from memory into the source file if it exists.
@@ -240,6 +252,7 @@ class GDALRaster(GDALRasterBase):
             )
         capi.flush_ds(self._ptr)
 
+    # [TODO] GDALRaster > vsi_buffer
     @property
     def vsi_buffer(self):
         if not (
@@ -257,10 +270,12 @@ class GDALRaster(GDALRasterBase):
         # Read the full buffer pointer.
         return string_at(dat, out_length.value)
 
+    # [TODO] GDALRaster > is_vsi_based
     @cached_property
     def is_vsi_based(self):
         return self._ptr and self.name.startswith(VSI_FILESYSTEM_PREFIX)
 
+    # [TODO] GDALRaster > name
     @property
     def name(self):
         """
@@ -269,6 +284,7 @@ class GDALRaster(GDALRasterBase):
         """
         return force_str(capi.get_ds_description(self._ptr))
 
+    # [TODO] GDALRaster > driver
     @cached_property
     def driver(self):
         """
@@ -277,6 +293,7 @@ class GDALRaster(GDALRasterBase):
         ds_driver = capi.get_ds_driver(self._ptr)
         return Driver(ds_driver)
 
+    # [TODO] GDALRaster > width
     @property
     def width(self):
         """
@@ -284,6 +301,7 @@ class GDALRaster(GDALRasterBase):
         """
         return capi.get_ds_xsize(self._ptr)
 
+    # [TODO] GDALRaster > height
     @property
     def height(self):
         """
@@ -291,6 +309,7 @@ class GDALRaster(GDALRasterBase):
         """
         return capi.get_ds_ysize(self._ptr)
 
+    # [TODO] GDALRaster > srs
     @property
     def srs(self):
         """
@@ -304,6 +323,7 @@ class GDALRaster(GDALRasterBase):
         except SRSException:
             return None
 
+    # [TODO] GDALRaster > srs
     @srs.setter
     def srs(self, value):
         """
@@ -320,6 +340,7 @@ class GDALRaster(GDALRasterBase):
         capi.set_ds_projection_ref(self._ptr, srs.wkt.encode())
         self._flush()
 
+    # [TODO] GDALRaster > srid
     @property
     def srid(self):
         """
@@ -327,6 +348,7 @@ class GDALRaster(GDALRasterBase):
         """
         return self.srs.srid
 
+    # [TODO] GDALRaster > srid
     @srid.setter
     def srid(self, value):
         """
@@ -334,6 +356,7 @@ class GDALRaster(GDALRasterBase):
         """
         self.srs = value
 
+    # [TODO] GDALRaster > geotransform
     @property
     def geotransform(self):
         """
@@ -346,6 +369,7 @@ class GDALRaster(GDALRasterBase):
         capi.get_ds_geotransform(self._ptr, byref(gtf))
         return list(gtf)
 
+    # [TODO] GDALRaster > geotransform
     @geotransform.setter
     def geotransform(self, values):
         "Set the geotransform for the data source."
@@ -356,6 +380,7 @@ class GDALRaster(GDALRasterBase):
         capi.set_ds_geotransform(self._ptr, byref(values))
         self._flush()
 
+    # [TODO] GDALRaster > origin
     @property
     def origin(self):
         """
@@ -363,6 +388,7 @@ class GDALRaster(GDALRasterBase):
         """
         return TransformPoint(self, "origin")
 
+    # [TODO] GDALRaster > scale
     @property
     def scale(self):
         """
@@ -370,6 +396,7 @@ class GDALRaster(GDALRasterBase):
         """
         return TransformPoint(self, "scale")
 
+    # [TODO] GDALRaster > skew
     @property
     def skew(self):
         """
@@ -377,6 +404,7 @@ class GDALRaster(GDALRasterBase):
         """
         return TransformPoint(self, "skew")
 
+    # [TODO] GDALRaster > extent
     @property
     def extent(self):
         """
@@ -393,10 +421,12 @@ class GDALRaster(GDALRasterBase):
 
         return xmin, ymin, xmax, ymax
 
+    # [TODO] GDALRaster > bands
     @property
     def bands(self):
         return BandList(self)
 
+    # [TODO] GDALRaster > warp
     def warp(self, ds_input, resampling="NearestNeighbour", max_error=0.0):
         """
         Return a warped GDALRaster with the given input characteristics.
@@ -458,6 +488,7 @@ class GDALRaster(GDALRasterBase):
 
         return target
 
+    # [TODO] GDALRaster > clone
     def clone(self, name=None):
         """Return a clone of this GDALRaster."""
         if name:
@@ -479,6 +510,7 @@ class GDALRaster(GDALRasterBase):
             write=self._write,
         )
 
+    # [TODO] GDALRaster > transform
     def transform(
         self, srs, driver=None, name=None, resampling="NearestNeighbour", max_error=0.0
     ):
@@ -532,6 +564,7 @@ class GDALRaster(GDALRasterBase):
         # Warp the raster into new srid
         return self.warp(data, resampling=resampling, max_error=max_error)
 
+    # [TODO] GDALRaster > info
     @property
     def info(self):
         """

@@ -4,6 +4,7 @@ from django.db.backends.postgresql.psycopg_any import sql
 from django.db.backends.utils import strip_quotes
 
 
+# [TODO] DatabaseSchemaEditor
 class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     # Setting all constraints to IMMEDIATE to allow changing data in the same
     # transaction.
@@ -39,6 +40,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     )
     sql_delete_procedure = "DROP FUNCTION %(procedure)s(%(param_types)s)"
 
+    # [TODO] DatabaseSchemaEditor > execute
     def execute(self, sql, params=()):
         # Merge the query client-side, as PostgreSQL won't do it server-side.
         if params is None:
@@ -55,9 +57,11 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         "ALTER TABLE %(table)s ALTER COLUMN %(column)s DROP IDENTITY IF EXISTS"
     )
 
+    # [TODO] DatabaseSchemaEditor > quote_value
     def quote_value(self, value):
         return sql.quote(value, self.connection.connection)
 
+    # [TODO] DatabaseSchemaEditor > _field_indexes_sql
     def _field_indexes_sql(self, model, field):
         output = super()._field_indexes_sql(model, field)
         like_index_statement = self._create_like_index_sql(model, field)
@@ -65,6 +69,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             output.append(like_index_statement)
         return output
 
+    # [TODO] DatabaseSchemaEditor > _field_data_type
     def _field_data_type(self, field):
         if field.is_relation:
             return field.rel_db_type(self.connection)
@@ -73,6 +78,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             field.db_type(self.connection),
         )
 
+    # [TODO] DatabaseSchemaEditor > _field_base_data_types
     def _field_base_data_types(self, field):
         # Yield base data types for array fields.
         if field.base_field.get_internal_type() == "ArrayField":
@@ -80,6 +86,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         else:
             yield self._field_data_type(field.base_field)
 
+    # [TODO] DatabaseSchemaEditor > _create_like_index_sql
     def _create_like_index_sql(self, model, field):
         """
         Return the statement to create an index with varchar operator pattern
@@ -118,6 +125,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                 )
         return None
 
+    # [TODO] DatabaseSchemaEditor > _using_sql
     def _using_sql(self, new_field, old_field):
         using_sql = " USING %(column)s::%(type)s"
         new_internal_type = new_field.get_internal_type()
@@ -132,6 +140,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             return using_sql
         return ""
 
+    # [TODO] DatabaseSchemaEditor > _get_sequence_name
     def _get_sequence_name(self, table, column):
         with self.connection.cursor() as cursor:
             for sequence in self.connection.introspection.get_sequences(cursor, table):
@@ -139,6 +148,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                     return sequence["name"]
         return None
 
+    # [TODO] DatabaseSchemaEditor > _alter_column_type_sql
     def _alter_column_type_sql(
         self, model, old_field, new_field, new_type, old_collation, new_collation
     ):
@@ -254,6 +264,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                 model, old_field, new_field, new_type, old_collation, new_collation
             )
 
+    # [TODO] DatabaseSchemaEditor > _alter_column_collation_sql
     def _alter_column_collation_sql(
         self, model, new_field, new_type, new_collation, old_field
     ):
@@ -273,6 +284,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             [],
         )
 
+    # [TODO] DatabaseSchemaEditor > _alter_field
     def _alter_field(
         self,
         model,
@@ -309,6 +321,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             )
             self.execute(self._delete_index_sql(model, index_to_remove))
 
+    # [TODO] DatabaseSchemaEditor > _index_columns
     def _index_columns(self, table, columns, col_suffixes, opclasses):
         if opclasses:
             return IndexColumns(
@@ -320,14 +333,17 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             )
         return super()._index_columns(table, columns, col_suffixes, opclasses)
 
+    # [TODO] DatabaseSchemaEditor > add_index
     def add_index(self, model, index, concurrently=False):
         self.execute(
             index.create_sql(model, self, concurrently=concurrently), params=None
         )
 
+    # [TODO] DatabaseSchemaEditor > remove_index
     def remove_index(self, model, index, concurrently=False):
         self.execute(index.remove_sql(model, self, concurrently=concurrently))
 
+    # [TODO] DatabaseSchemaEditor > _delete_index_sql
     def _delete_index_sql(self, model, name, sql=None, concurrently=False):
         sql = (
             self.sql_delete_index_concurrently
@@ -336,6 +352,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         )
         return super()._delete_index_sql(model, name, sql)
 
+    # [TODO] DatabaseSchemaEditor > _create_index_sql
     def _create_index_sql(
         self,
         model,

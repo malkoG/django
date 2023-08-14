@@ -14,48 +14,59 @@ DEFAULT_DB_ALIAS = "default"
 DJANGO_VERSION_PICKLE_KEY = "_django_version"
 
 
+# [TODO] Error
 class Error(Exception):
     pass
 
 
+# [TODO] InterfaceError
 class InterfaceError(Error):
     pass
 
 
+# [TODO] DatabaseError
 class DatabaseError(Error):
     pass
 
 
+# [TODO] DataError
 class DataError(DatabaseError):
     pass
 
 
+# [TODO] OperationalError
 class OperationalError(DatabaseError):
     pass
 
 
+# [TODO] IntegrityError
 class IntegrityError(DatabaseError):
     pass
 
 
+# [TODO] InternalError
 class InternalError(DatabaseError):
     pass
 
 
+# [TODO] ProgrammingError
 class ProgrammingError(DatabaseError):
     pass
 
 
+# [TODO] NotSupportedError
 class NotSupportedError(DatabaseError):
     pass
 
 
+# [TODO] DatabaseErrorWrapper
 class DatabaseErrorWrapper:
     """
     Context manager and decorator that reraises backend-specific database
     exceptions using Django's common wrappers.
     """
 
+    # [TODO] DatabaseErrorWrapper > __init__
     def __init__(self, wrapper):
         """
         wrapper is a database wrapper.
@@ -64,9 +75,11 @@ class DatabaseErrorWrapper:
         """
         self.wrapper = wrapper
 
+    # [TODO] DatabaseErrorWrapper > __enter__
     def __enter__(self):
         pass
 
+    # [TODO] DatabaseErrorWrapper > __exit__
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is None:
             return
@@ -90,6 +103,7 @@ class DatabaseErrorWrapper:
                     self.wrapper.errors_occurred = True
                 raise dj_exc_value.with_traceback(traceback) from exc_value
 
+    # [TODO] DatabaseErrorWrapper > __call__
     def __call__(self, func):
         # Note that we are intentionally not using @wraps here for performance
         # reasons. Refs #21109.
@@ -100,6 +114,7 @@ class DatabaseErrorWrapper:
         return inner
 
 
+# [TODO] load_backend
 def load_backend(backend_name):
     """
     Return a database backend's "base" module given a fully qualified database
@@ -135,6 +150,7 @@ def load_backend(backend_name):
             raise
 
 
+# [TODO] ConnectionHandler
 class ConnectionHandler(BaseConnectionHandler):
     settings_name = "DATABASES"
     # Connections needs to still be an actual thread local, as it's truly
@@ -144,6 +160,7 @@ class ConnectionHandler(BaseConnectionHandler):
     # after async contexts, though, so we don't allow that if we can help it.
     thread_critical = True
 
+    # [TODO] ConnectionHandler > configure_settings
     def configure_settings(self, databases):
         databases = super().configure_settings(databases)
         if databases == {}:
@@ -181,6 +198,7 @@ class ConnectionHandler(BaseConnectionHandler):
                 test_settings.setdefault(key, value)
         return databases
 
+    # [TODO] ConnectionHandler > databases
     @property
     def databases(self):
         # Maintained for backward compatibility as some 3rd party packages have
@@ -188,19 +206,23 @@ class ConnectionHandler(BaseConnectionHandler):
         # Django itself.
         return self.settings
 
+    # [TODO] ConnectionHandler > create_connection
     def create_connection(self, alias):
         db = self.settings[alias]
         backend = load_backend(db["ENGINE"])
         return backend.DatabaseWrapper(db, alias)
 
 
+# [TODO] ConnectionRouter
 class ConnectionRouter:
+    # [TODO] ConnectionRouter > __init__
     def __init__(self, routers=None):
         """
         If routers is not specified, default to settings.DATABASE_ROUTERS.
         """
         self._routers = routers
 
+    # [TODO] ConnectionRouter > routers
     @cached_property
     def routers(self):
         if self._routers is None:
@@ -214,6 +236,7 @@ class ConnectionRouter:
             routers.append(router)
         return routers
 
+    # [TODO] ConnectionRouter > _router_func
     def _router_func(action):
         def _route_db(self, model, **hints):
             chosen_db = None
@@ -237,6 +260,7 @@ class ConnectionRouter:
     db_for_read = _router_func("db_for_read")
     db_for_write = _router_func("db_for_write")
 
+    # [TODO] ConnectionRouter > allow_relation
     def allow_relation(self, obj1, obj2, **hints):
         for router in self.routers:
             try:
@@ -250,6 +274,7 @@ class ConnectionRouter:
                     return allow
         return obj1._state.db == obj2._state.db
 
+    # [TODO] ConnectionRouter > allow_migrate
     def allow_migrate(self, db, app_label, **hints):
         for router in self.routers:
             try:
@@ -264,6 +289,7 @@ class ConnectionRouter:
                 return allow
         return True
 
+    # [TODO] ConnectionRouter > allow_migrate_model
     def allow_migrate_model(self, db, model):
         return self.allow_migrate(
             db,
@@ -272,6 +298,7 @@ class ConnectionRouter:
             model=model,
         )
 
+    # [TODO] ConnectionRouter > get_migratable_models
     def get_migratable_models(self, app_config, db, include_auto_created=False):
         """Return app models allowed to be migrated on provided db."""
         models = app_config.get_models(include_auto_created=include_auto_created)

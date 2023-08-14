@@ -18,12 +18,14 @@ _prefixes = Local()
 _urlconfs = Local()
 
 
+# [TODO] resolve
 def resolve(path, urlconf=None):
     if urlconf is None:
         urlconf = get_urlconf()
     return get_resolver(urlconf).resolve(path)
 
 
+# [TODO] reverse
 def reverse(viewname, urlconf=None, args=None, kwargs=None, current_app=None):
     if urlconf is None:
         urlconf = get_urlconf()
@@ -91,12 +93,14 @@ def reverse(viewname, urlconf=None, args=None, kwargs=None, current_app=None):
 reverse_lazy = lazy(reverse, str)
 
 
+# [TODO] clear_url_caches
 def clear_url_caches():
     get_callable.cache_clear()
     _get_cached_resolver.cache_clear()
     get_ns_resolver.cache_clear()
 
 
+# [TODO] set_script_prefix
 def set_script_prefix(prefix):
     """
     Set the script prefix for the current thread.
@@ -106,6 +110,7 @@ def set_script_prefix(prefix):
     _prefixes.value = prefix
 
 
+# [TODO] get_script_prefix
 def get_script_prefix():
     """
     Return the currently active script prefix. Useful for client code that
@@ -115,6 +120,7 @@ def get_script_prefix():
     return getattr(_prefixes, "value", "/")
 
 
+# [TODO] clear_script_prefix
 def clear_script_prefix():
     """
     Unset the script prefix for the current thread.
@@ -125,6 +131,7 @@ def clear_script_prefix():
         pass
 
 
+# [TODO] set_urlconf
 def set_urlconf(urlconf_name):
     """
     Set the URLconf for the current thread (overriding the default one in
@@ -137,6 +144,7 @@ def set_urlconf(urlconf_name):
             del _urlconfs.value
 
 
+# [TODO] get_urlconf
 def get_urlconf(default=None):
     """
     Return the root URLconf to use for the current thread if it has been
@@ -145,6 +153,7 @@ def get_urlconf(default=None):
     return getattr(_urlconfs, "value", default)
 
 
+# [TODO] is_valid_path
 def is_valid_path(path, urlconf=None):
     """
     Return the ResolverMatch if the given path resolves against the default URL
@@ -157,6 +166,7 @@ def is_valid_path(path, urlconf=None):
         return False
 
 
+# [TODO] translate_url
 def translate_url(url, lang_code):
     """
     Given a URL (absolute or relative), try to get its translated version in

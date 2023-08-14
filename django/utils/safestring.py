@@ -10,9 +10,11 @@ from functools import wraps
 from django.utils.functional import keep_lazy
 
 
+# [TODO] SafeData
 class SafeData:
     __slots__ = ()
 
+    # [TODO] SafeData > __html__
     def __html__(self):
         """
         Return the html representation of a string for interoperability.
@@ -22,6 +24,7 @@ class SafeData:
         return self
 
 
+# [TODO] SafeString
 class SafeString(str, SafeData):
     """
     A str subclass that has been specifically marked as "safe" for HTML output
@@ -30,6 +33,7 @@ class SafeString(str, SafeData):
 
     __slots__ = ()
 
+    # [TODO] SafeString > __add__
     def __add__(self, rhs):
         """
         Concatenating a safe string with another safe bytestring or
@@ -40,6 +44,7 @@ class SafeString(str, SafeData):
             return SafeString(t)
         return t
 
+    # [TODO] SafeString > __str__
     def __str__(self):
         return self
 
@@ -47,6 +52,7 @@ class SafeString(str, SafeData):
 SafeText = SafeString  # For backwards compatibility since Django 2.0.
 
 
+# [TODO] _safety_decorator
 def _safety_decorator(safety_marker, func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -55,6 +61,7 @@ def _safety_decorator(safety_marker, func):
     return wrapper
 
 
+# [TODO] mark_safe
 @keep_lazy(SafeString)
 def mark_safe(s):
     """

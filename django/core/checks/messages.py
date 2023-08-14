@@ -6,7 +6,9 @@ ERROR = 40
 CRITICAL = 50
 
 
+# [TODO] CheckMessage
 class CheckMessage:
+    # [TODO] CheckMessage > __init__
     def __init__(self, level, msg, hint=None, obj=None, id=None):
         if not isinstance(level, int):
             raise TypeError("The first argument should be level.")
@@ -16,12 +18,14 @@ class CheckMessage:
         self.obj = obj
         self.id = id
 
+    # [TODO] CheckMessage > __eq__
     def __eq__(self, other):
         return isinstance(other, self.__class__) and all(
             getattr(self, attr) == getattr(other, attr)
             for attr in ["level", "msg", "hint", "obj", "id"]
         )
 
+    # [TODO] CheckMessage > __str__
     def __str__(self):
         from django.db import models
 
@@ -37,6 +41,7 @@ class CheckMessage:
         hint = "\n\tHINT: %s" % self.hint if self.hint else ""
         return "%s: %s%s%s" % (obj, id, self.msg, hint)
 
+    # [TODO] CheckMessage > __repr__
     def __repr__(self):
         return "<%s: level=%r, msg=%r, hint=%r, obj=%r, id=%r>" % (
             self.__class__.__name__,
@@ -47,35 +52,47 @@ class CheckMessage:
             self.id,
         )
 
+    # [TODO] CheckMessage > is_serious
     def is_serious(self, level=ERROR):
         return self.level >= level
 
+    # [TODO] CheckMessage > is_silenced
     def is_silenced(self):
         from django.conf import settings
 
         return self.id in settings.SILENCED_SYSTEM_CHECKS
 
 
+# [TODO] Debug
 class Debug(CheckMessage):
+    # [TODO] Debug > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(DEBUG, *args, **kwargs)
 
 
+# [TODO] Info
 class Info(CheckMessage):
+    # [TODO] Info > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(INFO, *args, **kwargs)
 
 
+# [TODO] Warning
 class Warning(CheckMessage):
+    # [TODO] Warning > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(WARNING, *args, **kwargs)
 
 
+# [TODO] Error
 class Error(CheckMessage):
+    # [TODO] Error > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(ERROR, *args, **kwargs)
 
 
+# [TODO] Critical
 class Critical(CheckMessage):
+    # [TODO] Critical > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(CRITICAL, *args, **kwargs)

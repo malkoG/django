@@ -11,6 +11,7 @@ Author: Aryeh Leib Taurog.
 from functools import total_ordering
 
 
+# [TODO] ListMixin
 @total_ordering
 class ListMixin:
     """

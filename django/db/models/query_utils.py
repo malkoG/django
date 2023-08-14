@@ -26,12 +26,14 @@ PathInfo = namedtuple(
 )
 
 
+# [TODO] subclasses
 def subclasses(cls):
     yield cls
     for subclass in cls.__subclasses__():
         yield from subclasses(subclass)
 
 
+# [TODO] Q
 class Q(tree.Node):
     """
     Encapsulate filters as objects that can then be combined logically (using
@@ -45,6 +47,7 @@ class Q(tree.Node):
     default = AND
     conditional = True
 
+    # [TODO] Q > __init__
     def __init__(self, *args, _connector=None, _negated=False, **kwargs):
         super().__init__(
             children=[*args, *sorted(kwargs.items())],
@@ -52,6 +55,7 @@ class Q(tree.Node):
             negated=_negated,
         )
 
+    # [TODO] Q > _combine
     def _combine(self, other, conn):
         if getattr(other, "conditional", False) is False:
             raise TypeError(other)
@@ -65,20 +69,25 @@ class Q(tree.Node):
         obj.add(other, conn)
         return obj
 
+    # [TODO] Q > __or__
     def __or__(self, other):
         return self._combine(other, self.OR)
 
+    # [TODO] Q > __and__
     def __and__(self, other):
         return self._combine(other, self.AND)
 
+    # [TODO] Q > __xor__
     def __xor__(self, other):
         return self._combine(other, self.XOR)
 
+    # [TODO] Q > __invert__
     def __invert__(self):
         obj = self.copy()
         obj.negate()
         return obj
 
+    # [TODO] Q > resolve_expression
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
@@ -95,6 +104,7 @@ class Q(tree.Node):
         query.promote_joins(joins)
         return clause
 
+    # [TODO] Q > flatten
     def flatten(self):
         """
         Recursively yield this Q object and all subexpressions, in depth-first
@@ -110,6 +120,7 @@ class Q(tree.Node):
             else:
                 yield child
 
+    # [TODO] Q > check
     def check(self, against, using=DEFAULT_DB_ALIAS):
         """
         Do a database query to check if the expressions of the Q instance
@@ -139,6 +150,7 @@ class Q(tree.Node):
             logger.warning("Got a database error calling check() on %r: %s", self, e)
             return True
 
+    # [TODO] Q > deconstruct
     def deconstruct(self):
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         if path.startswith("django.db.models.query_utils"):
@@ -152,15 +164,18 @@ class Q(tree.Node):
         return path, args, kwargs
 
 
+# [TODO] DeferredAttribute
 class DeferredAttribute:
     """
     A wrapper for a deferred-loading field. When the value is read from this
     object the first time, the query is executed.
     """
 
+    # [TODO] DeferredAttribute > __init__
     def __init__(self, field):
         self.field = field
 
+    # [TODO] DeferredAttribute > __get__
     def __get__(self, instance, cls=None):
         """
         Retrieve and caches the value from the datastore on the first lookup.
@@ -180,6 +195,7 @@ class DeferredAttribute:
                 data[field_name] = val
         return data[field_name]
 
+    # [TODO] DeferredAttribute > _check_parent_chain
     def _check_parent_chain(self, instance):
         """
         Check if the field value can be fetched from a parent field already
@@ -193,26 +209,32 @@ class DeferredAttribute:
         return None
 
 
+# [TODO] class_or_instance_method
 class class_or_instance_method:
     """
     Hook used in RegisterLookupMixin to return partial functions depending on
     the caller type (instance or class of models.Field).
     """
 
+    # [TODO] class_or_instance_method > __init__
     def __init__(self, class_method, instance_method):
         self.class_method = class_method
         self.instance_method = instance_method
 
+    # [TODO] class_or_instance_method > __get__
     def __get__(self, instance, owner):
         if instance is None:
             return functools.partial(self.class_method, owner)
         return functools.partial(self.instance_method, instance)
 
 
+# [TODO] RegisterLookupMixin
 class RegisterLookupMixin:
+    # [TODO] RegisterLookupMixin > _get_lookup
     def _get_lookup(self, lookup_name):
         return self.get_lookups().get(lookup_name, None)
 
+    # [TODO] RegisterLookupMixin > get_class_lookups
     @functools.cache
     def get_class_lookups(cls):
         class_lookups = [
@@ -220,6 +242,7 @@ class RegisterLookupMixin:
         ]
         return cls.merge_dicts(class_lookups)
 
+    # [TODO] RegisterLookupMixin > get_instance_lookups
     def get_instance_lookups(self):
         class_lookups = self.get_class_lookups()
         if instance_lookups := getattr(self, "instance_lookups", None):
@@ -229,6 +252,7 @@ class RegisterLookupMixin:
     get_lookups = class_or_instance_method(get_class_lookups, get_instance_lookups)
     get_class_lookups = classmethod(get_class_lookups)
 
+    # [TODO] RegisterLookupMixin > get_lookup
     def get_lookup(self, lookup_name):
         from django.db.models.lookups import Lookup
 
@@ -239,6 +263,7 @@ class RegisterLookupMixin:
             return None
         return found
 
+    # [TODO] RegisterLookupMixin > get_transform
     def get_transform(self, lookup_name):
         from django.db.models.lookups import Transform
 
@@ -249,6 +274,7 @@ class RegisterLookupMixin:
             return None
         return found
 
+    # [TODO] RegisterLookupMixin > merge_dicts
     @staticmethod
     def merge_dicts(dicts):
         """
@@ -260,11 +286,13 @@ class RegisterLookupMixin:
             merged.update(d)
         return merged
 
+    # [TODO] RegisterLookupMixin > _clear_cached_class_lookups
     @classmethod
     def _clear_cached_class_lookups(cls):
         for subclass in subclasses(cls):
             subclass.get_class_lookups.cache_clear()
 
+    # [TODO] RegisterLookupMixin > register_class_lookup
     def register_class_lookup(cls, lookup, lookup_name=None):
         if lookup_name is None:
             lookup_name = lookup.lookup_name
@@ -274,6 +302,7 @@ class RegisterLookupMixin:
         cls._clear_cached_class_lookups()
         return lookup
 
+    # [TODO] RegisterLookupMixin > register_instance_lookup
     def register_instance_lookup(self, lookup, lookup_name=None):
         if lookup_name is None:
             lookup_name = lookup.lookup_name
@@ -287,6 +316,7 @@ class RegisterLookupMixin:
     )
     register_class_lookup = classmethod(register_class_lookup)
 
+    # [TODO] RegisterLookupMixin > _unregister_class_lookup
     def _unregister_class_lookup(cls, lookup, lookup_name=None):
         """
         Remove given lookup from cls lookups. For use in tests only as it's
@@ -297,6 +327,7 @@ class RegisterLookupMixin:
         del cls.class_lookups[lookup_name]
         cls._clear_cached_class_lookups()
 
+    # [TODO] RegisterLookupMixin > _unregister_instance_lookup
     def _unregister_instance_lookup(self, lookup, lookup_name=None):
         """
         Remove given lookup from instance lookups. For use in tests only as
@@ -312,6 +343,7 @@ class RegisterLookupMixin:
     _unregister_class_lookup = classmethod(_unregister_class_lookup)
 
 
+# [TODO] select_related_descend
 def select_related_descend(field, restricted, requested, select_mask, reverse=False):
     """
     Return True if this field should be used to descend deeper for
@@ -351,6 +383,7 @@ def select_related_descend(field, restricted, requested, select_mask, reverse=Fa
     return True
 
 
+# [TODO] refs_expression
 def refs_expression(lookup_parts, annotations):
     """
     Check if the lookup_parts contains references to the given annotations set.
@@ -364,6 +397,7 @@ def refs_expression(lookup_parts, annotations):
     return None, ()
 
 
+# [TODO] check_rel_lookup_compatibility
 def check_rel_lookup_compatibility(model, target_opts, field):
     """
     Check that self.model is compatible with target_opts. Compatibility
@@ -393,9 +427,11 @@ def check_rel_lookup_compatibility(model, target_opts, field):
     )
 
 
+# [TODO] FilteredRelation
 class FilteredRelation:
     """Specify custom filtering in the ON clause of SQL joins."""
 
+    # [TODO] FilteredRelation > __init__
     def __init__(self, relation_name, *, condition=Q()):
         if not relation_name:
             raise ValueError("relation_name cannot be empty.")
@@ -409,6 +445,7 @@ class FilteredRelation:
         self.condition = condition
         self.resolved_condition = None
 
+    # [TODO] FilteredRelation > __eq__
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return NotImplemented
@@ -418,6 +455,7 @@ class FilteredRelation:
             and self.condition == other.condition
         )
 
+    # [TODO] FilteredRelation > clone
     def clone(self):
         clone = FilteredRelation(self.relation_name, condition=self.condition)
         clone.alias = self.alias
@@ -425,12 +463,14 @@ class FilteredRelation:
             clone.resolved_condition = resolved_condition.clone()
         return clone
 
+    # [TODO] FilteredRelation > relabeled_clone
     def relabeled_clone(self, change_map):
         clone = self.clone()
         if resolved_condition := clone.resolved_condition:
             clone.resolved_condition = resolved_condition.relabeled_clone(change_map)
         return clone
 
+    # [TODO] FilteredRelation > resolve_expression
     def resolve_expression(self, query, reuse, *args, **kwargs):
         clone = self.clone()
         clone.resolved_condition = query.build_filter(
@@ -442,5 +482,6 @@ class FilteredRelation:
         )[0]
         return clone
 
+    # [TODO] FilteredRelation > as_sql
     def as_sql(self, compiler, connection):
         return compiler.compile(self.resolved_condition)

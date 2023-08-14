@@ -1,3 +1,4 @@
+# [TODO] City
 def City(response):
     return {
         "city": response.city.name,
@@ -15,6 +16,7 @@ def City(response):
     }
 
 
+# [TODO] Country
 def Country(response):
     return {
         "country_code": response.country.iso_code,

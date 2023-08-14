@@ -5,6 +5,7 @@ from django.db.migrations.state import ProjectState
 from .exceptions import CircularDependencyError, NodeNotFoundError
 
 
+# [TODO] Node
 @total_ordering
 class Node:
     """
@@ -42,6 +43,7 @@ class Node:
         self.parents.add(parent)
 
 
+# [TODO] DummyNode
 class DummyNode(Node):
     """
     A node that doesn't correspond to a migration file on disk.
@@ -51,15 +53,18 @@ class DummyNode(Node):
     If there are any left, a nonexistent dependency error is raised.
     """
 
+    # [TODO] DummyNode > __init__
     def __init__(self, key, origin, error_message):
         super().__init__(key)
         self.origin = origin
         self.error_message = error_message
 
+    # [TODO] DummyNode > raise_error
     def raise_error(self):
         raise NodeNotFoundError(self.error_message, self.key, origin=self.origin)
 
 
+# [TODO] MigrationGraph
 class MigrationGraph:
     """
     Represent the digraph of all migrations in a project.
@@ -83,21 +88,25 @@ class MigrationGraph:
     to other apps.
     """
 
+    # [TODO] MigrationGraph > __init__
     def __init__(self):
         self.node_map = {}
         self.nodes = {}
 
+    # [TODO] MigrationGraph > add_node
     def add_node(self, key, migration):
         assert key not in self.node_map
         node = Node(key)
         self.node_map[key] = node
         self.nodes[key] = migration
 
+    # [TODO] MigrationGraph > add_dummy_node
     def add_dummy_node(self, key, origin, error_message):
         node = DummyNode(key, origin, error_message)
         self.node_map[key] = node
         self.nodes[key] = None
 
+    # [TODO] MigrationGraph > add_dependency
     def add_dependency(self, migration, child, parent, skip_validation=False):
         """
         This may create dummy nodes if they don't yet exist. If
@@ -121,6 +130,7 @@ class MigrationGraph:
         if not skip_validation:
             self.validate_consistency()
 
+    # [TODO] MigrationGraph > remove_replaced_nodes
     def remove_replaced_nodes(self, replacement, replaced):
         """
         Remove each of the `replaced` nodes (when they exist). Any
@@ -156,6 +166,7 @@ class MigrationGraph:
                         replacement_node.add_parent(parent)
                         parent.add_child(replacement_node)
 
+    # [TODO] MigrationGraph > remove_replacement_node
     def remove_replacement_node(self, replacement, replaced):
         """
         The inverse operation to `remove_replaced_nodes`. Almost. Remove the
@@ -193,10 +204,12 @@ class MigrationGraph:
             # NOTE: There is no need to remap parent dependencies as we can
             # assume the replaced nodes already have the correct ancestry.
 
+    # [TODO] MigrationGraph > validate_consistency
     def validate_consistency(self):
         """Ensure there are no dummy nodes remaining in the graph."""
         [n.raise_error() for n in self.node_map.values() if isinstance(n, DummyNode)]
 
+    # [TODO] MigrationGraph > forwards_plan
     def forwards_plan(self, target):
         """
         Given a node, return a list of which previous nodes (dependencies) must
@@ -207,6 +220,7 @@ class MigrationGraph:
             raise NodeNotFoundError("Node %r not a valid node" % (target,), target)
         return self.iterative_dfs(self.node_map[target])
 
+    # [TODO] MigrationGraph > backwards_plan
     def backwards_plan(self, target):
         """
         Given a node, return a list of which dependent nodes (dependencies)
@@ -217,6 +231,7 @@ class MigrationGraph:
             raise NodeNotFoundError("Node %r not a valid node" % (target,), target)
         return self.iterative_dfs(self.node_map[target], forwards=False)
 
+    # [TODO] MigrationGraph > iterative_dfs
     def iterative_dfs(self, start, forwards=True):
         """Iterative depth-first search for finding dependencies."""
         visited = []
@@ -237,6 +252,7 @@ class MigrationGraph:
                 ]
         return visited
 
+    # [TODO] MigrationGraph > root_nodes
     def root_nodes(self, app=None):
         """
         Return all root nodes - that is, nodes with no dependencies inside
@@ -250,6 +266,7 @@ class MigrationGraph:
                 roots.add(node)
         return sorted(roots)
 
+    # [TODO] MigrationGraph > leaf_nodes
     def leaf_nodes(self, app=None):
         """
         Return all leaf nodes - that is, nodes with no dependents in their app.
@@ -266,6 +283,7 @@ class MigrationGraph:
                 leaves.add(node)
         return sorted(leaves)
 
+    # [TODO] MigrationGraph > ensure_not_cyclic
     def ensure_not_cyclic(self):
         # Algo from GvR:
         # https://neopythonic.blogspot.com/2009/01/detecting-cycles-in-directed-graph.html
@@ -291,18 +309,22 @@ class MigrationGraph:
                 else:
                     node = stack.pop()
 
+    # [TODO] MigrationGraph > __str__
     def __str__(self):
         return "Graph: %s nodes, %s edges" % self._nodes_and_edges()
 
+    # [TODO] MigrationGraph > __repr__
     def __repr__(self):
         nodes, edges = self._nodes_and_edges()
         return "<%s: nodes=%s, edges=%s>" % (self.__class__.__name__, nodes, edges)
 
+    # [TODO] MigrationGraph > _nodes_and_edges
     def _nodes_and_edges(self):
         return len(self.nodes), sum(
             len(node.parents) for node in self.node_map.values()
         )
 
+    # [TODO] MigrationGraph > _generate_plan
     def _generate_plan(self, nodes, at_end):
         plan = []
         for node in nodes:
@@ -311,6 +333,7 @@ class MigrationGraph:
                     plan.append(migration)
         return plan
 
+    # [TODO] MigrationGraph > make_state
     def make_state(self, nodes=None, at_end=True, real_apps=None):
         """
         Given a migration node or nodes, return a complete ProjectState for it.
@@ -329,5 +352,6 @@ class MigrationGraph:
             project_state = self.nodes[node].mutate_state(project_state, preserve=False)
         return project_state
 
+    # [TODO] MigrationGraph > __contains__
     def __contains__(self, node):
         return node in self.nodes

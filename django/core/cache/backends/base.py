@@ -9,14 +9,17 @@ from django.utils.module_loading import import_string
 from django.utils.regex_helper import _lazy_re_compile
 
 
+# [TODO] InvalidCacheBackendError
 class InvalidCacheBackendError(ImproperlyConfigured):
     pass
 
 
+# [TODO] CacheKeyWarning
 class CacheKeyWarning(RuntimeWarning):
     pass
 
 
+# [TODO] InvalidCacheKey
 class InvalidCacheKey(ValueError):
     pass
 
@@ -29,6 +32,7 @@ DEFAULT_TIMEOUT = object()
 MEMCACHE_MAX_KEY_LENGTH = 250
 
 
+# [TODO] default_key_func
 def default_key_func(key, key_prefix, version):
     """
     Default function to generate keys.
@@ -40,6 +44,7 @@ def default_key_func(key, key_prefix, version):
     return "%s:%s:%s" % (key_prefix, version, key)
 
 
+# [TODO] get_key_func
 def get_key_func(key_func):
     """
     Function to decide which key function to use.
@@ -54,9 +59,11 @@ def get_key_func(key_func):
     return default_key_func
 
 
+# [TODO] BaseCache
 class BaseCache:
     _missing_key = object()
 
+    # [TODO] BaseCache > __init__
     def __init__(self, params):
         timeout = params.get("timeout", params.get("TIMEOUT", 300))
         if timeout is not None:
@@ -83,6 +90,7 @@ class BaseCache:
         self.version = params.get("VERSION", 1)
         self.key_func = get_key_func(params.get("KEY_FUNCTION"))
 
+    # [TODO] BaseCache > get_backend_timeout
     def get_backend_timeout(self, timeout=DEFAULT_TIMEOUT):
         """
         Return the timeout value usable by this backend based upon the provided
@@ -95,6 +103,7 @@ class BaseCache:
             timeout = -1
         return None if timeout is None else time.time() + timeout
 
+    # [TODO] BaseCache > make_key
     def make_key(self, key, version=None):
         """
         Construct the key used by all other methods. By default, use the
@@ -108,6 +117,7 @@ class BaseCache:
 
         return self.key_func(key, self.key_prefix, version)
 
+    # [TODO] BaseCache > validate_key
     def validate_key(self, key):
         """
         Warn about keys that would not be portable to the memcached
@@ -117,12 +127,14 @@ class BaseCache:
         for warning in memcache_key_warnings(key):
             warnings.warn(warning, CacheKeyWarning)
 
+    # [TODO] BaseCache > make_and_validate_key
     def make_and_validate_key(self, key, version=None):
         """Helper to make and validate keys."""
         key = self.make_key(key, version=version)
         self.validate_key(key)
         return key
 
+    # [TODO] BaseCache > add
     def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
         """
         Set a value in the cache if the key does not already exist. If
@@ -135,11 +147,13 @@ class BaseCache:
             "subclasses of BaseCache must provide an add() method"
         )
 
+    # [TODO] BaseCache > aadd
     async def aadd(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
         return await sync_to_async(self.add, thread_sensitive=True)(
             key, value, timeout, version
         )
 
+    # [TODO] BaseCache > get
     def get(self, key, default=None, version=None):
         """
         Fetch a given key from the cache. If the key does not exist, return
@@ -147,11 +161,13 @@ class BaseCache:
         """
         raise NotImplementedError("subclasses of BaseCache must provide a get() method")
 
+    # [TODO] BaseCache > aget
     async def aget(self, key, default=None, version=None):
         return await sync_to_async(self.get, thread_sensitive=True)(
             key, default, version
         )
 
+    # [TODO] BaseCache > set
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
         """
         Set a value in the cache. If timeout is given, use that timeout for the
@@ -159,11 +175,13 @@ class BaseCache:
         """
         raise NotImplementedError("subclasses of BaseCache must provide a set() method")
 
+    # [TODO] BaseCache > aset
     async def aset(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
         return await sync_to_async(self.set, thread_sensitive=True)(
             key, value, timeout, version
         )
 
+    # [TODO] BaseCache > touch
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
         """
         Update the key's expiry time using timeout. Return True if successful
@@ -173,11 +191,13 @@ class BaseCache:
             "subclasses of BaseCache must provide a touch() method"
         )
 
+    # [TODO] BaseCache > atouch
     async def atouch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
         return await sync_to_async(self.touch, thread_sensitive=True)(
             key, timeout, version
         )
 
+    # [TODO] BaseCache > delete
     def delete(self, key, version=None):
         """
         Delete a key from the cache and return whether it succeeded, failing
@@ -187,9 +207,11 @@ class BaseCache:
             "subclasses of BaseCache must provide a delete() method"
         )
 
+    # [TODO] BaseCache > adelete
     async def adelete(self, key, version=None):
         return await sync_to_async(self.delete, thread_sensitive=True)(key, version)
 
+    # [TODO] BaseCache > get_many
     def get_many(self, keys, version=None):
         """
         Fetch a bunch of keys from the cache. For certain backends (memcached,
@@ -205,6 +227,7 @@ class BaseCache:
                 d[k] = val
         return d
 
+    # [TODO] BaseCache > aget_many
     async def aget_many(self, keys, version=None):
         """See get_many()."""
         d = {}
@@ -214,6 +237,7 @@ class BaseCache:
                 d[k] = val
         return d
 
+    # [TODO] BaseCache > get_or_set
     def get_or_set(self, key, default, timeout=DEFAULT_TIMEOUT, version=None):
         """
         Fetch a given key from the cache. If the key does not exist,
@@ -233,6 +257,7 @@ class BaseCache:
             return self.get(key, default, version=version)
         return val
 
+    # [TODO] BaseCache > aget_or_set
     async def aget_or_set(self, key, default, timeout=DEFAULT_TIMEOUT, version=None):
         """See get_or_set()."""
         val = await self.aget(key, self._missing_key, version=version)
@@ -245,6 +270,7 @@ class BaseCache:
             return await self.aget(key, default, version=version)
         return val
 
+    # [TODO] BaseCache > has_key
     def has_key(self, key, version=None):
         """
         Return True if the key is in the cache and has not expired.
@@ -253,12 +279,14 @@ class BaseCache:
             self.get(key, self._missing_key, version=version) is not self._missing_key
         )
 
+    # [TODO] BaseCache > ahas_key
     async def ahas_key(self, key, version=None):
         return (
             await self.aget(key, self._missing_key, version=version)
             is not self._missing_key
         )
 
+    # [TODO] BaseCache > incr
     def incr(self, key, delta=1, version=None):
         """
         Add delta to value in the cache. If the key does not exist, raise a
@@ -271,6 +299,7 @@ class BaseCache:
         self.set(key, new_value, version=version)
         return new_value
 
+    # [TODO] BaseCache > aincr
     async def aincr(self, key, delta=1, version=None):
         """See incr()."""
         value = await self.aget(key, self._missing_key, version=version)
@@ -280,6 +309,7 @@ class BaseCache:
         await self.aset(key, new_value, version=version)
         return new_value
 
+    # [TODO] BaseCache > decr
     def decr(self, key, delta=1, version=None):
         """
         Subtract delta from value in the cache. If the key does not exist, raise
@@ -287,9 +317,11 @@ class BaseCache:
         """
         return self.incr(key, -delta, version=version)
 
+    # [TODO] BaseCache > adecr
     async def adecr(self, key, delta=1, version=None):
         return await self.aincr(key, -delta, version=version)
 
+    # [TODO] BaseCache > __contains__
     def __contains__(self, key):
         """
         Return True if the key is in the cache and has not expired.
@@ -299,6 +331,7 @@ class BaseCache:
         # if a subclass overrides it.
         return self.has_key(key)
 
+    # [TODO] BaseCache > set_many
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
         """
         Set a bunch of values in the cache at once from a dict of key/value
@@ -315,11 +348,13 @@ class BaseCache:
             self.set(key, value, timeout=timeout, version=version)
         return []
 
+    # [TODO] BaseCache > aset_many
     async def aset_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
         for key, value in data.items():
             await self.aset(key, value, timeout=timeout, version=version)
         return []
 
+    # [TODO] BaseCache > delete_many
     def delete_many(self, keys, version=None):
         """
         Delete a bunch of values in the cache at once. For certain backends
@@ -329,19 +364,23 @@ class BaseCache:
         for key in keys:
             self.delete(key, version=version)
 
+    # [TODO] BaseCache > adelete_many
     async def adelete_many(self, keys, version=None):
         for key in keys:
             await self.adelete(key, version=version)
 
+    # [TODO] BaseCache > clear
     def clear(self):
         """Remove *all* values from the cache at once."""
         raise NotImplementedError(
             "subclasses of BaseCache must provide a clear() method"
         )
 
+    # [TODO] BaseCache > aclear
     async def aclear(self):
         return await sync_to_async(self.clear, thread_sensitive=True)()
 
+    # [TODO] BaseCache > incr_version
     def incr_version(self, key, delta=1, version=None):
         """
         Add delta to the cache version for the supplied key. Return the new
@@ -358,6 +397,7 @@ class BaseCache:
         self.delete(key, version=version)
         return version + delta
 
+    # [TODO] BaseCache > aincr_version
     async def aincr_version(self, key, delta=1, version=None):
         """See incr_version()."""
         if version is None:
@@ -371,6 +411,7 @@ class BaseCache:
         await self.adelete(key, version=version)
         return version + delta
 
+    # [TODO] BaseCache > decr_version
     def decr_version(self, key, delta=1, version=None):
         """
         Subtract delta from the cache version for the supplied key. Return the
@@ -378,13 +419,16 @@ class BaseCache:
         """
         return self.incr_version(key, -delta, version)
 
+    # [TODO] BaseCache > adecr_version
     async def adecr_version(self, key, delta=1, version=None):
         return await self.aincr_version(key, -delta, version)
 
+    # [TODO] BaseCache > close
     def close(self, **kwargs):
         """Close the cache connection"""
         pass
 
+    # [TODO] BaseCache > aclose
     async def aclose(self, **kwargs):
         pass
 
@@ -392,6 +436,7 @@ class BaseCache:
 memcached_error_chars_re = _lazy_re_compile(r"[\x00-\x20\x7f]")
 
 
+# [TODO] memcache_key_warnings
 def memcache_key_warnings(key):
     if len(key) > MEMCACHE_MAX_KEY_LENGTH:
         yield (

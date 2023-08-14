@@ -3,6 +3,7 @@ from django.db.backends.mysql.features import DatabaseFeatures as MySQLDatabaseF
 from django.utils.functional import cached_property
 
 
+# [TODO] DatabaseFeatures
 class DatabaseFeatures(BaseSpatialFeatures, MySQLDatabaseFeatures):
     empty_intersection_returns_none = False
     has_spatialrefsys_table = False
@@ -15,6 +16,7 @@ class DatabaseFeatures(BaseSpatialFeatures, MySQLDatabaseFeatures):
     supports_num_points_poly = False
     unsupported_geojson_options = {"crs"}
 
+    # [TODO] DatabaseFeatures > supports_geometry_field_unique_index
     @cached_property
     def supports_geometry_field_unique_index(self):
         # Not supported in MySQL since https://dev.mysql.com/worklog/task/?id=11808

@@ -15,6 +15,7 @@ from django.contrib.gis.gdal.prototypes.generation import (
 
 
 # ### Generation routines specific to this module ###
+# [TODO] env_func
 def env_func(f, argtypes):
     "For getting OGREnvelopes."
     f.argtypes = argtypes
@@ -23,11 +24,13 @@ def env_func(f, argtypes):
     return f
 
 
+# [TODO] pnt_func
 def pnt_func(f):
     "For accessing point information."
     return double_output(f, [c_void_p, c_int])
 
 
+# [TODO] topology_func
 def topology_func(f):
     f.argtypes = [c_void_p, c_void_p]
     f.restype = c_int

@@ -4,6 +4,7 @@ from django.db.backends.postgresql.features import (
 )
 
 
+# [TODO] DatabaseFeatures
 class DatabaseFeatures(BaseSpatialFeatures, PsycopgDatabaseFeatures):
     supports_geography = True
     supports_3d_storage = True

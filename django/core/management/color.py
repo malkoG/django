@@ -18,6 +18,7 @@ else:
     HAS_COLORAMA = True
 
 
+# [TODO] supports_color
 def supports_color():
     """
     Return True if the running system's terminal supports color,
@@ -60,10 +61,12 @@ def supports_color():
     )
 
 
+# [TODO] Style
 class Style:
     pass
 
 
+# [TODO] make_style
 def make_style(config_string=""):
     """
     Create a Style object from the given config_string.
@@ -96,6 +99,7 @@ def make_style(config_string=""):
     return style
 
 
+# [TODO] no_style
 @functools.cache
 def no_style():
     """
@@ -104,6 +108,7 @@ def no_style():
     return make_style("nocolor")
 
 
+# [TODO] color_style
 def color_style(force_color=False):
     """
     Return a Style object from the Django color scheme.

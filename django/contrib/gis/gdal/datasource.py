@@ -48,10 +48,12 @@ from django.utils.encoding import force_bytes, force_str
 #  https://gdal.org/api/vector_c_api.html
 #
 # The OGR_DS_* routines are relevant here.
+# [TODO] DataSource
 class DataSource(GDALBase):
     "Wraps an OGR Data Source object."
     destructor = capi.destroy_ds
 
+    # [TODO] DataSource > __init__
     def __init__(self, ds_input, ds_driver=False, write=False, encoding="utf-8"):
         # The write flag.
         if write:
@@ -87,6 +89,7 @@ class DataSource(GDALBase):
             # Raise an exception if the returned pointer is NULL
             raise GDALException('Invalid data source file "%s"' % ds_input)
 
+    # [TODO] DataSource > __getitem__
     def __getitem__(self, index):
         "Allows use of the index [] operator to get a layer at the index."
         if isinstance(index, str):
@@ -106,19 +109,23 @@ class DataSource(GDALBase):
             raise TypeError("Invalid index type: %s" % type(index))
         return Layer(layer, self)
 
+    # [TODO] DataSource > __len__
     def __len__(self):
         "Return the number of layers within the data source."
         return self.layer_count
 
+    # [TODO] DataSource > __str__
     def __str__(self):
         "Return OGR GetName and Driver for the Data Source."
         return "%s (%s)" % (self.name, self.driver)
 
+    # [TODO] DataSource > layer_count
     @property
     def layer_count(self):
         "Return the number of layers in the data source."
         return capi.get_layer_count(self._ptr)
 
+    # [TODO] DataSource > name
     @property
     def name(self):
         "Return the name of the data source."

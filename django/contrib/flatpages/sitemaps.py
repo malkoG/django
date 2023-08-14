@@ -3,7 +3,9 @@ from django.contrib.sitemaps import Sitemap
 from django.core.exceptions import ImproperlyConfigured
 
 
+# [TODO] FlatPageSitemap
 class FlatPageSitemap(Sitemap):
+    # [TODO] FlatPageSitemap > items
     def items(self):
         if not django_apps.is_installed("django.contrib.sites"):
             raise ImproperlyConfigured(

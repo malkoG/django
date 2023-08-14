@@ -8,6 +8,7 @@ Parser and utilities for the smart 'if' tag
 # 'bp' = binding power (left = lbp, right = rbp)
 
 
+# [TODO] TokenBase
 class TokenBase:
     """
     Base class for operators and literals, mainly for debugging and for throwing
@@ -18,29 +19,34 @@ class TokenBase:
     value = None  # used by literals
     first = second = None  # used by tree nodes
 
+    # [TODO] TokenBase > nud
     def nud(self, parser):
         # Null denotation - called in prefix context
         raise parser.error_class(
             "Not expecting '%s' in this position in if tag." % self.id
         )
 
+    # [TODO] TokenBase > led
     def led(self, left, parser):
         # Left denotation - called in infix context
         raise parser.error_class(
             "Not expecting '%s' as infix operator in if tag." % self.id
         )
 
+    # [TODO] TokenBase > display
     def display(self):
         """
         Return what to display in error messages for this node
         """
         return self.id
 
+    # [TODO] TokenBase > __repr__
     def __repr__(self):
         out = [str(x) for x in [self.id, self.first, self.second] if x is not None]
         return "(" + " ".join(out) + ")"
 
 
+# [TODO] infix
 def infix(bp, func):
     """
     Create an infix operator, given a binding power and a function that
@@ -67,6 +73,7 @@ def infix(bp, func):
     return Operator
 
 
+# [TODO] prefix
 def prefix(bp, func):
     """
     Create a prefix operator, given a binding power and a function that
@@ -114,6 +121,7 @@ for key, op in OPERATORS.items():
     op.id = key
 
 
+# [TODO] Literal
 class Literal(TokenBase):
     """
     A basic self-resolvable object similar to a Django template variable.
@@ -125,25 +133,32 @@ class Literal(TokenBase):
     id = "literal"
     lbp = 0
 
+    # [TODO] Literal > __init__
     def __init__(self, value):
         self.value = value
 
+    # [TODO] Literal > display
     def display(self):
         return repr(self.value)
 
+    # [TODO] Literal > nud
     def nud(self, parser):
         return self
 
+    # [TODO] Literal > eval
     def eval(self, context):
         return self.value
 
+    # [TODO] Literal > __repr__
     def __repr__(self):
         return "(%s %r)" % (self.id, self.value)
 
 
+# [TODO] EndToken
 class EndToken(TokenBase):
     lbp = 0
 
+    # [TODO] EndToken > nud
     def nud(self, parser):
         raise parser.error_class("Unexpected end of expression in if tag.")
 
@@ -151,9 +166,11 @@ class EndToken(TokenBase):
 EndToken = EndToken()
 
 
+# [TODO] IfParser
 class IfParser:
     error_class = ValueError
 
+    # [TODO] IfParser > __init__
     def __init__(self, tokens):
         # Turn 'is','not' and 'not','in' into single tokens.
         num_tokens = len(tokens)
@@ -174,6 +191,7 @@ class IfParser:
         self.pos = 0
         self.current_token = self.next_token()
 
+    # [TODO] IfParser > translate_token
     def translate_token(self, token):
         try:
             op = OPERATORS[token]
@@ -182,6 +200,7 @@ class IfParser:
         else:
             return op()
 
+    # [TODO] IfParser > next_token
     def next_token(self):
         if self.pos >= len(self.tokens):
             return EndToken
@@ -190,6 +209,7 @@ class IfParser:
             self.pos += 1
             return retval
 
+    # [TODO] IfParser > parse
     def parse(self):
         retval = self.expression()
         # Check that we have exhausted all the tokens
@@ -199,6 +219,7 @@ class IfParser:
             )
         return retval
 
+    # [TODO] IfParser > expression
     def expression(self, rbp=0):
         t = self.current_token
         self.current_token = self.next_token()
@@ -209,5 +230,6 @@ class IfParser:
             left = t.led(left, self)
         return left
 
+    # [TODO] IfParser > create_var
     def create_var(self, value):
         return Literal(value)

@@ -18,6 +18,7 @@ from django.utils.translation import gettext_lazy as _
 UserModel = get_user_model()
 
 
+# [TODO] _unicode_ci_compare
 def _unicode_ci_compare(s1, s2):
     """
     Perform case-insensitive comparison of two identifiers, using the
@@ -30,10 +31,12 @@ def _unicode_ci_compare(s1, s2):
     )
 
 
+# [TODO] ReadOnlyPasswordHashWidget
 class ReadOnlyPasswordHashWidget(forms.Widget):
     template_name = "auth/widgets/read_only_password_hash.html"
     read_only = True
 
+    # [TODO] ReadOnlyPasswordHashWidget > get_context
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         summary = []
@@ -56,23 +59,29 @@ class ReadOnlyPasswordHashWidget(forms.Widget):
         context["summary"] = summary
         return context
 
+    # [TODO] ReadOnlyPasswordHashWidget > id_for_label
     def id_for_label(self, id_):
         return None
 
 
+# [TODO] ReadOnlyPasswordHashField
 class ReadOnlyPasswordHashField(forms.Field):
     widget = ReadOnlyPasswordHashWidget
 
+    # [TODO] ReadOnlyPasswordHashField > __init__
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("required", False)
         kwargs.setdefault("disabled", True)
         super().__init__(*args, **kwargs)
 
 
+# [TODO] UsernameField
 class UsernameField(forms.CharField):
+    # [TODO] UsernameField > to_python
     def to_python(self, value):
         return unicodedata.normalize("NFKC", super().to_python(value))
 
+    # [TODO] UsernameField > widget_attrs
     def widget_attrs(self, widget):
         return {
             **super().widget_attrs(widget),
@@ -81,6 +90,7 @@ class UsernameField(forms.CharField):
         }
 
 
+# [TODO] BaseUserCreationForm
 class BaseUserCreationForm(forms.ModelForm):
     """
     A form that creates a user, with no privileges, from the given username and
@@ -103,11 +113,13 @@ class BaseUserCreationForm(forms.ModelForm):
         help_text=_("Enter the same password as before, for verification."),
     )
 
+    # [TODO] BaseUserCreationForm > Meta
     class Meta:
         model = User
         fields = ("username",)
         field_classes = {"username": UsernameField}
 
+    # [TODO] BaseUserCreationForm > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self._meta.model.USERNAME_FIELD in self.fields:
@@ -115,6 +127,7 @@ class BaseUserCreationForm(forms.ModelForm):
                 "autofocus"
             ] = True
 
+    # [TODO] BaseUserCreationForm > clean_password2
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
@@ -125,6 +138,7 @@ class BaseUserCreationForm(forms.ModelForm):
             )
         return password2
 
+    # [TODO] BaseUserCreationForm > _post_clean
     def _post_clean(self):
         super()._post_clean()
         # Validate the password after self.instance is updated with form data
@@ -136,6 +150,7 @@ class BaseUserCreationForm(forms.ModelForm):
             except ValidationError as error:
                 self.add_error("password2", error)
 
+    # [TODO] BaseUserCreationForm > save
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password1"])
@@ -146,7 +161,9 @@ class BaseUserCreationForm(forms.ModelForm):
         return user
 
 
+# [TODO] UserCreationForm
 class UserCreationForm(BaseUserCreationForm):
+    # [TODO] UserCreationForm > clean_username
     def clean_username(self):
         """Reject usernames that differ only in case."""
         username = self.cleaned_data.get("username")
@@ -167,6 +184,7 @@ class UserCreationForm(BaseUserCreationForm):
             return username
 
 
+# [TODO] UserChangeForm
 class UserChangeForm(forms.ModelForm):
     password = ReadOnlyPasswordHashField(
         label=_("Password"),
@@ -177,11 +195,13 @@ class UserChangeForm(forms.ModelForm):
         ),
     )
 
+    # [TODO] UserChangeForm > Meta
     class Meta:
         model = User
         fields = "__all__"
         field_classes = {"username": UsernameField}
 
+    # [TODO] UserChangeForm > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         password = self.fields.get("password")
@@ -196,6 +216,7 @@ class UserChangeForm(forms.ModelForm):
             )
 
 
+# [TODO] AuthenticationForm
 class AuthenticationForm(forms.Form):
     """
     Base class for authenticating users. Extend this to get a form that accepts
@@ -217,6 +238,7 @@ class AuthenticationForm(forms.Form):
         "inactive": _("This account is inactive."),
     }
 
+    # [TODO] AuthenticationForm > __init__
     def __init__(self, request=None, *args, **kwargs):
         """
         The 'request' parameter is set for custom auth use by subclasses.
@@ -234,6 +256,7 @@ class AuthenticationForm(forms.Form):
         if self.fields["username"].label is None:
             self.fields["username"].label = capfirst(self.username_field.verbose_name)
 
+    # [TODO] AuthenticationForm > clean
     def clean(self):
         username = self.cleaned_data.get("username")
         password = self.cleaned_data.get("password")
@@ -249,6 +272,7 @@ class AuthenticationForm(forms.Form):
 
         return self.cleaned_data
 
+    # [TODO] AuthenticationForm > confirm_login_allowed
     def confirm_login_allowed(self, user):
         """
         Controls whether the given User may log in. This is a policy setting,
@@ -266,9 +290,11 @@ class AuthenticationForm(forms.Form):
                 code="inactive",
             )
 
+    # [TODO] AuthenticationForm > get_user
     def get_user(self):
         return self.user_cache
 
+    # [TODO] AuthenticationForm > get_invalid_login_error
     def get_invalid_login_error(self):
         return ValidationError(
             self.error_messages["invalid_login"],
@@ -277,6 +303,7 @@ class AuthenticationForm(forms.Form):
         )
 
 
+# [TODO] PasswordResetForm
 class PasswordResetForm(forms.Form):
     email = forms.EmailField(
         label=_("Email"),
@@ -284,6 +311,7 @@ class PasswordResetForm(forms.Form):
         widget=forms.EmailInput(attrs={"autocomplete": "email"}),
     )
 
+    # [TODO] PasswordResetForm > send_mail
     def send_mail(
         self,
         subject_template_name,
@@ -308,6 +336,7 @@ class PasswordResetForm(forms.Form):
 
         email_message.send()
 
+    # [TODO] PasswordResetForm > get_users
     def get_users(self, email):
         """Given an email, return matching user(s) who should receive a reset.
 
@@ -329,6 +358,7 @@ class PasswordResetForm(forms.Form):
             and _unicode_ci_compare(email, getattr(u, email_field_name))
         )
 
+    # [TODO] PasswordResetForm > save
     def save(
         self,
         domain_override=None,
@@ -375,6 +405,7 @@ class PasswordResetForm(forms.Form):
             )
 
 
+# [TODO] SetPasswordForm
 class SetPasswordForm(forms.Form):
     """
     A form that lets a user set their password without entering the old
@@ -396,10 +427,12 @@ class SetPasswordForm(forms.Form):
         widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
     )
 
+    # [TODO] SetPasswordForm > __init__
     def __init__(self, user, *args, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
 
+    # [TODO] SetPasswordForm > clean_new_password2
     def clean_new_password2(self):
         password1 = self.cleaned_data.get("new_password1")
         password2 = self.cleaned_data.get("new_password2")
@@ -411,6 +444,7 @@ class SetPasswordForm(forms.Form):
         password_validation.validate_password(password2, self.user)
         return password2
 
+    # [TODO] SetPasswordForm > save
     def save(self, commit=True):
         password = self.cleaned_data["new_password1"]
         self.user.set_password(password)
@@ -419,6 +453,7 @@ class SetPasswordForm(forms.Form):
         return self.user
 
 
+# [TODO] PasswordChangeForm
 class PasswordChangeForm(SetPasswordForm):
     """
     A form that lets a user change their password by entering their old
@@ -441,6 +476,7 @@ class PasswordChangeForm(SetPasswordForm):
 
     field_order = ["old_password", "new_password1", "new_password2"]
 
+    # [TODO] PasswordChangeForm > clean_old_password
     def clean_old_password(self):
         """
         Validate that the old_password field is correct.
@@ -454,6 +490,7 @@ class PasswordChangeForm(SetPasswordForm):
         return old_password
 
 
+# [TODO] AdminPasswordChangeForm
 class AdminPasswordChangeForm(forms.Form):
     """
     A form used to change the password of a user in the admin interface.
@@ -478,10 +515,12 @@ class AdminPasswordChangeForm(forms.Form):
         help_text=_("Enter the same password as before, for verification."),
     )
 
+    # [TODO] AdminPasswordChangeForm > __init__
     def __init__(self, user, *args, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
 
+    # [TODO] AdminPasswordChangeForm > clean_password2
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
@@ -493,6 +532,7 @@ class AdminPasswordChangeForm(forms.Form):
         password_validation.validate_password(password2, self.user)
         return password2
 
+    # [TODO] AdminPasswordChangeForm > save
     def save(self, commit=True):
         """Save the new password."""
         password = self.cleaned_data["password1"]
@@ -501,6 +541,7 @@ class AdminPasswordChangeForm(forms.Form):
             self.user.save()
         return self.user
 
+    # [TODO] AdminPasswordChangeForm > changed_data
     @property
     def changed_data(self):
         data = super().changed_data

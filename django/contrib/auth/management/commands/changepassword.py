@@ -9,17 +9,20 @@ from django.db import DEFAULT_DB_ALIAS
 UserModel = get_user_model()
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = "Change a user's password for django.contrib.auth."
     requires_migrations_checks = True
     requires_system_checks = []
 
+    # [TODO] Command > _get_pass
     def _get_pass(self, prompt="Password: "):
         p = getpass.getpass(prompt=prompt)
         if not p:
             raise CommandError("aborted")
         return p
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "username",
@@ -35,6 +38,7 @@ class Command(BaseCommand):
             help='Specifies the database to use. Default is "default".',
         )
 
+    # [TODO] Command > handle
     def handle(self, *args, **options):
         if options["username"]:
             username = options["username"]

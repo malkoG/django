@@ -11,9 +11,11 @@ from django.template.library import InvalidTemplateLibrary
 from .base import BaseEngine
 
 
+# [TODO] DjangoTemplates
 class DjangoTemplates(BaseEngine):
     app_dirname = "templates"
 
+    # [TODO] DjangoTemplates > __init__
     def __init__(self, params):
         params = params.copy()
         options = params.pop("OPTIONS").copy()
@@ -25,15 +27,18 @@ class DjangoTemplates(BaseEngine):
         super().__init__(params)
         self.engine = Engine(self.dirs, self.app_dirs, **options)
 
+    # [TODO] DjangoTemplates > from_string
     def from_string(self, template_code):
         return Template(self.engine.from_string(template_code), self)
 
+    # [TODO] DjangoTemplates > get_template
     def get_template(self, template_name):
         try:
             return Template(self.engine.get_template(template_name), self)
         except TemplateDoesNotExist as exc:
             reraise(exc, self)
 
+    # [TODO] DjangoTemplates > get_templatetag_libraries
     def get_templatetag_libraries(self, custom_libraries):
         """
         Return a collation of template tag libraries from installed
@@ -44,15 +49,19 @@ class DjangoTemplates(BaseEngine):
         return libraries
 
 
+# [TODO] Template
 class Template:
+    # [TODO] Template > __init__
     def __init__(self, template, backend):
         self.template = template
         self.backend = backend
 
+    # [TODO] Template > origin
     @property
     def origin(self):
         return self.template.origin
 
+    # [TODO] Template > render
     def render(self, context=None, request=None):
         context = make_context(
             context, request, autoescape=self.backend.engine.autoescape
@@ -63,6 +72,7 @@ class Template:
             reraise(exc, self.backend)
 
 
+# [TODO] copy_exception
 def copy_exception(exc, backend=None):
     """
     Create a new TemplateDoesNotExist. Preserve its declared attributes and
@@ -76,6 +86,7 @@ def copy_exception(exc, backend=None):
     return new
 
 
+# [TODO] reraise
 def reraise(exc, backend):
     """
     Reraise TemplateDoesNotExist while maintaining template debug information.
@@ -84,6 +95,7 @@ def reraise(exc, backend):
     raise new from exc
 
 
+# [TODO] get_template_tag_modules
 def get_template_tag_modules():
     """
     Yield (module_name, module_path) pairs for all installed template tag
@@ -106,6 +118,7 @@ def get_template_tag_modules():
                 yield name.removeprefix(candidate).lstrip("."), name
 
 
+# [TODO] get_installed_libraries
 def get_installed_libraries():
     """
     Return the built-in template tag libraries and those from installed
@@ -118,6 +131,7 @@ def get_installed_libraries():
     }
 
 
+# [TODO] get_package_libraries
 def get_package_libraries(pkg):
     """
     Recursively yield template tag libraries defined in submodules of a

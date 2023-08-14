@@ -17,10 +17,12 @@ GEOIP_SETTINGS = {
 }
 
 
+# [TODO] GeoIP2Exception
 class GeoIP2Exception(Exception):
     pass
 
 
+# [TODO] GeoIP2
 class GeoIP2:
     # The flags for GeoIP memory caching.
     # Try MODE_MMAP_EXT, MODE_MMAP, MODE_FILE in that order.
@@ -45,6 +47,7 @@ class GeoIP2:
     _city = None
     _country = None
 
+    # [TODO] GeoIP2 > __init__
     def __init__(self, path=None, cache=0, country=None, city=None):
         """
         Initialize the GeoIP object. No parameters are required to use default
@@ -117,10 +120,12 @@ class GeoIP2:
         else:
             raise GeoIP2Exception("GeoIP path must be a valid file or directory.")
 
+    # [TODO] GeoIP2 > _reader
     @property
     def _reader(self):
         return self._country or self._city
 
+    # [TODO] GeoIP2 > _country_or_city
     @property
     def _country_or_city(self):
         if self._country:
@@ -128,11 +133,13 @@ class GeoIP2:
         else:
             return self._city.city
 
+    # [TODO] GeoIP2 > __del__
     def __del__(self):
         # Cleanup any GeoIP file handles lying around.
         if self._reader:
             self._reader.close()
 
+    # [TODO] GeoIP2 > __repr__
     def __repr__(self):
         meta = self._reader.metadata()
         version = "[v%s.%s]" % (
@@ -149,6 +156,7 @@ class GeoIP2:
             }
         )
 
+    # [TODO] GeoIP2 > _check_query
     def _check_query(self, query, city=False, city_or_country=False):
         "Check the query and database availability."
         # Making sure a string was passed in for the query.
@@ -171,6 +179,7 @@ class GeoIP2:
 
         return query
 
+    # [TODO] GeoIP2 > city
     def city(self, query):
         """
         Return a dictionary of city information for the given IP address or
@@ -180,14 +189,17 @@ class GeoIP2:
         enc_query = self._check_query(query, city=True)
         return City(self._city.city(enc_query))
 
+    # [TODO] GeoIP2 > country_code
     def country_code(self, query):
         "Return the country code for the given IP Address or FQDN."
         return self.country(query)["country_code"]
 
+    # [TODO] GeoIP2 > country_name
     def country_name(self, query):
         "Return the country name for the given IP Address or FQDN."
         return self.country(query)["country_name"]
 
+    # [TODO] GeoIP2 > country
     def country(self, query):
         """
         Return a dictionary with the country code and name when given an
@@ -199,6 +211,7 @@ class GeoIP2:
         return Country(self._country_or_city(enc_query))
 
     # #### Coordinate retrieval routines ####
+    # [TODO] GeoIP2 > coords
     def coords(self, query, ordering=("longitude", "latitude")):
         cdict = self.city(query)
         if cdict is None:
@@ -206,14 +219,17 @@ class GeoIP2:
         else:
             return tuple(cdict[o] for o in ordering)
 
+    # [TODO] GeoIP2 > lon_lat
     def lon_lat(self, query):
         "Return a tuple of the (longitude, latitude) for the given query."
         return self.coords(query)
 
+    # [TODO] GeoIP2 > lat_lon
     def lat_lon(self, query):
         "Return a tuple of the (latitude, longitude) for the given query."
         return self.coords(query, ("latitude", "longitude"))
 
+    # [TODO] GeoIP2 > geos
     def geos(self, query):
         "Return a GEOS Point object for the given query."
         ll = self.lon_lat(query)
@@ -226,6 +242,7 @@ class GeoIP2:
             return None
 
     # #### GeoIP Database Information Routines ####
+    # [TODO] GeoIP2 > info
     @property
     def info(self):
         "Return information about the GeoIP library and databases in use."
@@ -235,6 +252,7 @@ class GeoIP2:
             meta.binary_format_minor_version,
         )
 
+    # [TODO] GeoIP2 > open
     @classmethod
     def open(cls, full_path, cache):
         return GeoIP2(full_path, cache)

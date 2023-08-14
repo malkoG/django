@@ -9,12 +9,14 @@ from django.conf import settings
 from django.utils.encoding import force_bytes
 
 
+# [TODO] InvalidAlgorithm
 class InvalidAlgorithm(ValueError):
     """Algorithm is not supported by hashlib."""
 
     pass
 
 
+# [TODO] salted_hmac
 def salted_hmac(key_salt, value, secret=None, *, algorithm="sha1"):
     """
     Return the HMAC of 'value', using a key generated from key_salt and a
@@ -47,6 +49,7 @@ def salted_hmac(key_salt, value, secret=None, *, algorithm="sha1"):
 RANDOM_STRING_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 
+# [TODO] get_random_string
 def get_random_string(length, allowed_chars=RANDOM_STRING_CHARS):
     """
     Return a securely generated random string.
@@ -61,11 +64,13 @@ def get_random_string(length, allowed_chars=RANDOM_STRING_CHARS):
     return "".join(secrets.choice(allowed_chars) for i in range(length))
 
 
+# [TODO] constant_time_compare
 def constant_time_compare(val1, val2):
     """Return True if the two strings are equal, False otherwise."""
     return secrets.compare_digest(force_bytes(val1), force_bytes(val2))
 
 
+# [TODO] pbkdf2
 def pbkdf2(password, salt, iterations, dklen=0, digest=None):
     """Return the hash of password using pbkdf2."""
     if digest is None:

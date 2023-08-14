@@ -3,6 +3,7 @@ from django.core.management.sql import sql_flush
 from django.db import DEFAULT_DB_ALIAS, connections
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = (
         "Returns a list of the SQL statements required to return all tables in "
@@ -11,6 +12,7 @@ class Command(BaseCommand):
 
     output_transaction = True
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         super().add_arguments(parser)
         parser.add_argument(
@@ -22,6 +24,7 @@ class Command(BaseCommand):
             ),
         )
 
+    # [TODO] Command > handle
     def handle(self, **options):
         sql_statements = sql_flush(self.style, connections[options["database"]])
         if not sql_statements and options["verbosity"] >= 1:

@@ -24,12 +24,14 @@ UNQUOTE_MAP = {v: chr(k) for k, v in QUOTE_MAP.items()}
 UNQUOTE_RE = _lazy_re_compile("_(?:%s)" % "|".join([x[1:] for x in UNQUOTE_MAP]))
 
 
+# [TODO] FieldIsAForeignKeyColumnName
 class FieldIsAForeignKeyColumnName(Exception):
     """A field is a foreign key attname, i.e. <FK>_id."""
 
     pass
 
 
+# [TODO] lookup_spawns_duplicates
 def lookup_spawns_duplicates(opts, lookup_path):
     """
     Return True if the given lookup path spawns duplicates.
@@ -56,11 +58,13 @@ def lookup_spawns_duplicates(opts, lookup_path):
     return False
 
 
+# [TODO] get_last_value_from_parameters
 def get_last_value_from_parameters(parameters, key):
     value = parameters.get(key)
     return value[-1] if isinstance(value, list) else value
 
 
+# [TODO] prepare_lookup_value
 def prepare_lookup_value(key, value, separator=","):
     """
     Return a lookup value prepared to be used in queryset filtering.
@@ -76,6 +80,7 @@ def prepare_lookup_value(key, value, separator=","):
     return value
 
 
+# [TODO] build_q_object_from_lookup_parameters
 def build_q_object_from_lookup_parameters(parameters):
     q_object = models.Q()
     for param, param_item_list in parameters.items():
@@ -83,6 +88,7 @@ def build_q_object_from_lookup_parameters(parameters):
     return q_object
 
 
+# [TODO] quote
 def quote(s):
     """
     Ensure that primary key values do not confuse the admin URLs by escaping
@@ -93,11 +99,13 @@ def quote(s):
     return s.translate(QUOTE_MAP) if isinstance(s, str) else s
 
 
+# [TODO] unquote
 def unquote(s):
     """Undo the effects of quote()."""
     return UNQUOTE_RE.sub(lambda m: UNQUOTE_MAP[m[0]], s)
 
 
+# [TODO] flatten
 def flatten(fields):
     """
     Return a list which is a single level of flattening of the original list.
@@ -111,6 +119,7 @@ def flatten(fields):
     return flat
 
 
+# [TODO] flatten_fieldsets
 def flatten_fieldsets(fieldsets):
     """Return a list of field names from an admin fieldsets structure."""
     field_names = []
@@ -119,6 +128,7 @@ def flatten_fieldsets(fieldsets):
     return field_names
 
 
+# [TODO] get_deleted_objects
 def get_deleted_objects(objs, request, admin_site):
     """
     Find all objects related to ``objs`` that should also be deleted. ``objs``
@@ -179,16 +189,20 @@ def get_deleted_objects(objs, request, admin_site):
     return to_delete, model_count, perms_needed, protected
 
 
+# [TODO] NestedObjects
 class NestedObjects(Collector):
+    # [TODO] NestedObjects > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.edges = {}  # {from_instance: [to_instances]}
         self.protected = set()
         self.model_objs = defaultdict(set)
 
+    # [TODO] NestedObjects > add_edge
     def add_edge(self, source, target):
         self.edges.setdefault(source, []).append(target)
 
+    # [TODO] NestedObjects > collect
     def collect(self, objs, source=None, source_attr=None, **kwargs):
         for obj in objs:
             if source_attr and not source_attr.endswith("+"):
@@ -207,12 +221,14 @@ class NestedObjects(Collector):
         except models.RestrictedError as e:
             self.protected.update(e.restricted_objects)
 
+    # [TODO] NestedObjects > related_objects
     def related_objects(self, related_model, related_fields, objs):
         qs = super().related_objects(related_model, related_fields, objs)
         return qs.select_related(
             *[related_field.name for related_field in related_fields]
         )
 
+    # [TODO] NestedObjects > _nested
     def _nested(self, obj, seen, format_callback):
         if obj in seen:
             return []
@@ -228,6 +244,7 @@ class NestedObjects(Collector):
             ret.append(children)
         return ret
 
+    # [TODO] NestedObjects > nested
     def nested(self, format_callback=None):
         """
         Return the graph as a nested list.
@@ -238,6 +255,7 @@ class NestedObjects(Collector):
             roots.extend(self._nested(root, seen, format_callback))
         return roots
 
+    # [TODO] NestedObjects > can_fast_delete
     def can_fast_delete(self, *args, **kwargs):
         """
         We always want to load the objects into memory so that we can display
@@ -246,6 +264,7 @@ class NestedObjects(Collector):
         return False
 
 
+# [TODO] model_format_dict
 def model_format_dict(obj):
     """
     Return a `dict` with keys 'verbose_name' and 'verbose_name_plural',
@@ -265,6 +284,7 @@ def model_format_dict(obj):
     }
 
 
+# [TODO] model_ngettext
 def model_ngettext(obj, n=None):
     """
     Return the appropriate `verbose_name` or `verbose_name_plural` value for
@@ -283,6 +303,7 @@ def model_ngettext(obj, n=None):
     return ngettext(singular, plural, n or 0)
 
 
+# [TODO] lookup_field
 def lookup_field(name, obj, model_admin=None):
     opts = obj._meta
     try:
@@ -309,6 +330,7 @@ def lookup_field(name, obj, model_admin=None):
     return f, attr, value
 
 
+# [TODO] _get_non_gfk_field
 def _get_non_gfk_field(opts, name):
     """
     For historical reasons, the admin app relies on GenericForeignKeys as being
@@ -338,6 +360,7 @@ def _get_non_gfk_field(opts, name):
     return field
 
 
+# [TODO] label_for_field
 def label_for_field(name, model, model_admin=None, return_attr=False, form=None):
     """
     Return a sensible label for a field name. The name can be a callable,
@@ -403,6 +426,7 @@ def label_for_field(name, model, model_admin=None, return_attr=False, form=None)
         return label
 
 
+# [TODO] help_text_for_field
 def help_text_for_field(name, model):
     help_text = ""
     try:
@@ -415,6 +439,7 @@ def help_text_for_field(name, model):
     return help_text
 
 
+# [TODO] display_for_field
 def display_for_field(value, field, empty_value_display):
     from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
@@ -452,6 +477,7 @@ def display_for_field(value, field, empty_value_display):
         return display_for_value(value, empty_value_display)
 
 
+# [TODO] display_for_value
 def display_for_value(value, empty_value_display, boolean=False):
     from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
@@ -473,10 +499,12 @@ def display_for_value(value, empty_value_display, boolean=False):
         return str(value)
 
 
+# [TODO] NotRelationField
 class NotRelationField(Exception):
     pass
 
 
+# [TODO] get_model_from_relation
 def get_model_from_relation(field):
     if hasattr(field, "path_infos"):
         return field.path_infos[-1].to_opts.model
@@ -484,6 +512,7 @@ def get_model_from_relation(field):
         raise NotRelationField
 
 
+# [TODO] reverse_field_path
 def reverse_field_path(model, path):
     """Create a reversed field path.
 
@@ -515,6 +544,7 @@ def reverse_field_path(model, path):
     return (parent, LOOKUP_SEP.join(reversed_path))
 
 
+# [TODO] get_fields_from_path
 def get_fields_from_path(model, path):
     """Return list of Fields given path relative to model.
 
@@ -535,6 +565,7 @@ def get_fields_from_path(model, path):
     return fields
 
 
+# [TODO] construct_change_message
 def construct_change_message(form, formsets, add):
     """
     Construct a JSON structure describing changes from a changed object.
@@ -592,6 +623,7 @@ def construct_change_message(form, formsets, add):
     return change_message
 
 
+# [TODO] _get_changed_field_labels_from_form
 def _get_changed_field_labels_from_form(form, changed_data):
     changed_field_labels = []
     for field_name in changed_data:

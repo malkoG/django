@@ -6,10 +6,12 @@
 
 
 # #### GDAL & SRS Exceptions ####
+# [TODO] GDALException
 class GDALException(Exception):
     pass
 
 
+# [TODO] SRSException
 class SRSException(Exception):
     pass
 
@@ -46,6 +48,7 @@ CPLERR_DICT = {
 ERR_NONE = 0
 
 
+# [TODO] check_err
 def check_err(code, cpl=False):
     """
     Check the given CPL/OGRERR and raise an exception where appropriate.

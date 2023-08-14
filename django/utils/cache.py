@@ -30,6 +30,7 @@ from django.utils.translation import get_language
 cc_delim_re = _lazy_re_compile(r"\s*,\s*")
 
 
+# [TODO] patch_cache_control
 def patch_cache_control(response, **kwargs):
     """
     Patch the Cache-Control header by adding all keyword arguments to it.
@@ -99,6 +100,7 @@ def patch_cache_control(response, **kwargs):
     response.headers["Cache-Control"] = cc
 
 
+# [TODO] get_max_age
 def get_max_age(response):
     """
     Return the max-age from the response Cache-Control header as an integer,
@@ -115,6 +117,7 @@ def get_max_age(response):
         pass
 
 
+# [TODO] set_response_etag
 def set_response_etag(response):
     if not response.streaming and response.content:
         response.headers["ETag"] = quote_etag(
@@ -123,6 +126,7 @@ def set_response_etag(response):
     return response
 
 
+# [TODO] _precondition_failed
 def _precondition_failed(request):
     response = HttpResponse(status=412)
     log_response(
@@ -134,6 +138,7 @@ def _precondition_failed(request):
     return response
 
 
+# [TODO] _not_modified
 def _not_modified(request, response=None):
     new_response = HttpResponseNotModified()
     if response:
@@ -160,6 +165,7 @@ def _not_modified(request, response=None):
     return new_response
 
 
+# [TODO] get_conditional_response
 def get_conditional_response(request, etag=None, last_modified=None, response=None):
     # Only return conditional responses on successful requests.
     if response and not (200 <= response.status_code < 300):
@@ -210,6 +216,7 @@ def get_conditional_response(request, etag=None, last_modified=None, response=No
     return response
 
 
+# [TODO] _if_match_passes
 def _if_match_passes(target_etag, etags):
     """
     Test the If-Match comparison as defined in RFC 9110 Section 13.1.1.
@@ -231,6 +238,7 @@ def _if_match_passes(target_etag, etags):
         return target_etag in etags
 
 
+# [TODO] _if_unmodified_since_passes
 def _if_unmodified_since_passes(last_modified, if_unmodified_since):
     """
     Test the If-Unmodified-Since comparison as defined in RFC 9110 Section
@@ -239,6 +247,7 @@ def _if_unmodified_since_passes(last_modified, if_unmodified_since):
     return last_modified and last_modified <= if_unmodified_since
 
 
+# [TODO] _if_none_match_passes
 def _if_none_match_passes(target_etag, etags):
     """
     Test the If-None-Match comparison as defined in RFC 9110 Section 13.1.2.
@@ -258,6 +267,7 @@ def _if_none_match_passes(target_etag, etags):
         return target_etag not in etags
 
 
+# [TODO] _if_modified_since_passes
 def _if_modified_since_passes(last_modified, if_modified_since):
     """
     Test the If-Modified-Since comparison as defined in RFC 9110 Section
@@ -266,6 +276,7 @@ def _if_modified_since_passes(last_modified, if_modified_since):
     return not last_modified or last_modified > if_modified_since
 
 
+# [TODO] patch_response_headers
 def patch_response_headers(response, cache_timeout=None):
     """
     Add HTTP caching headers to the given HttpResponse: Expires and
@@ -285,6 +296,7 @@ def patch_response_headers(response, cache_timeout=None):
     patch_cache_control(response, max_age=cache_timeout)
 
 
+# [TODO] add_never_cache_headers
 def add_never_cache_headers(response):
     """
     Add headers to a response to indicate that a page should never be cached.
@@ -295,6 +307,7 @@ def add_never_cache_headers(response):
     )
 
 
+# [TODO] patch_vary_headers
 def patch_vary_headers(response, newheaders):
     """
     Add (or update) the "Vary" header in the given HttpResponse object.
@@ -323,6 +336,7 @@ def patch_vary_headers(response, newheaders):
         response.headers["Vary"] = ", ".join(vary_headers)
 
 
+# [TODO] has_vary_header
 def has_vary_header(response, header_query):
     """
     Check to see if the response has a given header name in its Vary header.
@@ -334,6 +348,7 @@ def has_vary_header(response, header_query):
     return header_query.lower() in existing_headers
 
 
+# [TODO] _i18n_cache_key_suffix
 def _i18n_cache_key_suffix(request, cache_key):
     """If necessary, add the current locale or time zone to the cache key."""
     if settings.USE_I18N:
@@ -346,6 +361,7 @@ def _i18n_cache_key_suffix(request, cache_key):
     return cache_key
 
 
+# [TODO] _generate_cache_key
 def _generate_cache_key(request, method, headerlist, key_prefix):
     """Return a cache key from the headers given in the header list."""
     ctx = md5(usedforsecurity=False)
@@ -363,6 +379,7 @@ def _generate_cache_key(request, method, headerlist, key_prefix):
     return _i18n_cache_key_suffix(request, cache_key)
 
 
+# [TODO] _generate_cache_header_key
 def _generate_cache_header_key(key_prefix, request):
     """Return a cache key for the header cache."""
     url = md5(request.build_absolute_uri().encode("ascii"), usedforsecurity=False)
@@ -373,6 +390,7 @@ def _generate_cache_header_key(key_prefix, request):
     return _i18n_cache_key_suffix(request, cache_key)
 
 
+# [TODO] get_cache_key
 def get_cache_key(request, key_prefix=None, method="GET", cache=None):
     """
     Return a cache key based on the request URL and query. It can be used
@@ -395,6 +413,7 @@ def get_cache_key(request, key_prefix=None, method="GET", cache=None):
         return None
 
 
+# [TODO] learn_cache_key
 def learn_cache_key(request, response, cache_timeout=None, key_prefix=None, cache=None):
     """
     Learn what headers to take into account for some request URL from the
@@ -436,6 +455,7 @@ def learn_cache_key(request, response, cache_timeout=None, key_prefix=None, cach
         return _generate_cache_key(request, request.method, [], key_prefix)
 
 
+# [TODO] _to_tuple
 def _to_tuple(s):
     t = s.split("=", 1)
     if len(t) == 2:

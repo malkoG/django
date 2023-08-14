@@ -36,6 +36,7 @@ register = Library()
 #######################
 
 
+# [TODO] stringfilter
 def stringfilter(func):
     """
     Decorator for filters which should only receive strings. The object
@@ -58,6 +59,7 @@ def stringfilter(func):
 ###################
 
 
+# [TODO] addslashes
 @register.filter(is_safe=True)
 @stringfilter
 def addslashes(value):
@@ -69,6 +71,7 @@ def addslashes(value):
     return value.replace("\\", "\\\\").replace('"', '\\"').replace("'", "\\'")
 
 
+# [TODO] capfirst
 @register.filter(is_safe=True)
 @stringfilter
 def capfirst(value):
@@ -76,6 +79,7 @@ def capfirst(value):
     return value and value[0].upper() + value[1:]
 
 
+# [TODO] escapejs_filter
 @register.filter("escapejs")
 @stringfilter
 def escapejs_filter(value):
@@ -83,6 +87,7 @@ def escapejs_filter(value):
     return escapejs(value)
 
 
+# [TODO] json_script
 @register.filter(is_safe=True)
 def json_script(value, element_id=None):
     """
@@ -92,6 +97,7 @@ def json_script(value, element_id=None):
     return _json_script(value, element_id)
 
 
+# [TODO] floatformat
 @register.filter(is_safe=True)
 def floatformat(text, arg=-1):
     """
@@ -207,6 +213,7 @@ def floatformat(text, arg=-1):
     )
 
 
+# [TODO] iriencode
 @register.filter(is_safe=True)
 @stringfilter
 def iriencode(value):
@@ -214,6 +221,7 @@ def iriencode(value):
     return iri_to_uri(value)
 
 
+# [TODO] linenumbers
 @register.filter(is_safe=True, needs_autoescape=True)
 @stringfilter
 def linenumbers(value, autoescape=True):
@@ -231,6 +239,7 @@ def linenumbers(value, autoescape=True):
     return mark_safe("\n".join(lines))
 
 
+# [TODO] lower
 @register.filter(is_safe=True)
 @stringfilter
 def lower(value):
@@ -238,6 +247,7 @@ def lower(value):
     return value.lower()
 
 
+# [TODO] make_list
 @register.filter(is_safe=False)
 @stringfilter
 def make_list(value):
@@ -250,6 +260,7 @@ def make_list(value):
     return list(value)
 
 
+# [TODO] slugify
 @register.filter(is_safe=True)
 @stringfilter
 def slugify(value):
@@ -261,6 +272,7 @@ def slugify(value):
     return _slugify(value)
 
 
+# [TODO] stringformat
 @register.filter(is_safe=True)
 def stringformat(value, arg):
     """
@@ -280,6 +292,7 @@ def stringformat(value, arg):
         return ""
 
 
+# [TODO] title
 @register.filter(is_safe=True)
 @stringfilter
 def title(value):
@@ -288,6 +301,7 @@ def title(value):
     return re.sub(r"\d([A-Z])", lambda m: m[0].lower(), t)
 
 
+# [TODO] truncatechars
 @register.filter(is_safe=True)
 @stringfilter
 def truncatechars(value, arg):
@@ -299,6 +313,7 @@ def truncatechars(value, arg):
     return Truncator(value).chars(length)
 
 
+# [TODO] truncatechars_html
 @register.filter(is_safe=True)
 @stringfilter
 def truncatechars_html(value, arg):
@@ -313,6 +328,7 @@ def truncatechars_html(value, arg):
     return Truncator(value).chars(length, html=True)
 
 
+# [TODO] truncatewords
 @register.filter(is_safe=True)
 @stringfilter
 def truncatewords(value, arg):
@@ -327,6 +343,7 @@ def truncatewords(value, arg):
     return Truncator(value).words(length, truncate=" …")
 
 
+# [TODO] truncatewords_html
 @register.filter(is_safe=True)
 @stringfilter
 def truncatewords_html(value, arg):
@@ -341,6 +358,7 @@ def truncatewords_html(value, arg):
     return Truncator(value).words(length, html=True, truncate=" …")
 
 
+# [TODO] upper
 @register.filter(is_safe=False)
 @stringfilter
 def upper(value):
@@ -348,6 +366,7 @@ def upper(value):
     return value.upper()
 
 
+# [TODO] urlencode
 @register.filter(is_safe=False)
 @stringfilter
 def urlencode(value, safe=None):
@@ -365,6 +384,7 @@ def urlencode(value, safe=None):
     return quote(value, **kwargs)
 
 
+# [TODO] urlize
 @register.filter(is_safe=True, needs_autoescape=True)
 @stringfilter
 def urlize(value, autoescape=True):
@@ -372,6 +392,7 @@ def urlize(value, autoescape=True):
     return mark_safe(_urlize(value, nofollow=True, autoescape=autoescape))
 
 
+# [TODO] urlizetrunc
 @register.filter(is_safe=True, needs_autoescape=True)
 @stringfilter
 def urlizetrunc(value, limit, autoescape=True):
@@ -386,6 +407,7 @@ def urlizetrunc(value, limit, autoescape=True):
     )
 
 
+# [TODO] wordcount
 @register.filter(is_safe=False)
 @stringfilter
 def wordcount(value):
@@ -393,6 +415,7 @@ def wordcount(value):
     return len(value.split())
 
 
+# [TODO] wordwrap
 @register.filter(is_safe=True)
 @stringfilter
 def wordwrap(value, arg):
@@ -400,6 +423,7 @@ def wordwrap(value, arg):
     return wrap(value, int(arg))
 
 
+# [TODO] ljust
 @register.filter(is_safe=True)
 @stringfilter
 def ljust(value, arg):
@@ -407,6 +431,7 @@ def ljust(value, arg):
     return value.ljust(int(arg))
 
 
+# [TODO] rjust
 @register.filter(is_safe=True)
 @stringfilter
 def rjust(value, arg):
@@ -414,6 +439,7 @@ def rjust(value, arg):
     return value.rjust(int(arg))
 
 
+# [TODO] center
 @register.filter(is_safe=True)
 @stringfilter
 def center(value, arg):
@@ -421,6 +447,7 @@ def center(value, arg):
     return value.center(int(arg))
 
 
+# [TODO] cut
 @register.filter
 @stringfilter
 def cut(value, arg):
@@ -437,6 +464,7 @@ def cut(value, arg):
 ###################
 
 
+# [TODO] escape_filter
 @register.filter("escape", is_safe=True)
 @stringfilter
 def escape_filter(value):
@@ -444,6 +472,7 @@ def escape_filter(value):
     return conditional_escape(value)
 
 
+# [TODO] escapeseq
 @register.filter(is_safe=True)
 def escapeseq(value):
     """
@@ -454,6 +483,7 @@ def escapeseq(value):
     return [conditional_escape(obj) for obj in value]
 
 
+# [TODO] force_escape
 @register.filter(is_safe=True)
 @stringfilter
 def force_escape(value):
@@ -465,6 +495,7 @@ def force_escape(value):
     return escape(value)
 
 
+# [TODO] linebreaks_filter
 @register.filter("linebreaks", is_safe=True, needs_autoescape=True)
 @stringfilter
 def linebreaks_filter(value, autoescape=True):
@@ -477,6 +508,7 @@ def linebreaks_filter(value, autoescape=True):
     return mark_safe(linebreaks(value, autoescape))
 
 
+# [TODO] linebreaksbr
 @register.filter(is_safe=True, needs_autoescape=True)
 @stringfilter
 def linebreaksbr(value, autoescape=True):
@@ -491,6 +523,7 @@ def linebreaksbr(value, autoescape=True):
     return mark_safe(value.replace("\n", "<br>"))
 
 
+# [TODO] safe
 @register.filter(is_safe=True)
 @stringfilter
 def safe(value):
@@ -498,6 +531,7 @@ def safe(value):
     return mark_safe(value)
 
 
+# [TODO] safeseq
 @register.filter(is_safe=True)
 def safeseq(value):
     """
@@ -508,6 +542,7 @@ def safeseq(value):
     return [mark_safe(obj) for obj in value]
 
 
+# [TODO] striptags
 @register.filter(is_safe=True)
 @stringfilter
 def striptags(value):
@@ -520,6 +555,7 @@ def striptags(value):
 ###################
 
 
+# [TODO] _property_resolver
 def _property_resolver(arg):
     """
     When arg is convertible to float, behave like operator.itemgetter(arg)
@@ -558,6 +594,7 @@ def _property_resolver(arg):
         return itemgetter(arg)
 
 
+# [TODO] dictsort
 @register.filter(is_safe=False)
 def dictsort(value, arg):
     """
@@ -570,6 +607,7 @@ def dictsort(value, arg):
         return ""
 
 
+# [TODO] dictsortreversed
 @register.filter(is_safe=False)
 def dictsortreversed(value, arg):
     """
@@ -582,6 +620,7 @@ def dictsortreversed(value, arg):
         return ""
 
 
+# [TODO] first
 @register.filter(is_safe=False)
 def first(value):
     """Return the first item in a list."""
@@ -591,6 +630,7 @@ def first(value):
         return ""
 
 
+# [TODO] join
 @register.filter(is_safe=True, needs_autoescape=True)
 def join(value, arg, autoescape=True):
     """Join a list with a string, like Python's ``str.join(list)``."""
@@ -604,6 +644,7 @@ def join(value, arg, autoescape=True):
     return mark_safe(data)
 
 
+# [TODO] last
 @register.filter(is_safe=True)
 def last(value):
     """Return the last item in a list."""
@@ -613,6 +654,7 @@ def last(value):
         return ""
 
 
+# [TODO] length
 @register.filter(is_safe=False)
 def length(value):
     """Return the length of the value - useful for lists."""
@@ -622,6 +664,7 @@ def length(value):
         return 0
 
 
+# [TODO] length_is
 @register.filter(is_safe=False)
 def length_is(value, arg):
     """Return a boolean of whether the value's length is the argument."""
@@ -636,6 +679,7 @@ def length_is(value, arg):
         return ""
 
 
+# [TODO] random
 @register.filter(is_safe=True)
 def random(value):
     """Return a random item from the list."""
@@ -645,6 +689,7 @@ def random(value):
         return ""
 
 
+# [TODO] slice_filter
 @register.filter("slice", is_safe=True)
 def slice_filter(value, arg):
     """
@@ -663,6 +708,7 @@ def slice_filter(value, arg):
         return value  # Fail silently.
 
 
+# [TODO] unordered_list
 @register.filter(is_safe=True, needs_autoescape=True)
 def unordered_list(value, autoescape=True):
     """
@@ -739,6 +785,7 @@ def unordered_list(value, autoescape=True):
 ###################
 
 
+# [TODO] add
 @register.filter(is_safe=False)
 def add(value, arg):
     """Add the arg to the value."""
@@ -751,6 +798,7 @@ def add(value, arg):
             return ""
 
 
+# [TODO] get_digit
 @register.filter(is_safe=False)
 def get_digit(value, arg):
     """
@@ -777,6 +825,7 @@ def get_digit(value, arg):
 ###################
 
 
+# [TODO] date
 @register.filter(expects_localtime=True, is_safe=False)
 def date(value, arg=None):
     """Format a date according to the given format."""
@@ -791,6 +840,7 @@ def date(value, arg=None):
             return ""
 
 
+# [TODO] time
 @register.filter(expects_localtime=True, is_safe=False)
 def time(value, arg=None):
     """Format a time according to the given format."""
@@ -805,6 +855,7 @@ def time(value, arg=None):
             return ""
 
 
+# [TODO] timesince_filter
 @register.filter("timesince", is_safe=False)
 def timesince_filter(value, arg=None):
     """Format a date as the time since that date (i.e. "4 days, 6 hours")."""
@@ -818,6 +869,7 @@ def timesince_filter(value, arg=None):
         return ""
 
 
+# [TODO] timeuntil_filter
 @register.filter("timeuntil", is_safe=False)
 def timeuntil_filter(value, arg=None):
     """Format a date as the time until that date (i.e. "4 days, 6 hours")."""
@@ -834,12 +886,14 @@ def timeuntil_filter(value, arg=None):
 ###################
 
 
+# [TODO] default
 @register.filter(is_safe=False)
 def default(value, arg):
     """If value is unavailable, use given default."""
     return value or arg
 
 
+# [TODO] default_if_none
 @register.filter(is_safe=False)
 def default_if_none(value, arg):
     """If value is None, use given default."""
@@ -848,12 +902,14 @@ def default_if_none(value, arg):
     return value
 
 
+# [TODO] divisibleby
 @register.filter(is_safe=False)
 def divisibleby(value, arg):
     """Return True if the value is divisible by the argument."""
     return int(value) % int(arg) == 0
 
 
+# [TODO] yesno
 @register.filter(is_safe=False)
 def yesno(value, arg=None):
     """
@@ -893,6 +949,7 @@ def yesno(value, arg=None):
 ###################
 
 
+# [TODO] filesizeformat
 @register.filter(is_safe=True)
 def filesizeformat(bytes_):
     """
@@ -936,6 +993,7 @@ def filesizeformat(bytes_):
     return avoid_wrapping(value)
 
 
+# [TODO] pluralize
 @register.filter(is_safe=False)
 def pluralize(value, arg="s"):
     """
@@ -978,12 +1036,14 @@ def pluralize(value, arg="s"):
     return ""
 
 
+# [TODO] phone2numeric_filter
 @register.filter("phone2numeric", is_safe=True)
 def phone2numeric_filter(value):
     """Take a phone number and converts it in to its numerical equivalent."""
     return phone2numeric(value)
 
 
+# [TODO] pprint
 @register.filter(is_safe=True)
 def pprint(value):
     """A wrapper around pprint.pprint -- for debugging, really."""

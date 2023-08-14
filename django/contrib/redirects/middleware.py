@@ -7,11 +7,13 @@ from django.http import HttpResponseGone, HttpResponsePermanentRedirect
 from django.utils.deprecation import MiddlewareMixin
 
 
+# [TODO] RedirectFallbackMiddleware
 class RedirectFallbackMiddleware(MiddlewareMixin):
     # Defined as class-level attributes to be subclassing-friendly.
     response_gone_class = HttpResponseGone
     response_redirect_class = HttpResponsePermanentRedirect
 
+    # [TODO] RedirectFallbackMiddleware > __init__
     def __init__(self, get_response):
         if not apps.is_installed("django.contrib.sites"):
             raise ImproperlyConfigured(
@@ -20,6 +22,7 @@ class RedirectFallbackMiddleware(MiddlewareMixin):
             )
         super().__init__(get_response)
 
+    # [TODO] RedirectFallbackMiddleware > process_response
     def process_response(self, request, response):
         # No need to check for a redirect for non-404 responses.
         if response.status_code != 404:

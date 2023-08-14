@@ -3,6 +3,7 @@ from django.db.backends.oracle.schema import DatabaseSchemaEditor
 from django.db.backends.utils import strip_quotes, truncate_name
 
 
+# [TODO] OracleGISSchemaEditor
 class OracleGISSchemaEditor(DatabaseSchemaEditor):
     sql_add_geometry_metadata = """
         INSERT INTO USER_SDO_GEOM_METADATA
@@ -29,18 +30,22 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
         "AND COLUMN_NAME = %(column)s"
     )
 
+    # [TODO] OracleGISSchemaEditor > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.geometry_sql = []
 
+    # [TODO] OracleGISSchemaEditor > geo_quote_name
     def geo_quote_name(self, name):
         return self.connection.ops.geo_quote_name(name)
 
+    # [TODO] OracleGISSchemaEditor > quote_value
     def quote_value(self, value):
         if isinstance(value, self.connection.ops.Adapter):
             return super().quote_value(str(value))
         return super().quote_value(value)
 
+    # [TODO] OracleGISSchemaEditor > column_sql
     def column_sql(self, model, field, include_default=False):
         column_sql = super().column_sql(model, field, include_default)
         if isinstance(field, GeometryField):
@@ -71,10 +76,12 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
                 )
         return column_sql
 
+    # [TODO] OracleGISSchemaEditor > create_model
     def create_model(self, model):
         super().create_model(model)
         self.run_geometry_sql()
 
+    # [TODO] OracleGISSchemaEditor > delete_model
     def delete_model(self, model):
         super().delete_model(model)
         self.execute(
@@ -84,10 +91,12 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
             }
         )
 
+    # [TODO] OracleGISSchemaEditor > add_field
     def add_field(self, model, field):
         super().add_field(model, field)
         self.run_geometry_sql()
 
+    # [TODO] OracleGISSchemaEditor > remove_field
     def remove_field(self, model, field):
         if isinstance(field, GeometryField):
             self.execute(
@@ -108,11 +117,13 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
                 )
         super().remove_field(model, field)
 
+    # [TODO] OracleGISSchemaEditor > run_geometry_sql
     def run_geometry_sql(self):
         for sql in self.geometry_sql:
             self.execute(sql)
         self.geometry_sql = []
 
+    # [TODO] OracleGISSchemaEditor > _create_spatial_index_name
     def _create_spatial_index_name(self, model, field):
         # Oracle doesn't allow object names > 30 characters. Use this scheme
         # instead of self._create_index_name() for backwards compatibility.

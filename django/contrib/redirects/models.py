@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] Redirect
 class Redirect(models.Model):
     site = models.ForeignKey(Site, models.CASCADE, verbose_name=_("site"))
     old_path = models.CharField(
@@ -24,6 +25,7 @@ class Redirect(models.Model):
         ),
     )
 
+    # [TODO] Redirect > Meta
     class Meta:
         verbose_name = _("redirect")
         verbose_name_plural = _("redirects")
@@ -31,5 +33,6 @@ class Redirect(models.Model):
         unique_together = [["site", "old_path"]]
         ordering = ["old_path"]
 
+    # [TODO] Redirect > __str__
     def __str__(self):
         return "%s ---> %s" % (self.old_path, self.new_path)

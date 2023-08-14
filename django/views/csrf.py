@@ -9,6 +9,7 @@ from django.utils.version import get_docs_version
 CSRF_FAILURE_TEMPLATE_NAME = "403_csrf.html"
 
 
+# [TODO] builtin_template_path
 def builtin_template_path(name):
     """
     Return a path to a builtin template.
@@ -19,6 +20,7 @@ def builtin_template_path(name):
     return Path(__file__).parent / "templates" / name
 
 
+# [TODO] csrf_failure
 def csrf_failure(request, reason="", template_name=CSRF_FAILURE_TEMPLATE_NAME):
     """
     Default view used when request fails CSRF protection

@@ -9,7 +9,9 @@ from django.utils.functional import cached_property
 TEST_DATABASE_PREFIX = "test_"
 
 
+# [TODO] DatabaseCreation
 class DatabaseCreation(BaseDatabaseCreation):
+    # [TODO] DatabaseCreation > _maindb_connection
     @cached_property
     def _maindb_connection(self):
         """
@@ -26,6 +28,7 @@ class DatabaseCreation(BaseDatabaseCreation):
         DatabaseWrapper = type(self.connection)
         return DatabaseWrapper(settings_dict, alias=self.connection.alias)
 
+    # [TODO] DatabaseCreation > _create_test_db
     def _create_test_db(self, verbosity=1, autoclobber=False, keepdb=False):
         parameters = self._get_test_db_params()
         with self._maindb_connection.cursor() as cursor:
@@ -123,6 +126,7 @@ class DatabaseCreation(BaseDatabaseCreation):
         self._switch_to_test_user(parameters)
         return self.connection.settings_dict["NAME"]
 
+    # [TODO] DatabaseCreation > _switch_to_test_user
     def _switch_to_test_user(self, parameters):
         """
         Switch to the user that's used for creating the test database.
@@ -148,6 +152,7 @@ class DatabaseCreation(BaseDatabaseCreation):
             "PASSWORD"
         ] = parameters["password"]
 
+    # [TODO] DatabaseCreation > set_as_test_mirror
     def set_as_test_mirror(self, primary_settings_dict):
         """
         Set this database up to be used in testing as a mirror of a primary
@@ -156,6 +161,7 @@ class DatabaseCreation(BaseDatabaseCreation):
         self.connection.settings_dict["USER"] = primary_settings_dict["USER"]
         self.connection.settings_dict["PASSWORD"] = primary_settings_dict["PASSWORD"]
 
+    # [TODO] DatabaseCreation > _handle_objects_preventing_db_destruction
     def _handle_objects_preventing_db_destruction(
         self, cursor, parameters, verbosity, autoclobber
     ):
@@ -200,6 +206,7 @@ class DatabaseCreation(BaseDatabaseCreation):
             self.log("Tests cancelled -- test database cannot be recreated.")
             sys.exit(1)
 
+    # [TODO] DatabaseCreation > _destroy_test_db
     def _destroy_test_db(self, test_database_name, verbosity=1):
         """
         Destroy a test database, prompting the user for confirmation if the
@@ -224,6 +231,7 @@ class DatabaseCreation(BaseDatabaseCreation):
                 self._execute_test_db_destruction(cursor, parameters, verbosity)
         self._maindb_connection.close()
 
+    # [TODO] DatabaseCreation > _execute_test_db_creation
     def _execute_test_db_creation(self, cursor, parameters, verbosity, keepdb=False):
         if verbosity >= 2:
             self.log("_create_test_db(): dbname = %s" % parameters["user"])
@@ -259,6 +267,7 @@ class DatabaseCreation(BaseDatabaseCreation):
             cursor, statements, parameters, verbosity, acceptable_ora_err
         )
 
+    # [TODO] DatabaseCreation > _create_test_user
     def _create_test_user(self, cursor, parameters, verbosity, keepdb=False):
         if verbosity >= 2:
             self.log("_create_test_user(): username = %s" % parameters["user"])
@@ -299,6 +308,7 @@ class DatabaseCreation(BaseDatabaseCreation):
                     % object_type
                 )
 
+    # [TODO] DatabaseCreation > _execute_test_db_destruction
     def _execute_test_db_destruction(self, cursor, parameters, verbosity):
         if verbosity >= 2:
             self.log("_execute_test_db_destruction(): dbname=%s" % parameters["user"])
@@ -310,6 +320,7 @@ class DatabaseCreation(BaseDatabaseCreation):
         ]
         self._execute_statements(cursor, statements, parameters, verbosity)
 
+    # [TODO] DatabaseCreation > _destroy_test_user
     def _destroy_test_user(self, cursor, parameters, verbosity):
         if verbosity >= 2:
             self.log("_destroy_test_user(): user=%s" % parameters["user"])
@@ -319,6 +330,7 @@ class DatabaseCreation(BaseDatabaseCreation):
         ]
         self._execute_statements(cursor, statements, parameters, verbosity)
 
+    # [TODO] DatabaseCreation > _execute_statements
     def _execute_statements(
         self, cursor, statements, parameters, verbosity, allow_quiet_fail=False
     ):
@@ -333,6 +345,7 @@ class DatabaseCreation(BaseDatabaseCreation):
                     self.log("Failed (%s)" % (err))
                 raise
 
+    # [TODO] DatabaseCreation > _execute_allow_fail_statements
     def _execute_allow_fail_statements(
         self, cursor, statements, parameters, verbosity, acceptable_ora_err
     ):
@@ -360,6 +373,7 @@ class DatabaseCreation(BaseDatabaseCreation):
                 raise
             return False
 
+    # [TODO] DatabaseCreation > _get_test_db_params
     def _get_test_db_params(self):
         return {
             "dbname": self._test_database_name(),
@@ -377,6 +391,7 @@ class DatabaseCreation(BaseDatabaseCreation):
             "extsize_tmp": self._test_database_tblspace_tmp_extsize(),
         }
 
+    # [TODO] DatabaseCreation > _test_settings_get
     def _test_settings_get(self, key, default=None, prefixed=None):
         """
         Return a value from the test settings dict, or a given default, or a
@@ -388,18 +403,23 @@ class DatabaseCreation(BaseDatabaseCreation):
             val = TEST_DATABASE_PREFIX + settings_dict[prefixed]
         return val
 
+    # [TODO] DatabaseCreation > _test_database_name
     def _test_database_name(self):
         return self._test_settings_get("NAME", prefixed="NAME")
 
+    # [TODO] DatabaseCreation > _test_database_create
     def _test_database_create(self):
         return self._test_settings_get("CREATE_DB", default=True)
 
+    # [TODO] DatabaseCreation > _test_user_create
     def _test_user_create(self):
         return self._test_settings_get("CREATE_USER", default=True)
 
+    # [TODO] DatabaseCreation > _test_database_user
     def _test_database_user(self):
         return self._test_settings_get("USER", prefixed="USER")
 
+    # [TODO] DatabaseCreation > _test_database_passwd
     def _test_database_passwd(self):
         password = self._test_settings_get("PASSWORD")
         if password is None and self._test_user_create():
@@ -407,44 +427,56 @@ class DatabaseCreation(BaseDatabaseCreation):
             password = get_random_string(30)
         return password
 
+    # [TODO] DatabaseCreation > _test_database_tblspace
     def _test_database_tblspace(self):
         return self._test_settings_get("TBLSPACE", prefixed="USER")
 
+    # [TODO] DatabaseCreation > _test_database_tblspace_tmp
     def _test_database_tblspace_tmp(self):
         settings_dict = self.connection.settings_dict
         return settings_dict["TEST"].get(
             "TBLSPACE_TMP", TEST_DATABASE_PREFIX + settings_dict["USER"] + "_temp"
         )
 
+    # [TODO] DatabaseCreation > _test_database_tblspace_datafile
     def _test_database_tblspace_datafile(self):
         tblspace = "%s.dbf" % self._test_database_tblspace()
         return self._test_settings_get("DATAFILE", default=tblspace)
 
+    # [TODO] DatabaseCreation > _test_database_tblspace_tmp_datafile
     def _test_database_tblspace_tmp_datafile(self):
         tblspace = "%s.dbf" % self._test_database_tblspace_tmp()
         return self._test_settings_get("DATAFILE_TMP", default=tblspace)
 
+    # [TODO] DatabaseCreation > _test_database_tblspace_maxsize
     def _test_database_tblspace_maxsize(self):
         return self._test_settings_get("DATAFILE_MAXSIZE", default="500M")
 
+    # [TODO] DatabaseCreation > _test_database_tblspace_tmp_maxsize
     def _test_database_tblspace_tmp_maxsize(self):
         return self._test_settings_get("DATAFILE_TMP_MAXSIZE", default="500M")
 
+    # [TODO] DatabaseCreation > _test_database_tblspace_size
     def _test_database_tblspace_size(self):
         return self._test_settings_get("DATAFILE_SIZE", default="50M")
 
+    # [TODO] DatabaseCreation > _test_database_tblspace_tmp_size
     def _test_database_tblspace_tmp_size(self):
         return self._test_settings_get("DATAFILE_TMP_SIZE", default="50M")
 
+    # [TODO] DatabaseCreation > _test_database_tblspace_extsize
     def _test_database_tblspace_extsize(self):
         return self._test_settings_get("DATAFILE_EXTSIZE", default="25M")
 
+    # [TODO] DatabaseCreation > _test_database_tblspace_tmp_extsize
     def _test_database_tblspace_tmp_extsize(self):
         return self._test_settings_get("DATAFILE_TMP_EXTSIZE", default="25M")
 
+    # [TODO] DatabaseCreation > _test_database_oracle_managed_files
     def _test_database_oracle_managed_files(self):
         return self._test_settings_get("ORACLE_MANAGED_FILES", default=False)
 
+    # [TODO] DatabaseCreation > _get_test_db_name
     def _get_test_db_name(self):
         """
         Return the 'production' DB name to get the test DB creation machinery
@@ -453,6 +485,7 @@ class DatabaseCreation(BaseDatabaseCreation):
         """
         return self.connection.settings_dict["NAME"]
 
+    # [TODO] DatabaseCreation > test_db_signature
     def test_db_signature(self):
         settings_dict = self.connection.settings_dict
         return (

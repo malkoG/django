@@ -20,6 +20,7 @@ from django.utils import timezone
 logger = logging.getLogger("django.db.backends.schema")
 
 
+# [TODO] _is_relevant_relation
 def _is_relevant_relation(relation, altered_field):
     """
     When altering the given field, must constraints on its model from the given
@@ -36,6 +37,7 @@ def _is_relevant_relation(relation, altered_field):
     return altered_field.name in field.to_fields
 
 
+# [TODO] _all_related_fields
 def _all_related_fields(model):
     # Related fields must be returned in a deterministic order.
     return sorted(
@@ -49,6 +51,7 @@ def _all_related_fields(model):
     )
 
 
+# [TODO] _related_non_m2m_objects
 def _related_non_m2m_objects(old_field, new_field):
     # Filter out m2m objects from reverse relations.
     # Return (old_relation, new_relation) tuples.
@@ -72,6 +75,7 @@ def _related_non_m2m_objects(old_field, new_field):
         )
 
 
+# [TODO] BaseDatabaseSchemaEditor
 class BaseDatabaseSchemaEditor:
     """
     This class and its subclasses are responsible for emitting schema-changing
@@ -144,6 +148,7 @@ class BaseDatabaseSchemaEditor:
     sql_alter_table_comment = "COMMENT ON TABLE %(table)s IS %(comment)s"
     sql_alter_column_comment = "COMMENT ON COLUMN %(table)s.%(column)s IS %(comment)s"
 
+    # [TODO] BaseDatabaseSchemaEditor > __init__
     def __init__(self, connection, collect_sql=False, atomic=True):
         self.connection = connection
         self.collect_sql = collect_sql
@@ -153,6 +158,7 @@ class BaseDatabaseSchemaEditor:
 
     # State-managing methods
 
+    # [TODO] BaseDatabaseSchemaEditor > __enter__
     def __enter__(self):
         self.deferred_sql = []
         if self.atomic_migration:
@@ -160,6 +166,7 @@ class BaseDatabaseSchemaEditor:
             self.atomic.__enter__()
         return self
 
+    # [TODO] BaseDatabaseSchemaEditor > __exit__
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is None:
             for sql in self.deferred_sql:
@@ -169,6 +176,7 @@ class BaseDatabaseSchemaEditor:
 
     # Core utility functions
 
+    # [TODO] BaseDatabaseSchemaEditor > execute
     def execute(self, sql, params=()):
         """Execute the given SQL statement, with optional parameters."""
         # Don't perform the transactional DDL check if SQL is being collected
@@ -200,9 +208,11 @@ class BaseDatabaseSchemaEditor:
             with self.connection.cursor() as cursor:
                 cursor.execute(sql, params)
 
+    # [TODO] BaseDatabaseSchemaEditor > quote_name
     def quote_name(self, name):
         return self.connection.ops.quote_name(name)
 
+    # [TODO] BaseDatabaseSchemaEditor > table_sql
     def table_sql(self, model):
         """Take a model and return its table definition."""
         # Add any unique_togethers (always deferred, as some fields might be
@@ -286,6 +296,7 @@ class BaseDatabaseSchemaEditor:
 
     # Field <-> database mapping functions
 
+    # [TODO] BaseDatabaseSchemaEditor > _iter_column_sql
     def _iter_column_sql(
         self, column_db_type, params, model, field, field_db_params, include_default
     ):
@@ -349,6 +360,7 @@ class BaseDatabaseSchemaEditor:
         ):
             yield self.connection.ops.tablespace_sql(tablespace, inline=True)
 
+    # [TODO] BaseDatabaseSchemaEditor > column_sql
     def column_sql(self, model, field, include_default=False):
         """
         Return the column definition for a field. The field must already have
@@ -376,6 +388,7 @@ class BaseDatabaseSchemaEditor:
             params,
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > skip_default
     def skip_default(self, field):
         """
         Some backends don't accept default values for certain columns types
@@ -383,6 +396,7 @@ class BaseDatabaseSchemaEditor:
         """
         return False
 
+    # [TODO] BaseDatabaseSchemaEditor > skip_default_on_alter
     def skip_default_on_alter(self, field):
         """
         Some backends don't accept default values for certain columns types
@@ -390,6 +404,7 @@ class BaseDatabaseSchemaEditor:
         """
         return False
 
+    # [TODO] BaseDatabaseSchemaEditor > prepare_default
     def prepare_default(self, value):
         """
         Only used for backends which have requires_literal_defaults feature
@@ -399,6 +414,7 @@ class BaseDatabaseSchemaEditor:
             "requires_literal_defaults must provide a prepare_default() method"
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _column_default_sql
     def _column_default_sql(self, field):
         """
         Return the SQL to use in a DEFAULT clause. The resulting string should
@@ -406,6 +422,7 @@ class BaseDatabaseSchemaEditor:
         """
         return "%s"
 
+    # [TODO] BaseDatabaseSchemaEditor > db_default_sql
     def db_default_sql(self, field):
         """Return the sql and params for the field's database default."""
         from django.db.models.expressions import Value
@@ -422,6 +439,7 @@ class BaseDatabaseSchemaEditor:
             params = []
         return sql % default_sql, params
 
+    # [TODO] BaseDatabaseSchemaEditor > _effective_default
     @staticmethod
     def _effective_default(field):
         # This method allows testing its logic without a connection.
@@ -446,10 +464,12 @@ class BaseDatabaseSchemaEditor:
             default = None
         return default
 
+    # [TODO] BaseDatabaseSchemaEditor > effective_default
     def effective_default(self, field):
         """Return a field's effective database default value."""
         return field.get_db_prep_save(self._effective_default(field), self.connection)
 
+    # [TODO] BaseDatabaseSchemaEditor > quote_value
     def quote_value(self, value):
         """
         Return a quoted version of the value so it's safe to use in an SQL
@@ -462,6 +482,7 @@ class BaseDatabaseSchemaEditor:
 
     # Actions
 
+    # [TODO] BaseDatabaseSchemaEditor > create_model
     def create_model(self, model):
         """
         Create a table and any accompanying indexes or unique constraints for
@@ -498,6 +519,7 @@ class BaseDatabaseSchemaEditor:
             if field.remote_field.through._meta.auto_created:
                 self.create_model(field.remote_field.through)
 
+    # [TODO] BaseDatabaseSchemaEditor > delete_model
     def delete_model(self, model):
         """Delete a model from the database."""
         # Handle auto-created intermediary models
@@ -519,6 +541,7 @@ class BaseDatabaseSchemaEditor:
             ):
                 self.deferred_sql.remove(sql)
 
+    # [TODO] BaseDatabaseSchemaEditor > add_index
     def add_index(self, model, index):
         """Add an index on a model."""
         if (
@@ -530,6 +553,7 @@ class BaseDatabaseSchemaEditor:
         # necessity to avoid escaping attempts on execution.
         self.execute(index.create_sql(model, self), params=None)
 
+    # [TODO] BaseDatabaseSchemaEditor > remove_index
     def remove_index(self, model, index):
         """Remove an index from a model."""
         if (
@@ -539,6 +563,7 @@ class BaseDatabaseSchemaEditor:
             return None
         self.execute(index.remove_sql(model, self))
 
+    # [TODO] BaseDatabaseSchemaEditor > rename_index
     def rename_index(self, model, old_index, new_index):
         if self.connection.features.can_rename_index:
             self.execute(
@@ -549,6 +574,7 @@ class BaseDatabaseSchemaEditor:
             self.remove_index(model, old_index)
             self.add_index(model, new_index)
 
+    # [TODO] BaseDatabaseSchemaEditor > add_constraint
     def add_constraint(self, model, constraint):
         """Add a constraint to a model."""
         sql = constraint.create_sql(model, self)
@@ -557,12 +583,14 @@ class BaseDatabaseSchemaEditor:
             # params=None a necessity to avoid escaping attempts on execution.
             self.execute(sql, params=None)
 
+    # [TODO] BaseDatabaseSchemaEditor > remove_constraint
     def remove_constraint(self, model, constraint):
         """Remove a constraint from a model."""
         sql = constraint.remove_sql(model, self)
         if sql:
             self.execute(sql)
 
+    # [TODO] BaseDatabaseSchemaEditor > alter_unique_together
     def alter_unique_together(self, model, old_unique_together, new_unique_together):
         """
         Deal with a model changing its unique_together. The input
@@ -584,6 +612,7 @@ class BaseDatabaseSchemaEditor:
             fields = [model._meta.get_field(field) for field in field_names]
             self.execute(self._create_unique_sql(model, fields))
 
+    # [TODO] BaseDatabaseSchemaEditor > alter_index_together
     def alter_index_together(self, model, old_index_together, new_index_together):
         """
         Deal with a model changing its index_together. The input
@@ -605,6 +634,7 @@ class BaseDatabaseSchemaEditor:
             fields = [model._meta.get_field(field) for field in field_names]
             self.execute(self._create_index_sql(model, fields=fields, suffix="_idx"))
 
+    # [TODO] BaseDatabaseSchemaEditor > _delete_composed_index
     def _delete_composed_index(self, model, fields, constraint_kwargs, sql):
         meta_constraint_names = {
             constraint.name for constraint in model._meta.constraints
@@ -639,6 +669,7 @@ class BaseDatabaseSchemaEditor:
             )
         self.execute(self._delete_constraint_sql(sql, model, constraint_names[0]))
 
+    # [TODO] BaseDatabaseSchemaEditor > alter_db_table
     def alter_db_table(self, model, old_db_table, new_db_table):
         """Rename the table a model points to."""
         if old_db_table == new_db_table or (
@@ -658,6 +689,7 @@ class BaseDatabaseSchemaEditor:
             if isinstance(sql, Statement):
                 sql.rename_table_references(old_db_table, new_db_table)
 
+    # [TODO] BaseDatabaseSchemaEditor > alter_db_table_comment
     def alter_db_table_comment(self, model, old_db_table_comment, new_db_table_comment):
         self.execute(
             self.sql_alter_table_comment
@@ -667,6 +699,7 @@ class BaseDatabaseSchemaEditor:
             }
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > alter_db_tablespace
     def alter_db_tablespace(self, model, old_db_tablespace, new_db_tablespace):
         """Move a model's table between tablespaces."""
         self.execute(
@@ -678,6 +711,7 @@ class BaseDatabaseSchemaEditor:
             }
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > add_field
     def add_field(self, model, field):
         """
         Create a field on a model. Usually involves adding a column, but may
@@ -764,6 +798,7 @@ class BaseDatabaseSchemaEditor:
         if self.connection.features.connection_persists_old_columns:
             self.connection.close()
 
+    # [TODO] BaseDatabaseSchemaEditor > remove_field
     def remove_field(self, model, field):
         """
         Remove a field from a model. Usually involves deleting a column,
@@ -796,6 +831,7 @@ class BaseDatabaseSchemaEditor:
             ):
                 self.deferred_sql.remove(sql)
 
+    # [TODO] BaseDatabaseSchemaEditor > alter_field
     def alter_field(self, model, old_field, new_field, strict=False):
         """
         Allow a field's type, uniqueness, nullability, default, column,
@@ -860,6 +896,7 @@ class BaseDatabaseSchemaEditor:
             strict,
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _field_db_check
     def _field_db_check(self, field, field_db_params):
         # Always check constraints with the same mocked column name to avoid
         # recreating constrains when the column is renamed.
@@ -871,6 +908,7 @@ class BaseDatabaseSchemaEditor:
         except KeyError:
             return None
 
+    # [TODO] BaseDatabaseSchemaEditor > _alter_field
     def _alter_field(
         self,
         model,
@@ -1243,6 +1281,7 @@ class BaseDatabaseSchemaEditor:
         if self.connection.features.connection_persists_old_columns:
             self.connection.close()
 
+    # [TODO] BaseDatabaseSchemaEditor > _alter_column_null_sql
     def _alter_column_null_sql(self, model, old_field, new_field):
         """
         Hook to specialize column null alteration.
@@ -1272,6 +1311,7 @@ class BaseDatabaseSchemaEditor:
                 [],
             )
 
+    # [TODO] BaseDatabaseSchemaEditor > _alter_column_default_sql
     def _alter_column_default_sql(self, model, old_field, new_field, drop=False):
         """
         Hook to specialize column default alteration.
@@ -1310,6 +1350,7 @@ class BaseDatabaseSchemaEditor:
             params,
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _alter_column_database_default_sql
     def _alter_column_database_default_sql(
         self, model, old_field, new_field, drop=False
     ):
@@ -1338,6 +1379,7 @@ class BaseDatabaseSchemaEditor:
             params,
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _alter_column_type_sql
     def _alter_column_type_sql(
         self, model, old_field, new_field, new_type, old_collation, new_collation
     ):
@@ -1384,6 +1426,7 @@ class BaseDatabaseSchemaEditor:
             other_actions,
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _alter_column_comment_sql
     def _alter_column_comment_sql(self, model, new_field, new_type, new_db_comment):
         return (
             self.sql_alter_column_comment
@@ -1395,9 +1438,11 @@ class BaseDatabaseSchemaEditor:
             [],
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _comment_sql
     def _comment_sql(self, comment):
         return self.quote_value(comment or "")
 
+    # [TODO] BaseDatabaseSchemaEditor > _alter_many_to_many
     def _alter_many_to_many(self, model, old_field, new_field, strict):
         """Alter M2Ms to repoint their to= endpoints."""
         # Rename the through table
@@ -1430,6 +1475,7 @@ class BaseDatabaseSchemaEditor:
             new_field.remote_field.through._meta.get_field(new_field.m2m_field_name()),
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _create_index_name
     def _create_index_name(self, table_name, column_names, suffix=""):
         """
         Generate a unique name for an index/unique constraint.
@@ -1462,6 +1508,7 @@ class BaseDatabaseSchemaEditor:
             index_name = "D%s" % index_name[:-1]
         return index_name
 
+    # [TODO] BaseDatabaseSchemaEditor > _get_index_tablespace_sql
     def _get_index_tablespace_sql(self, model, fields, db_tablespace=None):
         if db_tablespace is None:
             if len(fields) == 1 and fields[0].db_tablespace:
@@ -1474,11 +1521,13 @@ class BaseDatabaseSchemaEditor:
             return " " + self.connection.ops.tablespace_sql(db_tablespace)
         return ""
 
+    # [TODO] BaseDatabaseSchemaEditor > _index_condition_sql
     def _index_condition_sql(self, condition):
         if condition:
             return " WHERE " + condition
         return ""
 
+    # [TODO] BaseDatabaseSchemaEditor > _index_include_sql
     def _index_include_sql(self, model, columns):
         if not columns or not self.connection.features.supports_covering_indexes:
             return ""
@@ -1487,6 +1536,7 @@ class BaseDatabaseSchemaEditor:
             columns=Columns(model._meta.db_table, columns, self.quote_name),
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _create_index_sql
     def _create_index_sql(
         self,
         model,
@@ -1541,6 +1591,7 @@ class BaseDatabaseSchemaEditor:
             include=self._index_include_sql(model, include),
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _delete_index_sql
     def _delete_index_sql(self, model, name, sql=None):
         return Statement(
             sql or self.sql_delete_index,
@@ -1548,6 +1599,7 @@ class BaseDatabaseSchemaEditor:
             name=self.quote_name(name),
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _rename_index_sql
     def _rename_index_sql(self, model, old_name, new_name):
         return Statement(
             self.sql_rename_index,
@@ -1556,9 +1608,11 @@ class BaseDatabaseSchemaEditor:
             new_name=self.quote_name(new_name),
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _index_columns
     def _index_columns(self, table, columns, col_suffixes, opclasses):
         return Columns(table, columns, self.quote_name, col_suffixes=col_suffixes)
 
+    # [TODO] BaseDatabaseSchemaEditor > _model_indexes_sql
     def _model_indexes_sql(self, model):
         """
         Return a list of all index SQL statements (field indexes,
@@ -1583,6 +1637,7 @@ class BaseDatabaseSchemaEditor:
                 output.append(index.create_sql(model, self))
         return output
 
+    # [TODO] BaseDatabaseSchemaEditor > _field_indexes_sql
     def _field_indexes_sql(self, model, field):
         """
         Return a list of all index SQL statements for the specified field.
@@ -1592,6 +1647,7 @@ class BaseDatabaseSchemaEditor:
             output.append(self._create_index_sql(model, fields=[field]))
         return output
 
+    # [TODO] BaseDatabaseSchemaEditor > _field_should_be_altered
     def _field_should_be_altered(self, old_field, new_field, ignore=None):
         ignore = ignore or set()
         _, old_path, old_args, old_kwargs = old_field.deconstruct()
@@ -1619,12 +1675,15 @@ class BaseDatabaseSchemaEditor:
             new_field.column
         ) or (old_path, old_args, old_kwargs) != (new_path, new_args, new_kwargs)
 
+    # [TODO] BaseDatabaseSchemaEditor > _field_should_be_indexed
     def _field_should_be_indexed(self, model, field):
         return field.db_index and not field.unique
 
+    # [TODO] BaseDatabaseSchemaEditor > _field_became_primary_key
     def _field_became_primary_key(self, old_field, new_field):
         return not old_field.primary_key and new_field.primary_key
 
+    # [TODO] BaseDatabaseSchemaEditor > _unique_should_be_added
     def _unique_should_be_added(self, old_field, new_field):
         return (
             not new_field.primary_key
@@ -1632,6 +1691,7 @@ class BaseDatabaseSchemaEditor:
             and (not old_field.unique or old_field.primary_key)
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _rename_field_sql
     def _rename_field_sql(self, table, old_field, new_field, new_type):
         return self.sql_rename_column % {
             "table": self.quote_name(table),
@@ -1640,6 +1700,7 @@ class BaseDatabaseSchemaEditor:
             "type": new_type,
         }
 
+    # [TODO] BaseDatabaseSchemaEditor > _create_fk_sql
     def _create_fk_sql(self, model, field, suffix):
         table = Table(model._meta.db_table, self.quote_name)
         name = self._fk_constraint_name(model, field, suffix)
@@ -1661,6 +1722,7 @@ class BaseDatabaseSchemaEditor:
             deferrable=deferrable,
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _fk_constraint_name
     def _fk_constraint_name(self, model, field, suffix):
         def create_fk_name(*args, **kwargs):
             return self.quote_name(self._create_index_name(*args, **kwargs))
@@ -1674,9 +1736,11 @@ class BaseDatabaseSchemaEditor:
             create_fk_name,
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _delete_fk_sql
     def _delete_fk_sql(self, model, name):
         return self._delete_constraint_sql(self.sql_delete_fk, model, name)
 
+    # [TODO] BaseDatabaseSchemaEditor > _deferrable_constraint_sql
     def _deferrable_constraint_sql(self, deferrable):
         if deferrable is None:
             return ""
@@ -1685,6 +1749,7 @@ class BaseDatabaseSchemaEditor:
         if deferrable == Deferrable.IMMEDIATE:
             return " DEFERRABLE INITIALLY IMMEDIATE"
 
+    # [TODO] BaseDatabaseSchemaEditor > _unique_index_nulls_distinct_sql
     def _unique_index_nulls_distinct_sql(self, nulls_distinct):
         if nulls_distinct is False:
             return " NULLS NOT DISTINCT"
@@ -1692,6 +1757,7 @@ class BaseDatabaseSchemaEditor:
             return " NULLS DISTINCT"
         return ""
 
+    # [TODO] BaseDatabaseSchemaEditor > _unique_supported
     def _unique_supported(
         self,
         condition=None,
@@ -1716,6 +1782,7 @@ class BaseDatabaseSchemaEditor:
             )
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _unique_sql
     def _unique_sql(
         self,
         model,
@@ -1768,6 +1835,7 @@ class BaseDatabaseSchemaEditor:
             "constraint": constraint,
         }
 
+    # [TODO] BaseDatabaseSchemaEditor > _create_unique_sql
     def _create_unique_sql(
         self,
         model,
@@ -1819,6 +1887,7 @@ class BaseDatabaseSchemaEditor:
             nulls_distinct=self._unique_index_nulls_distinct_sql(nulls_distinct),
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _unique_constraint_name
     def _unique_constraint_name(self, table, columns, quote=True):
         if quote:
 
@@ -1830,6 +1899,7 @@ class BaseDatabaseSchemaEditor:
 
         return IndexName(table, columns, "_uniq", create_unique_name)
 
+    # [TODO] BaseDatabaseSchemaEditor > _delete_unique_sql
     def _delete_unique_sql(
         self,
         model,
@@ -1855,12 +1925,14 @@ class BaseDatabaseSchemaEditor:
             sql = self.sql_delete_unique
         return self._delete_constraint_sql(sql, model, name)
 
+    # [TODO] BaseDatabaseSchemaEditor > _check_sql
     def _check_sql(self, name, check):
         return self.sql_constraint % {
             "name": self.quote_name(name),
             "constraint": self.sql_check_constraint % {"check": check},
         }
 
+    # [TODO] BaseDatabaseSchemaEditor > _create_check_sql
     def _create_check_sql(self, model, name, check):
         if not self.connection.features.supports_table_check_constraints:
             return None
@@ -1871,11 +1943,13 @@ class BaseDatabaseSchemaEditor:
             check=check,
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _delete_check_sql
     def _delete_check_sql(self, model, name):
         if not self.connection.features.supports_table_check_constraints:
             return None
         return self._delete_constraint_sql(self.sql_delete_check, model, name)
 
+    # [TODO] BaseDatabaseSchemaEditor > _delete_constraint_sql
     def _delete_constraint_sql(self, template, model, name):
         return Statement(
             template,
@@ -1883,6 +1957,7 @@ class BaseDatabaseSchemaEditor:
             name=self.quote_name(name),
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _constraint_names
     def _constraint_names(
         self,
         model,
@@ -1928,6 +2003,7 @@ class BaseDatabaseSchemaEditor:
                     result.append(name)
         return result
 
+    # [TODO] BaseDatabaseSchemaEditor > _delete_primary_key
     def _delete_primary_key(self, model, strict=False):
         constraint_names = self._constraint_names(model, primary_key=True)
         if strict and len(constraint_names) != 1:
@@ -1941,6 +2017,7 @@ class BaseDatabaseSchemaEditor:
         for constraint_name in constraint_names:
             self.execute(self._delete_primary_key_sql(model, constraint_name))
 
+    # [TODO] BaseDatabaseSchemaEditor > _create_primary_key_sql
     def _create_primary_key_sql(self, model, field):
         return Statement(
             self.sql_create_pk,
@@ -1953,12 +2030,15 @@ class BaseDatabaseSchemaEditor:
             columns=Columns(model._meta.db_table, [field.column], self.quote_name),
         )
 
+    # [TODO] BaseDatabaseSchemaEditor > _delete_primary_key_sql
     def _delete_primary_key_sql(self, model, name):
         return self._delete_constraint_sql(self.sql_delete_pk, model, name)
 
+    # [TODO] BaseDatabaseSchemaEditor > _collate_sql
     def _collate_sql(self, collation, old_collation=None, table_name=None):
         return "COLLATE " + self.quote_name(collation) if collation else ""
 
+    # [TODO] BaseDatabaseSchemaEditor > remove_procedure
     def remove_procedure(self, procedure_name, param_types=()):
         sql = self.sql_delete_procedure % {
             "procedure": self.quote_name(procedure_name),

@@ -18,10 +18,12 @@ from django.contrib.gis.gdal.prototypes.errcheck import (
 )
 
 
+# [TODO] gdal_char_p
 class gdal_char_p(c_char_p):
     pass
 
 
+# [TODO] bool_output
 def bool_output(func, argtypes, errcheck=None):
     """Generate a ctypes function that returns a boolean value."""
     func.argtypes = argtypes
@@ -31,6 +33,7 @@ def bool_output(func, argtypes, errcheck=None):
     return func
 
 
+# [TODO] double_output
 def double_output(func, argtypes, errcheck=False, strarg=False, cpl=False):
     "Generate a ctypes function that returns a double value."
     func.argtypes = argtypes
@@ -42,6 +45,7 @@ def double_output(func, argtypes, errcheck=False, strarg=False, cpl=False):
     return func
 
 
+# [TODO] geom_output
 def geom_output(func, argtypes, offset=None):
     """
     Generate a function that returns a Geometry either by reference
@@ -66,6 +70,7 @@ def geom_output(func, argtypes, offset=None):
     return func
 
 
+# [TODO] int_output
 def int_output(func, argtypes, errcheck=None):
     "Generate a ctypes function that returns an integer value."
     func.argtypes = argtypes
@@ -75,6 +80,7 @@ def int_output(func, argtypes, errcheck=None):
     return func
 
 
+# [TODO] int64_output
 def int64_output(func, argtypes):
     "Generate a ctypes function that returns a 64-bit integer value."
     func.argtypes = argtypes
@@ -82,6 +88,7 @@ def int64_output(func, argtypes):
     return func
 
 
+# [TODO] srs_output
 def srs_output(func, argtypes):
     """
     Generate a ctypes prototype for the given function with
@@ -94,6 +101,7 @@ def srs_output(func, argtypes):
     return func
 
 
+# [TODO] const_string_output
 def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
     func.argtypes = argtypes
     if offset:
@@ -112,6 +120,7 @@ def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
     return func
 
 
+# [TODO] string_output
 def string_output(func, argtypes, offset=-1, str_result=False, decoding=None):
     """
     Generate a ctypes prototype for the given function with the
@@ -141,6 +150,7 @@ def string_output(func, argtypes, offset=-1, str_result=False, decoding=None):
     return func
 
 
+# [TODO] void_output
 def void_output(func, argtypes, errcheck=True, cpl=False):
     """
     For functions that don't only return an error code that needs to
@@ -159,6 +169,7 @@ def void_output(func, argtypes, errcheck=True, cpl=False):
     return func
 
 
+# [TODO] voidptr_output
 def voidptr_output(func, argtypes, errcheck=True):
     "For functions that return c_void_p."
     func.argtypes = argtypes
@@ -168,6 +179,7 @@ def voidptr_output(func, argtypes, errcheck=True):
     return func
 
 
+# [TODO] chararray_output
 def chararray_output(func, argtypes, errcheck=True):
     """For functions that return a c_char_p array."""
     func.argtypes = argtypes

@@ -16,6 +16,7 @@ from django.db.backends.base.operations import BaseDatabaseOperations
 from django.db.backends.dummy.features import DummyDatabaseFeatures
 
 
+# [TODO] complain
 def complain(*args, **kwargs):
     raise ImproperlyConfigured(
         "settings.DATABASES is improperly configured. "
@@ -24,23 +25,28 @@ def complain(*args, **kwargs):
     )
 
 
+# [TODO] ignore
 def ignore(*args, **kwargs):
     pass
 
 
+# [TODO] DatabaseOperations
 class DatabaseOperations(BaseDatabaseOperations):
     quote_name = complain
 
 
+# [TODO] DatabaseClient
 class DatabaseClient(BaseDatabaseClient):
     runshell = complain
 
 
+# [TODO] DatabaseCreation
 class DatabaseCreation(BaseDatabaseCreation):
     create_test_db = ignore
     destroy_test_db = ignore
 
 
+# [TODO] DatabaseIntrospection
 class DatabaseIntrospection(BaseDatabaseIntrospection):
     get_table_list = complain
     get_table_description = complain
@@ -48,6 +54,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     get_indexes = complain
 
 
+# [TODO] DatabaseWrapper
 class DatabaseWrapper(BaseDatabaseWrapper):
     operators = {}
     # Override the base class implementations with null
@@ -70,5 +77,6 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     introspection_class = DatabaseIntrospection
     ops_class = DatabaseOperations
 
+    # [TODO] DatabaseWrapper > is_usable
     def is_usable(self):
         return True

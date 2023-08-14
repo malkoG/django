@@ -46,16 +46,19 @@ except ImportError:
     pywatchman = None
 
 
+# [TODO] is_django_module
 def is_django_module(module):
     """Return True if the given module is nested under Django."""
     return module.__name__.startswith("django.")
 
 
+# [TODO] is_django_path
 def is_django_path(path):
     """Return True if the given file path is nested under Django."""
     return Path(django.__file__).parent in Path(path).parents
 
 
+# [TODO] check_errors
 def check_errors(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
@@ -81,12 +84,14 @@ def check_errors(fn):
     return wrapper
 
 
+# [TODO] raise_last_exception
 def raise_last_exception():
     global _exception
     if _exception is not None:
         raise _exception[1]
 
 
+# [TODO] ensure_echo_on
 def ensure_echo_on():
     """
     Ensure that echo mode is enabled. Some tools such as PDB disable
@@ -106,6 +111,7 @@ def ensure_echo_on():
             signal.signal(signal.SIGTTOU, old_handler)
 
 
+# [TODO] iter_all_python_module_files
 def iter_all_python_module_files():
     # This is a hot path during reloading. Create a stable sorted list of
     # modules based on the module name and pass it to iter_modules_and_files().
@@ -120,6 +126,7 @@ def iter_all_python_module_files():
     return iter_modules_and_files(modules, frozenset(_error_files))
 
 
+# [TODO] iter_modules_and_files
 @lru_cache(maxsize=1)
 def iter_modules_and_files(modules, extra_files):
     """Iterate through all modules needed to be watched."""
@@ -170,6 +177,7 @@ def iter_modules_and_files(modules, extra_files):
     return frozenset(results)
 
 
+# [TODO] common_roots
 @lru_cache(maxsize=1)
 def common_roots(paths):
     """
@@ -201,6 +209,7 @@ def common_roots(paths):
     return tuple(_walk(tree, ()))
 
 
+# [TODO] sys_path_directories
 def sys_path_directories():
     """
     Yield absolute directories from sys.path, ignoring entries that don't
@@ -218,6 +227,7 @@ def sys_path_directories():
             yield resolved_path
 
 
+# [TODO] get_child_arguments
 def get_child_arguments():
     """
     Return the executable. This contains a workaround for Windows if the
@@ -262,11 +272,13 @@ def get_child_arguments():
     return args
 
 
+# [TODO] trigger_reload
 def trigger_reload(filename):
     logger.info("%s changed, reloading.", filename)
     sys.exit(3)
 
 
+# [TODO] restart_with_reloader
 def restart_with_reloader():
     new_environ = {**os.environ, DJANGO_AUTORELOAD_ENV: "true"}
     args = get_child_arguments()
@@ -276,12 +288,15 @@ def restart_with_reloader():
             return p.returncode
 
 
+# [TODO] BaseReloader
 class BaseReloader:
+    # [TODO] BaseReloader > __init__
     def __init__(self):
         self.extra_files = set()
         self.directory_globs = defaultdict(set)
         self._stop_condition = threading.Event()
 
+    # [TODO] BaseReloader > watch_dir
     def watch_dir(self, path, glob):
         path = Path(path)
         try:
@@ -296,6 +311,7 @@ class BaseReloader:
         logger.debug("Watching dir %s with glob %s.", path, glob)
         self.directory_globs[path].add(glob)
 
+    # [TODO] BaseReloader > watched_files
     def watched_files(self, include_globs=True):
         """
         Yield all files that need to be watched, including module files and
@@ -308,6 +324,7 @@ class BaseReloader:
                 for pattern in patterns:
                     yield from directory.glob(pattern)
 
+    # [TODO] BaseReloader > wait_for_apps_ready
     def wait_for_apps_ready(self, app_reg, django_main_thread):
         """
         Wait until Django reports that the apps have been loaded. If the given
@@ -326,6 +343,7 @@ class BaseReloader:
             logger.debug("Main Django thread has terminated before apps are ready.")
             return False
 
+    # [TODO] BaseReloader > run
     def run(self, django_main_thread):
         logger.debug("Waiting for apps ready_event.")
         self.wait_for_apps_ready(apps, django_main_thread)
@@ -343,6 +361,7 @@ class BaseReloader:
         autoreload_started.send(sender=self)
         self.run_loop()
 
+    # [TODO] BaseReloader > run_loop
     def run_loop(self):
         ticker = self.tick()
         while not self.should_stop:
@@ -352,6 +371,7 @@ class BaseReloader:
                 break
         self.stop()
 
+    # [TODO] BaseReloader > tick
     def tick(self):
         """
         This generator is called in a loop from run_loop. It's important that
@@ -362,10 +382,12 @@ class BaseReloader:
         """
         raise NotImplementedError("subclasses must implement tick().")
 
+    # [TODO] BaseReloader > check_availability
     @classmethod
     def check_availability(cls):
         raise NotImplementedError("subclasses must implement check_availability().")
 
+    # [TODO] BaseReloader > notify_file_changed
     def notify_file_changed(self, path):
         results = file_changed.send(sender=self, file_path=path)
         logger.debug("%s notified as changed. Signal results: %s.", path, results)
@@ -373,17 +395,21 @@ class BaseReloader:
             trigger_reload(path)
 
     # These are primarily used for testing.
+    # [TODO] BaseReloader > should_stop
     @property
     def should_stop(self):
         return self._stop_condition.is_set()
 
+    # [TODO] BaseReloader > stop
     def stop(self):
         self._stop_condition.set()
 
 
+# [TODO] StatReloader
 class StatReloader(BaseReloader):
     SLEEP_TIME = 1  # Check for changes once per second.
 
+    # [TODO] StatReloader > tick
     def tick(self):
         mtimes = {}
         while True:
@@ -405,6 +431,7 @@ class StatReloader(BaseReloader):
             time.sleep(self.SLEEP_TIME)
             yield
 
+    # [TODO] StatReloader > snapshot_files
     def snapshot_files(self):
         # watched_files may produce duplicate paths if globs overlap.
         seen_files = set()
@@ -419,26 +446,32 @@ class StatReloader(BaseReloader):
             seen_files.add(file)
             yield file, mtime
 
+    # [TODO] StatReloader > check_availability
     @classmethod
     def check_availability(cls):
         return True
 
 
+# [TODO] WatchmanUnavailable
 class WatchmanUnavailable(RuntimeError):
     pass
 
 
+# [TODO] WatchmanReloader
 class WatchmanReloader(BaseReloader):
+    # [TODO] WatchmanReloader > __init__
     def __init__(self):
         self.roots = defaultdict(set)
         self.processed_request = threading.Event()
         self.client_timeout = int(os.environ.get("DJANGO_WATCHMAN_TIMEOUT", 5))
         super().__init__()
 
+    # [TODO] WatchmanReloader > client
     @cached_property
     def client(self):
         return pywatchman.client(timeout=self.client_timeout)
 
+    # [TODO] WatchmanReloader > _watch_root
     def _watch_root(self, root):
         # In practice this shouldn't occur, however, it's possible that a
         # directory that doesn't exist yet is being watched. If it's outside of
@@ -463,10 +496,12 @@ class WatchmanReloader(BaseReloader):
         logger.debug("Watchman watch-project result: %s", result)
         return result["watch"], result.get("relative_path")
 
+    # [TODO] WatchmanReloader > _get_clock
     @lru_cache
     def _get_clock(self, root):
         return self.client.query("clock", root)["clock"]
 
+    # [TODO] WatchmanReloader > _subscribe
     def _subscribe(self, directory, name, expression):
         root, rel_path = self._watch_root(directory)
         # Only receive notifications of files changing, filtering out other types
@@ -492,6 +527,7 @@ class WatchmanReloader(BaseReloader):
         )
         self.client.query("subscribe", root, name, query)
 
+    # [TODO] WatchmanReloader > _subscribe_dir
     def _subscribe_dir(self, directory, filenames):
         if not directory.exists():
             if not directory.parent.exists():
@@ -509,6 +545,7 @@ class WatchmanReloader(BaseReloader):
             expression = ["name", filenames]
         self._subscribe(directory, "%s:%s" % (prefix, directory), expression)
 
+    # [TODO] WatchmanReloader > _watch_glob
     def _watch_glob(self, directory, patterns):
         """
         Watch a directory with a specific glob. If the directory doesn't yet
@@ -535,12 +572,14 @@ class WatchmanReloader(BaseReloader):
             expression.append(["match", pattern, "wholename"])
         self._subscribe(directory, "%s:%s" % (prefix, directory), expression)
 
+    # [TODO] WatchmanReloader > watched_roots
     def watched_roots(self, watched_files):
         extra_directories = self.directory_globs.keys()
         watched_file_dirs = [f.parent for f in watched_files]
         sys_paths = list(sys_path_directories())
         return frozenset((*extra_directories, *watched_file_dirs, *sys_paths))
 
+    # [TODO] WatchmanReloader > _update_watches
     def _update_watches(self):
         watched_files = list(self.watched_files(include_globs=False))
         found_roots = common_roots(self.watched_roots(watched_files))
@@ -559,6 +598,7 @@ class WatchmanReloader(BaseReloader):
                 directory, [str(p.relative_to(directory)) for p in group]
             )
 
+    # [TODO] WatchmanReloader > update_watches
     def update_watches(self):
         try:
             self._update_watches()
@@ -567,6 +607,7 @@ class WatchmanReloader(BaseReloader):
             if self.check_server_status(ex):
                 raise
 
+    # [TODO] WatchmanReloader > _check_subscription
     def _check_subscription(self, sub):
         subscription = self.client.getSubscription(sub)
         if not subscription:
@@ -582,10 +623,12 @@ class WatchmanReloader(BaseReloader):
             for file in result.get("files", []):
                 self.notify_file_changed(root_directory / file)
 
+    # [TODO] WatchmanReloader > request_processed
     def request_processed(self, **kwargs):
         logger.debug("Request processed. Setting update_watches event.")
         self.processed_request.set()
 
+    # [TODO] WatchmanReloader > tick
     def tick(self):
         request_finished.connect(self.request_processed)
         self.update_watches()
@@ -607,10 +650,12 @@ class WatchmanReloader(BaseReloader):
             # Protect against busy loops.
             time.sleep(0.1)
 
+    # [TODO] WatchmanReloader > stop
     def stop(self):
         self.client.close()
         super().stop()
 
+    # [TODO] WatchmanReloader > check_server_status
     def check_server_status(self, inner_ex=None):
         """Return True if the server is available."""
         try:
@@ -619,6 +664,7 @@ class WatchmanReloader(BaseReloader):
             raise WatchmanUnavailable(str(inner_ex)) from inner_ex
         return True
 
+    # [TODO] WatchmanReloader > check_availability
     @classmethod
     def check_availability(cls):
         if not pywatchman:
@@ -637,6 +683,7 @@ class WatchmanReloader(BaseReloader):
             raise WatchmanUnavailable("Watchman 4.9 or later is required.")
 
 
+# [TODO] get_reloader
 def get_reloader():
     """Return the most suitable reloader for this environment."""
     try:
@@ -646,6 +693,7 @@ def get_reloader():
     return WatchmanReloader()
 
 
+# [TODO] start_django
 def start_django(reloader, main_func, *args, **kwargs):
     ensure_echo_on()
 
@@ -660,6 +708,7 @@ def start_django(reloader, main_func, *args, **kwargs):
         reloader.run(django_main_thread)
 
 
+# [TODO] run_with_reloader
 def run_with_reloader(main_func, *args, **kwargs):
     signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
     try:

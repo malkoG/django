@@ -18,6 +18,7 @@ from django.db.migrations.utils import (
 )
 
 
+# [TODO] MigrationAutodetector
 class MigrationAutodetector:
     """
     Take a pair of ProjectStates and compare them to see what the first would
@@ -31,12 +32,14 @@ class MigrationAutodetector:
     if it wishes, with the caveat that it may not always be possible.
     """
 
+    # [TODO] MigrationAutodetector > __init__
     def __init__(self, from_state, to_state, questioner=None):
         self.from_state = from_state
         self.to_state = to_state
         self.questioner = questioner or MigrationQuestioner()
         self.existing_apps = {app for app, model in from_state.models}
 
+    # [TODO] MigrationAutodetector > changes
     def changes(self, graph, trim_to_apps=None, convert_apps=None, migration_name=None):
         """
         Main entry point to produce a list of applicable changes.
@@ -49,6 +52,7 @@ class MigrationAutodetector:
             changes = self._trim_to_apps(changes, trim_to_apps)
         return changes
 
+    # [TODO] MigrationAutodetector > deep_deconstruct
     def deep_deconstruct(self, obj):
         """
         Recursive deconstruction for a field and its arguments.
@@ -87,6 +91,7 @@ class MigrationAutodetector:
         else:
             return obj
 
+    # [TODO] MigrationAutodetector > only_relation_agnostic_fields
     def only_relation_agnostic_fields(self, fields):
         """
         Return a definition of the fields that ignores field names and
@@ -101,6 +106,7 @@ class MigrationAutodetector:
             fields_def.append(deconstruction)
         return fields_def
 
+    # [TODO] MigrationAutodetector > _detect_changes
     def _detect_changes(self, convert_apps=None, graph=None):
         """
         Return a dict of migration plans which will achieve the
@@ -208,6 +214,7 @@ class MigrationAutodetector:
 
         return self.migrations
 
+    # [TODO] MigrationAutodetector > _prepare_field_lists
     def _prepare_field_lists(self):
         """
         Prepare field lists and a list of the fields that used through models
@@ -231,6 +238,7 @@ class MigrationAutodetector:
             for field_name in self.to_state.models[app_label, model_name].fields
         }
 
+    # [TODO] MigrationAutodetector > _generate_through_model_map
     def _generate_through_model_map(self):
         """Through model map generation."""
         for app_label, model_name in sorted(self.old_model_keys):
@@ -251,6 +259,7 @@ class MigrationAutodetector:
                         field_name,
                     )
 
+    # [TODO] MigrationAutodetector > _resolve_dependency
     @staticmethod
     def _resolve_dependency(dependency):
         """
@@ -264,6 +273,7 @@ class MigrationAutodetector:
         ).split(".")
         return (resolved_app_label, resolved_object_name.lower()) + dependency[2:], True
 
+    # [TODO] MigrationAutodetector > _build_migration_list
     def _build_migration_list(self, graph=None):
         """
         Chop the lists of operations up into migrations with dependencies on
@@ -378,6 +388,7 @@ class MigrationAutodetector:
                     )
             num_ops = new_num_ops
 
+    # [TODO] MigrationAutodetector > _sort_migrations
     def _sort_migrations(self):
         """
         Reorder to make things possible. Reordering may be needed so FKs work
@@ -396,6 +407,7 @@ class MigrationAutodetector:
                     ts.add(op, *(x for x in ops if self.check_dependency(x, dep)))
             self.generated_operations[app_label] = list(ts.static_order())
 
+    # [TODO] MigrationAutodetector > _optimize_migrations
     def _optimize_migrations(self):
         # Add in internal dependencies among the migrations
         for app_label, migrations in self.migrations.items():
@@ -414,6 +426,7 @@ class MigrationAutodetector:
                     migration.operations, app_label
                 )
 
+    # [TODO] MigrationAutodetector > check_dependency
     def check_dependency(self, operation, dependency):
         """
         Return True if the given operation depends on the given dependency,
@@ -477,6 +490,7 @@ class MigrationAutodetector:
         else:
             raise ValueError("Can't handle dependency %r" % (dependency,))
 
+    # [TODO] MigrationAutodetector > add_operation
     def add_operation(self, app_label, operation, dependencies=None, beginning=False):
         # Dependencies are
         # (app_label, model_name, field_name, create/delete as True/False)
@@ -486,6 +500,7 @@ class MigrationAutodetector:
         else:
             self.generated_operations.setdefault(app_label, []).append(operation)
 
+    # [TODO] MigrationAutodetector > swappable_first_key
     def swappable_first_key(self, item):
         """
         Place potential swappable models first in lists of created models (only
@@ -509,6 +524,7 @@ class MigrationAutodetector:
             pass
         return item
 
+    # [TODO] MigrationAutodetector > generate_renamed_models
     def generate_renamed_models(self):
         """
         Find any renamed models, generate the operations for them, and remove
@@ -576,6 +592,7 @@ class MigrationAutodetector:
                             self.old_model_keys.add((app_label, model_name))
                             break
 
+    # [TODO] MigrationAutodetector > generate_created_models
     def generate_created_models(self):
         """
         Find all new models (both managed and unmanaged) and make create
@@ -771,6 +788,7 @@ class MigrationAutodetector:
                             dependencies=[(app_label, model_name, None, True)],
                         )
 
+    # [TODO] MigrationAutodetector > generate_created_proxies
     def generate_created_proxies(self):
         """
         Make CreateModel statements for proxy models. Use the same statements
@@ -804,6 +822,7 @@ class MigrationAutodetector:
                 dependencies=dependencies,
             )
 
+    # [TODO] MigrationAutodetector > generate_deleted_models
     def generate_deleted_models(self):
         """
         Find all deleted models (managed and unmanaged) and make delete
@@ -901,6 +920,7 @@ class MigrationAutodetector:
                 dependencies=list(set(dependencies)),
             )
 
+    # [TODO] MigrationAutodetector > generate_deleted_proxies
     def generate_deleted_proxies(self):
         """Make DeleteModel options for proxy models."""
         deleted = self.old_proxy_keys - self.new_proxy_keys
@@ -914,6 +934,7 @@ class MigrationAutodetector:
                 ),
             )
 
+    # [TODO] MigrationAutodetector > create_renamed_fields
     def create_renamed_fields(self):
         """Work out renamed fields."""
         self.renamed_operations = []
@@ -976,6 +997,7 @@ class MigrationAutodetector:
                             ] = rem_field_name
                             break
 
+    # [TODO] MigrationAutodetector > generate_renamed_fields
     def generate_renamed_fields(self):
         """Generate RenameField operations."""
         for (
@@ -1013,6 +1035,7 @@ class MigrationAutodetector:
             self.old_field_keys.remove((rem_app_label, rem_model_name, rem_field_name))
             self.old_field_keys.add((app_label, model_name, field_name))
 
+    # [TODO] MigrationAutodetector > generate_added_fields
     def generate_added_fields(self):
         """Make AddField operations."""
         for app_label, model_name, field_name in sorted(
@@ -1020,6 +1043,7 @@ class MigrationAutodetector:
         ):
             self._generate_added_field(app_label, model_name, field_name)
 
+    # [TODO] MigrationAutodetector > _generate_added_field
     def _generate_added_field(self, app_label, model_name, field_name):
         field = self.to_state.models[app_label, model_name].get_field(field_name)
         # Adding a field always depends at least on its removal.
@@ -1072,6 +1096,7 @@ class MigrationAutodetector:
             dependencies=dependencies,
         )
 
+    # [TODO] MigrationAutodetector > generate_removed_fields
     def generate_removed_fields(self):
         """Make RemoveField operations."""
         for app_label, model_name, field_name in sorted(
@@ -1079,6 +1104,7 @@ class MigrationAutodetector:
         ):
             self._generate_removed_field(app_label, model_name, field_name)
 
+    # [TODO] MigrationAutodetector > _generate_removed_field
     def _generate_removed_field(self, app_label, model_name, field_name):
         self.add_operation(
             app_label,
@@ -1095,6 +1121,7 @@ class MigrationAutodetector:
             ],
         )
 
+    # [TODO] MigrationAutodetector > generate_altered_fields
     def generate_altered_fields(self):
         """
         Make AlterField operations, or possibly RemovedField/AddField if alter
@@ -1215,6 +1242,7 @@ class MigrationAutodetector:
                     self._generate_removed_field(app_label, model_name, field_name)
                     self._generate_added_field(app_label, model_name, field_name)
 
+    # [TODO] MigrationAutodetector > create_altered_indexes
     def create_altered_indexes(self):
         option_name = operations.AddIndex.option_name
         self.renamed_index_together_values = defaultdict(list)
@@ -1304,6 +1332,7 @@ class MigrationAutodetector:
                 }
             )
 
+    # [TODO] MigrationAutodetector > generate_added_indexes
     def generate_added_indexes(self):
         for (app_label, model_name), alt_indexes in self.altered_indexes.items():
             dependencies = self._get_dependencies_for_model(app_label, model_name)
@@ -1317,6 +1346,7 @@ class MigrationAutodetector:
                     dependencies=dependencies,
                 )
 
+    # [TODO] MigrationAutodetector > generate_removed_indexes
     def generate_removed_indexes(self):
         for (app_label, model_name), alt_indexes in self.altered_indexes.items():
             for index in alt_indexes["removed_indexes"]:
@@ -1328,6 +1358,7 @@ class MigrationAutodetector:
                     ),
                 )
 
+    # [TODO] MigrationAutodetector > generate_renamed_indexes
     def generate_renamed_indexes(self):
         for (app_label, model_name), alt_indexes in self.altered_indexes.items():
             for old_index_name, new_index_name, old_fields in alt_indexes[
@@ -1343,6 +1374,7 @@ class MigrationAutodetector:
                     ),
                 )
 
+    # [TODO] MigrationAutodetector > create_altered_constraints
     def create_altered_constraints(self):
         option_name = operations.AddConstraint.option_name
         for app_label, model_name in sorted(self.kept_model_keys):
@@ -1366,6 +1398,7 @@ class MigrationAutodetector:
                 }
             )
 
+    # [TODO] MigrationAutodetector > generate_added_constraints
     def generate_added_constraints(self):
         for (
             app_label,
@@ -1382,6 +1415,7 @@ class MigrationAutodetector:
                     dependencies=dependencies,
                 )
 
+    # [TODO] MigrationAutodetector > generate_removed_constraints
     def generate_removed_constraints(self):
         for (
             app_label,
@@ -1396,6 +1430,7 @@ class MigrationAutodetector:
                     ),
                 )
 
+    # [TODO] MigrationAutodetector > _get_dependencies_for_foreign_key
     @staticmethod
     def _get_dependencies_for_foreign_key(app_label, model_name, field, project_state):
         remote_field_model = None
@@ -1431,6 +1466,7 @@ class MigrationAutodetector:
             dependencies.append((through_app_label, through_object_name, None, True))
         return dependencies
 
+    # [TODO] MigrationAutodetector > _get_dependencies_for_model
     def _get_dependencies_for_model(self, app_label, model_name):
         """Return foreign key dependencies of the given model."""
         dependencies = []
@@ -1447,6 +1483,7 @@ class MigrationAutodetector:
                 )
         return dependencies
 
+    # [TODO] MigrationAutodetector > _get_altered_foo_together_operations
     def _get_altered_foo_together_operations(self, option_name):
         for app_label, model_name in sorted(self.kept_model_keys):
             old_model_name = self.renamed_models.get(
@@ -1494,6 +1531,7 @@ class MigrationAutodetector:
                     dependencies,
                 )
 
+    # [TODO] MigrationAutodetector > _generate_removed_altered_foo_together
     def _generate_removed_altered_foo_together(self, operation):
         for (
             old_value,
@@ -1519,13 +1557,16 @@ class MigrationAutodetector:
                     dependencies=dependencies,
                 )
 
+    # [TODO] MigrationAutodetector > generate_removed_altered_unique_together
     def generate_removed_altered_unique_together(self):
         self._generate_removed_altered_foo_together(operations.AlterUniqueTogether)
 
     # RemovedInDjango51Warning.
+    # [TODO] MigrationAutodetector > generate_removed_altered_index_together
     def generate_removed_altered_index_together(self):
         self._generate_removed_altered_foo_together(operations.AlterIndexTogether)
 
+    # [TODO] MigrationAutodetector > _generate_altered_foo_together
     def _generate_altered_foo_together(self, operation):
         for (
             old_value,
@@ -1542,13 +1583,16 @@ class MigrationAutodetector:
                     dependencies=dependencies,
                 )
 
+    # [TODO] MigrationAutodetector > generate_altered_unique_together
     def generate_altered_unique_together(self):
         self._generate_altered_foo_together(operations.AlterUniqueTogether)
 
     # RemovedInDjango51Warning.
+    # [TODO] MigrationAutodetector > generate_altered_index_together
     def generate_altered_index_together(self):
         self._generate_altered_foo_together(operations.AlterIndexTogether)
 
+    # [TODO] MigrationAutodetector > generate_altered_db_table
     def generate_altered_db_table(self):
         models_to_check = self.kept_model_keys.union(
             self.kept_proxy_keys, self.kept_unmanaged_keys
@@ -1570,6 +1614,7 @@ class MigrationAutodetector:
                     ),
                 )
 
+    # [TODO] MigrationAutodetector > generate_altered_db_table_comment
     def generate_altered_db_table_comment(self):
         models_to_check = self.kept_model_keys.union(
             self.kept_proxy_keys, self.kept_unmanaged_keys
@@ -1592,6 +1637,7 @@ class MigrationAutodetector:
                     ),
                 )
 
+    # [TODO] MigrationAutodetector > generate_altered_options
     def generate_altered_options(self):
         """
         Work out if any non-schema-affecting options have changed and make an
@@ -1632,6 +1678,7 @@ class MigrationAutodetector:
                     ),
                 )
 
+    # [TODO] MigrationAutodetector > generate_altered_order_with_respect_to
     def generate_altered_order_with_respect_to(self):
         for app_label, model_name in sorted(self.kept_model_keys):
             old_model_name = self.renamed_models.get(
@@ -1666,6 +1713,7 @@ class MigrationAutodetector:
                     dependencies=dependencies,
                 )
 
+    # [TODO] MigrationAutodetector > generate_altered_managers
     def generate_altered_managers(self):
         for app_label, model_name in sorted(self.kept_model_keys):
             old_model_name = self.renamed_models.get(
@@ -1682,6 +1730,7 @@ class MigrationAutodetector:
                     ),
                 )
 
+    # [TODO] MigrationAutodetector > arrange_for_graph
     def arrange_for_graph(self, changes, graph, migration_name=None):
         """
         Take a result from changes() and a MigrationGraph, and fix the names
@@ -1734,6 +1783,7 @@ class MigrationAutodetector:
                 ]
         return changes
 
+    # [TODO] MigrationAutodetector > _trim_to_apps
     def _trim_to_apps(self, changes, app_labels):
         """
         Take changes from arrange_for_graph() and set of app labels, and return
@@ -1761,6 +1811,7 @@ class MigrationAutodetector:
                 del changes[app_label]
         return changes
 
+    # [TODO] MigrationAutodetector > parse_number
     @classmethod
     def parse_number(cls, name):
         """

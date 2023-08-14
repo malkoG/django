@@ -3,7 +3,9 @@
 from functools import partial, update_wrapper, wraps
 
 
+# [TODO] classonlymethod
 class classonlymethod(classmethod):
+    # [TODO] classonlymethod > __get__
     def __get__(self, instance, cls=None):
         if instance is not None:
             raise AttributeError(
@@ -12,6 +14,7 @@ class classonlymethod(classmethod):
         return super().__get__(instance, cls)
 
 
+# [TODO] _update_method_wrapper
 def _update_method_wrapper(_wrapper, decorator):
     # _multi_decorate()'s bound_method isn't available in this scope. Cheat by
     # using it on a dummy function.
@@ -22,6 +25,7 @@ def _update_method_wrapper(_wrapper, decorator):
     update_wrapper(_wrapper, dummy)
 
 
+# [TODO] _multi_decorate
 def _multi_decorate(decorators, method):
     """
     Decorate `method` with one or more function decorators. `decorators` can be
@@ -53,6 +57,7 @@ def _multi_decorate(decorators, method):
     return _wrapper
 
 
+# [TODO] method_decorator
 def method_decorator(decorator, name=""):
     """
     Convert a function decorator into a method decorator
@@ -90,6 +95,7 @@ def method_decorator(decorator, name=""):
     return _dec
 
 
+# [TODO] decorator_from_middleware_with_args
 def decorator_from_middleware_with_args(middleware_class):
     """
     Like decorator_from_middleware, but return a function
@@ -106,6 +112,7 @@ def decorator_from_middleware_with_args(middleware_class):
     return make_middleware_decorator(middleware_class)
 
 
+# [TODO] decorator_from_middleware
 def decorator_from_middleware(middleware_class):
     """
     Given a middleware class (not an instance), return a view decorator. This
@@ -115,6 +122,7 @@ def decorator_from_middleware(middleware_class):
     return make_middleware_decorator(middleware_class)()
 
 
+# [TODO] make_middleware_decorator
 def make_middleware_decorator(middleware_class):
     def _make_decorator(*m_args, **m_kwargs):
         def _decorator(view_func):
@@ -163,6 +171,7 @@ def make_middleware_decorator(middleware_class):
     return _make_decorator
 
 
+# [TODO] sync_and_async_middleware
 def sync_and_async_middleware(func):
     """
     Mark a middleware factory as returning a hybrid middleware supporting both
@@ -173,6 +182,7 @@ def sync_and_async_middleware(func):
     return func
 
 
+# [TODO] sync_only_middleware
 def sync_only_middleware(func):
     """
     Mark a middleware factory as returning a sync middleware.
@@ -183,6 +193,7 @@ def sync_only_middleware(func):
     return func
 
 
+# [TODO] async_only_middleware
 def async_only_middleware(func):
     """Mark a middleware factory as returning an async middleware."""
     func.sync_capable = False

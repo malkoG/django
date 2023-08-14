@@ -14,12 +14,14 @@ from django.utils.module_loading import module_has_submodule
 from django.utils.text import Truncator
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = (
         "Updates database schema. Manages both apps with migrations and those without."
     )
     requires_system_checks = []
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "--skip-checks",
@@ -93,6 +95,7 @@ class Command(BaseCommand):
             help="Delete nonexistent migrations from the django_migrations table.",
         )
 
+    # [TODO] Command > handle
     @no_translations
     def handle(self, *args, **options):
         database = options["database"]
@@ -389,6 +392,7 @@ class Command(BaseCommand):
             plan=plan,
         )
 
+    # [TODO] Command > migration_progress_callback
     def migration_progress_callback(self, action, migration=None, fake=False):
         if self.verbosity >= 1:
             compute_time = self.verbosity > 1
@@ -429,6 +433,7 @@ class Command(BaseCommand):
                 )
                 self.stdout.write(self.style.SUCCESS(" DONE" + elapsed))
 
+    # [TODO] Command > sync_apps
     def sync_apps(self, connection, app_labels):
         """Run the old syncdb-style operation on a list of app_labels."""
         with connection.cursor() as cursor:
@@ -486,6 +491,7 @@ class Command(BaseCommand):
             if self.verbosity >= 1:
                 self.stdout.write("    Running deferred SQL...")
 
+    # [TODO] Command > describe_operation
     @staticmethod
     def describe_operation(operation, backwards):
         """Return a string that describes a migration operation for --plan."""

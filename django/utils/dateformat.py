@@ -35,7 +35,9 @@ re_formatchars = _lazy_re_compile(r"(?<!\\)([aAbcdDeEfFgGhHiIjlLmMnNoOPrsStTUuwW
 re_escaped = _lazy_re_compile(r"\\(.)")
 
 
+# [TODO] Formatter
 class Formatter:
+    # [TODO] Formatter > format
     def format(self, formatstr):
         pieces = []
         for i, piece in enumerate(re_formatchars.split(str(formatstr))):
@@ -51,7 +53,9 @@ class Formatter:
         return "".join(pieces)
 
 
+# [TODO] TimeFormat
 class TimeFormat(Formatter):
+    # [TODO] TimeFormat > __init__
     def __init__(self, obj):
         self.data = obj
         self.timezone = None
@@ -67,18 +71,21 @@ class TimeFormat(Formatter):
             if not _datetime_ambiguous_or_imaginary(obj, timezone):
                 self.timezone = timezone
 
+    # [TODO] TimeFormat > a
     def a(self):
         "'a.m.' or 'p.m.'"
         if self.data.hour > 11:
             return _("p.m.")
         return _("a.m.")
 
+    # [TODO] TimeFormat > A
     def A(self):
         "'AM' or 'PM'"
         if self.data.hour > 11:
             return _("PM")
         return _("AM")
 
+    # [TODO] TimeFormat > e
     def e(self):
         """
         Timezone name.
@@ -95,6 +102,7 @@ class TimeFormat(Formatter):
             pass
         return ""
 
+    # [TODO] TimeFormat > f
     def f(self):
         """
         Time, in 12-hour hours and minutes, with minutes left off if they're
@@ -106,26 +114,32 @@ class TimeFormat(Formatter):
         minute = self.data.minute
         return "%d:%02d" % (hour, minute) if minute else hour
 
+    # [TODO] TimeFormat > g
     def g(self):
         "Hour, 12-hour format without leading zeros; i.e. '1' to '12'"
         return self.data.hour % 12 or 12
 
+    # [TODO] TimeFormat > G
     def G(self):
         "Hour, 24-hour format without leading zeros; i.e. '0' to '23'"
         return self.data.hour
 
+    # [TODO] TimeFormat > h
     def h(self):
         "Hour, 12-hour format; i.e. '01' to '12'"
         return "%02d" % (self.data.hour % 12 or 12)
 
+    # [TODO] TimeFormat > H
     def H(self):
         "Hour, 24-hour format; i.e. '00' to '23'"
         return "%02d" % self.data.hour
 
+    # [TODO] TimeFormat > i
     def i(self):
         "Minutes; i.e. '00' to '59'"
         return "%02d" % self.data.minute
 
+    # [TODO] TimeFormat > O
     def O(self):  # NOQA: E743, E741
         """
         Difference to Greenwich time in hours; e.g. '+0200', '-0430'.
@@ -141,6 +155,7 @@ class TimeFormat(Formatter):
         seconds = abs(seconds)
         return "%s%02d%02d" % (sign, seconds // 3600, (seconds // 60) % 60)
 
+    # [TODO] TimeFormat > P
     def P(self):
         """
         Time, in 12-hour hours, minutes and 'a.m.'/'p.m.', with minutes left off
@@ -154,10 +169,12 @@ class TimeFormat(Formatter):
             return _("noon")
         return "%s %s" % (self.f(), self.a())
 
+    # [TODO] TimeFormat > s
     def s(self):
         "Seconds; i.e. '00' to '59'"
         return "%02d" % self.data.second
 
+    # [TODO] TimeFormat > T
     def T(self):
         """
         Time zone of this machine; e.g. 'EST' or 'MDT'.
@@ -169,10 +186,12 @@ class TimeFormat(Formatter):
 
         return str(self.timezone.tzname(self.data))
 
+    # [TODO] TimeFormat > u
     def u(self):
         "Microseconds; i.e. '000000' to '999999'"
         return "%06d" % self.data.microsecond
 
+    # [TODO] TimeFormat > Z
     def Z(self):
         """
         Time zone offset in seconds (i.e. '-43200' to '43200'). The offset for
@@ -193,11 +212,14 @@ class TimeFormat(Formatter):
         return offset.days * 86400 + offset.seconds
 
 
+# [TODO] DateFormat
 class DateFormat(TimeFormat):
+    # [TODO] DateFormat > b
     def b(self):
         "Month, textual, 3 letters, lowercase; e.g. 'jan'"
         return MONTHS_3[self.data.month]
 
+    # [TODO] DateFormat > c
     def c(self):
         """
         ISO 8601 Format
@@ -205,60 +227,74 @@ class DateFormat(TimeFormat):
         """
         return self.data.isoformat()
 
+    # [TODO] DateFormat > d
     def d(self):
         "Day of the month, 2 digits with leading zeros; i.e. '01' to '31'"
         return "%02d" % self.data.day
 
+    # [TODO] DateFormat > D
     def D(self):
         "Day of the week, textual, 3 letters; e.g. 'Fri'"
         return WEEKDAYS_ABBR[self.data.weekday()]
 
+    # [TODO] DateFormat > E
     def E(self):
         "Alternative month names as required by some locales. Proprietary extension."
         return MONTHS_ALT[self.data.month]
 
+    # [TODO] DateFormat > F
     def F(self):
         "Month, textual, long; e.g. 'January'"
         return MONTHS[self.data.month]
 
+    # [TODO] DateFormat > I
     def I(self):  # NOQA: E743, E741
         "'1' if daylight saving time, '0' otherwise."
         if self.timezone is None:
             return ""
         return "1" if self.timezone.dst(self.data) else "0"
 
+    # [TODO] DateFormat > j
     def j(self):
         "Day of the month without leading zeros; i.e. '1' to '31'"
         return self.data.day
 
+    # [TODO] DateFormat > l
     def l(self):  # NOQA: E743, E741
         "Day of the week, textual, long; e.g. 'Friday'"
         return WEEKDAYS[self.data.weekday()]
 
+    # [TODO] DateFormat > L
     def L(self):
         "Boolean for whether it is a leap year; i.e. True or False"
         return calendar.isleap(self.data.year)
 
+    # [TODO] DateFormat > m
     def m(self):
         "Month; i.e. '01' to '12'"
         return "%02d" % self.data.month
 
+    # [TODO] DateFormat > M
     def M(self):
         "Month, textual, 3 letters; e.g. 'Jan'"
         return MONTHS_3[self.data.month].title()
 
+    # [TODO] DateFormat > n
     def n(self):
         "Month without leading zeros; i.e. '1' to '12'"
         return self.data.month
 
+    # [TODO] DateFormat > N
     def N(self):
         "Month abbreviation in Associated Press style. Proprietary extension."
         return MONTHS_AP[self.data.month]
 
+    # [TODO] DateFormat > o
     def o(self):
         "ISO 8601 year number matching the ISO week number (W)"
         return self.data.isocalendar().year
 
+    # [TODO] DateFormat > r
     def r(self):
         "RFC 5322 formatted date; e.g. 'Thu, 21 Dec 2000 16:01:07 +0200'"
         value = self.data
@@ -270,6 +306,7 @@ class DateFormat(TimeFormat):
             value = make_aware(value, timezone=self.timezone)
         return format_datetime_rfc5322(value)
 
+    # [TODO] DateFormat > S
     def S(self):
         """
         English ordinal suffix for the day of the month, 2 characters; i.e.
@@ -286,10 +323,12 @@ class DateFormat(TimeFormat):
             return "rd"
         return "th"
 
+    # [TODO] DateFormat > t
     def t(self):
         "Number of days in the given month; i.e. '28' to '31'"
         return calendar.monthrange(self.data.year, self.data.month)[1]
 
+    # [TODO] DateFormat > U
     def U(self):
         "Seconds since the Unix epoch (January 1 1970 00:00:00 GMT)"
         value = self.data
@@ -297,33 +336,40 @@ class DateFormat(TimeFormat):
             value = datetime.combine(value, time.min)
         return int(value.timestamp())
 
+    # [TODO] DateFormat > w
     def w(self):
         "Day of the week, numeric, i.e. '0' (Sunday) to '6' (Saturday)"
         return (self.data.weekday() + 1) % 7
 
+    # [TODO] DateFormat > W
     def W(self):
         "ISO-8601 week number of year, weeks starting on Monday"
         return self.data.isocalendar().week
 
+    # [TODO] DateFormat > y
     def y(self):
         """Year, 2 digits with leading zeros; e.g. '99'."""
         return "%02d" % (self.data.year % 100)
 
+    # [TODO] DateFormat > Y
     def Y(self):
         """Year, 4 digits with leading zeros; e.g. '1999'."""
         return "%04d" % self.data.year
 
+    # [TODO] DateFormat > z
     def z(self):
         """Day of the year, i.e. 1 to 366."""
         return self.data.timetuple().tm_yday
 
 
+# [TODO] format
 def format(value, format_string):
     "Convenience function"
     df = DateFormat(value)
     return df.format(format_string)
 
 
+# [TODO] time_format
 def time_format(value, format_string):
     "Convenience function"
     tf = TimeFormat(value)

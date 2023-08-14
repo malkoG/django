@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 __all__ = ["HStoreField"]
 
 
+# [TODO] HStoreField
 class HStoreField(forms.CharField):
     """
     A field for HStore data which accepts dictionary JSON input.
@@ -18,11 +19,13 @@ class HStoreField(forms.CharField):
         "invalid_format": _("Input must be a JSON dictionary."),
     }
 
+    # [TODO] HStoreField > prepare_value
     def prepare_value(self, value):
         if isinstance(value, dict):
             return json.dumps(value)
         return value
 
+    # [TODO] HStoreField > to_python
     def to_python(self, value):
         if not value:
             return {}
@@ -48,6 +51,7 @@ class HStoreField(forms.CharField):
             value[key] = val
         return value
 
+    # [TODO] HStoreField > has_changed
     def has_changed(self, initial, data):
         """
         Return True if data differs from initial.

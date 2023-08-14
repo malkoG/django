@@ -17,6 +17,7 @@ from django.views.generic import View
 LANGUAGE_QUERY_PARAMETER = "language"
 
 
+# [TODO] builtin_template_path
 def builtin_template_path(name):
     """
     Return a path to a builtin template.
@@ -27,6 +28,7 @@ def builtin_template_path(name):
     return Path(__file__).parent / "templates" / name
 
 
+# [TODO] set_language
 def set_language(request):
     """
     Redirect to a given URL while setting the chosen language in the session
@@ -74,6 +76,7 @@ def set_language(request):
     return response
 
 
+# [TODO] get_formats
 def get_formats():
     """Return all formats strings required for i18n to work."""
     FORMAT_SETTINGS = (
@@ -95,6 +98,7 @@ def get_formats():
     return {attr: get_format(attr) for attr in FORMAT_SETTINGS}
 
 
+# [TODO] JavaScriptCatalog
 class JavaScriptCatalog(View):
     """
     Return the selected language catalog as a JavaScript library.
@@ -111,6 +115,7 @@ class JavaScriptCatalog(View):
     domain = "djangojs"
     packages = None
 
+    # [TODO] JavaScriptCatalog > get
     def get(self, request, *args, **kwargs):
         locale = get_language()
         domain = kwargs.get("domain", self.domain)
@@ -123,6 +128,7 @@ class JavaScriptCatalog(View):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
+    # [TODO] JavaScriptCatalog > get_paths
     def get_paths(self, packages):
         allowable_packages = {
             app_config.name: app_config for app_config in apps.get_app_configs()
@@ -139,6 +145,7 @@ class JavaScriptCatalog(View):
         # paths of requested packages
         return [os.path.join(app.path, "locale") for app in app_configs]
 
+    # [TODO] JavaScriptCatalog > _num_plurals
     @property
     def _num_plurals(self):
         """
@@ -150,6 +157,7 @@ class JavaScriptCatalog(View):
             return int(match[1])
         return 2
 
+    # [TODO] JavaScriptCatalog > _plural_string
     @property
     def _plural_string(self):
         """
@@ -162,6 +170,7 @@ class JavaScriptCatalog(View):
                     return line.split(":", 1)[1].strip()
         return None
 
+    # [TODO] JavaScriptCatalog > get_plural
     def get_plural(self):
         plural = self._plural_string
         if plural is not None:
@@ -175,6 +184,7 @@ class JavaScriptCatalog(View):
             ][0].split("=", 1)[1]
         return plural
 
+    # [TODO] JavaScriptCatalog > get_catalog
     def get_catalog(self):
         pdict = {}
         catalog = {}
@@ -202,6 +212,7 @@ class JavaScriptCatalog(View):
             catalog[k] = [v.get(i, "") for i in range(num_plurals)]
         return catalog
 
+    # [TODO] JavaScriptCatalog > get_context_data
     def get_context_data(self, **kwargs):
         return {
             "catalog": self.get_catalog(),
@@ -209,6 +220,7 @@ class JavaScriptCatalog(View):
             "plural": self.get_plural(),
         }
 
+    # [TODO] JavaScriptCatalog > render_to_response
     def render_to_response(self, context, **response_kwargs):
         def indent(s):
             return s.replace("\n", "\n  ")
@@ -229,6 +241,7 @@ class JavaScriptCatalog(View):
         )
 
 
+# [TODO] JSONCatalog
 class JSONCatalog(JavaScriptCatalog):
     """
     Return the selected language catalog as a JSON object.
@@ -247,5 +260,6 @@ class JSONCatalog(JavaScriptCatalog):
         }
     """
 
+    # [TODO] JSONCatalog > render_to_response
     def render_to_response(self, context, **response_kwargs):
         return JsonResponse(context)

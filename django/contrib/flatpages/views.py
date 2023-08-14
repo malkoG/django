@@ -19,6 +19,7 @@ DEFAULT_TEMPLATE = "flatpages/default.html"
 # CSRF protect the internal implementation.
 
 
+# [TODO] flatpage
 def flatpage(request, url):
     """
     Public interface to the flat page view.
@@ -45,6 +46,7 @@ def flatpage(request, url):
     return render_flatpage(request, f)
 
 
+# [TODO] render_flatpage
 @csrf_protect
 def render_flatpage(request, f):
     """

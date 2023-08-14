@@ -11,14 +11,17 @@ FieldInfo = namedtuple(
 )
 
 
+# [TODO] BaseDatabaseIntrospection
 class BaseDatabaseIntrospection:
     """Encapsulate backend-specific introspection utilities."""
 
     data_types_reverse = {}
 
+    # [TODO] BaseDatabaseIntrospection > __init__
     def __init__(self, connection):
         self.connection = connection
 
+    # [TODO] BaseDatabaseIntrospection > get_field_type
     def get_field_type(self, data_type, description):
         """
         Hook for a database backend to use the cursor description to
@@ -29,6 +32,7 @@ class BaseDatabaseIntrospection:
         """
         return self.data_types_reverse[data_type]
 
+    # [TODO] BaseDatabaseIntrospection > identifier_converter
     def identifier_converter(self, name):
         """
         Apply a conversion to the identifier for the purposes of comparison.
@@ -37,6 +41,7 @@ class BaseDatabaseIntrospection:
         """
         return name
 
+    # [TODO] BaseDatabaseIntrospection > table_names
     def table_names(self, cursor=None, include_views=False):
         """
         Return a list of names of all tables that exist in the database.
@@ -57,6 +62,7 @@ class BaseDatabaseIntrospection:
                 return get_names(cursor)
         return get_names(cursor)
 
+    # [TODO] BaseDatabaseIntrospection > get_table_list
     def get_table_list(self, cursor):
         """
         Return an unsorted list of TableInfo named tuples of all tables and
@@ -67,6 +73,7 @@ class BaseDatabaseIntrospection:
             "method"
         )
 
+    # [TODO] BaseDatabaseIntrospection > get_table_description
     def get_table_description(self, cursor, table_name):
         """
         Return a description of the table with the DB-API cursor.description
@@ -77,6 +84,7 @@ class BaseDatabaseIntrospection:
             "get_table_description() method."
         )
 
+    # [TODO] BaseDatabaseIntrospection > get_migratable_models
     def get_migratable_models(self):
         from django.apps import apps
         from django.db import router
@@ -88,6 +96,7 @@ class BaseDatabaseIntrospection:
             if model._meta.can_migrate(self.connection)
         )
 
+    # [TODO] BaseDatabaseIntrospection > django_table_names
     def django_table_names(self, only_existing=False, include_views=True):
         """
         Return a list of all table names that have associated Django models and
@@ -113,6 +122,7 @@ class BaseDatabaseIntrospection:
             ]
         return tables
 
+    # [TODO] BaseDatabaseIntrospection > installed_models
     def installed_models(self, tables):
         """
         Return a set of all models represented by the provided list of table
@@ -125,6 +135,7 @@ class BaseDatabaseIntrospection:
             if self.identifier_converter(m._meta.db_table) in tables
         }
 
+    # [TODO] BaseDatabaseIntrospection > sequence_list
     def sequence_list(self):
         """
         Return a list of information about all DB sequences for all models in
@@ -152,6 +163,7 @@ class BaseDatabaseIntrospection:
                         )
         return sequence_list
 
+    # [TODO] BaseDatabaseIntrospection > get_sequences
     def get_sequences(self, cursor, table_name, table_fields=()):
         """
         Return a list of introspected sequences for table_name. Each sequence
@@ -163,6 +175,7 @@ class BaseDatabaseIntrospection:
             "method"
         )
 
+    # [TODO] BaseDatabaseIntrospection > get_relations
     def get_relations(self, cursor, table_name):
         """
         Return a dictionary of {field_name: (field_name_other_table, other_table)}
@@ -173,6 +186,7 @@ class BaseDatabaseIntrospection:
             "get_relations() method."
         )
 
+    # [TODO] BaseDatabaseIntrospection > get_primary_key_column
     def get_primary_key_column(self, cursor, table_name):
         """
         Return the name of the primary key column for the given table.
@@ -180,6 +194,7 @@ class BaseDatabaseIntrospection:
         columns = self.get_primary_key_columns(cursor, table_name)
         return columns[0] if columns else None
 
+    # [TODO] BaseDatabaseIntrospection > get_primary_key_columns
     def get_primary_key_columns(self, cursor, table_name):
         """Return a list of primary key columns for the given table."""
         for constraint in self.get_constraints(cursor, table_name).values():
@@ -187,6 +202,7 @@ class BaseDatabaseIntrospection:
                 return constraint["columns"]
         return None
 
+    # [TODO] BaseDatabaseIntrospection > get_constraints
     def get_constraints(self, cursor, table_name):
         """
         Retrieve any constraints or keys (unique, pk, fk, check, index)

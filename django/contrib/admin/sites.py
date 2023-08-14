@@ -26,6 +26,7 @@ from django.views.i18n import JavaScriptCatalog
 all_sites = WeakSet()
 
 
+# [TODO] AdminSite
 class AdminSite:
     """
     An AdminSite object encapsulates an instance of the Django admin application, ready
@@ -61,6 +62,7 @@ class AdminSite:
 
     final_catch_all_view = True
 
+    # [TODO] AdminSite > __init__
     def __init__(self, name="admin"):
         self._registry = {}  # model_class class -> admin_class instance
         self.name = name
@@ -68,9 +70,11 @@ class AdminSite:
         self._global_actions = self._actions.copy()
         all_sites.add(self)
 
+    # [TODO] AdminSite > __repr__
     def __repr__(self):
         return f"{self.__class__.__name__}(name={self.name!r})"
 
+    # [TODO] AdminSite > check
     def check(self, app_configs):
         """
         Run the system checks on all ModelAdmins, except if they aren't
@@ -89,6 +93,7 @@ class AdminSite:
                 errors.extend(modeladmin.check())
         return errors
 
+    # [TODO] AdminSite > register
     def register(self, model_or_iterable, admin_class=None, **options):
         """
         Register the given model(s) with the given admin class.
@@ -140,6 +145,7 @@ class AdminSite:
                 # Instantiate the admin class to save in the registry
                 self._registry[model] = admin_class(model, self)
 
+    # [TODO] AdminSite > unregister
     def unregister(self, model_or_iterable):
         """
         Unregister the given model(s).
@@ -153,18 +159,21 @@ class AdminSite:
                 raise NotRegistered("The model %s is not registered" % model.__name__)
             del self._registry[model]
 
+    # [TODO] AdminSite > is_registered
     def is_registered(self, model):
         """
         Check if a model class is registered with this `AdminSite`.
         """
         return model in self._registry
 
+    # [TODO] AdminSite > get_model_admin
     def get_model_admin(self, model):
         try:
             return self._registry[model]
         except KeyError:
             raise NotRegistered(f"The model {model.__name__} is not registered.")
 
+    # [TODO] AdminSite > add_action
     def add_action(self, action, name=None):
         """
         Register an action to be available globally.
@@ -173,12 +182,14 @@ class AdminSite:
         self._actions[name] = action
         self._global_actions[name] = action
 
+    # [TODO] AdminSite > disable_action
     def disable_action(self, name):
         """
         Disable a globally-registered action. Raise KeyError for invalid names.
         """
         del self._actions[name]
 
+    # [TODO] AdminSite > get_action
     def get_action(self, name):
         """
         Explicitly get a registered global action whether it's enabled or
@@ -186,6 +197,7 @@ class AdminSite:
         """
         return self._global_actions[name]
 
+    # [TODO] AdminSite > actions
     @property
     def actions(self):
         """
@@ -193,6 +205,7 @@ class AdminSite:
         """
         return self._actions.items()
 
+    # [TODO] AdminSite > has_permission
     def has_permission(self, request):
         """
         Return True if the given HttpRequest has permission to view
@@ -200,6 +213,7 @@ class AdminSite:
         """
         return request.user.is_active and request.user.is_staff
 
+    # [TODO] AdminSite > admin_view
     def admin_view(self, view, cacheable=False):
         """
         Decorator to create an admin view attached to this ``AdminSite``. This
@@ -247,6 +261,7 @@ class AdminSite:
             inner = csrf_protect(inner)
         return update_wrapper(inner, view)
 
+    # [TODO] AdminSite > get_urls
     def get_urls(self):
         # Since this module gets imported in the application's root package,
         # it cannot import models from other applications at the module level,
@@ -311,10 +326,12 @@ class AdminSite:
 
         return urlpatterns
 
+    # [TODO] AdminSite > urls
     @property
     def urls(self):
         return self.get_urls(), "admin", self.name
 
+    # [TODO] AdminSite > each_context
     def each_context(self, request):
         """
         Return a dictionary of variables to put in the template context for
@@ -338,6 +355,7 @@ class AdminSite:
             "log_entries": self.get_log_entries(request),
         }
 
+    # [TODO] AdminSite > password_change
     def password_change(self, request, extra_context=None):
         """
         Handle the "change password" task -- both form display and validation.
@@ -356,6 +374,7 @@ class AdminSite:
         request.current_app = self.name
         return PasswordChangeView.as_view(**defaults)(request)
 
+    # [TODO] AdminSite > password_change_done
     def password_change_done(self, request, extra_context=None):
         """
         Display the "success" page after a password change.
@@ -370,6 +389,7 @@ class AdminSite:
         request.current_app = self.name
         return PasswordChangeDoneView.as_view(**defaults)(request)
 
+    # [TODO] AdminSite > i18n_javascript
     def i18n_javascript(self, request, extra_context=None):
         """
         Display the i18n JavaScript that the Django admin requires.
@@ -379,6 +399,7 @@ class AdminSite:
         """
         return JavaScriptCatalog.as_view(packages=["django.contrib.admin"])(request)
 
+    # [TODO] AdminSite > logout
     def logout(self, request, extra_context=None):
         """
         Log out the user for the given HttpRequest.
@@ -401,6 +422,7 @@ class AdminSite:
         request.current_app = self.name
         return LogoutView.as_view(**defaults)(request)
 
+    # [TODO] AdminSite > login
     @method_decorator(never_cache)
     def login(self, request, extra_context=None):
         """
@@ -439,9 +461,11 @@ class AdminSite:
         request.current_app = self.name
         return LoginView.as_view(**defaults)(request)
 
+    # [TODO] AdminSite > autocomplete_view
     def autocomplete_view(self, request):
         return AutocompleteJsonView.as_view(admin_site=self)(request)
 
+    # [TODO] AdminSite > catch_all_view
     @no_append_slash
     def catch_all_view(self, request, url):
         if settings.APPEND_SLASH and not url.endswith("/"):
@@ -457,6 +481,7 @@ class AdminSite:
                     )
         raise Http404
 
+    # [TODO] AdminSite > _build_app_dict
     def _build_app_dict(self, request, label=None):
         """
         Build the app dictionary. The optional `label` parameter filters models
@@ -529,6 +554,7 @@ class AdminSite:
 
         return app_dict
 
+    # [TODO] AdminSite > get_app_list
     def get_app_list(self, request, app_label=None):
         """
         Return a sorted list of all the installed apps that have been
@@ -545,6 +571,7 @@ class AdminSite:
 
         return app_list
 
+    # [TODO] AdminSite > index
     def index(self, request, extra_context=None):
         """
         Display the main admin index page, which lists all of the installed
@@ -566,6 +593,7 @@ class AdminSite:
             request, self.index_template or "admin/index.html", context
         )
 
+    # [TODO] AdminSite > app_index
     def app_index(self, request, app_label, extra_context=None):
         app_list = self.get_app_list(request, app_label)
 
@@ -590,17 +618,21 @@ class AdminSite:
             context,
         )
 
+    # [TODO] AdminSite > get_log_entries
     def get_log_entries(self, request):
         from django.contrib.admin.models import LogEntry
 
         return LogEntry.objects.select_related("content_type", "user")
 
 
+# [TODO] DefaultAdminSite
 class DefaultAdminSite(LazyObject):
+    # [TODO] DefaultAdminSite > _setup
     def _setup(self):
         AdminSiteClass = import_string(apps.get_app_config("admin").default_site)
         self._wrapped = AdminSiteClass()
 
+    # [TODO] DefaultAdminSite > __repr__
     def __repr__(self):
         return repr(self._wrapped)
 

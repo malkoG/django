@@ -11,12 +11,14 @@ from django.utils import timezone
 from django.utils.http import http_date
 
 
+# [TODO] SitemapIndexItem
 @dataclass
 class SitemapIndexItem:
     location: str
     last_mod: bool = None
 
 
+# [TODO] x_robots_tag
 def x_robots_tag(func):
     @wraps(func)
     def inner(request, *args, **kwargs):
@@ -27,6 +29,7 @@ def x_robots_tag(func):
     return inner
 
 
+# [TODO] _get_latest_lastmod
 def _get_latest_lastmod(current_lastmod, new_lastmod):
     """
     Returns the latest `lastmod` where `lastmod` can be either a date or a
@@ -39,6 +42,7 @@ def _get_latest_lastmod(current_lastmod, new_lastmod):
     return new_lastmod if current_lastmod is None else max(current_lastmod, new_lastmod)
 
 
+# [TODO] index
 @x_robots_tag
 def index(
     request,
@@ -88,6 +92,7 @@ def index(
     )
 
 
+# [TODO] sitemap
 @x_robots_tag
 def sitemap(
     request,

@@ -4,6 +4,7 @@ from django.contrib.flatpages.models import FlatPage
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] FlatPageAdmin
 @admin.register(FlatPage)
 class FlatPageAdmin(admin.ModelAdmin):
     form = FlatpageForm

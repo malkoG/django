@@ -3,6 +3,7 @@
 import re
 
 
+# [TODO] Tok
 class Tok:
     """
     A specification for a token class.
@@ -10,6 +11,7 @@ class Tok:
 
     num = 0
 
+    # [TODO] Tok > __init__
     def __init__(self, name, regex, next=None):
         self.id = Tok.num
         Tok.num += 1
@@ -18,6 +20,7 @@ class Tok:
         self.next = next
 
 
+# [TODO] literals
 def literals(choices, prefix="", suffix=""):
     """
     Create a regex from a space-separated list of literal `choices`.
@@ -28,11 +31,13 @@ def literals(choices, prefix="", suffix=""):
     return "|".join(prefix + re.escape(c) + suffix for c in choices.split())
 
 
+# [TODO] Lexer
 class Lexer:
     """
     A generic multi-state regex-based lexer.
     """
 
+    # [TODO] Lexer > __init__
     def __init__(self, states, first):
         self.regexes = {}
         self.toks = {}
@@ -47,6 +52,7 @@ class Lexer:
 
         self.state = first
 
+    # [TODO] Lexer > lex
     def lex(self, text):
         """
         Lexically analyze `text`.
@@ -74,6 +80,7 @@ class Lexer:
         self.state = state
 
 
+# [TODO] JsLexer
 class JsLexer(Lexer):
     """
     A JavaScript lexer
@@ -206,10 +213,12 @@ class JsLexer(Lexer):
         + both_after,
     }
 
+    # [TODO] JsLexer > __init__
     def __init__(self):
         super().__init__(self.states, "reg")
 
 
+# [TODO] prepare_js_for_gettext
 def prepare_js_for_gettext(js):
     """
     Convert the JavaScript source `js` into something resembling C for

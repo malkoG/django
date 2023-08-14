@@ -3,6 +3,7 @@ from django.db import connections
 from . import Tags, register
 
 
+# [TODO] check_database_backends
 @register(Tags.database)
 def check_database_backends(databases=None, **kwargs):
     if databases is None:

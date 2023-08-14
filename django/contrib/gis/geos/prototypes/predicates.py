@@ -9,6 +9,7 @@ from django.contrib.gis.geos.prototypes.errcheck import check_predicate
 
 
 # ## Binary & unary predicate factories ##
+# [TODO] UnaryPredicate
 class UnaryPredicate(GEOSFuncFactory):
     "For GEOS unary predicate functions."
     argtypes = [GEOM_PTR]
@@ -16,6 +17,7 @@ class UnaryPredicate(GEOSFuncFactory):
     errcheck = staticmethod(check_predicate)
 
 
+# [TODO] BinaryPredicate
 class BinaryPredicate(UnaryPredicate):
     "For GEOS binary predicate functions."
     argtypes = [GEOM_PTR, GEOM_PTR]

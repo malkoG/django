@@ -2,6 +2,7 @@ import django.contrib.contenttypes.models
 from django.db import migrations, models
 
 
+# [TODO] Migration
 class Migration(migrations.Migration):
     dependencies = []
 

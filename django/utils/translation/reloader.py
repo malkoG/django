@@ -6,6 +6,7 @@ from django.apps import apps
 from django.utils.autoreload import is_django_module
 
 
+# [TODO] watch_for_translation_changes
 def watch_for_translation_changes(sender, **kwargs):
     """Register file watchers for .mo files in potential locale paths."""
     from django.conf import settings
@@ -22,6 +23,7 @@ def watch_for_translation_changes(sender, **kwargs):
             sender.watch_dir(path, "**/*.mo")
 
 
+# [TODO] translation_file_changed
 def translation_file_changed(sender, file_path, **kwargs):
     """Clear the internal translations cache if a .mo file is modified."""
     if file_path.suffix == ".mo":

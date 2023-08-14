@@ -4,12 +4,14 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = (
         "Can be run as a cronjob or directly to clean out expired sessions "
         "when the backend supports it."
     )
 
+    # [TODO] Command > handle
     def handle(self, **options):
         engine = import_module(settings.SESSION_ENGINE)
         try:

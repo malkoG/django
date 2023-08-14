@@ -9,21 +9,25 @@ from django.db import models
 DEFER_FIELD = object()
 
 
+# [TODO] SerializerDoesNotExist
 class SerializerDoesNotExist(KeyError):
     """The requested serializer was not found."""
 
     pass
 
 
+# [TODO] SerializationError
 class SerializationError(Exception):
     """Something bad happened during serialization."""
 
     pass
 
 
+# [TODO] DeserializationError
 class DeserializationError(Exception):
     """Something bad happened during deserialization."""
 
+    # [TODO] DeserializationError > WithData
     @classmethod
     def WithData(cls, original_exc, model, fk, field_value):
         """
@@ -36,22 +40,27 @@ class DeserializationError(Exception):
         )
 
 
+# [TODO] M2MDeserializationError
 class M2MDeserializationError(Exception):
     """Something bad happened during deserialization of a ManyToManyField."""
 
+    # [TODO] M2MDeserializationError > __init__
     def __init__(self, original_exc, pk):
         self.original_exc = original_exc
         self.pk = pk
 
 
+# [TODO] ProgressBar
 class ProgressBar:
     progress_width = 75
 
+    # [TODO] ProgressBar > __init__
     def __init__(self, output, total_count):
         self.output = output
         self.total_count = total_count
         self.prev_done = 0
 
+    # [TODO] ProgressBar > update
     def update(self, count):
         if not self.output:
             return
@@ -69,6 +78,7 @@ class ProgressBar:
         self.output.flush()
 
 
+# [TODO] Serializer
 class Serializer:
     """
     Abstract serializer base class.
@@ -80,6 +90,7 @@ class Serializer:
     progress_class = ProgressBar
     stream_class = StringIO
 
+    # [TODO] Serializer > serialize
     def serialize(
         self,
         queryset,
@@ -147,6 +158,7 @@ class Serializer:
         self.end_serialization()
         return self.getvalue()
 
+    # [TODO] Serializer > start_serialization
     def start_serialization(self):
         """
         Called when serializing of the queryset starts.
@@ -155,12 +167,14 @@ class Serializer:
             "subclasses of Serializer must provide a start_serialization() method"
         )
 
+    # [TODO] Serializer > end_serialization
     def end_serialization(self):
         """
         Called when serializing of the queryset ends.
         """
         pass
 
+    # [TODO] Serializer > start_object
     def start_object(self, obj):
         """
         Called when serializing of an object starts.
@@ -169,12 +183,14 @@ class Serializer:
             "subclasses of Serializer must provide a start_object() method"
         )
 
+    # [TODO] Serializer > end_object
     def end_object(self, obj):
         """
         Called when serializing of an object ends.
         """
         pass
 
+    # [TODO] Serializer > handle_field
     def handle_field(self, obj, field):
         """
         Called to handle each individual (non-relational) field on an object.
@@ -183,6 +199,7 @@ class Serializer:
             "subclasses of Serializer must provide a handle_field() method"
         )
 
+    # [TODO] Serializer > handle_fk_field
     def handle_fk_field(self, obj, field):
         """
         Called to handle a ForeignKey field.
@@ -191,6 +208,7 @@ class Serializer:
             "subclasses of Serializer must provide a handle_fk_field() method"
         )
 
+    # [TODO] Serializer > handle_m2m_field
     def handle_m2m_field(self, obj, field):
         """
         Called to handle a ManyToManyField.
@@ -199,6 +217,7 @@ class Serializer:
             "subclasses of Serializer must provide a handle_m2m_field() method"
         )
 
+    # [TODO] Serializer > getvalue
     def getvalue(self):
         """
         Return the fully serialized queryset (or None if the output stream is
@@ -208,11 +227,13 @@ class Serializer:
             return self.stream.getvalue()
 
 
+# [TODO] Deserializer
 class Deserializer:
     """
     Abstract base deserializer class.
     """
 
+    # [TODO] Deserializer > __init__
     def __init__(self, stream_or_string, **options):
         """
         Init this serializer given a stream or a string
@@ -223,9 +244,11 @@ class Deserializer:
         else:
             self.stream = stream_or_string
 
+    # [TODO] Deserializer > __iter__
     def __iter__(self):
         return self
 
+    # [TODO] Deserializer > __next__
     def __next__(self):
         """Iteration interface -- return the next item in the stream"""
         raise NotImplementedError(
@@ -233,6 +256,7 @@ class Deserializer:
         )
 
 
+# [TODO] DeserializedObject
 class DeserializedObject:
     """
     A deserialized model.
@@ -245,11 +269,13 @@ class DeserializedObject:
     (and not touch the many-to-many stuff.)
     """
 
+    # [TODO] DeserializedObject > __init__
     def __init__(self, obj, m2m_data=None, deferred_fields=None):
         self.object = obj
         self.m2m_data = m2m_data
         self.deferred_fields = deferred_fields
 
+    # [TODO] DeserializedObject > __repr__
     def __repr__(self):
         return "<%s: %s(pk=%s)>" % (
             self.__class__.__name__,
@@ -257,6 +283,7 @@ class DeserializedObject:
             self.object.pk,
         )
 
+    # [TODO] DeserializedObject > save
     def save(self, save_m2m=True, using=None, **kwargs):
         # Call save on the Model baseclass directly. This bypasses any
         # model-defined save. The save is also forced to be raw.
@@ -270,6 +297,7 @@ class DeserializedObject:
         # the m2m data twice.
         self.m2m_data = None
 
+    # [TODO] DeserializedObject > save_deferred_fields
     def save_deferred_fields(self, using=None):
         self.m2m_data = {}
         for field, field_value in self.deferred_fields.items():
@@ -298,6 +326,7 @@ class DeserializedObject:
         self.save()
 
 
+# [TODO] build_instance
 def build_instance(Model, data, db):
     """
     Build a model instance.
@@ -324,6 +353,7 @@ def build_instance(Model, data, db):
     return Model(**data)
 
 
+# [TODO] deserialize_m2m_values
 def deserialize_m2m_values(field, field_value, using, handle_forward_references):
     model = field.remote_field.model
     if hasattr(model._default_manager, "get_by_natural_key"):
@@ -359,6 +389,7 @@ def deserialize_m2m_values(field, field_value, using, handle_forward_references)
             raise M2MDeserializationError(e, pk)
 
 
+# [TODO] deserialize_fk_value
 def deserialize_fk_value(field, field_value, using, handle_forward_references):
     if field_value is None:
         return None

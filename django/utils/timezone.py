@@ -30,6 +30,7 @@ __all__ = [
 ]
 
 
+# [TODO] get_fixed_timezone
 def get_fixed_timezone(offset):
     """Return a tzinfo instance with a fixed offset from UTC."""
     if isinstance(offset, timedelta):
@@ -42,6 +43,7 @@ def get_fixed_timezone(offset):
 
 # In order to avoid accessing settings at compile time,
 # wrap the logic in a function and cache the result.
+# [TODO] get_default_timezone
 @functools.lru_cache
 def get_default_timezone():
     """
@@ -53,6 +55,7 @@ def get_default_timezone():
 
 
 # This function exists for consistency with get_current_timezone_name
+# [TODO] get_default_timezone_name
 def get_default_timezone_name():
     """Return the name of the default time zone."""
     return _get_timezone_name(get_default_timezone())
@@ -61,16 +64,19 @@ def get_default_timezone_name():
 _active = Local()
 
 
+# [TODO] get_current_timezone
 def get_current_timezone():
     """Return the currently active time zone as a tzinfo instance."""
     return getattr(_active, "value", get_default_timezone())
 
 
+# [TODO] get_current_timezone_name
 def get_current_timezone_name():
     """Return the name of the currently active time zone."""
     return _get_timezone_name(get_current_timezone())
 
 
+# [TODO] _get_timezone_name
 def _get_timezone_name(timezone):
     """
     Return the offset for fixed offset timezones, or the name of timezone if
@@ -85,6 +91,7 @@ def _get_timezone_name(timezone):
 # because it isn't thread safe.
 
 
+# [TODO] activate
 def activate(timezone):
     """
     Set the time zone for the current thread.
@@ -100,6 +107,7 @@ def activate(timezone):
         raise ValueError("Invalid timezone: %r" % timezone)
 
 
+# [TODO] deactivate
 def deactivate():
     """
     Unset the time zone for the current thread.
@@ -110,6 +118,7 @@ def deactivate():
         del _active.value
 
 
+# [TODO] override
 class override(ContextDecorator):
     """
     Temporarily set the time zone for the current thread.
@@ -123,9 +132,11 @@ class override(ContextDecorator):
     time zone.
     """
 
+    # [TODO] override > __init__
     def __init__(self, timezone):
         self.timezone = timezone
 
+    # [TODO] override > __enter__
     def __enter__(self):
         self.old_timezone = getattr(_active, "value", None)
         if self.timezone is None:
@@ -133,6 +144,7 @@ class override(ContextDecorator):
         else:
             activate(self.timezone)
 
+    # [TODO] override > __exit__
     def __exit__(self, exc_type, exc_value, traceback):
         if self.old_timezone is None:
             deactivate()
@@ -143,6 +155,7 @@ class override(ContextDecorator):
 # Templates
 
 
+# [TODO] template_localtime
 def template_localtime(value, use_tz=None):
     """
     Check if value is a datetime and converts it to local time if necessary.
@@ -164,6 +177,7 @@ def template_localtime(value, use_tz=None):
 # Utilities
 
 
+# [TODO] localtime
 def localtime(value=None, timezone=None):
     """
     Convert an aware datetime.datetime to local time.
@@ -184,6 +198,7 @@ def localtime(value=None, timezone=None):
     return value.astimezone(timezone)
 
 
+# [TODO] localdate
 def localdate(value=None, timezone=None):
     """
     Convert an aware datetime to local time and return the value's date.
@@ -197,6 +212,7 @@ def localdate(value=None, timezone=None):
     return localtime(value, timezone).date()
 
 
+# [TODO] now
 def now():
     """
     Return an aware or naive datetime.datetime, depending on settings.USE_TZ.
@@ -208,6 +224,7 @@ def now():
 # The caller should ensure that they don't receive an invalid value like None.
 
 
+# [TODO] is_aware
 def is_aware(value):
     """
     Determine if a given datetime.datetime is aware.
@@ -221,6 +238,7 @@ def is_aware(value):
     return value.utcoffset() is not None
 
 
+# [TODO] is_naive
 def is_naive(value):
     """
     Determine if a given datetime.datetime is naive.
@@ -234,6 +252,7 @@ def is_naive(value):
     return value.utcoffset() is None
 
 
+# [TODO] make_aware
 def make_aware(value, timezone=None):
     """Make a naive datetime.datetime in a given time zone aware."""
     if timezone is None:
@@ -245,6 +264,7 @@ def make_aware(value, timezone=None):
     return value.replace(tzinfo=timezone)
 
 
+# [TODO] make_naive
 def make_naive(value, timezone=None):
     """Make an aware datetime.datetime naive in a given time zone."""
     if timezone is None:
@@ -255,5 +275,6 @@ def make_naive(value, timezone=None):
     return value.astimezone(timezone).replace(tzinfo=None)
 
 
+# [TODO] _datetime_ambiguous_or_imaginary
 def _datetime_ambiguous_or_imaginary(dt, tz):
     return tz.utcoffset(dt.replace(fold=not dt.fold)) != tz.utcoffset(dt)

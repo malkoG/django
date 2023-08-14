@@ -10,10 +10,13 @@ from django.utils.safestring import SafeData, SafeString, mark_safe
 register = Library()
 
 
+# [TODO] GetAvailableLanguagesNode
 class GetAvailableLanguagesNode(Node):
+    # [TODO] GetAvailableLanguagesNode > __init__
     def __init__(self, variable):
         self.variable = variable
 
+    # [TODO] GetAvailableLanguagesNode > render
     def render(self, context):
         context[self.variable] = [
             (k, translation.gettext(v)) for k, v in settings.LANGUAGES
@@ -21,22 +24,28 @@ class GetAvailableLanguagesNode(Node):
         return ""
 
 
+# [TODO] GetLanguageInfoNode
 class GetLanguageInfoNode(Node):
+    # [TODO] GetLanguageInfoNode > __init__
     def __init__(self, lang_code, variable):
         self.lang_code = lang_code
         self.variable = variable
 
+    # [TODO] GetLanguageInfoNode > render
     def render(self, context):
         lang_code = self.lang_code.resolve(context)
         context[self.variable] = translation.get_language_info(lang_code)
         return ""
 
 
+# [TODO] GetLanguageInfoListNode
 class GetLanguageInfoListNode(Node):
+    # [TODO] GetLanguageInfoListNode > __init__
     def __init__(self, languages, variable):
         self.languages = languages
         self.variable = variable
 
+    # [TODO] GetLanguageInfoListNode > get_language_info
     def get_language_info(self, language):
         # ``language`` is either a language code string or a sequence
         # with the language code as its first item
@@ -45,33 +54,42 @@ class GetLanguageInfoListNode(Node):
         else:
             return translation.get_language_info(str(language))
 
+    # [TODO] GetLanguageInfoListNode > render
     def render(self, context):
         langs = self.languages.resolve(context)
         context[self.variable] = [self.get_language_info(lang) for lang in langs]
         return ""
 
 
+# [TODO] GetCurrentLanguageNode
 class GetCurrentLanguageNode(Node):
+    # [TODO] GetCurrentLanguageNode > __init__
     def __init__(self, variable):
         self.variable = variable
 
+    # [TODO] GetCurrentLanguageNode > render
     def render(self, context):
         context[self.variable] = translation.get_language()
         return ""
 
 
+# [TODO] GetCurrentLanguageBidiNode
 class GetCurrentLanguageBidiNode(Node):
+    # [TODO] GetCurrentLanguageBidiNode > __init__
     def __init__(self, variable):
         self.variable = variable
 
+    # [TODO] GetCurrentLanguageBidiNode > render
     def render(self, context):
         context[self.variable] = translation.get_language_bidi()
         return ""
 
 
+# [TODO] TranslateNode
 class TranslateNode(Node):
     child_nodelists = ()
 
+    # [TODO] TranslateNode > __init__
     def __init__(self, filter_expression, noop, asvar=None, message_context=None):
         self.noop = noop
         self.asvar = asvar
@@ -81,6 +99,7 @@ class TranslateNode(Node):
             self.filter_expression.is_var = True
             self.filter_expression.var = Variable("'%s'" % self.filter_expression.var)
 
+    # [TODO] TranslateNode > render
     def render(self, context):
         self.filter_expression.var.translate = not self.noop
         if self.message_context:
@@ -101,7 +120,9 @@ class TranslateNode(Node):
             return value
 
 
+# [TODO] BlockTranslateNode
 class BlockTranslateNode(Node):
+    # [TODO] BlockTranslateNode > __init__
     def __init__(
         self,
         extra_context,
@@ -124,6 +145,7 @@ class BlockTranslateNode(Node):
         self.asvar = asvar
         self.tag_name = tag_name
 
+    # [TODO] BlockTranslateNode > __repr__
     def __repr__(self):
         return (
             f"<{self.__class__.__qualname__}: "
@@ -131,6 +153,7 @@ class BlockTranslateNode(Node):
             f"singular={self.singular!r} plural={self.plural!r}>"
         )
 
+    # [TODO] BlockTranslateNode > render_token_list
     def render_token_list(self, tokens):
         result = []
         vars = []
@@ -145,6 +168,7 @@ class BlockTranslateNode(Node):
             msg = translation.trim_whitespace(msg)
         return msg, vars
 
+    # [TODO] BlockTranslateNode > render
     def render(self, context, nested=False):
         if self.message_context:
             message_context = self.message_context.resolve(context)
@@ -204,17 +228,21 @@ class BlockTranslateNode(Node):
             return result
 
 
+# [TODO] LanguageNode
 class LanguageNode(Node):
+    # [TODO] LanguageNode > __init__
     def __init__(self, nodelist, language):
         self.nodelist = nodelist
         self.language = language
 
+    # [TODO] LanguageNode > render
     def render(self, context):
         with translation.override(self.language.resolve(context)):
             output = self.nodelist.render(context)
         return output
 
 
+# [TODO] do_get_available_languages
 @register.tag("get_available_languages")
 def do_get_available_languages(parser, token):
     """
@@ -239,6 +267,7 @@ def do_get_available_languages(parser, token):
     return GetAvailableLanguagesNode(args[2])
 
 
+# [TODO] do_get_language_info
 @register.tag("get_language_info")
 def do_get_language_info(parser, token):
     """
@@ -262,6 +291,7 @@ def do_get_language_info(parser, token):
     return GetLanguageInfoNode(parser.compile_filter(args[2]), args[4])
 
 
+# [TODO] do_get_language_info_list
 @register.tag("get_language_info_list")
 def do_get_language_info_list(parser, token):
     """
@@ -289,27 +319,32 @@ def do_get_language_info_list(parser, token):
     return GetLanguageInfoListNode(parser.compile_filter(args[2]), args[4])
 
 
+# [TODO] language_name
 @register.filter
 def language_name(lang_code):
     return translation.get_language_info(lang_code)["name"]
 
 
+# [TODO] language_name_translated
 @register.filter
 def language_name_translated(lang_code):
     english_name = translation.get_language_info(lang_code)["name"]
     return translation.gettext(english_name)
 
 
+# [TODO] language_name_local
 @register.filter
 def language_name_local(lang_code):
     return translation.get_language_info(lang_code)["name_local"]
 
 
+# [TODO] language_bidi
 @register.filter
 def language_bidi(lang_code):
     return translation.get_language_info(lang_code)["bidi"]
 
 
+# [TODO] do_get_current_language
 @register.tag("get_current_language")
 def do_get_current_language(parser, token):
     """
@@ -332,6 +367,7 @@ def do_get_current_language(parser, token):
     return GetCurrentLanguageNode(args[2])
 
 
+# [TODO] do_get_current_language_bidi
 @register.tag("get_current_language_bidi")
 def do_get_current_language_bidi(parser, token):
     """
@@ -355,6 +391,7 @@ def do_get_current_language_bidi(parser, token):
     return GetCurrentLanguageBidiNode(args[2])
 
 
+# [TODO] do_translate
 @register.tag("translate")
 @register.tag("trans")
 def do_translate(parser, token):
@@ -453,6 +490,7 @@ def do_translate(parser, token):
     return TranslateNode(message_string, noop, asvar, message_context)
 
 
+# [TODO] do_block_translate
 @register.tag("blocktranslate")
 @register.tag("blocktrans")
 def do_block_translate(parser, token):
@@ -596,6 +634,7 @@ def do_block_translate(parser, token):
     )
 
 
+# [TODO] language
 @register.tag
 def language(parser, token):
     """

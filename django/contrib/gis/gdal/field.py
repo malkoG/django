@@ -11,11 +11,13 @@ from django.utils.encoding import force_str
 #  https://gdal.org/api/vector_c_api.html
 #
 # The OGR_Fld_* routines are relevant here.
+# [TODO] Field
 class Field(GDALBase):
     """
     Wrap an OGR Field. Needs to be instantiated from a Feature object.
     """
 
+    # [TODO] Field > __init__
     def __init__(self, feat, index):
         """
         Initialize on the feature object and the integer index of
@@ -34,11 +36,13 @@ class Field(GDALBase):
         # Setting the class depending upon the OGR Field Type (OFT)
         self.__class__ = OGRFieldTypes[self.type]
 
+    # [TODO] Field > __str__
     def __str__(self):
         "Return the string representation of the Field."
         return str(self.value).strip()
 
     # #### Field Methods ####
+    # [TODO] Field > as_double
     def as_double(self):
         "Retrieve the Field's value as a double (float)."
         return (
@@ -47,6 +51,7 @@ class Field(GDALBase):
             else None
         )
 
+    # [TODO] Field > as_int
     def as_int(self, is_64=False):
         "Retrieve the Field's value as an integer."
         if is_64:
@@ -62,6 +67,7 @@ class Field(GDALBase):
                 else None
             )
 
+    # [TODO] Field > as_string
     def as_string(self):
         "Retrieve the Field's value as a string."
         if not self.is_set:
@@ -69,6 +75,7 @@ class Field(GDALBase):
         string = capi.get_field_as_string(self._feat.ptr, self._index)
         return force_str(string, encoding=self._feat.encoding, strings_only=True)
 
+    # [TODO] Field > as_datetime
     def as_datetime(self):
         "Retrieve the Field's value as a tuple of date & time components."
         if not self.is_set:
@@ -93,38 +100,45 @@ class Field(GDALBase):
             )
 
     # #### Field Properties ####
+    # [TODO] Field > is_set
     @property
     def is_set(self):
         "Return True if the value of this field isn't null, False otherwise."
         return capi.is_field_set(self._feat.ptr, self._index)
 
+    # [TODO] Field > name
     @property
     def name(self):
         "Return the name of this Field."
         name = capi.get_field_name(self.ptr)
         return force_str(name, encoding=self._feat.encoding, strings_only=True)
 
+    # [TODO] Field > precision
     @property
     def precision(self):
         "Return the precision of this Field."
         return capi.get_field_precision(self.ptr)
 
+    # [TODO] Field > type
     @property
     def type(self):
         "Return the OGR type of this Field."
         return capi.get_field_type(self.ptr)
 
+    # [TODO] Field > type_name
     @property
     def type_name(self):
         "Return the OGR field type name for this Field."
         return capi.get_field_type_name(self.type)
 
+    # [TODO] Field > value
     @property
     def value(self):
         "Return the value of this Field."
         # Default is to get the field as a string.
         return self.as_string()
 
+    # [TODO] Field > width
     @property
     def width(self):
         "Return the width of this Field."
@@ -132,14 +146,17 @@ class Field(GDALBase):
 
 
 # ### The Field sub-classes for each OGR Field type. ###
+# [TODO] OFTInteger
 class OFTInteger(Field):
     _bit64 = False
 
+    # [TODO] OFTInteger > value
     @property
     def value(self):
         "Return an integer contained in this field."
         return self.as_int(self._bit64)
 
+    # [TODO] OFTInteger > type
     @property
     def type(self):
         """
@@ -150,7 +167,9 @@ class OFTInteger(Field):
         return 0
 
 
+# [TODO] OFTReal
 class OFTReal(Field):
+    # [TODO] OFTReal > value
     @property
     def value(self):
         "Return a float contained in this field."
@@ -158,20 +177,25 @@ class OFTReal(Field):
 
 
 # String & Binary fields, just subclasses
+# [TODO] OFTString
 class OFTString(Field):
     pass
 
 
+# [TODO] OFTWideString
 class OFTWideString(Field):
     pass
 
 
+# [TODO] OFTBinary
 class OFTBinary(Field):
     pass
 
 
 # OFTDate, OFTTime, OFTDateTime fields.
+# [TODO] OFTDate
 class OFTDate(Field):
+    # [TODO] OFTDate > value
     @property
     def value(self):
         "Return a Python `date` object for the OFTDate field."
@@ -182,7 +206,9 @@ class OFTDate(Field):
             return None
 
 
+# [TODO] OFTDateTime
 class OFTDateTime(Field):
+    # [TODO] OFTDateTime > value
     @property
     def value(self):
         "Return a Python `datetime` object for this OFTDateTime field."
@@ -197,7 +223,9 @@ class OFTDateTime(Field):
             return None
 
 
+# [TODO] OFTTime
 class OFTTime(Field):
+    # [TODO] OFTTime > value
     @property
     def value(self):
         "Return a Python `time` object for this OFTTime field."
@@ -208,27 +236,33 @@ class OFTTime(Field):
             return None
 
 
+# [TODO] OFTInteger64
 class OFTInteger64(OFTInteger):
     _bit64 = True
 
 
 # List fields are also just subclasses
+# [TODO] OFTIntegerList
 class OFTIntegerList(Field):
     pass
 
 
+# [TODO] OFTRealList
 class OFTRealList(Field):
     pass
 
 
+# [TODO] OFTStringList
 class OFTStringList(Field):
     pass
 
 
+# [TODO] OFTWideStringList
 class OFTWideStringList(Field):
     pass
 
 
+# [TODO] OFTInteger64List
 class OFTInteger64List(Field):
     pass
 

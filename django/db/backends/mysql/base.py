@@ -50,6 +50,7 @@ django_conversions = {
 server_version_re = _lazy_re_compile(r"(\d{1,2})\.(\d{1,2})\.(\d{1,2})")
 
 
+# [TODO] CursorWrapper
 class CursorWrapper:
     """
     A thin wrapper around MySQLdb's normal cursor class that catches particular
@@ -66,9 +67,11 @@ class CursorWrapper:
         4025,  # CHECK constraint failed
     )
 
+    # [TODO] CursorWrapper > __init__
     def __init__(self, cursor):
         self.cursor = cursor
 
+    # [TODO] CursorWrapper > execute
     def execute(self, query, args=None):
         try:
             # args is None means no string interpolation
@@ -80,6 +83,7 @@ class CursorWrapper:
                 raise IntegrityError(*tuple(e.args))
             raise
 
+    # [TODO] CursorWrapper > executemany
     def executemany(self, query, args):
         try:
             return self.cursor.executemany(query, args)
@@ -90,13 +94,16 @@ class CursorWrapper:
                 raise IntegrityError(*tuple(e.args))
             raise
 
+    # [TODO] CursorWrapper > __getattr__
     def __getattr__(self, attr):
         return getattr(self.cursor, attr)
 
+    # [TODO] CursorWrapper > __iter__
     def __iter__(self):
         return iter(self.cursor)
 
 
+# [TODO] DatabaseWrapper
 class DatabaseWrapper(BaseDatabaseWrapper):
     vendor = "mysql"
     # This dictionary maps Field objects to their associated MySQL column
@@ -134,6 +141,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         "UUIDField": "char(32)",
     }
 
+    # [TODO] DatabaseWrapper > data_types
     @cached_property
     def data_types(self):
         _data_types = self._data_types.copy()
@@ -208,9 +216,11 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     ops_class = DatabaseOperations
     validation_class = DatabaseValidation
 
+    # [TODO] DatabaseWrapper > get_database_version
     def get_database_version(self):
         return self.mysql_version
 
+    # [TODO] DatabaseWrapper > get_connection_params
     def get_connection_params(self):
         kwargs = {
             "conv": django_conversions,
@@ -250,6 +260,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         kwargs.update(options)
         return kwargs
 
+    # [TODO] DatabaseWrapper > get_new_connection
     @async_unsafe
     def get_new_connection(self, conn_params):
         connection = Database.connect(**conn_params)
@@ -261,6 +272,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             connection.encoders.pop(bytes)
         return connection
 
+    # [TODO] DatabaseWrapper > init_connection_state
     def init_connection_state(self):
         super().init_connection_state()
         assignments = []
@@ -281,21 +293,25 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             with self.cursor() as cursor:
                 cursor.execute("; ".join(assignments))
 
+    # [TODO] DatabaseWrapper > create_cursor
     @async_unsafe
     def create_cursor(self, name=None):
         cursor = self.connection.cursor()
         return CursorWrapper(cursor)
 
+    # [TODO] DatabaseWrapper > _rollback
     def _rollback(self):
         try:
             BaseDatabaseWrapper._rollback(self)
         except Database.NotSupportedError:
             pass
 
+    # [TODO] DatabaseWrapper > _set_autocommit
     def _set_autocommit(self, autocommit):
         with self.wrap_database_errors:
             self.connection.autocommit(autocommit)
 
+    # [TODO] DatabaseWrapper > disable_constraint_checking
     def disable_constraint_checking(self):
         """
         Disable foreign key checks, primarily for use in adding rows with
@@ -306,6 +322,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             cursor.execute("SET foreign_key_checks=0")
         return True
 
+    # [TODO] DatabaseWrapper > enable_constraint_checking
     def enable_constraint_checking(self):
         """
         Re-enable foreign key checks after they have been disabled.
@@ -319,6 +336,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         finally:
             self.needs_rollback = needs_rollback
 
+    # [TODO] DatabaseWrapper > check_constraints
     def check_constraints(self, table_names=None):
         """
         Check each table name in `table_names` for rows with invalid foreign
@@ -375,6 +393,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                             )
                         )
 
+    # [TODO] DatabaseWrapper > is_usable
     def is_usable(self):
         try:
             self.connection.ping()
@@ -383,10 +402,12 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         else:
             return True
 
+    # [TODO] DatabaseWrapper > display_name
     @cached_property
     def display_name(self):
         return "MariaDB" if self.mysql_is_mariadb else "MySQL"
 
+    # [TODO] DatabaseWrapper > data_type_check_constraints
     @cached_property
     def data_type_check_constraints(self):
         if self.features.supports_column_check_constraints:
@@ -402,6 +423,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             return check_constraints
         return {}
 
+    # [TODO] DatabaseWrapper > mysql_server_data
     @cached_property
     def mysql_server_data(self):
         with self.temporary_connection() as cursor:
@@ -428,10 +450,12 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             "has_zoneinfo_database": bool(row[5]),
         }
 
+    # [TODO] DatabaseWrapper > mysql_server_info
     @cached_property
     def mysql_server_info(self):
         return self.mysql_server_data["version"]
 
+    # [TODO] DatabaseWrapper > mysql_version
     @cached_property
     def mysql_version(self):
         match = server_version_re.match(self.mysql_server_info)
@@ -442,10 +466,12 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             )
         return tuple(int(x) for x in match.groups())
 
+    # [TODO] DatabaseWrapper > mysql_is_mariadb
     @cached_property
     def mysql_is_mariadb(self):
         return "mariadb" in self.mysql_server_info.lower()
 
+    # [TODO] DatabaseWrapper > sql_mode
     @cached_property
     def sql_mode(self):
         sql_mode = self.mysql_server_data["sql_mode"]

@@ -8,7 +8,9 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.mail.backends.console import EmailBackend as ConsoleEmailBackend
 
 
+# [TODO] EmailBackend
 class EmailBackend(ConsoleEmailBackend):
+    # [TODO] EmailBackend > __init__
     def __init__(self, *args, file_path=None, **kwargs):
         self._fname = None
         if file_path is not None:
@@ -39,11 +41,13 @@ class EmailBackend(ConsoleEmailBackend):
         kwargs["stream"] = None
         super().__init__(*args, **kwargs)
 
+    # [TODO] EmailBackend > write_message
     def write_message(self, message):
         self.stream.write(message.message().as_bytes() + b"\n")
         self.stream.write(b"-" * 79)
         self.stream.write(b"\n")
 
+    # [TODO] EmailBackend > _get_filename
     def _get_filename(self):
         """Return a unique file name."""
         if self._fname is None:
@@ -52,12 +56,14 @@ class EmailBackend(ConsoleEmailBackend):
             self._fname = os.path.join(self.file_path, fname)
         return self._fname
 
+    # [TODO] EmailBackend > open
     def open(self):
         if self.stream is None:
             self.stream = open(self._get_filename(), "ab")
             return True
         return False
 
+    # [TODO] EmailBackend > close
     def close(self):
         try:
             if self.stream is not None:

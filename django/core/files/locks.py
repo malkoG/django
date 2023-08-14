@@ -21,6 +21,7 @@ import os
 __all__ = ("LOCK_EX", "LOCK_SH", "LOCK_NB", "lock", "unlock")
 
 
+# [TODO] _fd
 def _fd(f):
     """Get a filedescriptor from something which could be a file or an fd."""
     return f.fileno() if hasattr(f, "fileno") else f

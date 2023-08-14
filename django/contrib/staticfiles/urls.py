@@ -5,6 +5,7 @@ from django.contrib.staticfiles.views import serve
 urlpatterns = []
 
 
+# [TODO] staticfiles_urlpatterns
 def staticfiles_urlpatterns(prefix=None):
     """
     Helper function to return a URL pattern for serving static files.

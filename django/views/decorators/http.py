@@ -17,6 +17,7 @@ from django.utils.log import log_response
 conditional_page = decorator_from_middleware(ConditionalGetMiddleware)
 
 
+# [TODO] require_http_methods
 def require_http_methods(request_method_list):
     """
     Decorator to make a view only accept particular request methods.  Usage::
@@ -79,6 +80,7 @@ require_safe.__doc__ = (
 )
 
 
+# [TODO] condition
 def condition(etag_func=None, last_modified_func=None):
     """
     Decorator to support conditional retrieval (or change) for a view
@@ -160,9 +162,11 @@ def condition(etag_func=None, last_modified_func=None):
 
 
 # Shortcut decorators for common cases based on ETag or Last-Modified only
+# [TODO] etag
 def etag(etag_func):
     return condition(etag_func=etag_func)
 
 
+# [TODO] last_modified
 def last_modified(last_modified_func):
     return condition(last_modified_func=last_modified_func)

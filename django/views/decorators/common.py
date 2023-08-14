@@ -3,6 +3,7 @@ from functools import wraps
 from asgiref.sync import iscoroutinefunction
 
 
+# [TODO] no_append_slash
 def no_append_slash(view_func):
     """
     Mark a view function as excluded from CommonMiddleware's APPEND_SLASH

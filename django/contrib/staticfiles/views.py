@@ -12,6 +12,7 @@ from django.http import Http404
 from django.views import static
 
 
+# [TODO] serve
 def serve(request, path, insecure=False, **kwargs):
     """
     Serve static files below a given point in the directory structure or

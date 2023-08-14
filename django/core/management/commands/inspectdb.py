@@ -6,6 +6,7 @@ from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models.constants import LOOKUP_SEP
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = (
         "Introspects the database tables in the given database and outputs a Django "
@@ -15,6 +16,7 @@ class Command(BaseCommand):
     stealth_options = ("table_name_filter",)
     db_module = "django.db"
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "table",
@@ -41,6 +43,7 @@ class Command(BaseCommand):
             help="Also output models for database views.",
         )
 
+    # [TODO] Command > handle
     def handle(self, **options):
         try:
             for line in self.handle_inspection(options):
@@ -51,6 +54,7 @@ class Command(BaseCommand):
                 "database backend."
             )
 
+    # [TODO] Command > handle_inspection
     def handle_inspection(self, options):
         connection = connections[options["database"]]
         # 'table_name_filter' is a stealth option
@@ -259,6 +263,7 @@ class Command(BaseCommand):
                     comment,
                 )
 
+    # [TODO] Command > normalize_col_name
     def normalize_col_name(self, col_name, used_column_names, is_relation):
         """
         Modify the column name to make it Python-compatible as a field name
@@ -319,10 +324,12 @@ class Command(BaseCommand):
 
         return new_name, field_params, field_notes
 
+    # [TODO] Command > normalize_table_name
     def normalize_table_name(self, table_name):
         """Translate the table name to a Python-compatible model name."""
         return re.sub(r"[^a-zA-Z0-9]", "", table_name.title())
 
+    # [TODO] Command > get_field_type
     def get_field_type(self, connection, table_name, row):
         """
         Given the database connection, the table name, and the cursor row
@@ -364,6 +371,7 @@ class Command(BaseCommand):
 
         return field_type, field_params, field_notes
 
+    # [TODO] Command > get_meta
     def get_meta(
         self,
         table_name,

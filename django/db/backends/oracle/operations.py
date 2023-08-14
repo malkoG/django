@@ -18,6 +18,7 @@ from .base import Database
 from .utils import BulkInsertMapper, InsertVar, Oracle_datetime
 
 
+# [TODO] DatabaseOperations
 class DatabaseOperations(BaseDatabaseOperations):
     # Oracle uses NUMBER(5), NUMBER(11), and NUMBER(19) for integer fields.
     # SmallIntegerField uses NUMBER(11) instead of NUMBER(5), which is used by
@@ -69,6 +70,7 @@ END;
         "TextField": cast_char_field_without_max_length,
     }
 
+    # [TODO] DatabaseOperations > cache_key_culling_sql
     def cache_key_culling_sql(self):
         cache_key = self.quote_name("cache_key")
         return (
@@ -80,6 +82,7 @@ END;
     # EXTRACT format cannot be passed in parameters.
     _extract_format_re = _lazy_re_compile(r"[A-Z_]+")
 
+    # [TODO] DatabaseOperations > date_extract_sql
     def date_extract_sql(self, lookup_type, sql, params):
         extract_sql = f"TO_CHAR({sql}, %s)"
         extract_param = None
@@ -104,6 +107,7 @@ END;
             return f"EXTRACT({lookup_type} FROM {sql})", params
         return extract_sql, (*params, extract_param)
 
+    # [TODO] DatabaseOperations > date_trunc_sql
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ROUND-and-TRUNC-Date-Functions.html
@@ -124,10 +128,12 @@ END;
     # This regexp matches all time zone names from the zoneinfo database.
     _tzname_re = _lazy_re_compile(r"^[\w/:+-]+$")
 
+    # [TODO] DatabaseOperations > _prepare_tzname_delta
     def _prepare_tzname_delta(self, tzname):
         tzname, sign, offset = split_tzname_delta(tzname)
         return f"{sign}{offset}" if offset else tzname
 
+    # [TODO] DatabaseOperations > _convert_sql_to_tz
     def _convert_sql_to_tz(self, sql, params, tzname):
         if not (settings.USE_TZ and tzname):
             return sql, params
@@ -146,10 +152,12 @@ END;
             )
         return sql, params
 
+    # [TODO] DatabaseOperations > datetime_cast_date_sql
     def datetime_cast_date_sql(self, sql, params, tzname):
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"TRUNC({sql})", params
 
+    # [TODO] DatabaseOperations > datetime_cast_time_sql
     def datetime_cast_time_sql(self, sql, params, tzname):
         # Since `TimeField` values are stored as TIMESTAMP change to the
         # default date and convert the field to the specified timezone.
@@ -163,10 +171,12 @@ END;
             (*params, *params),
         )
 
+    # [TODO] DatabaseOperations > datetime_extract_sql
     def datetime_extract_sql(self, lookup_type, sql, params, tzname):
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return self.date_extract_sql(lookup_type, sql, params)
 
+    # [TODO] DatabaseOperations > datetime_trunc_sql
     def datetime_trunc_sql(self, lookup_type, sql, params, tzname):
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ROUND-and-TRUNC-Date-Functions.html
@@ -188,6 +198,7 @@ END;
             return f"CAST({sql} AS DATE)", params
         return f"TRUNC({sql}, %s)", (*params, trunc_param)
 
+    # [TODO] DatabaseOperations > time_trunc_sql
     def time_trunc_sql(self, lookup_type, sql, params, tzname=None):
         # The implementation is similar to `datetime_trunc_sql` as both
         # `DateTimeField` and `TimeField` are stored as TIMESTAMP where
@@ -203,6 +214,7 @@ END;
             return f"CAST({sql} AS DATE)", params
         return f"TRUNC({sql}, %s)", (*params, trunc_param)
 
+    # [TODO] DatabaseOperations > get_db_converters
     def get_db_converters(self, expression):
         converters = super().get_db_converters(expression)
         internal_type = expression.output_field.get_internal_type()
@@ -232,16 +244,19 @@ END;
             )
         return converters
 
+    # [TODO] DatabaseOperations > convert_textfield_value
     def convert_textfield_value(self, value, expression, connection):
         if isinstance(value, Database.LOB):
             value = value.read()
         return value
 
+    # [TODO] DatabaseOperations > convert_binaryfield_value
     def convert_binaryfield_value(self, value, expression, connection):
         if isinstance(value, Database.LOB):
             value = force_bytes(value.read())
         return value
 
+    # [TODO] DatabaseOperations > convert_booleanfield_value
     def convert_booleanfield_value(self, value, expression, connection):
         if value in (0, 1):
             value = bool(value)
@@ -251,37 +266,45 @@ END;
     # DATE and TIMESTAMP columns, but Django wants to see a
     # python datetime.date, .time, or .datetime.
 
+    # [TODO] DatabaseOperations > convert_datetimefield_value
     def convert_datetimefield_value(self, value, expression, connection):
         if value is not None:
             value = timezone.make_aware(value, self.connection.timezone)
         return value
 
+    # [TODO] DatabaseOperations > convert_datefield_value
     def convert_datefield_value(self, value, expression, connection):
         if isinstance(value, Database.Timestamp):
             value = value.date()
         return value
 
+    # [TODO] DatabaseOperations > convert_timefield_value
     def convert_timefield_value(self, value, expression, connection):
         if isinstance(value, Database.Timestamp):
             value = value.time()
         return value
 
+    # [TODO] DatabaseOperations > convert_uuidfield_value
     def convert_uuidfield_value(self, value, expression, connection):
         if value is not None:
             value = uuid.UUID(value)
         return value
 
+    # [TODO] DatabaseOperations > convert_empty_string
     @staticmethod
     def convert_empty_string(value, expression, connection):
         return "" if value is None else value
 
+    # [TODO] DatabaseOperations > convert_empty_bytes
     @staticmethod
     def convert_empty_bytes(value, expression, connection):
         return b"" if value is None else value
 
+    # [TODO] DatabaseOperations > deferrable_sql
     def deferrable_sql(self):
         return " DEFERRABLE INITIALLY DEFERRED"
 
+    # [TODO] DatabaseOperations > fetch_returned_insert_columns
     def fetch_returned_insert_columns(self, cursor, returning_params):
         columns = []
         for param in returning_params:
@@ -296,9 +319,11 @@ END;
             columns.append(value[0])
         return tuple(columns)
 
+    # [TODO] DatabaseOperations > no_limit_value
     def no_limit_value(self):
         return None
 
+    # [TODO] DatabaseOperations > limit_offset_sql
     def limit_offset_sql(self, low_mark, high_mark):
         fetch, offset = self._get_limit_offset_params(low_mark, high_mark)
         return " ".join(
@@ -310,6 +335,7 @@ END;
             if sql
         )
 
+    # [TODO] DatabaseOperations > last_executed_query
     def last_executed_query(self, cursor, sql, params):
         # https://python-oracledb.readthedocs.io/en/latest/api_manual/cursor.html#Cursor.statement
         # The DB API definition does not define this attribute.
@@ -330,11 +356,13 @@ END;
                 )
         return statement
 
+    # [TODO] DatabaseOperations > last_insert_id
     def last_insert_id(self, cursor, table_name, pk_name):
         sq_name = self._get_sequence_name(cursor, strip_quotes(table_name), pk_name)
         cursor.execute('"%s".currval' % sq_name)
         return cursor.fetchone()[0]
 
+    # [TODO] DatabaseOperations > lookup_cast
     def lookup_cast(self, lookup_type, internal_type=None):
         if lookup_type in ("iexact", "icontains", "istartswith", "iendswith"):
             return "UPPER(%s)"
@@ -344,23 +372,29 @@ END;
             return "DBMS_LOB.SUBSTR(%s)"
         return "%s"
 
+    # [TODO] DatabaseOperations > max_in_list_size
     def max_in_list_size(self):
         return 1000
 
+    # [TODO] DatabaseOperations > max_name_length
     def max_name_length(self):
         return 30
 
+    # [TODO] DatabaseOperations > pk_default_value
     def pk_default_value(self):
         return "NULL"
 
+    # [TODO] DatabaseOperations > prep_for_iexact_query
     def prep_for_iexact_query(self, x):
         return x
 
+    # [TODO] DatabaseOperations > process_clob
     def process_clob(self, value):
         if value is None:
             return ""
         return value.read()
 
+    # [TODO] DatabaseOperations > quote_name
     def quote_name(self, name):
         # SQL92 requires delimited (quoted) names to be case-sensitive.  When
         # not quoted, Oracle has case-insensitive behavior for identifiers, but
@@ -374,6 +408,7 @@ END;
         name = name.replace("%", "%%")
         return name.upper()
 
+    # [TODO] DatabaseOperations > regex_lookup
     def regex_lookup(self, lookup_type):
         if lookup_type == "regex":
             match_option = "'c'"
@@ -381,6 +416,7 @@ END;
             match_option = "'i'"
         return "REGEXP_LIKE(%%s, %%s, %s)" % match_option
 
+    # [TODO] DatabaseOperations > return_insert_columns
     def return_insert_columns(self, fields):
         if not fields:
             return "", ()
@@ -400,6 +436,7 @@ END;
             ", ".join(["%s"] * len(params)),
         ), tuple(params)
 
+    # [TODO] DatabaseOperations > __foreign_key_constraints
     def __foreign_key_constraints(self, table_name, recursive):
         with self.connection.cursor() as cursor:
             if recursive:
@@ -442,12 +479,14 @@ END;
                 )
             return cursor.fetchall()
 
+    # [TODO] DatabaseOperations > _foreign_key_constraints
     @cached_property
     def _foreign_key_constraints(self):
         # 512 is large enough to fit the ~330 tables (as of this writing) in
         # Django's test suite.
         return lru_cache(maxsize=512)(self.__foreign_key_constraints)
 
+    # [TODO] DatabaseOperations > sql_flush
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
         if not tables:
             return []
@@ -513,6 +552,7 @@ END;
             sql.extend(self.sequence_reset_by_name_sql(style, sequences))
         return sql
 
+    # [TODO] DatabaseOperations > sequence_reset_by_name_sql
     def sequence_reset_by_name_sql(self, style, sequences):
         sql = []
         for sequence_info in sequences:
@@ -531,6 +571,7 @@ END;
             sql.append(query)
         return sql
 
+    # [TODO] DatabaseOperations > sequence_reset_sql
     def sequence_reset_sql(self, style, model_list):
         output = []
         query = self._sequence_reset_sql
@@ -557,15 +598,18 @@ END;
                     break
         return output
 
+    # [TODO] DatabaseOperations > start_transaction_sql
     def start_transaction_sql(self):
         return ""
 
+    # [TODO] DatabaseOperations > tablespace_sql
     def tablespace_sql(self, tablespace, inline=False):
         if inline:
             return "USING INDEX TABLESPACE %s" % self.quote_name(tablespace)
         else:
             return "TABLESPACE %s" % self.quote_name(tablespace)
 
+    # [TODO] DatabaseOperations > adapt_datefield_value
     def adapt_datefield_value(self, value):
         """
         Transform a date value to an object compatible with what is expected
@@ -575,6 +619,7 @@ END;
         """
         return value
 
+    # [TODO] DatabaseOperations > adapt_datetimefield_value
     def adapt_datetimefield_value(self, value):
         """
         Transform a datetime value to an object compatible with what is expected
@@ -604,6 +649,7 @@ END;
 
         return Oracle_datetime.from_datetime(value)
 
+    # [TODO] DatabaseOperations > adapt_timefield_value
     def adapt_timefield_value(self, value):
         if value is None:
             return None
@@ -623,9 +669,11 @@ END;
             1900, 1, 1, value.hour, value.minute, value.second, value.microsecond
         )
 
+    # [TODO] DatabaseOperations > adapt_decimalfield_value
     def adapt_decimalfield_value(self, value, max_digits=None, decimal_places=None):
         return value
 
+    # [TODO] DatabaseOperations > combine_expression
     def combine_expression(self, connector, sub_expressions):
         lhs, rhs = sub_expressions
         if connector == "%%":
@@ -644,6 +692,7 @@ END;
             raise NotSupportedError("Bitwise XOR is not supported in Oracle.")
         return super().combine_expression(connector, sub_expressions)
 
+    # [TODO] DatabaseOperations > _get_no_autofield_sequence_name
     def _get_no_autofield_sequence_name(self, table):
         """
         Manually created sequence name to keep backward compatibility for
@@ -652,6 +701,7 @@ END;
         name_length = self.max_name_length() - 3
         return "%s_SQ" % truncate_name(strip_quotes(table), name_length).upper()
 
+    # [TODO] DatabaseOperations > _get_sequence_name
     def _get_sequence_name(self, cursor, table, pk_name):
         cursor.execute(
             """
@@ -664,6 +714,7 @@ END;
         row = cursor.fetchone()
         return self._get_no_autofield_sequence_name(table) if row is None else row[0]
 
+    # [TODO] DatabaseOperations > bulk_insert_sql
     def bulk_insert_sql(self, fields, placeholder_rows):
         query = []
         for row in placeholder_rows:
@@ -689,6 +740,7 @@ END;
         # UNION operator. To prevent incorrect SQL, move UNION to a subquery.
         return "SELECT * FROM (%s)" % " UNION ALL ".join(query)
 
+    # [TODO] DatabaseOperations > subtract_temporals
     def subtract_temporals(self, internal_type, lhs, rhs):
         if internal_type == "DateField":
             lhs_sql, lhs_params = lhs
@@ -700,12 +752,14 @@ END;
             )
         return super().subtract_temporals(internal_type, lhs, rhs)
 
+    # [TODO] DatabaseOperations > bulk_batch_size
     def bulk_batch_size(self, fields, objs):
         """Oracle restricts the number of parameters in a query."""
         if fields:
             return self.connection.features.max_query_params // len(fields)
         return len(objs)
 
+    # [TODO] DatabaseOperations > conditional_expression_supported_in_where_clause
     def conditional_expression_supported_in_where_clause(self, expression):
         """
         Oracle supports only EXISTS(...) or filters in the WHERE clause, others

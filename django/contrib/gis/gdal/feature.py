@@ -11,6 +11,7 @@ from django.utils.encoding import force_bytes, force_str
 #  https://gdal.org/api/vector_c_api.html
 #
 # The OGR_F_* routines are relevant here.
+# [TODO] Feature
 class Feature(GDALBase):
     """
     This class that wraps an OGR Feature, needs to be instantiated
@@ -19,6 +20,7 @@ class Feature(GDALBase):
 
     destructor = capi.destroy_feature
 
+    # [TODO] Feature > __init__
     def __init__(self, feat, layer):
         """
         Initialize Feature from a pointer and its Layer object.
@@ -28,6 +30,7 @@ class Feature(GDALBase):
         self.ptr = feat
         self._layer = layer
 
+    # [TODO] Feature > __getitem__
     def __getitem__(self, index):
         """
         Get the Field object at the specified index, which may be either
@@ -45,39 +48,47 @@ class Feature(GDALBase):
             )
         return Field(self, i)
 
+    # [TODO] Feature > __len__
     def __len__(self):
         "Return the count of fields in this feature."
         return self.num_fields
 
+    # [TODO] Feature > __str__
     def __str__(self):
         "The string name of the feature."
         return "Feature FID %d in Layer<%s>" % (self.fid, self.layer_name)
 
+    # [TODO] Feature > __eq__
     def __eq__(self, other):
         "Do equivalence testing on the features."
         return bool(capi.feature_equal(self.ptr, other._ptr))
 
     # #### Feature Properties ####
+    # [TODO] Feature > encoding
     @property
     def encoding(self):
         return self._layer._ds.encoding
 
+    # [TODO] Feature > fid
     @property
     def fid(self):
         "Return the feature identifier."
         return capi.get_fid(self.ptr)
 
+    # [TODO] Feature > layer_name
     @property
     def layer_name(self):
         "Return the name of the layer for the feature."
         name = capi.get_feat_name(self._layer._ldefn)
         return force_str(name, self.encoding, strings_only=True)
 
+    # [TODO] Feature > num_fields
     @property
     def num_fields(self):
         "Return the number of fields in the Feature."
         return capi.get_feat_field_count(self.ptr)
 
+    # [TODO] Feature > fields
     @property
     def fields(self):
         "Return a list of fields in the Feature."
@@ -90,6 +101,7 @@ class Feature(GDALBase):
             for i in range(self.num_fields)
         ]
 
+    # [TODO] Feature > geom
     @property
     def geom(self):
         "Return the OGR Geometry for this Feature."
@@ -97,12 +109,14 @@ class Feature(GDALBase):
         geom_ptr = capi.get_feat_geom_ref(self.ptr)
         return OGRGeometry(geom_api.clone_geom(geom_ptr))
 
+    # [TODO] Feature > geom_type
     @property
     def geom_type(self):
         "Return the OGR Geometry Type for this Feature."
         return OGRGeomType(capi.get_fd_geom_type(self._layer._ldefn))
 
     # #### Feature Methods ####
+    # [TODO] Feature > get
     def get(self, field):
         """
         Return the value of the field, instead of an instance of the Field
@@ -112,6 +126,7 @@ class Feature(GDALBase):
         field_name = getattr(field, "name", field)
         return self[field_name].value
 
+    # [TODO] Feature > index
     def index(self, field_name):
         "Return the index of the given field name."
         i = capi.get_field_index(self.ptr, force_bytes(field_name))

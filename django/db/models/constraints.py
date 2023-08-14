@@ -16,6 +16,7 @@ from django.utils.translation import gettext_lazy as _
 __all__ = ["BaseConstraint", "CheckConstraint", "Deferrable", "UniqueConstraint"]
 
 
+# [TODO] BaseConstraint
 class BaseConstraint:
     default_violation_error_message = _("Constraint “%(name)s” is violated.")
     violation_error_code = None
@@ -25,6 +26,7 @@ class BaseConstraint:
     # def __init__(
     #     self, *, name, violation_error_code=None, violation_error_message=None
     # ):
+    # [TODO] BaseConstraint > __init__
     def __init__(
         self, *args, name=None, violation_error_code=None, violation_error_message=None
     ):
@@ -53,25 +55,32 @@ class BaseConstraint:
                 if arg:
                     setattr(self, attr, arg)
 
+    # [TODO] BaseConstraint > contains_expressions
     @property
     def contains_expressions(self):
         return False
 
+    # [TODO] BaseConstraint > constraint_sql
     def constraint_sql(self, model, schema_editor):
         raise NotImplementedError("This method must be implemented by a subclass.")
 
+    # [TODO] BaseConstraint > create_sql
     def create_sql(self, model, schema_editor):
         raise NotImplementedError("This method must be implemented by a subclass.")
 
+    # [TODO] BaseConstraint > remove_sql
     def remove_sql(self, model, schema_editor):
         raise NotImplementedError("This method must be implemented by a subclass.")
 
+    # [TODO] BaseConstraint > validate
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
         raise NotImplementedError("This method must be implemented by a subclass.")
 
+    # [TODO] BaseConstraint > get_violation_error_message
     def get_violation_error_message(self):
         return self.violation_error_message % {"name": self.name}
 
+    # [TODO] BaseConstraint > deconstruct
     def deconstruct(self):
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         path = path.replace("django.db.models.constraints", "django.db.models")
@@ -85,12 +94,15 @@ class BaseConstraint:
             kwargs["violation_error_code"] = self.violation_error_code
         return (path, (), kwargs)
 
+    # [TODO] BaseConstraint > clone
     def clone(self):
         _, args, kwargs = self.deconstruct()
         return self.__class__(*args, **kwargs)
 
 
+# [TODO] CheckConstraint
 class CheckConstraint(BaseConstraint):
+    # [TODO] CheckConstraint > __init__
     def __init__(
         self, *, check, name, violation_error_code=None, violation_error_message=None
     ):
@@ -105,6 +117,7 @@ class CheckConstraint(BaseConstraint):
             violation_error_message=violation_error_message,
         )
 
+    # [TODO] CheckConstraint > _get_check_sql
     def _get_check_sql(self, model, schema_editor):
         query = Query(model=model, alias_cols=False)
         where = query.build_where(self.check)
@@ -112,17 +125,21 @@ class CheckConstraint(BaseConstraint):
         sql, params = where.as_sql(compiler, schema_editor.connection)
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
+    # [TODO] CheckConstraint > constraint_sql
     def constraint_sql(self, model, schema_editor):
         check = self._get_check_sql(model, schema_editor)
         return schema_editor._check_sql(self.name, check)
 
+    # [TODO] CheckConstraint > create_sql
     def create_sql(self, model, schema_editor):
         check = self._get_check_sql(model, schema_editor)
         return schema_editor._create_check_sql(model, self.name, check)
 
+    # [TODO] CheckConstraint > remove_sql
     def remove_sql(self, model, schema_editor):
         return schema_editor._delete_check_sql(model, self.name)
 
+    # [TODO] CheckConstraint > validate
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
         against = instance._get_field_value_map(meta=model._meta, exclude=exclude)
         try:
@@ -133,6 +150,7 @@ class CheckConstraint(BaseConstraint):
         except FieldError:
             pass
 
+    # [TODO] CheckConstraint > __repr__
     def __repr__(self):
         return "<%s: check=%s name=%s%s%s>" % (
             self.__class__.__qualname__,
@@ -151,6 +169,7 @@ class CheckConstraint(BaseConstraint):
             ),
         )
 
+    # [TODO] CheckConstraint > __eq__
     def __eq__(self, other):
         if isinstance(other, CheckConstraint):
             return (
@@ -161,22 +180,27 @@ class CheckConstraint(BaseConstraint):
             )
         return super().__eq__(other)
 
+    # [TODO] CheckConstraint > deconstruct
     def deconstruct(self):
         path, args, kwargs = super().deconstruct()
         kwargs["check"] = self.check
         return path, args, kwargs
 
 
+# [TODO] Deferrable
 class Deferrable(Enum):
     DEFERRED = "deferred"
     IMMEDIATE = "immediate"
 
     # A similar format was proposed for Python 3.10.
+    # [TODO] Deferrable > __repr__
     def __repr__(self):
         return f"{self.__class__.__qualname__}.{self._name_}"
 
 
+# [TODO] UniqueConstraint
 class UniqueConstraint(BaseConstraint):
+    # [TODO] UniqueConstraint > __init__
     def __init__(
         self,
         *expressions,
@@ -247,10 +271,12 @@ class UniqueConstraint(BaseConstraint):
             violation_error_message=violation_error_message,
         )
 
+    # [TODO] UniqueConstraint > contains_expressions
     @property
     def contains_expressions(self):
         return bool(self.expressions)
 
+    # [TODO] UniqueConstraint > _get_condition_sql
     def _get_condition_sql(self, model, schema_editor):
         if self.condition is None:
             return None
@@ -260,6 +286,7 @@ class UniqueConstraint(BaseConstraint):
         sql, params = where.as_sql(compiler, schema_editor.connection)
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
+    # [TODO] UniqueConstraint > _get_index_expressions
     def _get_index_expressions(self, model, schema_editor):
         if not self.expressions:
             return None
@@ -272,6 +299,7 @@ class UniqueConstraint(BaseConstraint):
             Query(model, alias_cols=False),
         )
 
+    # [TODO] UniqueConstraint > constraint_sql
     def constraint_sql(self, model, schema_editor):
         fields = [model._meta.get_field(field_name) for field_name in self.fields]
         include = [
@@ -291,6 +319,7 @@ class UniqueConstraint(BaseConstraint):
             nulls_distinct=self.nulls_distinct,
         )
 
+    # [TODO] UniqueConstraint > create_sql
     def create_sql(self, model, schema_editor):
         fields = [model._meta.get_field(field_name) for field_name in self.fields]
         include = [
@@ -310,6 +339,7 @@ class UniqueConstraint(BaseConstraint):
             nulls_distinct=self.nulls_distinct,
         )
 
+    # [TODO] UniqueConstraint > remove_sql
     def remove_sql(self, model, schema_editor):
         condition = self._get_condition_sql(model, schema_editor)
         include = [
@@ -327,6 +357,7 @@ class UniqueConstraint(BaseConstraint):
             nulls_distinct=self.nulls_distinct,
         )
 
+    # [TODO] UniqueConstraint > __repr__
     def __repr__(self):
         return "<%s:%s%s%s%s%s%s%s%s%s%s>" % (
             self.__class__.__qualname__,
@@ -355,6 +386,7 @@ class UniqueConstraint(BaseConstraint):
             ),
         )
 
+    # [TODO] UniqueConstraint > __eq__
     def __eq__(self, other):
         if isinstance(other, UniqueConstraint):
             return (
@@ -371,6 +403,7 @@ class UniqueConstraint(BaseConstraint):
             )
         return super().__eq__(other)
 
+    # [TODO] UniqueConstraint > deconstruct
     def deconstruct(self):
         path, args, kwargs = super().deconstruct()
         if self.fields:
@@ -387,6 +420,7 @@ class UniqueConstraint(BaseConstraint):
             kwargs["nulls_distinct"] = self.nulls_distinct
         return path, self.expressions, kwargs
 
+    # [TODO] UniqueConstraint > validate
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
         queryset = model._default_manager.using(using)
         if self.fields:

@@ -13,7 +13,9 @@ __all__ = [
 ]
 
 
+# [TODO] PostgresIndex
 class PostgresIndex(Index):
+    # [TODO] PostgresIndex > max_name_length
     @cached_property
     def max_name_length(self):
         # Allow an index name longer than 30 characters when the suffix is
@@ -22,6 +24,7 @@ class PostgresIndex(Index):
         # indexes.
         return Index.max_name_length - len(Index.suffix) + len(self.suffix)
 
+    # [TODO] PostgresIndex > create_sql
     def create_sql(self, model, schema_editor, using="", **kwargs):
         self.check_supported(schema_editor)
         statement = super().create_sql(
@@ -35,16 +38,20 @@ class PostgresIndex(Index):
             )
         return statement
 
+    # [TODO] PostgresIndex > check_supported
     def check_supported(self, schema_editor):
         pass
 
+    # [TODO] PostgresIndex > get_with_params
     def get_with_params(self):
         return []
 
 
+# [TODO] BloomIndex
 class BloomIndex(PostgresIndex):
     suffix = "bloom"
 
+    # [TODO] BloomIndex > __init__
     def __init__(self, *expressions, length=None, columns=(), **kwargs):
         super().__init__(*expressions, **kwargs)
         if len(self.fields) > 32:
@@ -64,6 +71,7 @@ class BloomIndex(PostgresIndex):
         self.length = length
         self.columns = columns
 
+    # [TODO] BloomIndex > deconstruct
     def deconstruct(self):
         path, args, kwargs = super().deconstruct()
         if self.length is not None:
@@ -72,6 +80,7 @@ class BloomIndex(PostgresIndex):
             kwargs["columns"] = self.columns
         return path, args, kwargs
 
+    # [TODO] BloomIndex > get_with_params
     def get_with_params(self):
         with_params = []
         if self.length is not None:
@@ -83,9 +92,11 @@ class BloomIndex(PostgresIndex):
         return with_params
 
 
+# [TODO] BrinIndex
 class BrinIndex(PostgresIndex):
     suffix = "brin"
 
+    # [TODO] BrinIndex > __init__
     def __init__(
         self, *expressions, autosummarize=None, pages_per_range=None, **kwargs
     ):
@@ -95,6 +106,7 @@ class BrinIndex(PostgresIndex):
         self.pages_per_range = pages_per_range
         super().__init__(*expressions, **kwargs)
 
+    # [TODO] BrinIndex > deconstruct
     def deconstruct(self):
         path, args, kwargs = super().deconstruct()
         if self.autosummarize is not None:
@@ -103,6 +115,7 @@ class BrinIndex(PostgresIndex):
             kwargs["pages_per_range"] = self.pages_per_range
         return path, args, kwargs
 
+    # [TODO] BrinIndex > get_with_params
     def get_with_params(self):
         with_params = []
         if self.autosummarize is not None:
@@ -114,19 +127,23 @@ class BrinIndex(PostgresIndex):
         return with_params
 
 
+# [TODO] BTreeIndex
 class BTreeIndex(PostgresIndex):
     suffix = "btree"
 
+    # [TODO] BTreeIndex > __init__
     def __init__(self, *expressions, fillfactor=None, **kwargs):
         self.fillfactor = fillfactor
         super().__init__(*expressions, **kwargs)
 
+    # [TODO] BTreeIndex > deconstruct
     def deconstruct(self):
         path, args, kwargs = super().deconstruct()
         if self.fillfactor is not None:
             kwargs["fillfactor"] = self.fillfactor
         return path, args, kwargs
 
+    # [TODO] BTreeIndex > get_with_params
     def get_with_params(self):
         with_params = []
         if self.fillfactor is not None:
@@ -134,9 +151,11 @@ class BTreeIndex(PostgresIndex):
         return with_params
 
 
+# [TODO] GinIndex
 class GinIndex(PostgresIndex):
     suffix = "gin"
 
+    # [TODO] GinIndex > __init__
     def __init__(
         self, *expressions, fastupdate=None, gin_pending_list_limit=None, **kwargs
     ):
@@ -144,6 +163,7 @@ class GinIndex(PostgresIndex):
         self.gin_pending_list_limit = gin_pending_list_limit
         super().__init__(*expressions, **kwargs)
 
+    # [TODO] GinIndex > deconstruct
     def deconstruct(self):
         path, args, kwargs = super().deconstruct()
         if self.fastupdate is not None:
@@ -152,6 +172,7 @@ class GinIndex(PostgresIndex):
             kwargs["gin_pending_list_limit"] = self.gin_pending_list_limit
         return path, args, kwargs
 
+    # [TODO] GinIndex > get_with_params
     def get_with_params(self):
         with_params = []
         if self.gin_pending_list_limit is not None:
@@ -163,14 +184,17 @@ class GinIndex(PostgresIndex):
         return with_params
 
 
+# [TODO] GistIndex
 class GistIndex(PostgresIndex):
     suffix = "gist"
 
+    # [TODO] GistIndex > __init__
     def __init__(self, *expressions, buffering=None, fillfactor=None, **kwargs):
         self.buffering = buffering
         self.fillfactor = fillfactor
         super().__init__(*expressions, **kwargs)
 
+    # [TODO] GistIndex > deconstruct
     def deconstruct(self):
         path, args, kwargs = super().deconstruct()
         if self.buffering is not None:
@@ -179,6 +203,7 @@ class GistIndex(PostgresIndex):
             kwargs["fillfactor"] = self.fillfactor
         return path, args, kwargs
 
+    # [TODO] GistIndex > get_with_params
     def get_with_params(self):
         with_params = []
         if self.buffering is not None:
@@ -188,19 +213,23 @@ class GistIndex(PostgresIndex):
         return with_params
 
 
+# [TODO] HashIndex
 class HashIndex(PostgresIndex):
     suffix = "hash"
 
+    # [TODO] HashIndex > __init__
     def __init__(self, *expressions, fillfactor=None, **kwargs):
         self.fillfactor = fillfactor
         super().__init__(*expressions, **kwargs)
 
+    # [TODO] HashIndex > deconstruct
     def deconstruct(self):
         path, args, kwargs = super().deconstruct()
         if self.fillfactor is not None:
             kwargs["fillfactor"] = self.fillfactor
         return path, args, kwargs
 
+    # [TODO] HashIndex > get_with_params
     def get_with_params(self):
         with_params = []
         if self.fillfactor is not None:
@@ -208,25 +237,30 @@ class HashIndex(PostgresIndex):
         return with_params
 
 
+# [TODO] SpGistIndex
 class SpGistIndex(PostgresIndex):
     suffix = "spgist"
 
+    # [TODO] SpGistIndex > __init__
     def __init__(self, *expressions, fillfactor=None, **kwargs):
         self.fillfactor = fillfactor
         super().__init__(*expressions, **kwargs)
 
+    # [TODO] SpGistIndex > deconstruct
     def deconstruct(self):
         path, args, kwargs = super().deconstruct()
         if self.fillfactor is not None:
             kwargs["fillfactor"] = self.fillfactor
         return path, args, kwargs
 
+    # [TODO] SpGistIndex > get_with_params
     def get_with_params(self):
         with_params = []
         if self.fillfactor is not None:
             with_params.append("fillfactor = %d" % self.fillfactor)
         return with_params
 
+    # [TODO] SpGistIndex > check_supported
     def check_supported(self, schema_editor):
         if (
             self.include
@@ -235,8 +269,10 @@ class SpGistIndex(PostgresIndex):
             raise NotSupportedError("Covering SP-GiST indexes require PostgreSQL 14+.")
 
 
+# [TODO] OpClass
 class OpClass(Func):
     template = "%(expressions)s %(name)s"
 
+    # [TODO] OpClass > __init__
     def __init__(self, expression, name):
         super().__init__(expression, name=name)

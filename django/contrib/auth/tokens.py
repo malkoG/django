@@ -5,6 +5,7 @@ from django.utils.crypto import constant_time_compare, salted_hmac
 from django.utils.http import base36_to_int, int_to_base36
 
 
+# [TODO] PasswordResetTokenGenerator
 class PasswordResetTokenGenerator:
     """
     Strategy object used to generate and check tokens for the password
@@ -16,27 +17,33 @@ class PasswordResetTokenGenerator:
     _secret = None
     _secret_fallbacks = None
 
+    # [TODO] PasswordResetTokenGenerator > __init__
     def __init__(self):
         self.algorithm = self.algorithm or "sha256"
 
+    # [TODO] PasswordResetTokenGenerator > _get_secret
     def _get_secret(self):
         return self._secret or settings.SECRET_KEY
 
+    # [TODO] PasswordResetTokenGenerator > _set_secret
     def _set_secret(self, secret):
         self._secret = secret
 
     secret = property(_get_secret, _set_secret)
 
+    # [TODO] PasswordResetTokenGenerator > _get_fallbacks
     def _get_fallbacks(self):
         if self._secret_fallbacks is None:
             return settings.SECRET_KEY_FALLBACKS
         return self._secret_fallbacks
 
+    # [TODO] PasswordResetTokenGenerator > _set_fallbacks
     def _set_fallbacks(self, fallbacks):
         self._secret_fallbacks = fallbacks
 
     secret_fallbacks = property(_get_fallbacks, _set_fallbacks)
 
+    # [TODO] PasswordResetTokenGenerator > make_token
     def make_token(self, user):
         """
         Return a token that can be used once to do a password reset
@@ -48,6 +55,7 @@ class PasswordResetTokenGenerator:
             self.secret,
         )
 
+    # [TODO] PasswordResetTokenGenerator > check_token
     def check_token(self, user, token):
         """
         Check that a password reset token is correct for a given user.
@@ -81,6 +89,7 @@ class PasswordResetTokenGenerator:
 
         return True
 
+    # [TODO] PasswordResetTokenGenerator > _make_token_with_timestamp
     def _make_token_with_timestamp(self, user, timestamp, secret):
         # timestamp is number of seconds since 2001-1-1. Converted to base 36,
         # this gives us a 6 digit string until about 2069.
@@ -95,6 +104,7 @@ class PasswordResetTokenGenerator:
         ]  # Limit to shorten the URL.
         return "%s-%s" % (ts_b36, hash_string)
 
+    # [TODO] PasswordResetTokenGenerator > _make_hash_value
     def _make_hash_value(self, user, timestamp):
         """
         Hash the user's primary key, email (if available), and some user state
@@ -121,9 +131,11 @@ class PasswordResetTokenGenerator:
         email = getattr(user, email_field, "") or ""
         return f"{user.pk}{user.password}{login_timestamp}{timestamp}{email}"
 
+    # [TODO] PasswordResetTokenGenerator > _num_seconds
     def _num_seconds(self, dt):
         return int((dt - datetime(2001, 1, 1)).total_seconds())
 
+    # [TODO] PasswordResetTokenGenerator > _now
     def _now(self):
         # Used for mocking in tests
         return datetime.now()

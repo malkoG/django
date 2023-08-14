@@ -6,10 +6,13 @@ from django.db.backends.postgresql.psycopg_any import errors
 from django.db.backends.utils import strip_quotes
 
 
+# [TODO] DatabaseCreation
 class DatabaseCreation(BaseDatabaseCreation):
+    # [TODO] DatabaseCreation > _quote_name
     def _quote_name(self, name):
         return self.connection.ops.quote_name(name)
 
+    # [TODO] DatabaseCreation > _get_database_create_suffix
     def _get_database_create_suffix(self, encoding=None, template=None):
         suffix = ""
         if encoding:
@@ -18,6 +21,7 @@ class DatabaseCreation(BaseDatabaseCreation):
             suffix += " TEMPLATE {}".format(self._quote_name(template))
         return suffix and "WITH" + suffix
 
+    # [TODO] DatabaseCreation > sql_table_creation_suffix
     def sql_table_creation_suffix(self):
         test_settings = self.connection.settings_dict["TEST"]
         if test_settings.get("COLLATION") is not None:
@@ -30,6 +34,7 @@ class DatabaseCreation(BaseDatabaseCreation):
             template=test_settings.get("TEMPLATE"),
         )
 
+    # [TODO] DatabaseCreation > _database_exists
     def _database_exists(self, cursor, database_name):
         cursor.execute(
             "SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s",
@@ -37,6 +42,7 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
         return cursor.fetchone() is not None
 
+    # [TODO] DatabaseCreation > _execute_create_test_db
     def _execute_create_test_db(self, cursor, parameters, keepdb=False):
         try:
             if keepdb and self._database_exists(cursor, parameters["dbname"]):
@@ -54,6 +60,7 @@ class DatabaseCreation(BaseDatabaseCreation):
                 # exists".
                 raise
 
+    # [TODO] DatabaseCreation > _clone_test_db
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
         # CREATE DATABASE ... WITH TEMPLATE ... requires closing connections
         # to the template database.

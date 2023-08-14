@@ -3,6 +3,7 @@ from functools import wraps
 from asgiref.sync import iscoroutinefunction
 
 
+# [TODO] xframe_options_deny
 def xframe_options_deny(view_func):
     """
     Modify a view function so its response has the X-Frame-Options HTTP
@@ -33,6 +34,7 @@ def xframe_options_deny(view_func):
     return wraps(view_func)(_view_wrapper)
 
 
+# [TODO] xframe_options_sameorigin
 def xframe_options_sameorigin(view_func):
     """
     Modify a view function so its response has the X-Frame-Options HTTP
@@ -63,6 +65,7 @@ def xframe_options_sameorigin(view_func):
     return wraps(view_func)(_view_wrapper)
 
 
+# [TODO] xframe_options_exempt
 def xframe_options_exempt(view_func):
     """
     Modify a view function by setting a response variable that instructs

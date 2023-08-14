@@ -12,9 +12,11 @@ from django.db.models.expressions import CombinedExpression, register_combinable
 from django.db.models.functions import Cast, Coalesce
 
 
+# [TODO] SearchVectorExact
 class SearchVectorExact(Lookup):
     lookup_name = "exact"
 
+    # [TODO] SearchVectorExact > process_rhs
     def process_rhs(self, qn, connection):
         if not isinstance(self.rhs, (SearchQuery, CombinedSearchQuery)):
             config = getattr(self.lhs, "config", None)
@@ -22,6 +24,7 @@ class SearchVectorExact(Lookup):
         rhs, rhs_params = super().process_rhs(qn, connection)
         return rhs, rhs_params
 
+    # [TODO] SearchVectorExact > as_sql
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
@@ -29,48 +32,62 @@ class SearchVectorExact(Lookup):
         return "%s @@ %s" % (lhs, rhs), params
 
 
+# [TODO] SearchVectorField
 class SearchVectorField(Field):
+    # [TODO] SearchVectorField > db_type
     def db_type(self, connection):
         return "tsvector"
 
 
+# [TODO] SearchQueryField
 class SearchQueryField(Field):
+    # [TODO] SearchQueryField > db_type
     def db_type(self, connection):
         return "tsquery"
 
 
+# [TODO] _Float4Field
 class _Float4Field(Field):
+    # [TODO] _Float4Field > db_type
     def db_type(self, connection):
         return "float4"
 
 
+# [TODO] SearchConfig
 class SearchConfig(Expression):
+    # [TODO] SearchConfig > __init__
     def __init__(self, config):
         super().__init__()
         if not hasattr(config, "resolve_expression"):
             config = Value(config)
         self.config = config
 
+    # [TODO] SearchConfig > from_parameter
     @classmethod
     def from_parameter(cls, config):
         if config is None or isinstance(config, cls):
             return config
         return cls(config)
 
+    # [TODO] SearchConfig > get_source_expressions
     def get_source_expressions(self):
         return [self.config]
 
+    # [TODO] SearchConfig > set_source_expressions
     def set_source_expressions(self, exprs):
         (self.config,) = exprs
 
+    # [TODO] SearchConfig > as_sql
     def as_sql(self, compiler, connection):
         sql, params = compiler.compile(self.config)
         return "%s::regconfig" % sql, params
 
 
+# [TODO] SearchVectorCombinable
 class SearchVectorCombinable:
     ADD = "||"
 
+    # [TODO] SearchVectorCombinable > _combine
     def _combine(self, other, connector, reversed):
         if not isinstance(other, SearchVectorCombinable):
             raise TypeError(
@@ -87,11 +104,13 @@ register_combinable_fields(
 )
 
 
+# [TODO] SearchVector
 class SearchVector(SearchVectorCombinable, Func):
     function = "to_tsvector"
     arg_joiner = " || ' ' || "
     output_field = SearchVectorField()
 
+    # [TODO] SearchVector > __init__
     def __init__(self, *expressions, config=None, weight=None):
         super().__init__(*expressions)
         self.config = SearchConfig.from_parameter(config)
@@ -99,6 +118,7 @@ class SearchVector(SearchVectorCombinable, Func):
             weight = Value(weight)
         self.weight = weight
 
+    # [TODO] SearchVector > resolve_expression
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
@@ -111,6 +131,7 @@ class SearchVector(SearchVectorCombinable, Func):
             )
         return resolved
 
+    # [TODO] SearchVector > as_sql
     def as_sql(self, compiler, connection, function=None, template=None):
         clone = self.copy()
         clone.set_source_expressions(
@@ -147,16 +168,20 @@ class SearchVector(SearchVectorCombinable, Func):
         return sql, config_params + params + extra_params
 
 
+# [TODO] CombinedSearchVector
 class CombinedSearchVector(SearchVectorCombinable, CombinedExpression):
+    # [TODO] CombinedSearchVector > __init__
     def __init__(self, lhs, connector, rhs, config, output_field=None):
         self.config = config
         super().__init__(lhs, connector, rhs, output_field)
 
 
+# [TODO] SearchQueryCombinable
 class SearchQueryCombinable:
     BITAND = "&&"
     BITOR = "||"
 
+    # [TODO] SearchQueryCombinable > _combine
     def _combine(self, other, connector, reversed):
         if not isinstance(other, SearchQueryCombinable):
             raise TypeError(
@@ -170,19 +195,24 @@ class SearchQueryCombinable:
     # On Combinable, these are not implemented to reduce confusion with Q. In
     # this case we are actually (ab)using them to do logical combination so
     # it's consistent with other usage in Django.
+    # [TODO] SearchQueryCombinable > __or__
     def __or__(self, other):
         return self._combine(other, self.BITOR, False)
 
+    # [TODO] SearchQueryCombinable > __ror__
     def __ror__(self, other):
         return self._combine(other, self.BITOR, True)
 
+    # [TODO] SearchQueryCombinable > __and__
     def __and__(self, other):
         return self._combine(other, self.BITAND, False)
 
+    # [TODO] SearchQueryCombinable > __rand__
     def __rand__(self, other):
         return self._combine(other, self.BITAND, True)
 
 
+# [TODO] SearchQuery
 class SearchQuery(SearchQueryCombinable, Func):
     output_field = SearchQueryField()
     SEARCH_TYPES = {
@@ -192,6 +222,7 @@ class SearchQuery(SearchQueryCombinable, Func):
         "websearch": "websearch_to_tsquery",
     }
 
+    # [TODO] SearchQuery > __init__
     def __init__(
         self,
         value,
@@ -213,35 +244,43 @@ class SearchQuery(SearchQueryCombinable, Func):
         self.invert = invert
         super().__init__(*expressions, output_field=output_field)
 
+    # [TODO] SearchQuery > as_sql
     def as_sql(self, compiler, connection, function=None, template=None):
         sql, params = super().as_sql(compiler, connection, function, template)
         if self.invert:
             sql = "!!(%s)" % sql
         return sql, params
 
+    # [TODO] SearchQuery > __invert__
     def __invert__(self):
         clone = self.copy()
         clone.invert = not self.invert
         return clone
 
+    # [TODO] SearchQuery > __str__
     def __str__(self):
         result = super().__str__()
         return ("~%s" % result) if self.invert else result
 
 
+# [TODO] CombinedSearchQuery
 class CombinedSearchQuery(SearchQueryCombinable, CombinedExpression):
+    # [TODO] CombinedSearchQuery > __init__
     def __init__(self, lhs, connector, rhs, config, output_field=None):
         self.config = config
         super().__init__(lhs, connector, rhs, output_field)
 
+    # [TODO] CombinedSearchQuery > __str__
     def __str__(self):
         return "(%s)" % super().__str__()
 
 
+# [TODO] SearchRank
 class SearchRank(Func):
     function = "ts_rank"
     output_field = FloatField()
 
+    # [TODO] SearchRank > __init__
     def __init__(
         self,
         vector,
@@ -271,11 +310,13 @@ class SearchRank(Func):
         super().__init__(*expressions)
 
 
+# [TODO] SearchHeadline
 class SearchHeadline(Func):
     function = "ts_headline"
     template = "%(function)s(%(expressions)s%(options)s)"
     output_field = TextField()
 
+    # [TODO] SearchHeadline > __init__
     def __init__(
         self,
         expression,
@@ -312,6 +353,7 @@ class SearchHeadline(Func):
             expressions = (config,) + expressions
         super().__init__(*expressions)
 
+    # [TODO] SearchHeadline > as_sql
     def as_sql(self, compiler, connection, function=None, template=None):
         options_sql = ""
         options_params = []
@@ -336,46 +378,56 @@ class SearchHeadline(Func):
 SearchVectorField.register_lookup(SearchVectorExact)
 
 
+# [TODO] TrigramBase
 class TrigramBase(Func):
     output_field = FloatField()
 
+    # [TODO] TrigramBase > __init__
     def __init__(self, expression, string, **extra):
         if not hasattr(string, "resolve_expression"):
             string = Value(string)
         super().__init__(expression, string, **extra)
 
 
+# [TODO] TrigramWordBase
 class TrigramWordBase(Func):
     output_field = FloatField()
 
+    # [TODO] TrigramWordBase > __init__
     def __init__(self, string, expression, **extra):
         if not hasattr(string, "resolve_expression"):
             string = Value(string)
         super().__init__(string, expression, **extra)
 
 
+# [TODO] TrigramSimilarity
 class TrigramSimilarity(TrigramBase):
     function = "SIMILARITY"
 
 
+# [TODO] TrigramDistance
 class TrigramDistance(TrigramBase):
     function = ""
     arg_joiner = " <-> "
 
 
+# [TODO] TrigramWordDistance
 class TrigramWordDistance(TrigramWordBase):
     function = ""
     arg_joiner = " <<-> "
 
 
+# [TODO] TrigramStrictWordDistance
 class TrigramStrictWordDistance(TrigramWordBase):
     function = ""
     arg_joiner = " <<<-> "
 
 
+# [TODO] TrigramWordSimilarity
 class TrigramWordSimilarity(TrigramWordBase):
     function = "WORD_SIMILARITY"
 
 
+# [TODO] TrigramStrictWordSimilarity
 class TrigramStrictWordSimilarity(TrigramWordBase):
     function = "STRICT_WORD_SIMILARITY"

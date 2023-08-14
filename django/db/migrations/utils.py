@@ -9,21 +9,26 @@ FieldReference = namedtuple("FieldReference", "to through")
 COMPILED_REGEX_TYPE = type(re.compile(""))
 
 
+# [TODO] RegexObject
 class RegexObject:
+    # [TODO] RegexObject > __init__
     def __init__(self, obj):
         self.pattern = obj.pattern
         self.flags = obj.flags
 
+    # [TODO] RegexObject > __eq__
     def __eq__(self, other):
         if not isinstance(other, RegexObject):
             return NotImplemented
         return self.pattern == other.pattern and self.flags == other.flags
 
 
+# [TODO] get_migration_name_timestamp
 def get_migration_name_timestamp():
     return datetime.datetime.now().strftime("%Y%m%d_%H%M")
 
 
+# [TODO] resolve_relation
 def resolve_relation(model, app_label=None, model_name=None):
     """
     Turn a model class or model reference string and return a model tuple.
@@ -50,6 +55,7 @@ def resolve_relation(model, app_label=None, model_name=None):
     return model._meta.app_label, model._meta.model_name
 
 
+# [TODO] field_references
 def field_references(
     model_tuple,
     field,
@@ -107,6 +113,7 @@ def field_references(
     return FieldReference(references_to, references_through)
 
 
+# [TODO] get_references
 def get_references(state, model_tuple, field_tuple=()):
     """
     Generator of (model_state, name, field, reference) referencing
@@ -124,6 +131,7 @@ def get_references(state, model_tuple, field_tuple=()):
                 yield model_state, name, field, reference
 
 
+# [TODO] field_is_referenced
 def field_is_referenced(state, model_tuple, field_tuple):
     """Return whether `field_tuple` is referenced by any state models."""
     return next(get_references(state, model_tuple, field_tuple), None) is not None

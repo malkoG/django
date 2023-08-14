@@ -4,6 +4,7 @@ from django.core.management.templates import TemplateCommand
 from ..utils import get_random_secret_key
 
 
+# [TODO] Command
 class Command(TemplateCommand):
     help = (
         "Creates a Django project directory structure for the given project "
@@ -11,6 +12,7 @@ class Command(TemplateCommand):
     )
     missing_args_message = "You must provide a project name."
 
+    # [TODO] Command > handle
     def handle(self, **options):
         project_name = options.pop("name")
         target = options.pop("directory")

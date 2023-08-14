@@ -4,6 +4,7 @@ from django.core import checks
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] SimpleAdminConfig
 class SimpleAdminConfig(AppConfig):
     """Simple AppConfig which does not do automatic discovery."""
 
@@ -12,16 +13,19 @@ class SimpleAdminConfig(AppConfig):
     name = "django.contrib.admin"
     verbose_name = _("Administration")
 
+    # [TODO] SimpleAdminConfig > ready
     def ready(self):
         checks.register(check_dependencies, checks.Tags.admin)
         checks.register(check_admin_app, checks.Tags.admin)
 
 
+# [TODO] AdminConfig
 class AdminConfig(SimpleAdminConfig):
     """The default AppConfig for admin which does autodiscovery."""
 
     default = True
 
+    # [TODO] AdminConfig > ready
     def ready(self):
         super().ready()
         self.module.autodiscover()

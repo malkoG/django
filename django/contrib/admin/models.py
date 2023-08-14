@@ -21,9 +21,11 @@ ACTION_FLAG_CHOICES = [
 ]
 
 
+# [TODO] LogEntryManager
 class LogEntryManager(models.Manager):
     use_in_migrations = True
 
+    # [TODO] LogEntryManager > log_action
     def log_action(
         self,
         user_id,
@@ -45,6 +47,7 @@ class LogEntryManager(models.Manager):
         )
 
 
+# [TODO] LogEntry
 class LogEntry(models.Model):
     action_time = models.DateTimeField(
         _("action time"),
@@ -75,15 +78,18 @@ class LogEntry(models.Model):
 
     objects = LogEntryManager()
 
+    # [TODO] LogEntry > Meta
     class Meta:
         verbose_name = _("log entry")
         verbose_name_plural = _("log entries")
         db_table = "django_admin_log"
         ordering = ["-action_time"]
 
+    # [TODO] LogEntry > __repr__
     def __repr__(self):
         return str(self.action_time)
 
+    # [TODO] LogEntry > __str__
     def __str__(self):
         if self.is_addition():
             return gettext("Added “%(object)s”.") % {"object": self.object_repr}
@@ -97,15 +103,19 @@ class LogEntry(models.Model):
 
         return gettext("LogEntry Object")
 
+    # [TODO] LogEntry > is_addition
     def is_addition(self):
         return self.action_flag == ADDITION
 
+    # [TODO] LogEntry > is_change
     def is_change(self):
         return self.action_flag == CHANGE
 
+    # [TODO] LogEntry > is_deletion
     def is_deletion(self):
         return self.action_flag == DELETION
 
+    # [TODO] LogEntry > get_change_message
     def get_change_message(self):
         """
         If self.change_message is a JSON structure, interpret it as a change
@@ -170,10 +180,12 @@ class LogEntry(models.Model):
         else:
             return self.change_message
 
+    # [TODO] LogEntry > get_edited_object
     def get_edited_object(self):
         """Return the edited object represented by this log entry."""
         return self.content_type.get_object_for_this_type(pk=self.object_id)
 
+    # [TODO] LogEntry > get_admin_url
     def get_admin_url(self):
         """
         Return the admin URL to edit the object represented by this log entry.

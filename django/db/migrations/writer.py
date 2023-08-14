@@ -15,12 +15,15 @@ from django.utils.module_loading import module_dir
 from django.utils.timezone import now
 
 
+# [TODO] OperationWriter
 class OperationWriter:
+    # [TODO] OperationWriter > __init__
     def __init__(self, operation, indentation=2):
         self.operation = operation
         self.buff = []
         self.indentation = indentation
 
+    # [TODO] OperationWriter > serialize
     def serialize(self):
         def _write(_arg_name, _arg_value):
             if _arg_name in self.operation.serialization_expand_args and isinstance(
@@ -102,30 +105,37 @@ class OperationWriter:
         self.feed("),")
         return self.render(), imports
 
+    # [TODO] OperationWriter > indent
     def indent(self):
         self.indentation += 1
 
+    # [TODO] OperationWriter > unindent
     def unindent(self):
         self.indentation -= 1
 
+    # [TODO] OperationWriter > feed
     def feed(self, line):
         self.buff.append(" " * (self.indentation * 4) + line)
 
+    # [TODO] OperationWriter > render
     def render(self):
         return "\n".join(self.buff)
 
 
+# [TODO] MigrationWriter
 class MigrationWriter:
     """
     Take a Migration instance and is able to produce the contents
     of the migration file from it.
     """
 
+    # [TODO] MigrationWriter > __init__
     def __init__(self, migration, include_header=True):
         self.migration = migration
         self.include_header = include_header
         self.needs_manual_porting = False
 
+    # [TODO] MigrationWriter > as_string
     def as_string(self):
         """Return a string of the file contents."""
         items = {
@@ -208,6 +218,7 @@ class MigrationWriter:
 
         return MIGRATION_TEMPLATE % items
 
+    # [TODO] MigrationWriter > basedir
     @property
     def basedir(self):
         migrations_package_name, _ = MigrationLoader.migrations_module(
@@ -274,22 +285,27 @@ class MigrationWriter:
 
         return final_dir
 
+    # [TODO] MigrationWriter > filename
     @property
     def filename(self):
         return "%s.py" % self.migration.name
 
+    # [TODO] MigrationWriter > path
     @property
     def path(self):
         return os.path.join(self.basedir, self.filename)
 
+    # [TODO] MigrationWriter > serialize
     @classmethod
     def serialize(cls, value):
         return serializer_factory(value).serialize()
 
+    # [TODO] MigrationWriter > register_serializer
     @classmethod
     def register_serializer(cls, type_, serializer):
         Serializer.register(type_, serializer)
 
+    # [TODO] MigrationWriter > unregister_serializer
     @classmethod
     def unregister_serializer(cls, type_):
         Serializer.unregister(type_)

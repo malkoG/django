@@ -27,15 +27,19 @@ from django.utils.hashable import make_hashable
 from django.utils.regex_helper import _lazy_re_compile
 
 
+# [TODO] PositionRef
 class PositionRef(Ref):
+    # [TODO] PositionRef > __init__
     def __init__(self, ordinal, refs, source):
         self.ordinal = ordinal
         super().__init__(refs, source)
 
+    # [TODO] PositionRef > as_sql
     def as_sql(self, compiler, connection):
         return str(self.ordinal), ()
 
 
+# [TODO] SQLCompiler
 class SQLCompiler:
     # Multiline ordering SQL clause may appear from RawSQL.
     ordering_parts = _lazy_re_compile(
@@ -43,6 +47,7 @@ class SQLCompiler:
         re.MULTILINE | re.DOTALL,
     )
 
+    # [TODO] SQLCompiler > __init__
     def __init__(self, query, connection, using, elide_empty=True):
         self.query = query
         self.connection = connection
@@ -60,6 +65,7 @@ class SQLCompiler:
         self.klass_info = None
         self._meta_ordering = None
 
+    # [TODO] SQLCompiler > __repr__
     def __repr__(self):
         return (
             f"<{self.__class__.__qualname__} "
@@ -67,6 +73,7 @@ class SQLCompiler:
             f"connection={self.connection!r} using={self.using!r}>"
         )
 
+    # [TODO] SQLCompiler > setup_query
     def setup_query(self, with_col_aliases=False):
         if all(self.query.alias_refcount[a] == 0 for a in self.query.alias_map):
             self.query.get_initial_alias()
@@ -75,6 +82,7 @@ class SQLCompiler:
         )
         self.col_count = len(self.select)
 
+    # [TODO] SQLCompiler > pre_sql_setup
     def pre_sql_setup(self, with_col_aliases=False):
         """
         Do any necessary class setup immediately prior to producing SQL. This
@@ -91,6 +99,7 @@ class SQLCompiler:
         group_by = self.get_group_by(self.select + extra_select, order_by)
         return extra_select, order_by, group_by
 
+    # [TODO] SQLCompiler > get_group_by
     def get_group_by(self, select, order_by):
         """
         Return a list of 2-tuples of form (sql, params).
@@ -194,6 +203,7 @@ class SQLCompiler:
                 seen.add((sql, params_hash))
         return result
 
+    # [TODO] SQLCompiler > collapse_group_by
     def collapse_group_by(self, expressions, having):
         # If the database supports group by functional dependence reduction,
         # then the expressions can be reduced to the set of selected table
@@ -226,6 +236,7 @@ class SQLCompiler:
             ]
         return expressions
 
+    # [TODO] SQLCompiler > get_select
     def get_select(self, with_col_aliases=False):
         """
         Return three values:
@@ -313,6 +324,7 @@ class SQLCompiler:
             ret.append((col, (sql, params), alias))
         return ret, klass_info, annotations
 
+    # [TODO] SQLCompiler > _order_by_pairs
     def _order_by_pairs(self):
         if self.query.extra_order_by:
             ordering = self.query.extra_order_by
@@ -445,6 +457,7 @@ class SQLCompiler:
                         default_order=default_order,
                     )
 
+    # [TODO] SQLCompiler > get_order_by
     def get_order_by(self):
         """
         Return a list of 2-tuples of the form (expr, (sql, params, is_ref)) for
@@ -506,6 +519,7 @@ class SQLCompiler:
             result.append((resolved, (sql, params, is_ref)))
         return result
 
+    # [TODO] SQLCompiler > get_extra_select
     def get_extra_select(self, order_by, select):
         extra_select = []
         if self.query.distinct and not self.query.distinct_fields:
@@ -516,6 +530,7 @@ class SQLCompiler:
                     extra_select.append((expr, (without_ordering, params), None))
         return extra_select
 
+    # [TODO] SQLCompiler > quote_name_unless_alias
     def quote_name_unless_alias(self, name):
         """
         A wrapper around connection.ops.quote_name that doesn't quote aliases
@@ -538,6 +553,7 @@ class SQLCompiler:
         self.quote_cache[name] = r
         return r
 
+    # [TODO] SQLCompiler > compile
     def compile(self, node):
         vendor_impl = getattr(node, "as_" + self.connection.vendor, None)
         if vendor_impl:
@@ -546,6 +562,7 @@ class SQLCompiler:
             sql, params = node.as_sql(self, self.connection)
         return sql, params
 
+    # [TODO] SQLCompiler > get_combinator_sql
     def get_combinator_sql(self, combinator, all):
         features = self.connection.features
         compilers = [
@@ -626,6 +643,7 @@ class SQLCompiler:
             params.extend(part)
         return result, params
 
+    # [TODO] SQLCompiler > get_qualify_sql
     def get_qualify_sql(self):
         where_parts = []
         if self.where:
@@ -722,6 +740,7 @@ class SQLCompiler:
             result.extend(["ORDER BY", ", ".join(ordering_sqls)])
         return result, params
 
+    # [TODO] SQLCompiler > as_sql
     def as_sql(self, with_limits=True, with_col_aliases=False):
         """
         Create the SQL for this query. Return the SQL string and list of
@@ -947,6 +966,7 @@ class SQLCompiler:
             # Finally do cleanup - get rid of the joins we created above.
             self.query.reset_refcounts(refcounts_before)
 
+    # [TODO] SQLCompiler > get_default_columns
     def get_default_columns(
         self, select_mask, start_alias=None, opts=None, from_parent=None
     ):
@@ -997,6 +1017,7 @@ class SQLCompiler:
             result.append(column)
         return result
 
+    # [TODO] SQLCompiler > get_distinct
     def get_distinct(self):
         """
         Return a quoted list of fields to use in DISTINCT ON part of the query.
@@ -1023,6 +1044,7 @@ class SQLCompiler:
                     params.append(p)
         return result, params
 
+    # [TODO] SQLCompiler > find_ordering_name
     def find_ordering_name(
         self, name, opts, alias=None, default_order="ASC", already_seen=None
     ):
@@ -1088,6 +1110,7 @@ class SQLCompiler:
             for t in targets
         ]
 
+    # [TODO] SQLCompiler > _setup_joins
     def _setup_joins(self, pieces, opts, alias):
         """
         Helper method for get_order_by() and get_distinct().
@@ -1103,6 +1126,7 @@ class SQLCompiler:
         alias = joins[-1]
         return field, targets, alias, joins, path, opts, transform_function
 
+    # [TODO] SQLCompiler > get_from_clause
     def get_from_clause(self):
         """
         Return a list of strings that are joined together to go after the
@@ -1140,6 +1164,7 @@ class SQLCompiler:
                 result.append(", %s" % self.quote_name_unless_alias(alias))
         return result, params
 
+    # [TODO] SQLCompiler > get_related_selections
     def get_related_selections(
         self,
         select,
@@ -1374,6 +1399,7 @@ class SQLCompiler:
                 )
         return related_klass_infos
 
+    # [TODO] SQLCompiler > get_select_for_update_of_arguments
     def get_select_for_update_of_arguments(self):
         """
         Return a quoted list of arguments for the SELECT FOR UPDATE OF part of
@@ -1480,6 +1506,7 @@ class SQLCompiler:
             )
         return result
 
+    # [TODO] SQLCompiler > get_converters
     def get_converters(self, expressions):
         converters = {}
         for i, expression in enumerate(expressions):
@@ -1490,6 +1517,7 @@ class SQLCompiler:
                     converters[i] = (backend_converters + field_converters, expression)
         return converters
 
+    # [TODO] SQLCompiler > apply_converters
     def apply_converters(self, rows, converters):
         connection = self.connection
         converters = list(converters.items())
@@ -1501,6 +1529,7 @@ class SQLCompiler:
                 row[pos] = value
             yield row
 
+    # [TODO] SQLCompiler > results_iter
     def results_iter(
         self,
         results=None,
@@ -1522,6 +1551,7 @@ class SQLCompiler:
                 rows = map(tuple, rows)
         return rows
 
+    # [TODO] SQLCompiler > has_results
     def has_results(self):
         """
         Backends (e.g. NoSQL) can override this in order to use optimized
@@ -1529,6 +1559,7 @@ class SQLCompiler:
         """
         return bool(self.execute_sql(SINGLE))
 
+    # [TODO] SQLCompiler > execute_sql
     def execute_sql(
         self, result_type=MULTI, chunked_fetch=False, chunk_size=GET_ITERATOR_CHUNK_SIZE
     ):
@@ -1595,6 +1626,7 @@ class SQLCompiler:
             return list(result)
         return result
 
+    # [TODO] SQLCompiler > as_subquery_condition
     def as_subquery_condition(self, alias, columns, compiler):
         qn = compiler.quote_name_unless_alias
         qn2 = self.connection.ops.quote_name
@@ -1607,6 +1639,7 @@ class SQLCompiler:
         sql, params = self.as_sql()
         return "EXISTS (%s)" % sql, params
 
+    # [TODO] SQLCompiler > explain_query
     def explain_query(self):
         result = list(self.execute_sql())
         # Some backends return 1 item tuples with strings, and others return
@@ -1620,10 +1653,12 @@ class SQLCompiler:
                 yield row
 
 
+# [TODO] SQLInsertCompiler
 class SQLInsertCompiler(SQLCompiler):
     returning_fields = None
     returning_params = ()
 
+    # [TODO] SQLInsertCompiler > field_as_sql
     def field_as_sql(self, field, val):
         """
         Take a field and a value intended to be saved on that field, and
@@ -1656,6 +1691,7 @@ class SQLInsertCompiler(SQLCompiler):
 
         return sql, params
 
+    # [TODO] SQLInsertCompiler > prepare_value
     def prepare_value(self, field, value):
         """
         Prepare a value to be used in a query by resolving it if it is an
@@ -1685,6 +1721,7 @@ class SQLInsertCompiler(SQLCompiler):
                 )
         return field.get_db_prep_save(value, connection=self.connection)
 
+    # [TODO] SQLInsertCompiler > pre_save_val
     def pre_save_val(self, field, obj):
         """
         Get the given field's value off the given obj. pre_save() is used for
@@ -1694,6 +1731,7 @@ class SQLInsertCompiler(SQLCompiler):
             return getattr(obj, field.attname)
         return field.pre_save(obj, add=True)
 
+    # [TODO] SQLInsertCompiler > assemble_as_sql
     def assemble_as_sql(self, fields, value_rows):
         """
         Take a sequence of N fields and a sequence of M rows of values, and
@@ -1729,6 +1767,7 @@ class SQLInsertCompiler(SQLCompiler):
 
         return placeholder_rows, param_rows
 
+    # [TODO] SQLInsertCompiler > as_sql
     def as_sql(self):
         # We don't need quote_name_unless_alias() here, since these are all
         # going to be column names (so we can avoid the extra overhead).
@@ -1809,6 +1848,7 @@ class SQLInsertCompiler(SQLCompiler):
                 for p, vals in zip(placeholder_rows, param_rows)
             ]
 
+    # [TODO] SQLInsertCompiler > execute_sql
     def execute_sql(self, returning_fields=None):
         assert not (
             returning_fields
@@ -1852,13 +1892,16 @@ class SQLInsertCompiler(SQLCompiler):
         return rows
 
 
+# [TODO] SQLDeleteCompiler
 class SQLDeleteCompiler(SQLCompiler):
+    # [TODO] SQLDeleteCompiler > single_alias
     @cached_property
     def single_alias(self):
         # Ensure base table is in aliases.
         self.query.get_initial_alias()
         return sum(self.query.alias_refcount[t] > 0 for t in self.query.alias_map) == 1
 
+    # [TODO] SQLDeleteCompiler > _expr_refs_base_model
     @classmethod
     def _expr_refs_base_model(cls, expr, base_model):
         if isinstance(expr, Query):
@@ -1870,6 +1913,7 @@ class SQLDeleteCompiler(SQLCompiler):
             for source_expr in expr.get_source_expressions()
         )
 
+    # [TODO] SQLDeleteCompiler > contains_self_reference_subquery
     @cached_property
     def contains_self_reference_subquery(self):
         return any(
@@ -1879,6 +1923,7 @@ class SQLDeleteCompiler(SQLCompiler):
             )
         )
 
+    # [TODO] SQLDeleteCompiler > _as_sql
     def _as_sql(self, query):
         delete = "DELETE FROM %s" % self.quote_name_unless_alias(query.base_table)
         try:
@@ -1887,6 +1932,7 @@ class SQLDeleteCompiler(SQLCompiler):
             return delete, ()
         return f"{delete} WHERE {where}", tuple(params)
 
+    # [TODO] SQLDeleteCompiler > as_sql
     def as_sql(self):
         """
         Create the SQL for this query. Return the SQL string and list of
@@ -1912,7 +1958,9 @@ class SQLDeleteCompiler(SQLCompiler):
         return self._as_sql(outerq)
 
 
+# [TODO] SQLUpdateCompiler
 class SQLUpdateCompiler(SQLCompiler):
+    # [TODO] SQLUpdateCompiler > as_sql
     def as_sql(self):
         """
         Create the SQL for this query. Return the SQL string and list of
@@ -1977,6 +2025,7 @@ class SQLUpdateCompiler(SQLCompiler):
             result.append("WHERE %s" % where)
         return " ".join(result), tuple(update_params + params)
 
+    # [TODO] SQLUpdateCompiler > execute_sql
     def execute_sql(self, result_type):
         """
         Execute the specified update. Return the number of rows affected by
@@ -1998,6 +2047,7 @@ class SQLUpdateCompiler(SQLCompiler):
                 is_empty = False
         return rows
 
+    # [TODO] SQLUpdateCompiler > pre_sql_setup
     def pre_sql_setup(self):
         """
         If the update depends on results from other tables, munge the "where"
@@ -2062,7 +2112,9 @@ class SQLUpdateCompiler(SQLCompiler):
         self.query.reset_refcounts(refcounts_before)
 
 
+# [TODO] SQLAggregateCompiler
 class SQLAggregateCompiler(SQLCompiler):
+    # [TODO] SQLAggregateCompiler > as_sql
     def as_sql(self):
         """
         Create the SQL for this query. Return the SQL string and list of
@@ -2087,6 +2139,7 @@ class SQLAggregateCompiler(SQLCompiler):
         return sql, params
 
 
+# [TODO] cursor_iter
 def cursor_iter(cursor, sentinel, col_count, itersize):
     """
     Yield blocks of rows from a cursor and ensure the cursor is closed when

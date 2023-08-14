@@ -3,10 +3,12 @@ from django.db.backends.oracle.oracledb_any import oracledb
 from django.utils.functional import cached_property
 
 
+# [TODO] OracleIntrospection
 class OracleIntrospection(DatabaseIntrospection):
     # Associating any OBJECTVAR instances with GeometryField. This won't work
     # right on Oracle objects that aren't MDSYS.SDO_GEOMETRY, but it is the
     # only object type supported within Django anyways.
+    # [TODO] OracleIntrospection > data_types_reverse
     @cached_property
     def data_types_reverse(self):
         return {
@@ -14,6 +16,7 @@ class OracleIntrospection(DatabaseIntrospection):
             oracledb.DB_TYPE_OBJECT: "GeometryField",
         }
 
+    # [TODO] OracleIntrospection > get_geometry_type
     def get_geometry_type(self, table_name, description):
         with self.connection.cursor() as cursor:
             # Querying USER_SDO_GEOM_METADATA to get the SRID and dimension information.

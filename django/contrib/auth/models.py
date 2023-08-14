@@ -14,6 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from .validators import UnicodeUsernameValidator
 
 
+# [TODO] update_last_login
 def update_last_login(sender, user, **kwargs):
     """
     A signal receiver which updates the last_login date for
@@ -23,9 +24,11 @@ def update_last_login(sender, user, **kwargs):
     user.save(update_fields=["last_login"])
 
 
+# [TODO] PermissionManager
 class PermissionManager(models.Manager):
     use_in_migrations = True
 
+    # [TODO] PermissionManager > get_by_natural_key
     def get_by_natural_key(self, codename, app_label, model):
         return self.get(
             codename=codename,
@@ -35,6 +38,7 @@ class PermissionManager(models.Manager):
         )
 
 
+# [TODO] Permission
 class Permission(models.Model):
     """
     The permissions system provides a way to assign permissions to specific
@@ -69,21 +73,25 @@ class Permission(models.Model):
 
     objects = PermissionManager()
 
+    # [TODO] Permission > Meta
     class Meta:
         verbose_name = _("permission")
         verbose_name_plural = _("permissions")
         unique_together = [["content_type", "codename"]]
         ordering = ["content_type__app_label", "content_type__model", "codename"]
 
+    # [TODO] Permission > __str__
     def __str__(self):
         return "%s | %s" % (self.content_type, self.name)
 
+    # [TODO] Permission > natural_key
     def natural_key(self):
         return (self.codename,) + self.content_type.natural_key()
 
     natural_key.dependencies = ["contenttypes.contenttype"]
 
 
+# [TODO] GroupManager
 class GroupManager(models.Manager):
     """
     The manager for the auth's Group model.
@@ -91,10 +99,12 @@ class GroupManager(models.Manager):
 
     use_in_migrations = True
 
+    # [TODO] GroupManager > get_by_natural_key
     def get_by_natural_key(self, name):
         return self.get(name=name)
 
 
+# [TODO] Group
 class Group(models.Model):
     """
     Groups are a generic way of categorizing users to apply permissions, or
@@ -122,20 +132,25 @@ class Group(models.Model):
 
     objects = GroupManager()
 
+    # [TODO] Group > Meta
     class Meta:
         verbose_name = _("group")
         verbose_name_plural = _("groups")
 
+    # [TODO] Group > __str__
     def __str__(self):
         return self.name
 
+    # [TODO] Group > natural_key
     def natural_key(self):
         return (self.name,)
 
 
+# [TODO] UserManager
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
+    # [TODO] UserManager > _create_user
     def _create_user(self, username, email, password, **extra_fields):
         """
         Create and save a user with the given username, email, and password.
@@ -155,11 +170,13 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+    # [TODO] UserManager > create_user
     def create_user(self, username, email=None, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(username, email, password, **extra_fields)
 
+    # [TODO] UserManager > create_superuser
     def create_superuser(self, username, email=None, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
@@ -171,6 +188,7 @@ class UserManager(BaseUserManager):
 
         return self._create_user(username, email, password, **extra_fields)
 
+    # [TODO] UserManager > with_perm
     def with_perm(
         self, perm, is_active=True, include_superusers=True, backend=None, obj=None
     ):
@@ -200,6 +218,7 @@ class UserManager(BaseUserManager):
 
 
 # A few helper functions for common logic between User and AnonymousUser.
+# [TODO] _user_get_permissions
 def _user_get_permissions(user, obj, from_name):
     permissions = set()
     name = "get_%s_permissions" % from_name
@@ -209,6 +228,7 @@ def _user_get_permissions(user, obj, from_name):
     return permissions
 
 
+# [TODO] _user_has_perm
 def _user_has_perm(user, perm, obj):
     """
     A backend can raise `PermissionDenied` to short-circuit permission checking.
@@ -224,6 +244,7 @@ def _user_has_perm(user, perm, obj):
     return False
 
 
+# [TODO] _user_has_module_perms
 def _user_has_module_perms(user, app_label):
     """
     A backend can raise `PermissionDenied` to short-circuit permission checking.
@@ -239,6 +260,7 @@ def _user_has_module_perms(user, app_label):
     return False
 
 
+# [TODO] PermissionsMixin
 class PermissionsMixin(models.Model):
     """
     Add the fields and methods necessary to support the Group and Permission
@@ -273,9 +295,11 @@ class PermissionsMixin(models.Model):
         related_query_name="user",
     )
 
+    # [TODO] PermissionsMixin > Meta
     class Meta:
         abstract = True
 
+    # [TODO] PermissionsMixin > get_user_permissions
     def get_user_permissions(self, obj=None):
         """
         Return a list of permission strings that this user has directly.
@@ -284,6 +308,7 @@ class PermissionsMixin(models.Model):
         """
         return _user_get_permissions(self, obj, "user")
 
+    # [TODO] PermissionsMixin > get_group_permissions
     def get_group_permissions(self, obj=None):
         """
         Return a list of permission strings that this user has through their
@@ -292,9 +317,11 @@ class PermissionsMixin(models.Model):
         """
         return _user_get_permissions(self, obj, "group")
 
+    # [TODO] PermissionsMixin > get_all_permissions
     def get_all_permissions(self, obj=None):
         return _user_get_permissions(self, obj, "all")
 
+    # [TODO] PermissionsMixin > has_perm
     def has_perm(self, perm, obj=None):
         """
         Return True if the user has the specified permission. Query all
@@ -310,6 +337,7 @@ class PermissionsMixin(models.Model):
         # Otherwise we need to check the backends.
         return _user_has_perm(self, perm, obj)
 
+    # [TODO] PermissionsMixin > has_perms
     def has_perms(self, perm_list, obj=None):
         """
         Return True if the user has each of the specified permissions. If
@@ -319,6 +347,7 @@ class PermissionsMixin(models.Model):
             raise ValueError("perm_list must be an iterable of permissions.")
         return all(self.has_perm(perm, obj) for perm in perm_list)
 
+    # [TODO] PermissionsMixin > has_module_perms
     def has_module_perms(self, app_label):
         """
         Return True if the user has any permissions in the given app label.
@@ -331,6 +360,7 @@ class PermissionsMixin(models.Model):
         return _user_has_module_perms(self, app_label)
 
 
+# [TODO] AbstractUser
 class AbstractUser(AbstractBaseUser, PermissionsMixin):
     """
     An abstract base class implementing a fully featured User model with
@@ -377,15 +407,18 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
 
+    # [TODO] AbstractUser > Meta
     class Meta:
         verbose_name = _("user")
         verbose_name_plural = _("users")
         abstract = True
 
+    # [TODO] AbstractUser > clean
     def clean(self):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)
 
+    # [TODO] AbstractUser > get_full_name
     def get_full_name(self):
         """
         Return the first_name plus the last_name, with a space in between.
@@ -393,15 +426,18 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
         full_name = "%s %s" % (self.first_name, self.last_name)
         return full_name.strip()
 
+    # [TODO] AbstractUser > get_short_name
     def get_short_name(self):
         """Return the short name for the user."""
         return self.first_name
 
+    # [TODO] AbstractUser > email_user
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
         send_mail(subject, message, from_email, [self.email], **kwargs)
 
 
+# [TODO] User
 class User(AbstractUser):
     """
     Users within the Django authentication system are represented by this
@@ -410,10 +446,12 @@ class User(AbstractUser):
     Username and password are required. Other fields are optional.
     """
 
+    # [TODO] User > Meta
     class Meta(AbstractUser.Meta):
         swappable = "AUTH_USER_MODEL"
 
 
+# [TODO] AnonymousUser
 class AnonymousUser:
     id = None
     pk = None
@@ -424,76 +462,95 @@ class AnonymousUser:
     _groups = EmptyManager(Group)
     _user_permissions = EmptyManager(Permission)
 
+    # [TODO] AnonymousUser > __str__
     def __str__(self):
         return "AnonymousUser"
 
+    # [TODO] AnonymousUser > __eq__
     def __eq__(self, other):
         return isinstance(other, self.__class__)
 
+    # [TODO] AnonymousUser > __hash__
     def __hash__(self):
         return 1  # instances always return the same hash value
 
+    # [TODO] AnonymousUser > __int__
     def __int__(self):
         raise TypeError(
             "Cannot cast AnonymousUser to int. Are you trying to use it in place of "
             "User?"
         )
 
+    # [TODO] AnonymousUser > save
     def save(self):
         raise NotImplementedError(
             "Django doesn't provide a DB representation for AnonymousUser."
         )
 
+    # [TODO] AnonymousUser > delete
     def delete(self):
         raise NotImplementedError(
             "Django doesn't provide a DB representation for AnonymousUser."
         )
 
+    # [TODO] AnonymousUser > set_password
     def set_password(self, raw_password):
         raise NotImplementedError(
             "Django doesn't provide a DB representation for AnonymousUser."
         )
 
+    # [TODO] AnonymousUser > check_password
     def check_password(self, raw_password):
         raise NotImplementedError(
             "Django doesn't provide a DB representation for AnonymousUser."
         )
 
+    # [TODO] AnonymousUser > groups
     @property
     def groups(self):
         return self._groups
 
+    # [TODO] AnonymousUser > user_permissions
     @property
     def user_permissions(self):
         return self._user_permissions
 
+    # [TODO] AnonymousUser > get_user_permissions
     def get_user_permissions(self, obj=None):
         return _user_get_permissions(self, obj, "user")
 
+    # [TODO] AnonymousUser > get_group_permissions
     def get_group_permissions(self, obj=None):
         return set()
 
+    # [TODO] AnonymousUser > get_all_permissions
     def get_all_permissions(self, obj=None):
         return _user_get_permissions(self, obj, "all")
 
+    # [TODO] AnonymousUser > has_perm
     def has_perm(self, perm, obj=None):
         return _user_has_perm(self, perm, obj=obj)
 
+    # [TODO] AnonymousUser > has_perms
     def has_perms(self, perm_list, obj=None):
         if not is_iterable(perm_list) or isinstance(perm_list, str):
             raise ValueError("perm_list must be an iterable of permissions.")
         return all(self.has_perm(perm, obj) for perm in perm_list)
 
+    # [TODO] AnonymousUser > has_module_perms
     def has_module_perms(self, module):
         return _user_has_module_perms(self, module)
 
+    # [TODO] AnonymousUser > is_anonymous
     @property
     def is_anonymous(self):
         return True
 
+    # [TODO] AnonymousUser > is_authenticated
     @property
     def is_authenticated(self):
         return False
 
+    # [TODO] AnonymousUser > get_username
     def get_username(self):
         return self.username

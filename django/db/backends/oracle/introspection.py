@@ -12,6 +12,7 @@ FieldInfo = namedtuple(
 TableInfo = namedtuple("TableInfo", BaseTableInfo._fields + ("comment",))
 
 
+# [TODO] DatabaseIntrospection
 class DatabaseIntrospection(BaseDatabaseIntrospection):
     cache_bust_counter = 1
 
@@ -31,6 +32,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         oracledb.DB_TYPE_VARCHAR: "CharField",
     }
 
+    # [TODO] DatabaseIntrospection > get_field_type
     def get_field_type(self, data_type, description):
         if data_type == oracledb.NUMBER:
             precision, scale = description[4:6]
@@ -56,6 +58,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
         return super().get_field_type(data_type, description)
 
+    # [TODO] DatabaseIntrospection > get_table_list
     def get_table_list(self, cursor):
         """Return a list of table and view names in the current database."""
         cursor.execute(
@@ -85,6 +88,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             for row in cursor.fetchall()
         ]
 
+    # [TODO] DatabaseIntrospection > get_table_description
     def get_table_description(self, cursor, table_name):
         """
         Return a description of the table with the DB-API cursor.description
@@ -211,10 +215,12 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             )
         return description
 
+    # [TODO] DatabaseIntrospection > identifier_converter
     def identifier_converter(self, name):
         """Identifier comparison is case insensitive under Oracle."""
         return name.lower()
 
+    # [TODO] DatabaseIntrospection > get_sequences
     def get_sequences(self, cursor, table_name, table_fields=()):
         cursor.execute(
             """
@@ -251,6 +257,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
                 return [{"table": table_name, "column": f.column}]
         return []
 
+    # [TODO] DatabaseIntrospection > get_relations
     def get_relations(self, cursor, table_name):
         """
         Return a dictionary of {field_name: (field_name_other_table, other_table)}
@@ -276,6 +283,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             for field_name, rel_table_name, rel_field_name in cursor.fetchall()
         }
 
+    # [TODO] DatabaseIntrospection > get_primary_key_columns
     def get_primary_key_columns(self, cursor, table_name):
         cursor.execute(
             """
@@ -295,6 +303,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         )
         return [self.identifier_converter(row[0]) for row in cursor.fetchall()]
 
+    # [TODO] DatabaseIntrospection > get_constraints
     def get_constraints(self, cursor, table_name):
         """
         Retrieve any constraints or keys (unique, pk, fk, check, index) across

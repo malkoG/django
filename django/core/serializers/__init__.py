@@ -34,6 +34,7 @@ BUILTIN_SERIALIZERS = {
 _serializers = {}
 
 
+# [TODO] BadSerializer
 class BadSerializer:
     """
     Stub serializer to hold exception raised during registration
@@ -45,13 +46,16 @@ class BadSerializer:
 
     internal_use_only = False
 
+    # [TODO] BadSerializer > __init__
     def __init__(self, exception):
         self.exception = exception
 
+    # [TODO] BadSerializer > __call__
     def __call__(self, *args, **kwargs):
         raise self.exception
 
 
+# [TODO] register_serializer
 def register_serializer(format, serializer_module, serializers=None):
     """Register a new serializer.
 
@@ -88,6 +92,7 @@ def register_serializer(format, serializer_module, serializers=None):
         serializers[format] = module
 
 
+# [TODO] unregister_serializer
 def unregister_serializer(format):
     "Unregister a given serializer. This is not a thread-safe operation."
     if not _serializers:
@@ -97,6 +102,7 @@ def unregister_serializer(format):
     del _serializers[format]
 
 
+# [TODO] get_serializer
 def get_serializer(format):
     if not _serializers:
         _load_serializers()
@@ -105,18 +111,21 @@ def get_serializer(format):
     return _serializers[format].Serializer
 
 
+# [TODO] get_serializer_formats
 def get_serializer_formats():
     if not _serializers:
         _load_serializers()
     return list(_serializers)
 
 
+# [TODO] get_public_serializer_formats
 def get_public_serializer_formats():
     if not _serializers:
         _load_serializers()
     return [k for k, v in _serializers.items() if not v.Serializer.internal_use_only]
 
 
+# [TODO] get_deserializer
 def get_deserializer(format):
     if not _serializers:
         _load_serializers()
@@ -125,6 +134,7 @@ def get_deserializer(format):
     return _serializers[format].Deserializer
 
 
+# [TODO] serialize
 def serialize(format, queryset, **options):
     """
     Serialize a queryset (or any iterator that returns database objects) using
@@ -135,6 +145,7 @@ def serialize(format, queryset, **options):
     return s.getvalue()
 
 
+# [TODO] deserialize
 def deserialize(format, stream_or_string, **options):
     """
     Deserialize a stream or a string. Return an iterator that yields ``(obj,
@@ -146,6 +157,7 @@ def deserialize(format, stream_or_string, **options):
     return d(stream_or_string, **options)
 
 
+# [TODO] _load_serializers
 def _load_serializers():
     """
     Register built-in and settings-defined serializers. This is done lazily so
@@ -164,6 +176,7 @@ def _load_serializers():
     _serializers = serializers
 
 
+# [TODO] sort_dependencies
 def sort_dependencies(app_list, allow_cycles=False):
     """Sort a list of (app_config, models) pairs into a single list of models.
 

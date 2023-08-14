@@ -10,6 +10,7 @@ from django.utils.inspect import func_accepts_kwargs
 logger = logging.getLogger("django.dispatch")
 
 
+# [TODO] _make_id
 def _make_id(target):
     if hasattr(target, "__func__"):
         return (id(target.__self__), id(target.__func__))
@@ -22,6 +23,7 @@ NONE_ID = _make_id(None)
 NO_RECEIVERS = object()
 
 
+# [TODO] Signal
 class Signal:
     """
     Base class for all signals
@@ -32,6 +34,7 @@ class Signal:
             { receiverkey (id) : weakref(receiver) }
     """
 
+    # [TODO] Signal > __init__
     def __init__(self, use_caching=False):
         """
         Create a new signal.
@@ -47,6 +50,7 @@ class Signal:
         self.sender_receivers_cache = weakref.WeakKeyDictionary() if use_caching else {}
         self._dead_receivers = False
 
+    # [TODO] Signal > connect
     def connect(self, receiver, sender=None, weak=True, dispatch_uid=None):
         """
         Connect receiver to sender for signal.
@@ -116,6 +120,7 @@ class Signal:
                 self.receivers.append((lookup_key, receiver, is_async))
             self.sender_receivers_cache.clear()
 
+    # [TODO] Signal > disconnect
     def disconnect(self, receiver=None, sender=None, dispatch_uid=None):
         """
         Disconnect receiver from sender for signal.
@@ -152,10 +157,12 @@ class Signal:
             self.sender_receivers_cache.clear()
         return disconnected
 
+    # [TODO] Signal > has_listeners
     def has_listeners(self, sender=None):
         sync_receivers, async_receivers = self._live_receivers(sender)
         return bool(sync_receivers) or bool(async_receivers)
 
+    # [TODO] Signal > send
     def send(self, sender, **named):
         """
         Send signal from sender to all connected receivers.
@@ -202,6 +209,7 @@ class Signal:
             responses.extend(async_to_sync(asend)())
         return responses
 
+    # [TODO] Signal > asend
     async def asend(self, sender, **named):
         """
         Send signal from sender to all connected receivers in async mode.
@@ -258,6 +266,7 @@ class Signal:
         responses.extend(zip(async_receivers, async_responses))
         return responses
 
+    # [TODO] Signal > _log_robust_failure
     def _log_robust_failure(self, receiver, err):
         logger.error(
             "Error calling %s in Signal.send_robust() (%s)",
@@ -266,6 +275,7 @@ class Signal:
             exc_info=err,
         )
 
+    # [TODO] Signal > send_robust
     def send_robust(self, sender, **named):
         """
         Send signal from sender to all connected receivers catching errors.
@@ -329,6 +339,7 @@ class Signal:
             responses.extend(async_to_sync(asend)())
         return responses
 
+    # [TODO] Signal > asend_robust
     async def asend_robust(self, sender, **named):
         """
         Send signal from sender to all connected receivers catching errors.
@@ -399,6 +410,7 @@ class Signal:
         responses.extend(zip(async_receivers, async_responses))
         return responses
 
+    # [TODO] Signal > _clear_dead_receivers
     def _clear_dead_receivers(self):
         # Note: caller is assumed to hold self.lock.
         if self._dead_receivers:
@@ -409,6 +421,7 @@ class Signal:
                 if not (isinstance(r[1], weakref.ReferenceType) and r[1]() is None)
             ]
 
+    # [TODO] Signal > _live_receivers
     def _live_receivers(self, sender):
         """
         Filter sequence of receivers to get resolved, live receivers.
@@ -455,6 +468,7 @@ class Signal:
                     non_weak_sync_receivers.append(receiver)
         return non_weak_sync_receivers, non_weak_async_receivers
 
+    # [TODO] Signal > _remove_receiver
     def _remove_receiver(self, receiver=None):
         # Mark that the self.receivers list has dead weakrefs. If so, we will
         # clean those up in connect, disconnect and _live_receivers while
@@ -465,6 +479,7 @@ class Signal:
         self._dead_receivers = True
 
 
+# [TODO] receiver
 def receiver(signal, **kwargs):
     """
     A decorator for connecting receivers to signals. Used by passing in the

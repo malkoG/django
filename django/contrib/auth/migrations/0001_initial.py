@@ -4,6 +4,7 @@ from django.db import migrations, models
 from django.utils import timezone
 
 
+# [TODO] Migration
 class Migration(migrations.Migration):
     dependencies = [
         ("contenttypes", "__first__"),

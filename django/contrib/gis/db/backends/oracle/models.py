@@ -11,6 +11,7 @@ from django.contrib.gis.db import models
 from django.contrib.gis.db.backends.base.models import SpatialRefSysMixin
 
 
+# [TODO] OracleGeometryColumns
 class OracleGeometryColumns(models.Model):
     "Maps to the Oracle USER_SDO_GEOM_METADATA table."
     table_name = models.CharField(max_length=32)
@@ -18,14 +19,17 @@ class OracleGeometryColumns(models.Model):
     srid = models.IntegerField(primary_key=True)
     # TODO: Add support for `diminfo` column (type MDSYS.SDO_DIM_ARRAY).
 
+    # [TODO] OracleGeometryColumns > Meta
     class Meta:
         app_label = "gis"
         db_table = "USER_SDO_GEOM_METADATA"
         managed = False
 
+    # [TODO] OracleGeometryColumns > __str__
     def __str__(self):
         return "%s - %s (SRID: %s)" % (self.table_name, self.column_name, self.srid)
 
+    # [TODO] OracleGeometryColumns > table_name_col
     @classmethod
     def table_name_col(cls):
         """
@@ -34,6 +38,7 @@ class OracleGeometryColumns(models.Model):
         """
         return "table_name"
 
+    # [TODO] OracleGeometryColumns > geom_col_name
     @classmethod
     def geom_col_name(cls):
         """
@@ -43,6 +48,7 @@ class OracleGeometryColumns(models.Model):
         return "column_name"
 
 
+# [TODO] OracleSpatialRefSys
 class OracleSpatialRefSys(models.Model, SpatialRefSysMixin):
     "Maps to the Oracle MDSYS.CS_SRS table."
     cs_name = models.CharField(max_length=68)
@@ -54,11 +60,13 @@ class OracleSpatialRefSys(models.Model, SpatialRefSysMixin):
     # system.  By default, all are NULL in the table.
     cs_bounds = models.PolygonField(null=True)
 
+    # [TODO] OracleSpatialRefSys > Meta
     class Meta:
         app_label = "gis"
         db_table = "CS_SRS"
         managed = False
 
+    # [TODO] OracleSpatialRefSys > wkt
     @property
     def wkt(self):
         return self.wktext

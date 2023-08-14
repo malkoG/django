@@ -6,6 +6,7 @@ here.
 """
 
 
+# [TODO] TemplateDoesNotExist
 class TemplateDoesNotExist(Exception):
     """
     The exception used when a template does not exist. Optional arguments:
@@ -25,6 +26,7 @@ class TemplateDoesNotExist(Exception):
         engines.
     """
 
+    # [TODO] TemplateDoesNotExist > __init__
     def __init__(self, msg, tried=None, backend=None, chain=None):
         self.backend = backend
         if tried is None:
@@ -36,6 +38,7 @@ class TemplateDoesNotExist(Exception):
         super().__init__(msg)
 
 
+# [TODO] TemplateSyntaxError
 class TemplateSyntaxError(Exception):
     """
     The exception used for syntax errors during parsing or rendering.

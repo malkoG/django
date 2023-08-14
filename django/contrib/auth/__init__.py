@@ -19,10 +19,12 @@ HASH_SESSION_KEY = "_auth_user_hash"
 REDIRECT_FIELD_NAME = "next"
 
 
+# [TODO] load_backend
 def load_backend(path):
     return import_string(path)()
 
 
+# [TODO] _get_backends
 def _get_backends(return_tuples=False):
     backends = []
     for backend_path in settings.AUTHENTICATION_BACKENDS:
@@ -36,10 +38,12 @@ def _get_backends(return_tuples=False):
     return backends
 
 
+# [TODO] get_backends
 def get_backends():
     return _get_backends(return_tuples=False)
 
 
+# [TODO] _clean_credentials
 @sensitive_variables("credentials")
 def _clean_credentials(credentials):
     """
@@ -56,12 +60,14 @@ def _clean_credentials(credentials):
     return credentials
 
 
+# [TODO] _get_user_session_key
 def _get_user_session_key(request):
     # This value in the session is always serialized to a string, so we need
     # to convert it back to Python whenever we access it.
     return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
 
 
+# [TODO] authenticate
 @sensitive_variables("credentials")
 def authenticate(request=None, **credentials):
     """
@@ -93,12 +99,14 @@ def authenticate(request=None, **credentials):
     )
 
 
+# [TODO] aauthenticate
 @sensitive_variables("credentials")
 async def aauthenticate(request=None, **credentials):
     """See authenticate()."""
     return await sync_to_async(authenticate)(request, **credentials)
 
 
+# [TODO] login
 def login(request, user, backend=None):
     """
     Persist a user id and a backend in the request. This way a user doesn't
@@ -152,11 +160,13 @@ def login(request, user, backend=None):
     user_logged_in.send(sender=user.__class__, request=request, user=user)
 
 
+# [TODO] alogin
 async def alogin(request, user, backend=None):
     """See login()."""
     return await sync_to_async(login)(request, user, backend)
 
 
+# [TODO] logout
 def logout(request):
     """
     Remove the authenticated user's ID from the request and flush their session
@@ -175,11 +185,13 @@ def logout(request):
         request.user = AnonymousUser()
 
 
+# [TODO] alogout
 async def alogout(request):
     """See logout()."""
     return await sync_to_async(logout)(request)
 
 
+# [TODO] get_user_model
 def get_user_model():
     """
     Return the User model that is active in this project.
@@ -197,6 +209,7 @@ def get_user_model():
         )
 
 
+# [TODO] get_user
 def get_user(request):
     """
     Return the user model instance associated with the given request session.
@@ -241,11 +254,13 @@ def get_user(request):
     return user or AnonymousUser()
 
 
+# [TODO] aget_user
 async def aget_user(request):
     """See get_user()."""
     return await sync_to_async(get_user)(request)
 
 
+# [TODO] get_permission_codename
 def get_permission_codename(action, opts):
     """
     Return the codename of the permission for the specified action.
@@ -253,6 +268,7 @@ def get_permission_codename(action, opts):
     return "%s_%s" % (action, opts.model_name)
 
 
+# [TODO] update_session_auth_hash
 def update_session_auth_hash(request, user):
     """
     Updating a user's password logs out all sessions for the user.
@@ -267,6 +283,7 @@ def update_session_auth_hash(request, user):
         request.session[HASH_SESSION_KEY] = user.get_session_auth_hash()
 
 
+# [TODO] aupdate_session_auth_hash
 async def aupdate_session_auth_hash(request, user):
     """See update_session_auth_hash()."""
     return await sync_to_async(update_session_auth_hash)(request, user)

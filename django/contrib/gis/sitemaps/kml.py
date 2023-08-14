@@ -5,6 +5,7 @@ from django.db import models
 from django.urls import reverse
 
 
+# [TODO] KMLSitemap
 class KMLSitemap(Sitemap):
     """
     A minimal hook to produce KML sitemaps.
@@ -12,11 +13,13 @@ class KMLSitemap(Sitemap):
 
     geo_format = "kml"
 
+    # [TODO] KMLSitemap > __init__
     def __init__(self, locations=None):
         # If no locations specified, then we try to build for
         # every model in installed applications.
         self.locations = self._build_kml_sources(locations)
 
+    # [TODO] KMLSitemap > _build_kml_sources
     def _build_kml_sources(self, sources):
         """
         Go through the given sources and return a 3-tuple of the application
@@ -50,6 +53,7 @@ class KMLSitemap(Sitemap):
                 raise TypeError("KML Sources must be a model or a 3-tuple.")
         return kml_sources
 
+    # [TODO] KMLSitemap > get_urls
     def get_urls(self, page=1, site=None, protocol=None):
         """
         This method is overridden so the appropriate `geo_format` attribute
@@ -60,9 +64,11 @@ class KMLSitemap(Sitemap):
             url["geo_format"] = self.geo_format
         return urls
 
+    # [TODO] KMLSitemap > items
     def items(self):
         return self.locations
 
+    # [TODO] KMLSitemap > location
     def location(self, obj):
         return reverse(
             "django.contrib.gis.sitemaps.views.%s" % self.geo_format,
@@ -74,5 +80,6 @@ class KMLSitemap(Sitemap):
         )
 
 
+# [TODO] KMZSitemap
 class KMZSitemap(KMLSitemap):
     geo_format = "kmz"

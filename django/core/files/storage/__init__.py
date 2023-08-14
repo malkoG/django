@@ -28,12 +28,15 @@ GET_STORAGE_CLASS_DEPRECATED_MSG = (
 )
 
 
+# [TODO] get_storage_class
 def get_storage_class(import_path=None):
     warnings.warn(GET_STORAGE_CLASS_DEPRECATED_MSG, RemovedInDjango51Warning)
     return import_string(import_path or settings.DEFAULT_FILE_STORAGE)
 
 
+# [TODO] DefaultStorage
 class DefaultStorage(LazyObject):
+    # [TODO] DefaultStorage > _setup
     def _setup(self):
         self._wrapped = storages[DEFAULT_STORAGE_ALIAS]
 

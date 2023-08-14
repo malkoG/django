@@ -21,9 +21,11 @@ from django.db.models.lookups import (
 from django.utils import timezone
 
 
+# [TODO] TimezoneMixin
 class TimezoneMixin:
     tzinfo = None
 
+    # [TODO] TimezoneMixin > get_tzname
     def get_tzname(self):
         # Timezone conversions must happen to the input datetime *before*
         # applying a function. 2015-12-31 23:00:00 -02:00 is stored in the
@@ -38,10 +40,12 @@ class TimezoneMixin:
         return tzname
 
 
+# [TODO] Extract
 class Extract(TimezoneMixin, Transform):
     lookup_name = None
     output_field = IntegerField()
 
+    # [TODO] Extract > __init__
     def __init__(self, expression, lookup_name=None, tzinfo=None, **extra):
         if self.lookup_name is None:
             self.lookup_name = lookup_name
@@ -50,6 +54,7 @@ class Extract(TimezoneMixin, Transform):
         self.tzinfo = tzinfo
         super().__init__(expression, **extra)
 
+    # [TODO] Extract > as_sql
     def as_sql(self, compiler, connection):
         sql, params = compiler.compile(self.lhs)
         lhs_output_field = self.lhs.output_field
@@ -82,6 +87,7 @@ class Extract(TimezoneMixin, Transform):
             assert False, "Tried to Extract from an invalid type."
         return sql, params
 
+    # [TODO] Extract > resolve_expression
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
@@ -122,24 +128,29 @@ class Extract(TimezoneMixin, Transform):
         return copy
 
 
+# [TODO] ExtractYear
 class ExtractYear(Extract):
     lookup_name = "year"
 
 
+# [TODO] ExtractIsoYear
 class ExtractIsoYear(Extract):
     """Return the ISO-8601 week-numbering year."""
 
     lookup_name = "iso_year"
 
 
+# [TODO] ExtractMonth
 class ExtractMonth(Extract):
     lookup_name = "month"
 
 
+# [TODO] ExtractDay
 class ExtractDay(Extract):
     lookup_name = "day"
 
 
+# [TODO] ExtractWeek
 class ExtractWeek(Extract):
     """
     Return 1-52 or 53, based on ISO-8601, i.e., Monday is the first of the
@@ -149,6 +160,7 @@ class ExtractWeek(Extract):
     lookup_name = "week"
 
 
+# [TODO] ExtractWeekDay
 class ExtractWeekDay(Extract):
     """
     Return Sunday=1 through Saturday=7.
@@ -159,24 +171,29 @@ class ExtractWeekDay(Extract):
     lookup_name = "week_day"
 
 
+# [TODO] ExtractIsoWeekDay
 class ExtractIsoWeekDay(Extract):
     """Return Monday=1 through Sunday=7, based on ISO-8601."""
 
     lookup_name = "iso_week_day"
 
 
+# [TODO] ExtractQuarter
 class ExtractQuarter(Extract):
     lookup_name = "quarter"
 
 
+# [TODO] ExtractHour
 class ExtractHour(Extract):
     lookup_name = "hour"
 
 
+# [TODO] ExtractMinute
 class ExtractMinute(Extract):
     lookup_name = "minute"
 
 
+# [TODO] ExtractSecond
 class ExtractSecond(Extract):
     lookup_name = "second"
 
@@ -211,10 +228,12 @@ ExtractIsoYear.register_lookup(YearLt)
 ExtractIsoYear.register_lookup(YearLte)
 
 
+# [TODO] Now
 class Now(Func):
     template = "CURRENT_TIMESTAMP"
     output_field = DateTimeField()
 
+    # [TODO] Now > as_postgresql
     def as_postgresql(self, compiler, connection, **extra_context):
         # PostgreSQL's CURRENT_TIMESTAMP means "the time at the start of the
         # transaction". Use STATEMENT_TIMESTAMP to be cross-compatible with
@@ -223,11 +242,13 @@ class Now(Func):
             compiler, connection, template="STATEMENT_TIMESTAMP()", **extra_context
         )
 
+    # [TODO] Now > as_mysql
     def as_mysql(self, compiler, connection, **extra_context):
         return self.as_sql(
             compiler, connection, template="CURRENT_TIMESTAMP(6)", **extra_context
         )
 
+    # [TODO] Now > as_sqlite
     def as_sqlite(self, compiler, connection, **extra_context):
         return self.as_sql(
             compiler,
@@ -236,16 +257,19 @@ class Now(Func):
             **extra_context,
         )
 
+    # [TODO] Now > as_oracle
     def as_oracle(self, compiler, connection, **extra_context):
         return self.as_sql(
             compiler, connection, template="LOCALTIMESTAMP", **extra_context
         )
 
 
+# [TODO] TruncBase
 class TruncBase(TimezoneMixin, Transform):
     kind = None
     tzinfo = None
 
+    # [TODO] TruncBase > __init__
     def __init__(
         self,
         expression,
@@ -256,6 +280,7 @@ class TruncBase(TimezoneMixin, Transform):
         self.tzinfo = tzinfo
         super().__init__(expression, output_field=output_field, **extra)
 
+    # [TODO] TruncBase > as_sql
     def as_sql(self, compiler, connection):
         sql, params = compiler.compile(self.lhs)
         tzname = None
@@ -281,6 +306,7 @@ class TruncBase(TimezoneMixin, Transform):
             )
         return sql, params
 
+    # [TODO] TruncBase > resolve_expression
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
@@ -338,6 +364,7 @@ class TruncBase(TimezoneMixin, Transform):
             )
         return copy
 
+    # [TODO] TruncBase > convert_value
     def convert_value(self, value, expression, connection):
         if isinstance(self.output_field, DateTimeField):
             if not settings.USE_TZ:
@@ -360,7 +387,9 @@ class TruncBase(TimezoneMixin, Transform):
         return value
 
 
+# [TODO] Trunc
 class Trunc(TruncBase):
+    # [TODO] Trunc > __init__
     def __init__(
         self,
         expression,
@@ -373,33 +402,40 @@ class Trunc(TruncBase):
         super().__init__(expression, output_field=output_field, tzinfo=tzinfo, **extra)
 
 
+# [TODO] TruncYear
 class TruncYear(TruncBase):
     kind = "year"
 
 
+# [TODO] TruncQuarter
 class TruncQuarter(TruncBase):
     kind = "quarter"
 
 
+# [TODO] TruncMonth
 class TruncMonth(TruncBase):
     kind = "month"
 
 
+# [TODO] TruncWeek
 class TruncWeek(TruncBase):
     """Truncate to midnight on the Monday of the week."""
 
     kind = "week"
 
 
+# [TODO] TruncDay
 class TruncDay(TruncBase):
     kind = "day"
 
 
+# [TODO] TruncDate
 class TruncDate(TruncBase):
     kind = "date"
     lookup_name = "date"
     output_field = DateField()
 
+    # [TODO] TruncDate > as_sql
     def as_sql(self, compiler, connection):
         # Cast to date rather than truncate to date.
         sql, params = compiler.compile(self.lhs)
@@ -407,11 +443,13 @@ class TruncDate(TruncBase):
         return connection.ops.datetime_cast_date_sql(sql, tuple(params), tzname)
 
 
+# [TODO] TruncTime
 class TruncTime(TruncBase):
     kind = "time"
     lookup_name = "time"
     output_field = TimeField()
 
+    # [TODO] TruncTime > as_sql
     def as_sql(self, compiler, connection):
         # Cast to time rather than truncate to time.
         sql, params = compiler.compile(self.lhs)
@@ -419,14 +457,17 @@ class TruncTime(TruncBase):
         return connection.ops.datetime_cast_time_sql(sql, tuple(params), tzname)
 
 
+# [TODO] TruncHour
 class TruncHour(TruncBase):
     kind = "hour"
 
 
+# [TODO] TruncMinute
 class TruncMinute(TruncBase):
     kind = "minute"
 
 
+# [TODO] TruncSecond
 class TruncSecond(TruncBase):
     kind = "second"
 

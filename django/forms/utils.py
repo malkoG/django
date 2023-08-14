@@ -10,6 +10,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] pretty_name
 def pretty_name(name):
     """Convert 'first_name' to 'First name'."""
     if not name:
@@ -17,6 +18,7 @@ def pretty_name(name):
     return name.replace("_", " ").capitalize()
 
 
+# [TODO] flatatt
 def flatatt(attrs):
     """
     Convert a dictionary of attributes to a single string.
@@ -42,12 +44,15 @@ def flatatt(attrs):
     )
 
 
+# [TODO] RenderableMixin
 class RenderableMixin:
+    # [TODO] RenderableMixin > get_context
     def get_context(self):
         raise NotImplementedError(
             "Subclasses of RenderableMixin must provide a get_context() method."
         )
 
+    # [TODO] RenderableMixin > render
     def render(self, template_name=None, context=None, renderer=None):
         renderer = renderer or self.renderer
         template = template_name or self.template_name
@@ -58,20 +63,25 @@ class RenderableMixin:
     __html__ = render
 
 
+# [TODO] RenderableFieldMixin
 class RenderableFieldMixin(RenderableMixin):
+    # [TODO] RenderableFieldMixin > as_field_group
     def as_field_group(self):
         return self.render()
 
+    # [TODO] RenderableFieldMixin > as_hidden
     def as_hidden(self):
         raise NotImplementedError(
             "Subclasses of RenderableFieldMixin must provide an as_hidden() method."
         )
 
+    # [TODO] RenderableFieldMixin > as_widget
     def as_widget(self):
         raise NotImplementedError(
             "Subclasses of RenderableFieldMixin must provide an as_widget() method."
         )
 
+    # [TODO] RenderableFieldMixin > __str__
     def __str__(self):
         """Render this field as an HTML widget."""
         if self.field.show_hidden_initial:
@@ -81,35 +91,45 @@ class RenderableFieldMixin(RenderableMixin):
     __html__ = __str__
 
 
+# [TODO] RenderableFormMixin
 class RenderableFormMixin(RenderableMixin):
+    # [TODO] RenderableFormMixin > as_p
     def as_p(self):
         """Render as <p> elements."""
         return self.render(self.template_name_p)
 
+    # [TODO] RenderableFormMixin > as_table
     def as_table(self):
         """Render as <tr> elements excluding the surrounding <table> tag."""
         return self.render(self.template_name_table)
 
+    # [TODO] RenderableFormMixin > as_ul
     def as_ul(self):
         """Render as <li> elements excluding the surrounding <ul> tag."""
         return self.render(self.template_name_ul)
 
+    # [TODO] RenderableFormMixin > as_div
     def as_div(self):
         """Render as <div> elements."""
         return self.render(self.template_name_div)
 
 
+# [TODO] RenderableErrorMixin
 class RenderableErrorMixin(RenderableMixin):
+    # [TODO] RenderableErrorMixin > as_json
     def as_json(self, escape_html=False):
         return json.dumps(self.get_json_data(escape_html))
 
+    # [TODO] RenderableErrorMixin > as_text
     def as_text(self):
         return self.render(self.template_name_text)
 
+    # [TODO] RenderableErrorMixin > as_ul
     def as_ul(self):
         return self.render(self.template_name_ul)
 
 
+# [TODO] ErrorDict
 class ErrorDict(dict, RenderableErrorMixin):
     """
     A collection of errors that knows how to display itself in various formats.
@@ -121,16 +141,20 @@ class ErrorDict(dict, RenderableErrorMixin):
     template_name_text = "django/forms/errors/dict/text.txt"
     template_name_ul = "django/forms/errors/dict/ul.html"
 
+    # [TODO] ErrorDict > __init__
     def __init__(self, *args, renderer=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.renderer = renderer or get_default_renderer()
 
+    # [TODO] ErrorDict > as_data
     def as_data(self):
         return {f: e.as_data() for f, e in self.items()}
 
+    # [TODO] ErrorDict > get_json_data
     def get_json_data(self, escape_html=False):
         return {f: e.get_json_data(escape_html) for f, e in self.items()}
 
+    # [TODO] ErrorDict > get_context
     def get_context(self):
         return {
             "errors": self.items(),
@@ -138,6 +162,7 @@ class ErrorDict(dict, RenderableErrorMixin):
         }
 
 
+# [TODO] ErrorList
 class ErrorList(UserList, list, RenderableErrorMixin):
     """
     A collection of errors that knows how to display itself in various formats.
@@ -147,6 +172,7 @@ class ErrorList(UserList, list, RenderableErrorMixin):
     template_name_text = "django/forms/errors/list/text.txt"
     template_name_ul = "django/forms/errors/list/ul.html"
 
+    # [TODO] ErrorList > __init__
     def __init__(self, initlist=None, error_class=None, renderer=None):
         super().__init__(initlist)
 
@@ -156,14 +182,17 @@ class ErrorList(UserList, list, RenderableErrorMixin):
             self.error_class = "errorlist {}".format(error_class)
         self.renderer = renderer or get_default_renderer()
 
+    # [TODO] ErrorList > as_data
     def as_data(self):
         return ValidationError(self.data).error_list
 
+    # [TODO] ErrorList > copy
     def copy(self):
         copy = super().copy()
         copy.error_class = self.error_class
         return copy
 
+    # [TODO] ErrorList > get_json_data
     def get_json_data(self, escape_html=False):
         errors = []
         for error in self.as_data():
@@ -176,27 +205,33 @@ class ErrorList(UserList, list, RenderableErrorMixin):
             )
         return errors
 
+    # [TODO] ErrorList > get_context
     def get_context(self):
         return {
             "errors": self,
             "error_class": self.error_class,
         }
 
+    # [TODO] ErrorList > __repr__
     def __repr__(self):
         return repr(list(self))
 
+    # [TODO] ErrorList > __contains__
     def __contains__(self, item):
         return item in list(self)
 
+    # [TODO] ErrorList > __eq__
     def __eq__(self, other):
         return list(self) == other
 
+    # [TODO] ErrorList > __getitem__
     def __getitem__(self, i):
         error = self.data[i]
         if isinstance(error, ValidationError):
             return next(iter(error))
         return error
 
+    # [TODO] ErrorList > __reduce_ex__
     def __reduce_ex__(self, *args, **kwargs):
         # The `list` reduce function returns an iterator as the fourth element
         # that is normally used for repopulating. Since we only inherit from
@@ -210,6 +245,7 @@ class ErrorList(UserList, list, RenderableErrorMixin):
 # Utilities for time zone support in DateTimeField et al.
 
 
+# [TODO] from_current_timezone
 def from_current_timezone(value):
     """
     When time zone support is enabled, convert naive datetimes
@@ -234,6 +270,7 @@ def from_current_timezone(value):
     return value
 
 
+# [TODO] to_current_timezone
 def to_current_timezone(value):
     """
     When time zone support is enabled, convert aware datetimes

@@ -4,6 +4,7 @@ from django.contrib import auth
 UserModel = auth.get_user_model()
 
 
+# [TODO] check_password
 def check_password(environ, username, password):
     """
     Authenticate against Django's auth database.
@@ -26,6 +27,7 @@ def check_password(environ, username, password):
         db.close_old_connections()
 
 
+# [TODO] groups_for_user
 def groups_for_user(environ, username):
     """
     Authorize a user based on groups

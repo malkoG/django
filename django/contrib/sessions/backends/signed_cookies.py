@@ -2,7 +2,9 @@ from django.contrib.sessions.backends.base import SessionBase
 from django.core import signing
 
 
+# [TODO] SessionStore
 class SessionStore(SessionBase):
+    # [TODO] SessionStore > load
     def load(self):
         """
         Load the data from the key itself instead of fetching from some
@@ -23,6 +25,7 @@ class SessionStore(SessionBase):
             self.create()
         return {}
 
+    # [TODO] SessionStore > create
     def create(self):
         """
         To create a new key, set the modified flag so that the cookie is set
@@ -30,6 +33,7 @@ class SessionStore(SessionBase):
         """
         self.modified = True
 
+    # [TODO] SessionStore > save
     def save(self, must_create=False):
         """
         To save, get the session key as a securely signed string and then set
@@ -39,6 +43,7 @@ class SessionStore(SessionBase):
         self._session_key = self._get_session_key()
         self.modified = True
 
+    # [TODO] SessionStore > exists
     def exists(self, session_key=None):
         """
         This method makes sense when you're talking to a shared resource, but
@@ -47,6 +52,7 @@ class SessionStore(SessionBase):
         """
         return False
 
+    # [TODO] SessionStore > delete
     def delete(self, session_key=None):
         """
         To delete, clear the session key and the underlying data structure
@@ -57,6 +63,7 @@ class SessionStore(SessionBase):
         self._session_cache = {}
         self.modified = True
 
+    # [TODO] SessionStore > cycle_key
     def cycle_key(self):
         """
         Keep the same data but with a new key. Call save() and it will
@@ -64,6 +71,7 @@ class SessionStore(SessionBase):
         """
         self.save()
 
+    # [TODO] SessionStore > _get_session_key
     def _get_session_key(self):
         """
         Instead of generating a random string, generate a secure url-safe
@@ -76,6 +84,7 @@ class SessionStore(SessionBase):
             serializer=self.serializer,
         )
 
+    # [TODO] SessionStore > clear_expired
     @classmethod
     def clear_expired(cls):
         pass

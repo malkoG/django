@@ -26,6 +26,7 @@ from django.utils.functional import cached_property
 logger = logging.getLogger("django.request")
 
 
+# [TODO] get_script_prefix
 def get_script_prefix(scope):
     """
     Return the script prefix to use from either the scope or a setting.
@@ -35,6 +36,7 @@ def get_script_prefix(scope):
     return scope.get("root_path", "") or ""
 
 
+# [TODO] ASGIRequest
 class ASGIRequest(HttpRequest):
     """
     Custom request subclass that decodes from an ASGI-standard request dict
@@ -45,6 +47,7 @@ class ASGIRequest(HttpRequest):
     # body and aborts.
     body_receive_timeout = 60
 
+    # [TODO] ASGIRequest > __init__
     def __init__(self, scope, body_file):
         self.scope = scope
         self._post_parse_error = False
@@ -112,21 +115,26 @@ class ASGIRequest(HttpRequest):
         # Other bits.
         self.resolver_match = None
 
+    # [TODO] ASGIRequest > GET
     @cached_property
     def GET(self):
         return QueryDict(self.META["QUERY_STRING"])
 
+    # [TODO] ASGIRequest > _get_scheme
     def _get_scheme(self):
         return self.scope.get("scheme") or super()._get_scheme()
 
+    # [TODO] ASGIRequest > _get_post
     def _get_post(self):
         if not hasattr(self, "_post"):
             self._load_post_and_files()
         return self._post
 
+    # [TODO] ASGIRequest > _set_post
     def _set_post(self, post):
         self._post = post
 
+    # [TODO] ASGIRequest > _get_files
     def _get_files(self):
         if not hasattr(self, "_files"):
             self._load_post_and_files()
@@ -135,15 +143,18 @@ class ASGIRequest(HttpRequest):
     POST = property(_get_post, _set_post)
     FILES = property(_get_files)
 
+    # [TODO] ASGIRequest > COOKIES
     @cached_property
     def COOKIES(self):
         return parse_cookie(self.META.get("HTTP_COOKIE", ""))
 
+    # [TODO] ASGIRequest > close
     def close(self):
         super().close()
         self._stream.close()
 
 
+# [TODO] ASGIHandler
 class ASGIHandler(base.BaseHandler):
     """Handler for ASGI requests."""
 
@@ -151,10 +162,12 @@ class ASGIHandler(base.BaseHandler):
     # Size to chunk response bodies into for multiple response messages.
     chunk_size = 2**16
 
+    # [TODO] ASGIHandler > __init__
     def __init__(self):
         super().__init__()
         self.load_middleware(is_async=True)
 
+    # [TODO] ASGIHandler > __call__
     async def __call__(self, scope, receive, send):
         """
         Async entrypoint - parses the request and hands off to get_response.
@@ -169,6 +182,7 @@ class ASGIHandler(base.BaseHandler):
         async with ThreadSensitiveContext():
             await self.handle(scope, receive, send)
 
+    # [TODO] ASGIHandler > handle
     async def handle(self, scope, receive, send):
         """
         Handles the ASGI request. Called via the __call__ method.
@@ -212,6 +226,7 @@ class ASGIHandler(base.BaseHandler):
         # Send the response.
         await self.send_response(response, send)
 
+    # [TODO] ASGIHandler > listen_for_disconnect
     async def listen_for_disconnect(self, receive):
         """Listen for disconnect from the client."""
         message = await receive()
@@ -220,6 +235,7 @@ class ASGIHandler(base.BaseHandler):
         # This should never happen.
         assert False, "Invalid ASGI message after request body: %s" % message["type"]
 
+    # [TODO] ASGIHandler > run_get_response
     async def run_get_response(self, request):
         """Get async response."""
         # Use the async mode of BaseHandler.
@@ -231,6 +247,7 @@ class ASGIHandler(base.BaseHandler):
             response.block_size = self.chunk_size
         return response
 
+    # [TODO] ASGIHandler > read_body
     async def read_body(self, receive):
         """Reads an HTTP body from an ASGI connection."""
         # Use the tempfile that auto rolls-over to a disk file as it fills up.
@@ -252,6 +269,7 @@ class ASGIHandler(base.BaseHandler):
         body_file.seek(0)
         return body_file
 
+    # [TODO] ASGIHandler > create_request
     def create_request(self, scope, body_file):
         """
         Create the Request object and returns either (request, None) or
@@ -269,6 +287,7 @@ class ASGIHandler(base.BaseHandler):
         except RequestDataTooBig:
             return None, HttpResponse("413 Payload too large", status=413)
 
+    # [TODO] ASGIHandler > handle_uncaught_exception
     def handle_uncaught_exception(self, request, resolver, exc_info):
         """Last-chance handler for exceptions."""
         # There's no WSGI server to catch the exception further up
@@ -281,6 +300,7 @@ class ASGIHandler(base.BaseHandler):
                 content_type="text/plain",
             )
 
+    # [TODO] ASGIHandler > send_response
     async def send_response(self, response, send):
         """Encode and send a response out over ASGI."""
         # Collect cookies into headers. Have to preserve header case as there
@@ -337,6 +357,7 @@ class ASGIHandler(base.BaseHandler):
                 )
         await sync_to_async(response.close, thread_sensitive=True)()
 
+    # [TODO] ASGIHandler > chunk_bytes
     @classmethod
     def chunk_bytes(cls, data):
         """

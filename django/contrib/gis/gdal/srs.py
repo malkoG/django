@@ -37,11 +37,13 @@ from django.contrib.gis.gdal.prototypes import srs as capi
 from django.utils.encoding import force_bytes, force_str
 
 
+# [TODO] AxisOrder
 class AxisOrder(IntEnum):
     TRADITIONAL = 0
     AUTHORITY = 1
 
 
+# [TODO] SpatialReference
 class SpatialReference(GDALBase):
     """
     A wrapper for the OGRSpatialReference object. According to the GDAL web site,
@@ -51,6 +53,7 @@ class SpatialReference(GDALBase):
 
     destructor = capi.release_srs
 
+    # [TODO] SpatialReference > __init__
     def __init__(self, srs_input="", srs_type="user", axis_order=None):
         """
         Create a GDAL OSR Spatial Reference object from the given input.
@@ -114,6 +117,7 @@ class SpatialReference(GDALBase):
         elif srs_type == "epsg":
             self.import_epsg(srs_input)
 
+    # [TODO] SpatialReference > __getitem__
     def __getitem__(self, target):
         """
         Return the value of the given string attribute node, None if the node
@@ -143,11 +147,13 @@ class SpatialReference(GDALBase):
         else:
             return self.attr_value(target)
 
+    # [TODO] SpatialReference > __str__
     def __str__(self):
         "Use 'pretty' WKT."
         return self.pretty_wkt
 
     # #### SpatialReference Methods ####
+    # [TODO] SpatialReference > attr_value
     def attr_value(self, target, index=0):
         """
         The attribute value for the given target node (e.g. 'PROJCS'). The index
@@ -157,26 +163,31 @@ class SpatialReference(GDALBase):
             raise TypeError
         return capi.get_attr_value(self.ptr, force_bytes(target), index)
 
+    # [TODO] SpatialReference > auth_name
     def auth_name(self, target):
         "Return the authority name for the given string target node."
         return capi.get_auth_name(
             self.ptr, target if target is None else force_bytes(target)
         )
 
+    # [TODO] SpatialReference > auth_code
     def auth_code(self, target):
         "Return the authority code for the given string target node."
         return capi.get_auth_code(
             self.ptr, target if target is None else force_bytes(target)
         )
 
+    # [TODO] SpatialReference > clone
     def clone(self):
         "Return a clone of this SpatialReference object."
         return SpatialReference(capi.clone_srs(self.ptr), axis_order=self.axis_order)
 
+    # [TODO] SpatialReference > from_esri
     def from_esri(self):
         "Morph this SpatialReference from ESRI's format to EPSG."
         capi.morph_from_esri(self.ptr)
 
+    # [TODO] SpatialReference > identify_epsg
     def identify_epsg(self):
         """
         This method inspects the WKT of this SpatialReference, and will
@@ -184,15 +195,18 @@ class SpatialReference(GDALBase):
         """
         capi.identify_epsg(self.ptr)
 
+    # [TODO] SpatialReference > to_esri
     def to_esri(self):
         "Morph this SpatialReference to ESRI's format."
         capi.morph_to_esri(self.ptr)
 
+    # [TODO] SpatialReference > validate
     def validate(self):
         "Check to see if the given spatial reference is valid."
         capi.srs_validate(self.ptr)
 
     # #### Name & SRID properties ####
+    # [TODO] SpatialReference > name
     @property
     def name(self):
         "Return the name of this Spatial Reference."
@@ -205,6 +219,7 @@ class SpatialReference(GDALBase):
         else:
             return None
 
+    # [TODO] SpatialReference > srid
     @property
     def srid(self):
         "Return the SRID of top-level authority, or None if undefined."
@@ -214,30 +229,35 @@ class SpatialReference(GDALBase):
             return None
 
     # #### Unit Properties ####
+    # [TODO] SpatialReference > linear_name
     @property
     def linear_name(self):
         "Return the name of the linear units."
         units, name = capi.linear_units(self.ptr, byref(c_char_p()))
         return name
 
+    # [TODO] SpatialReference > linear_units
     @property
     def linear_units(self):
         "Return the value of the linear units."
         units, name = capi.linear_units(self.ptr, byref(c_char_p()))
         return units
 
+    # [TODO] SpatialReference > angular_name
     @property
     def angular_name(self):
         "Return the name of the angular units."
         units, name = capi.angular_units(self.ptr, byref(c_char_p()))
         return name
 
+    # [TODO] SpatialReference > angular_units
     @property
     def angular_units(self):
         "Return the value of the angular units."
         units, name = capi.angular_units(self.ptr, byref(c_char_p()))
         return units
 
+    # [TODO] SpatialReference > units
     @property
     def units(self):
         """
@@ -254,6 +274,7 @@ class SpatialReference(GDALBase):
         return (units, name)
 
     # #### Spheroid/Ellipsoid Properties ####
+    # [TODO] SpatialReference > ellipsoid
     @property
     def ellipsoid(self):
         """
@@ -262,22 +283,26 @@ class SpatialReference(GDALBase):
         """
         return (self.semi_major, self.semi_minor, self.inverse_flattening)
 
+    # [TODO] SpatialReference > semi_major
     @property
     def semi_major(self):
         "Return the Semi Major Axis for this Spatial Reference."
         return capi.semi_major(self.ptr, byref(c_int()))
 
+    # [TODO] SpatialReference > semi_minor
     @property
     def semi_minor(self):
         "Return the Semi Minor Axis for this Spatial Reference."
         return capi.semi_minor(self.ptr, byref(c_int()))
 
+    # [TODO] SpatialReference > inverse_flattening
     @property
     def inverse_flattening(self):
         "Return the Inverse Flattening for this Spatial Reference."
         return capi.invflattening(self.ptr, byref(c_int()))
 
     # #### Boolean Properties ####
+    # [TODO] SpatialReference > geographic
     @property
     def geographic(self):
         """
@@ -286,11 +311,13 @@ class SpatialReference(GDALBase):
         """
         return bool(capi.isgeographic(self.ptr))
 
+    # [TODO] SpatialReference > local
     @property
     def local(self):
         "Return True if this SpatialReference is local (root node is LOCAL_CS)."
         return bool(capi.islocal(self.ptr))
 
+    # [TODO] SpatialReference > projected
     @property
     def projected(self):
         """
@@ -300,57 +327,69 @@ class SpatialReference(GDALBase):
         return bool(capi.isprojected(self.ptr))
 
     # #### Import Routines #####
+    # [TODO] SpatialReference > import_epsg
     def import_epsg(self, epsg):
         "Import the Spatial Reference from the EPSG code (an integer)."
         capi.from_epsg(self.ptr, epsg)
 
+    # [TODO] SpatialReference > import_proj
     def import_proj(self, proj):
         """Import the Spatial Reference from a PROJ string."""
         capi.from_proj(self.ptr, proj)
 
+    # [TODO] SpatialReference > import_user_input
     def import_user_input(self, user_input):
         "Import the Spatial Reference from the given user input string."
         capi.from_user_input(self.ptr, force_bytes(user_input))
 
+    # [TODO] SpatialReference > import_wkt
     def import_wkt(self, wkt):
         "Import the Spatial Reference from OGC WKT (string)"
         capi.from_wkt(self.ptr, byref(c_char_p(force_bytes(wkt))))
 
+    # [TODO] SpatialReference > import_xml
     def import_xml(self, xml):
         "Import the Spatial Reference from an XML string."
         capi.from_xml(self.ptr, xml)
 
     # #### Export Properties ####
+    # [TODO] SpatialReference > wkt
     @property
     def wkt(self):
         "Return the WKT representation of this Spatial Reference."
         return capi.to_wkt(self.ptr, byref(c_char_p()))
 
+    # [TODO] SpatialReference > pretty_wkt
     @property
     def pretty_wkt(self, simplify=0):
         "Return the 'pretty' representation of the WKT."
         return capi.to_pretty_wkt(self.ptr, byref(c_char_p()), simplify)
 
+    # [TODO] SpatialReference > proj
     @property
     def proj(self):
         """Return the PROJ representation for this Spatial Reference."""
         return capi.to_proj(self.ptr, byref(c_char_p()))
 
+    # [TODO] SpatialReference > proj4
     @property
     def proj4(self):
         "Alias for proj()."
         return self.proj
 
+    # [TODO] SpatialReference > xml
     @property
     def xml(self, dialect=""):
         "Return the XML representation of this Spatial Reference."
         return capi.to_xml(self.ptr, byref(c_char_p()), force_bytes(dialect))
 
 
+# [TODO] CoordTransform
 class CoordTransform(GDALBase):
     "The coordinate system transformation object."
     destructor = capi.destroy_ct
 
+    # [TODO] CoordTransform > __init__
     def __init__(self, source, target):
         "Initialize on a source and target SpatialReference objects."
         if not isinstance(source, SpatialReference) or not isinstance(
@@ -361,5 +400,6 @@ class CoordTransform(GDALBase):
         self._srs1_name = source.name
         self._srs2_name = target.name
 
+    # [TODO] CoordTransform > __str__
     def __str__(self):
         return 'Transform from "%s" to "%s"' % (self._srs1_name, self._srs2_name)

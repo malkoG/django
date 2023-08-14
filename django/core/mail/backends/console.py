@@ -7,12 +7,15 @@ import threading
 from django.core.mail.backends.base import BaseEmailBackend
 
 
+# [TODO] EmailBackend
 class EmailBackend(BaseEmailBackend):
+    # [TODO] EmailBackend > __init__
     def __init__(self, *args, **kwargs):
         self.stream = kwargs.pop("stream", sys.stdout)
         self._lock = threading.RLock()
         super().__init__(*args, **kwargs)
 
+    # [TODO] EmailBackend > write_message
     def write_message(self, message):
         msg = message.message()
         msg_data = msg.as_bytes()
@@ -24,6 +27,7 @@ class EmailBackend(BaseEmailBackend):
         self.stream.write("-" * 79)
         self.stream.write("\n")
 
+    # [TODO] EmailBackend > send_messages
     def send_messages(self, email_messages):
         """Write all messages to the stream in a thread-safe way."""
         if not email_messages:

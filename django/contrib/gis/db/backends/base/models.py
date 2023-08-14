@@ -1,12 +1,14 @@
 from django.contrib.gis import gdal
 
 
+# [TODO] SpatialRefSysMixin
 class SpatialRefSysMixin:
     """
     The SpatialRefSysMixin is a class used by the database-dependent
     SpatialRefSys objects to reduce redundant code.
     """
 
+    # [TODO] SpatialRefSysMixin > srs
     @property
     def srs(self):
         """
@@ -37,6 +39,7 @@ class SpatialRefSysMixin:
                 % (self.wkt, msg)
             )
 
+    # [TODO] SpatialRefSysMixin > ellipsoid
     @property
     def ellipsoid(self):
         """
@@ -45,56 +48,67 @@ class SpatialRefSysMixin:
         """
         return self.srs.ellipsoid
 
+    # [TODO] SpatialRefSysMixin > name
     @property
     def name(self):
         "Return the projection name."
         return self.srs.name
 
+    # [TODO] SpatialRefSysMixin > spheroid
     @property
     def spheroid(self):
         "Return the spheroid name for this spatial reference."
         return self.srs["spheroid"]
 
+    # [TODO] SpatialRefSysMixin > datum
     @property
     def datum(self):
         "Return the datum for this spatial reference."
         return self.srs["datum"]
 
+    # [TODO] SpatialRefSysMixin > projected
     @property
     def projected(self):
         "Is this Spatial Reference projected?"
         return self.srs.projected
 
+    # [TODO] SpatialRefSysMixin > local
     @property
     def local(self):
         "Is this Spatial Reference local?"
         return self.srs.local
 
+    # [TODO] SpatialRefSysMixin > geographic
     @property
     def geographic(self):
         "Is this Spatial Reference geographic?"
         return self.srs.geographic
 
+    # [TODO] SpatialRefSysMixin > linear_name
     @property
     def linear_name(self):
         "Return the linear units name."
         return self.srs.linear_name
 
+    # [TODO] SpatialRefSysMixin > linear_units
     @property
     def linear_units(self):
         "Return the linear units."
         return self.srs.linear_units
 
+    # [TODO] SpatialRefSysMixin > angular_name
     @property
     def angular_name(self):
         "Return the name of the angular units."
         return self.srs.angular_name
 
+    # [TODO] SpatialRefSysMixin > angular_units
     @property
     def angular_units(self):
         "Return the angular units."
         return self.srs.angular_units
 
+    # [TODO] SpatialRefSysMixin > units
     @property
     def units(self):
         "Return a tuple of the units and the name."
@@ -105,6 +119,7 @@ class SpatialRefSysMixin:
         else:
             return (None, None)
 
+    # [TODO] SpatialRefSysMixin > get_units
     @classmethod
     def get_units(cls, wkt):
         """
@@ -113,6 +128,7 @@ class SpatialRefSysMixin:
         """
         return gdal.SpatialReference(wkt).units
 
+    # [TODO] SpatialRefSysMixin > get_spheroid
     @classmethod
     def get_spheroid(cls, wkt, string=True):
         """
@@ -133,6 +149,7 @@ class SpatialRefSysMixin:
                 radius, flattening = sphere_params
             return 'SPHEROID["%s",%s,%s]' % (sphere_name, radius, flattening)
 
+    # [TODO] SpatialRefSysMixin > __str__
     def __str__(self):
         """
         Return the string representation, a 'pretty' OGC WKT.

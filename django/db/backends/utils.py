@@ -12,13 +12,16 @@ from django.utils.dateparse import parse_time
 logger = logging.getLogger("django.db.backends")
 
 
+# [TODO] CursorWrapper
 class CursorWrapper:
+    # [TODO] CursorWrapper > __init__
     def __init__(self, cursor, db):
         self.cursor = cursor
         self.db = db
 
     WRAP_ERROR_ATTRS = frozenset(["fetchone", "fetchmany", "fetchall", "nextset"])
 
+    # [TODO] CursorWrapper > __getattr__
     def __getattr__(self, attr):
         cursor_attr = getattr(self.cursor, attr)
         if attr in CursorWrapper.WRAP_ERROR_ATTRS:
@@ -26,13 +29,16 @@ class CursorWrapper:
         else:
             return cursor_attr
 
+    # [TODO] CursorWrapper > __iter__
     def __iter__(self):
         with self.db.wrap_database_errors:
             yield from self.cursor
 
+    # [TODO] CursorWrapper > __enter__
     def __enter__(self):
         return self
 
+    # [TODO] CursorWrapper > __exit__
     def __exit__(self, type, value, traceback):
         # Close instead of passing through to avoid backend-specific behavior
         # (#17671). Catch errors liberally because errors in cleanup code
@@ -45,6 +51,7 @@ class CursorWrapper:
     # The following methods cannot be implemented in __getattr__, because the
     # code must run when the method is invoked, not just when it is accessed.
 
+    # [TODO] CursorWrapper > callproc
     def callproc(self, procname, params=None, kparams=None):
         # Keyword parameters for callproc aren't supported in PEP 249, but the
         # database driver may support them (e.g. oracledb).
@@ -63,22 +70,26 @@ class CursorWrapper:
                 params = params or ()
                 return self.cursor.callproc(procname, params, kparams)
 
+    # [TODO] CursorWrapper > execute
     def execute(self, sql, params=None):
         return self._execute_with_wrappers(
             sql, params, many=False, executor=self._execute
         )
 
+    # [TODO] CursorWrapper > executemany
     def executemany(self, sql, param_list):
         return self._execute_with_wrappers(
             sql, param_list, many=True, executor=self._executemany
         )
 
+    # [TODO] CursorWrapper > _execute_with_wrappers
     def _execute_with_wrappers(self, sql, params, many, executor):
         context = {"connection": self.db, "cursor": self}
         for wrapper in reversed(self.db.execute_wrappers):
             executor = functools.partial(wrapper, executor)
         return executor(sql, params, many, context)
 
+    # [TODO] CursorWrapper > _execute
     def _execute(self, sql, params, *ignored_wrapper_args):
         self.db.validate_no_broken_transaction()
         with self.db.wrap_database_errors:
@@ -88,23 +99,28 @@ class CursorWrapper:
             else:
                 return self.cursor.execute(sql, params)
 
+    # [TODO] CursorWrapper > _executemany
     def _executemany(self, sql, param_list, *ignored_wrapper_args):
         self.db.validate_no_broken_transaction()
         with self.db.wrap_database_errors:
             return self.cursor.executemany(sql, param_list)
 
 
+# [TODO] CursorDebugWrapper
 class CursorDebugWrapper(CursorWrapper):
     # XXX callproc isn't instrumented at this time.
 
+    # [TODO] CursorDebugWrapper > execute
     def execute(self, sql, params=None):
         with self.debug_sql(sql, params, use_last_executed_query=True):
             return super().execute(sql, params)
 
+    # [TODO] CursorDebugWrapper > executemany
     def executemany(self, sql, param_list):
         with self.debug_sql(sql, param_list, many=True):
             return super().executemany(sql, param_list)
 
+    # [TODO] CursorDebugWrapper > debug_sql
     @contextmanager
     def debug_sql(
         self, sql=None, params=None, use_last_executed_query=False, many=False
@@ -143,6 +159,7 @@ class CursorDebugWrapper(CursorWrapper):
             )
 
 
+# [TODO] debug_transaction
 @contextmanager
 def debug_transaction(connection, sql):
     start = time.monotonic()
@@ -172,6 +189,7 @@ def debug_transaction(connection, sql):
             )
 
 
+# [TODO] split_tzname_delta
 def split_tzname_delta(tzname):
     """
     Split a time zone name into a 3-tuple of (name, sign, offset).
@@ -189,12 +207,14 @@ def split_tzname_delta(tzname):
 ###############################################
 
 
+# [TODO] typecast_date
 def typecast_date(s):
     return (
         datetime.date(*map(int, s.split("-"))) if s else None
     )  # return None if s is null
 
 
+# [TODO] typecast_time
 def typecast_time(s):  # does NOT store time zone information
     if not s:
         return None
@@ -208,6 +228,7 @@ def typecast_time(s):  # does NOT store time zone information
     )
 
 
+# [TODO] typecast_timestamp
 def typecast_timestamp(s):  # does NOT store time zone information
     # "2005-07-29 15:48:00.590358-05"
     # "2005-07-29 09:56:00-05"
@@ -244,6 +265,7 @@ def typecast_timestamp(s):  # does NOT store time zone information
 ###############################################
 
 
+# [TODO] split_identifier
 def split_identifier(identifier):
     """
     Split an SQL identifier into a two element tuple of (namespace, name).
@@ -258,6 +280,7 @@ def split_identifier(identifier):
     return namespace.strip('"'), name.strip('"')
 
 
+# [TODO] truncate_name
 def truncate_name(identifier, length=None, hash_len=4):
     """
     Shorten an SQL identifier to a repeatable mangled version with the given
@@ -279,6 +302,7 @@ def truncate_name(identifier, length=None, hash_len=4):
     )
 
 
+# [TODO] names_digest
 def names_digest(*args, length):
     """
     Generate a 32-bit digest of a set of arguments that can be used to shorten
@@ -290,6 +314,7 @@ def names_digest(*args, length):
     return h.hexdigest()[:length]
 
 
+# [TODO] format_number
 def format_number(value, max_digits, decimal_places):
     """
     Format a number into a string with the requisite number of digits and
@@ -310,6 +335,7 @@ def format_number(value, max_digits, decimal_places):
     return "{:f}".format(value)
 
 
+# [TODO] strip_quotes
 def strip_quotes(table_name):
     """
     Strip quotes off of quoted table names to make them safe for use in index

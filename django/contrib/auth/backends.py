@@ -5,34 +5,43 @@ from django.db.models import Exists, OuterRef, Q
 UserModel = get_user_model()
 
 
+# [TODO] BaseBackend
 class BaseBackend:
+    # [TODO] BaseBackend > authenticate
     def authenticate(self, request, **kwargs):
         return None
 
+    # [TODO] BaseBackend > get_user
     def get_user(self, user_id):
         return None
 
+    # [TODO] BaseBackend > get_user_permissions
     def get_user_permissions(self, user_obj, obj=None):
         return set()
 
+    # [TODO] BaseBackend > get_group_permissions
     def get_group_permissions(self, user_obj, obj=None):
         return set()
 
+    # [TODO] BaseBackend > get_all_permissions
     def get_all_permissions(self, user_obj, obj=None):
         return {
             *self.get_user_permissions(user_obj, obj=obj),
             *self.get_group_permissions(user_obj, obj=obj),
         }
 
+    # [TODO] BaseBackend > has_perm
     def has_perm(self, user_obj, perm, obj=None):
         return perm in self.get_all_permissions(user_obj, obj=obj)
 
 
+# [TODO] ModelBackend
 class ModelBackend(BaseBackend):
     """
     Authenticates against settings.AUTH_USER_MODEL.
     """
 
+    # [TODO] ModelBackend > authenticate
     def authenticate(self, request, username=None, password=None, **kwargs):
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
@@ -48,6 +57,7 @@ class ModelBackend(BaseBackend):
             if user.check_password(password) and self.user_can_authenticate(user):
                 return user
 
+    # [TODO] ModelBackend > user_can_authenticate
     def user_can_authenticate(self, user):
         """
         Reject users with is_active=False. Custom user models that don't have
@@ -55,14 +65,17 @@ class ModelBackend(BaseBackend):
         """
         return getattr(user, "is_active", True)
 
+    # [TODO] ModelBackend > _get_user_permissions
     def _get_user_permissions(self, user_obj):
         return user_obj.user_permissions.all()
 
+    # [TODO] ModelBackend > _get_group_permissions
     def _get_group_permissions(self, user_obj):
         user_groups_field = get_user_model()._meta.get_field("groups")
         user_groups_query = "group__%s" % user_groups_field.related_query_name()
         return Permission.objects.filter(**{user_groups_query: user_obj})
 
+    # [TODO] ModelBackend > _get_permissions
     def _get_permissions(self, user_obj, obj, from_name):
         """
         Return the permissions of `user_obj` from `from_name`. `from_name` can
@@ -84,6 +97,7 @@ class ModelBackend(BaseBackend):
             )
         return getattr(user_obj, perm_cache_name)
 
+    # [TODO] ModelBackend > get_user_permissions
     def get_user_permissions(self, user_obj, obj=None):
         """
         Return a set of permission strings the user `user_obj` has from their
@@ -91,6 +105,7 @@ class ModelBackend(BaseBackend):
         """
         return self._get_permissions(user_obj, obj, "user")
 
+    # [TODO] ModelBackend > get_group_permissions
     def get_group_permissions(self, user_obj, obj=None):
         """
         Return a set of permission strings the user `user_obj` has from the
@@ -98,6 +113,7 @@ class ModelBackend(BaseBackend):
         """
         return self._get_permissions(user_obj, obj, "group")
 
+    # [TODO] ModelBackend > get_all_permissions
     def get_all_permissions(self, user_obj, obj=None):
         if not user_obj.is_active or user_obj.is_anonymous or obj is not None:
             return set()
@@ -105,9 +121,11 @@ class ModelBackend(BaseBackend):
             user_obj._perm_cache = super().get_all_permissions(user_obj)
         return user_obj._perm_cache
 
+    # [TODO] ModelBackend > has_perm
     def has_perm(self, user_obj, perm, obj=None):
         return user_obj.is_active and super().has_perm(user_obj, perm, obj=obj)
 
+    # [TODO] ModelBackend > has_module_perms
     def has_module_perms(self, user_obj, app_label):
         """
         Return True if user_obj has any permissions in the given app_label.
@@ -117,6 +135,7 @@ class ModelBackend(BaseBackend):
             for perm in self.get_all_permissions(user_obj)
         )
 
+    # [TODO] ModelBackend > with_perm
     def with_perm(self, perm, is_active=True, include_superusers=True, obj=None):
         """
         Return users that have permission "perm". By default, filter out
@@ -152,6 +171,7 @@ class ModelBackend(BaseBackend):
 
         return UserModel._default_manager.filter(user_q)
 
+    # [TODO] ModelBackend > get_user
     def get_user(self, user_id):
         try:
             user = UserModel._default_manager.get(pk=user_id)
@@ -160,11 +180,14 @@ class ModelBackend(BaseBackend):
         return user if self.user_can_authenticate(user) else None
 
 
+# [TODO] AllowAllUsersModelBackend
 class AllowAllUsersModelBackend(ModelBackend):
+    # [TODO] AllowAllUsersModelBackend > user_can_authenticate
     def user_can_authenticate(self, user):
         return True
 
 
+# [TODO] RemoteUserBackend
 class RemoteUserBackend(ModelBackend):
     """
     This backend is to be used in conjunction with the ``RemoteUserMiddleware``
@@ -180,6 +203,7 @@ class RemoteUserBackend(ModelBackend):
     # Create a User object if not already in the database?
     create_unknown_user = True
 
+    # [TODO] RemoteUserBackend > authenticate
     def authenticate(self, request, remote_user):
         """
         The username passed as ``remote_user`` is considered trusted. Return
@@ -210,6 +234,7 @@ class RemoteUserBackend(ModelBackend):
         user = self.configure_user(request, user, created=created)
         return user if self.user_can_authenticate(user) else None
 
+    # [TODO] RemoteUserBackend > clean_username
     def clean_username(self, username):
         """
         Perform any cleaning on the "username" prior to using it to get or
@@ -219,6 +244,7 @@ class RemoteUserBackend(ModelBackend):
         """
         return username
 
+    # [TODO] RemoteUserBackend > configure_user
     def configure_user(self, request, user, created=True):
         """
         Configure a user and return the updated user.
@@ -228,6 +254,8 @@ class RemoteUserBackend(ModelBackend):
         return user
 
 
+# [TODO] AllowAllUsersRemoteUserBackend
 class AllowAllUsersRemoteUserBackend(RemoteUserBackend):
+    # [TODO] AllowAllUsersRemoteUserBackend > user_can_authenticate
     def user_can_authenticate(self, user):
         return True

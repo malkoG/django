@@ -5,6 +5,7 @@ from django.urls import LocalePrefixPattern, URLResolver, get_resolver, path
 from django.views.i18n import set_language
 
 
+# [TODO] i18n_patterns
 def i18n_patterns(*urls, prefix_default_language=True):
     """
     Add the language code prefix to every URL pattern within this function.
@@ -20,6 +21,7 @@ def i18n_patterns(*urls, prefix_default_language=True):
     ]
 
 
+# [TODO] is_language_prefix_patterns_used
 @functools.cache
 def is_language_prefix_patterns_used(urlconf):
     """

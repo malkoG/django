@@ -55,10 +55,13 @@ from django.utils.text import capfirst, get_text_list
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] Deferred
 class Deferred:
+    # [TODO] Deferred > __repr__
     def __repr__(self):
         return "<Deferred field>"
 
+    # [TODO] Deferred > __str__
     def __str__(self):
         return "<Deferred field>"
 
@@ -66,6 +69,7 @@ class Deferred:
 DEFERRED = Deferred()
 
 
+# [TODO] subclass_exception
 def subclass_exception(name, bases, module, attached_to):
     """
     Create exception subclass. Used by ModelBase below.
@@ -84,14 +88,17 @@ def subclass_exception(name, bases, module, attached_to):
     )
 
 
+# [TODO] _has_contribute_to_class
 def _has_contribute_to_class(value):
     # Only call contribute_to_class() if it's bound.
     return not inspect.isclass(value) and hasattr(value, "contribute_to_class")
 
 
+# [TODO] ModelBase
 class ModelBase(type):
     """Metaclass for all models."""
 
+    # [TODO] ModelBase > __new__
     def __new__(cls, name, bases, attrs, **kwargs):
         super_new = super().__new__
 
@@ -366,12 +373,14 @@ class ModelBase(type):
         new_class._meta.apps.register_model(new_class._meta.app_label, new_class)
         return new_class
 
+    # [TODO] ModelBase > add_to_class
     def add_to_class(cls, name, value):
         if _has_contribute_to_class(value):
             value.contribute_to_class(cls, name)
         else:
             setattr(cls, name, value)
 
+    # [TODO] ModelBase > _prepare
     def _prepare(cls):
         """Create some methods once self._meta has been populated."""
         opts = cls._meta
@@ -427,16 +436,20 @@ class ModelBase(type):
 
         class_prepared.send(sender=cls)
 
+    # [TODO] ModelBase > _base_manager
     @property
     def _base_manager(cls):
         return cls._meta.base_manager
 
+    # [TODO] ModelBase > _default_manager
     @property
     def _default_manager(cls):
         return cls._meta.default_manager
 
 
+# [TODO] ModelStateFieldsCacheDescriptor
 class ModelStateFieldsCacheDescriptor:
+    # [TODO] ModelStateFieldsCacheDescriptor > __get__
     def __get__(self, instance, cls=None):
         if instance is None:
             return self
@@ -444,6 +457,7 @@ class ModelStateFieldsCacheDescriptor:
         return res
 
 
+# [TODO] ModelState
 class ModelState:
     """Store model instance state."""
 
@@ -456,7 +470,9 @@ class ModelState:
     fields_cache = ModelStateFieldsCacheDescriptor()
 
 
+# [TODO] Model
 class Model(AltersData, metaclass=ModelBase):
+    # [TODO] Model > __init__
     def __init__(self, *args, **kwargs):
         # Alias some things as locals to avoid repeat global lookups
         cls = self.__class__
@@ -571,6 +587,7 @@ class Model(AltersData, metaclass=ModelBase):
         super().__init__()
         post_init.send(sender=cls, instance=self)
 
+    # [TODO] Model > from_db
     @classmethod
     def from_db(cls, db, field_names, values):
         if len(values) != len(cls._meta.concrete_fields):
@@ -584,12 +601,15 @@ class Model(AltersData, metaclass=ModelBase):
         new._state.db = db
         return new
 
+    # [TODO] Model > __repr__
     def __repr__(self):
         return "<%s: %s>" % (self.__class__.__name__, self)
 
+    # [TODO] Model > __str__
     def __str__(self):
         return "%s object (%s)" % (self.__class__.__name__, self.pk)
 
+    # [TODO] Model > __eq__
     def __eq__(self, other):
         if not isinstance(other, Model):
             return NotImplemented
@@ -600,17 +620,20 @@ class Model(AltersData, metaclass=ModelBase):
             return self is other
         return my_pk == other.pk
 
+    # [TODO] Model > __hash__
     def __hash__(self):
         if self.pk is None:
             raise TypeError("Model instances without primary key value are unhashable")
         return hash(self.pk)
 
+    # [TODO] Model > __reduce__
     def __reduce__(self):
         data = self.__getstate__()
         data[DJANGO_VERSION_PICKLE_KEY] = django.__version__
         class_id = self._meta.app_label, self._meta.object_name
         return model_unpickle, (class_id,), data
 
+    # [TODO] Model > __getstate__
     def __getstate__(self):
         """Hook to allow choosing the attributes to pickle."""
         state = self.__dict__.copy()
@@ -628,6 +651,7 @@ class Model(AltersData, metaclass=ModelBase):
                 state.pop(attr)
         return state
 
+    # [TODO] Model > __setstate__
     def __setstate__(self, state):
         pickled_version = state.get(DJANGO_VERSION_PICKLE_KEY)
         if pickled_version:
@@ -650,10 +674,12 @@ class Model(AltersData, metaclass=ModelBase):
                 state[attr] = memoryview(value)
         self.__dict__.update(state)
 
+    # [TODO] Model > _get_pk_val
     def _get_pk_val(self, meta=None):
         meta = meta or self._meta
         return getattr(self, meta.pk.attname)
 
+    # [TODO] Model > _set_pk_val
     def _set_pk_val(self, value):
         for parent_link in self._meta.parents.values():
             if parent_link and parent_link != self._meta.pk:
@@ -662,6 +688,7 @@ class Model(AltersData, metaclass=ModelBase):
 
     pk = property(_get_pk_val, _set_pk_val)
 
+    # [TODO] Model > get_deferred_fields
     def get_deferred_fields(self):
         """
         Return a set containing names of deferred fields for this instance.
@@ -672,6 +699,7 @@ class Model(AltersData, metaclass=ModelBase):
             if f.attname not in self.__dict__
         }
 
+    # [TODO] Model > refresh_from_db
     def refresh_from_db(self, using=None, fields=None):
         """
         Reload field values from the database.
@@ -744,9 +772,11 @@ class Model(AltersData, metaclass=ModelBase):
 
         self._state.db = db_instance._state.db
 
+    # [TODO] Model > arefresh_from_db
     async def arefresh_from_db(self, using=None, fields=None):
         return await sync_to_async(self.refresh_from_db)(using=using, fields=fields)
 
+    # [TODO] Model > serializable_value
     def serializable_value(self, field_name):
         """
         Return the value of the field name for this instance. If the field is
@@ -764,6 +794,7 @@ class Model(AltersData, metaclass=ModelBase):
             return getattr(self, field_name)
         return getattr(self, field.attname)
 
+    # [TODO] Model > save
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
@@ -820,6 +851,7 @@ class Model(AltersData, metaclass=ModelBase):
 
     save.alters_data = True
 
+    # [TODO] Model > asave
     async def asave(
         self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
@@ -832,6 +864,7 @@ class Model(AltersData, metaclass=ModelBase):
 
     asave.alters_data = True
 
+    # [TODO] Model > _validate_force_insert
     @classmethod
     def _validate_force_insert(cls, force_insert):
         if force_insert is False:
@@ -852,6 +885,7 @@ class Model(AltersData, metaclass=ModelBase):
                 )
         return force_insert
 
+    # [TODO] Model > save_base
     def save_base(
         self,
         raw=False,
@@ -924,6 +958,7 @@ class Model(AltersData, metaclass=ModelBase):
 
     save_base.alters_data = True
 
+    # [TODO] Model > _save_parents
     def _save_parents(
         self, cls, using, update_fields, force_insert, updated_parents=None
     ):
@@ -971,6 +1006,7 @@ class Model(AltersData, metaclass=ModelBase):
                     field.delete_cached_value(self)
         return inserted
 
+    # [TODO] Model > _save_table
     def _save_table(
         self,
         raw=False,
@@ -1063,6 +1099,7 @@ class Model(AltersData, metaclass=ModelBase):
                     setattr(self, field.attname, value)
         return updated
 
+    # [TODO] Model > _do_update
     def _do_update(self, base_qs, using, pk_val, values, update_fields, forced_update):
         """
         Try to update the model. Return True if the model was updated (if an
@@ -1091,6 +1128,7 @@ class Model(AltersData, metaclass=ModelBase):
             )
         return filtered._update(values) > 0
 
+    # [TODO] Model > _do_insert
     def _do_insert(self, manager, using, fields, returning_fields, raw):
         """
         Do an INSERT. If returning_fields is defined then this method should
@@ -1104,6 +1142,7 @@ class Model(AltersData, metaclass=ModelBase):
             raw=raw,
         )
 
+    # [TODO] Model > _prepare_related_fields_for_save
     def _prepare_related_fields_for_save(self, operation_name, fields=None):
         # Ensure that a model instance without a PK hasn't been assigned to
         # a ForeignKey, GenericForeignKey or OneToOneField on this model. If
@@ -1158,6 +1197,7 @@ class Model(AltersData, metaclass=ModelBase):
                         f"unsaved related object '{field.name}'."
                     )
 
+    # [TODO] Model > delete
     def delete(self, using=None, keep_parents=False):
         if self.pk is None:
             raise ValueError(
@@ -1171,6 +1211,7 @@ class Model(AltersData, metaclass=ModelBase):
 
     delete.alters_data = True
 
+    # [TODO] Model > adelete
     async def adelete(self, using=None, keep_parents=False):
         return await sync_to_async(self.delete)(
             using=using,
@@ -1179,6 +1220,7 @@ class Model(AltersData, metaclass=ModelBase):
 
     adelete.alters_data = True
 
+    # [TODO] Model > _get_FIELD_display
     def _get_FIELD_display(self, field):
         value = getattr(self, field.attname)
         choices_dict = dict(make_hashable(field.flatchoices))
@@ -1187,6 +1229,7 @@ class Model(AltersData, metaclass=ModelBase):
             choices_dict.get(make_hashable(value), value), strings_only=True
         )
 
+    # [TODO] Model > _get_next_or_previous_by_FIELD
     def _get_next_or_previous_by_FIELD(self, field, is_next, **kwargs):
         if not self.pk:
             raise ValueError("get_next/get_previous cannot be used on unsaved objects.")
@@ -1208,6 +1251,7 @@ class Model(AltersData, metaclass=ModelBase):
                 "%s matching query does not exist." % self.__class__._meta.object_name
             )
 
+    # [TODO] Model > _get_next_or_previous_in_order
     def _get_next_or_previous_in_order(self, is_next):
         cachename = "__%s_order_cache" % is_next
         if not hasattr(self, cachename):
@@ -1231,6 +1275,7 @@ class Model(AltersData, metaclass=ModelBase):
             setattr(self, cachename, obj)
         return getattr(self, cachename)
 
+    # [TODO] Model > _get_field_value_map
     def _get_field_value_map(self, meta, exclude=None):
         if exclude is None:
             exclude = set()
@@ -1244,6 +1289,7 @@ class Model(AltersData, metaclass=ModelBase):
             field_map["pk"] = Value(self.pk, meta.pk)
         return field_map
 
+    # [TODO] Model > prepare_database_save
     def prepare_database_save(self, field):
         if self.pk is None:
             raise ValueError(
@@ -1251,6 +1297,7 @@ class Model(AltersData, metaclass=ModelBase):
             )
         return getattr(self, field.remote_field.get_related_field().attname)
 
+    # [TODO] Model > clean
     def clean(self):
         """
         Hook for doing any extra model-wide validation after clean() has been
@@ -1260,6 +1307,7 @@ class Model(AltersData, metaclass=ModelBase):
         """
         pass
 
+    # [TODO] Model > validate_unique
     def validate_unique(self, exclude=None):
         """
         Check unique constraints on the model and raise ValidationError if any
@@ -1276,6 +1324,7 @@ class Model(AltersData, metaclass=ModelBase):
         if errors:
             raise ValidationError(errors)
 
+    # [TODO] Model > _get_unique_checks
     def _get_unique_checks(self, exclude=None, include_meta_constraints=False):
         """
         Return a list of checks to perform. Since validate_unique() could be
@@ -1339,6 +1388,7 @@ class Model(AltersData, metaclass=ModelBase):
                     date_checks.append((model_class, "month", name, f.unique_for_month))
         return unique_checks, date_checks
 
+    # [TODO] Model > _perform_unique_checks
     def _perform_unique_checks(self, unique_checks):
         errors = {}
 
@@ -1388,6 +1438,7 @@ class Model(AltersData, metaclass=ModelBase):
 
         return errors
 
+    # [TODO] Model > _perform_date_checks
     def _perform_date_checks(self, date_checks):
         errors = {}
         for model_class, lookup_type, field, unique_for in date_checks:
@@ -1419,6 +1470,7 @@ class Model(AltersData, metaclass=ModelBase):
                 )
         return errors
 
+    # [TODO] Model > date_error_message
     def date_error_message(self, lookup_type, field_name, unique_for):
         opts = self._meta
         field = opts.get_field(field_name)
@@ -1436,6 +1488,7 @@ class Model(AltersData, metaclass=ModelBase):
             },
         )
 
+    # [TODO] Model > unique_error_message
     def unique_error_message(self, model_class, unique_check):
         opts = model_class._meta
 
@@ -1468,6 +1521,7 @@ class Model(AltersData, metaclass=ModelBase):
                 params=params,
             )
 
+    # [TODO] Model > get_constraints
     def get_constraints(self):
         constraints = [(self.__class__, self._meta.constraints)]
         for parent_class in self._meta.get_parent_list():
@@ -1475,6 +1529,7 @@ class Model(AltersData, metaclass=ModelBase):
                 constraints.append((parent_class, parent_class._meta.constraints))
         return constraints
 
+    # [TODO] Model > validate_constraints
     def validate_constraints(self, exclude=None):
         constraints = self.get_constraints()
         using = router.db_for_write(self.__class__, instance=self)
@@ -1495,6 +1550,7 @@ class Model(AltersData, metaclass=ModelBase):
         if errors:
             raise ValidationError(errors)
 
+    # [TODO] Model > full_clean
     def full_clean(self, exclude=None, validate_unique=True, validate_constraints=True):
         """
         Call clean_fields(), clean(), validate_unique(), and
@@ -1542,6 +1598,7 @@ class Model(AltersData, metaclass=ModelBase):
         if errors:
             raise ValidationError(errors)
 
+    # [TODO] Model > clean_fields
     def clean_fields(self, exclude=None):
         """
         Clean all fields and raise a ValidationError containing a dict
@@ -1567,6 +1624,7 @@ class Model(AltersData, metaclass=ModelBase):
         if errors:
             raise ValidationError(errors)
 
+    # [TODO] Model > check
     @classmethod
     def check(cls, **kwargs):
         errors = [
@@ -1605,6 +1663,7 @@ class Model(AltersData, metaclass=ModelBase):
 
         return errors
 
+    # [TODO] Model > _check_default_pk
     @classmethod
     def _check_default_pk(cls):
         if (
@@ -1637,6 +1696,7 @@ class Model(AltersData, metaclass=ModelBase):
             ]
         return []
 
+    # [TODO] Model > _check_db_table_comment
     @classmethod
     def _check_db_table_comment(cls, databases):
         if not cls._meta.db_table_comment:
@@ -1660,6 +1720,7 @@ class Model(AltersData, metaclass=ModelBase):
                 )
         return errors
 
+    # [TODO] Model > _check_swappable
     @classmethod
     def _check_swappable(cls):
         """Check if the swapped model exists."""
@@ -1687,6 +1748,7 @@ class Model(AltersData, metaclass=ModelBase):
                 )
         return errors
 
+    # [TODO] Model > _check_model
     @classmethod
     def _check_model(cls):
         errors = []
@@ -1700,6 +1762,7 @@ class Model(AltersData, metaclass=ModelBase):
                 )
         return errors
 
+    # [TODO] Model > _check_managers
     @classmethod
     def _check_managers(cls, **kwargs):
         """Perform all manager checks."""
@@ -1708,6 +1771,7 @@ class Model(AltersData, metaclass=ModelBase):
             errors.extend(manager.check(**kwargs))
         return errors
 
+    # [TODO] Model > _check_fields
     @classmethod
     def _check_fields(cls, **kwargs):
         """Perform all field checks."""
@@ -1718,6 +1782,7 @@ class Model(AltersData, metaclass=ModelBase):
             errors.extend(field.check(from_model=cls, **kwargs))
         return errors
 
+    # [TODO] Model > _check_m2m_through_same_relationship
     @classmethod
     def _check_m2m_through_same_relationship(cls):
         """Check if no relationship model is used by more than one m2m field."""
@@ -1754,6 +1819,7 @@ class Model(AltersData, metaclass=ModelBase):
                 seen_intermediary_signatures.append(signature)
         return errors
 
+    # [TODO] Model > _check_id_field
     @classmethod
     def _check_id_field(cls):
         """Check if `id` field is a primary key."""
@@ -1773,6 +1839,7 @@ class Model(AltersData, metaclass=ModelBase):
         else:
             return []
 
+    # [TODO] Model > _check_field_name_clashes
     @classmethod
     def _check_field_name_clashes(cls):
         """Forbid field shadowing in multi-table inheritance."""
@@ -1843,6 +1910,7 @@ class Model(AltersData, metaclass=ModelBase):
 
         return errors
 
+    # [TODO] Model > _check_column_name_clashes
     @classmethod
     def _check_column_name_clashes(cls):
         # Store a list of column names which have already been used by other fields.
@@ -1868,6 +1936,7 @@ class Model(AltersData, metaclass=ModelBase):
 
         return errors
 
+    # [TODO] Model > _check_model_name_db_lookup_clashes
     @classmethod
     def _check_model_name_db_lookup_clashes(cls):
         errors = []
@@ -1892,6 +1961,7 @@ class Model(AltersData, metaclass=ModelBase):
             )
         return errors
 
+    # [TODO] Model > _check_property_name_related_field_accessor_clashes
     @classmethod
     def _check_property_name_related_field_accessor_clashes(cls):
         errors = []
@@ -1913,6 +1983,7 @@ class Model(AltersData, metaclass=ModelBase):
                 )
         return errors
 
+    # [TODO] Model > _check_single_primary_key
     @classmethod
     def _check_single_primary_key(cls):
         errors = []
@@ -1928,6 +1999,7 @@ class Model(AltersData, metaclass=ModelBase):
         return errors
 
     # RemovedInDjango51Warning.
+    # [TODO] Model > _check_index_together
     @classmethod
     def _check_index_together(cls):
         """Check the value of "index_together" option."""
@@ -1957,6 +2029,7 @@ class Model(AltersData, metaclass=ModelBase):
                 errors.extend(cls._check_local_fields(fields, "index_together"))
             return errors
 
+    # [TODO] Model > _check_unique_together
     @classmethod
     def _check_unique_together(cls):
         """Check the value of "unique_together" option."""
@@ -1987,6 +2060,7 @@ class Model(AltersData, metaclass=ModelBase):
                 errors.extend(cls._check_local_fields(fields, "unique_together"))
             return errors
 
+    # [TODO] Model > _check_indexes
     @classmethod
     def _check_indexes(cls, databases):
         """Check fields, names, and conditions of indexes."""
@@ -2078,6 +2152,7 @@ class Model(AltersData, metaclass=ModelBase):
         errors.extend(cls._check_local_fields(fields, "indexes"))
         return errors
 
+    # [TODO] Model > _check_local_fields
     @classmethod
     def _check_local_fields(cls, fields, option):
         from django.db import models
@@ -2133,6 +2208,7 @@ class Model(AltersData, metaclass=ModelBase):
                     )
         return errors
 
+    # [TODO] Model > _check_ordering
     @classmethod
     def _check_ordering(cls):
         """
@@ -2240,6 +2316,7 @@ class Model(AltersData, metaclass=ModelBase):
             )
         return errors
 
+    # [TODO] Model > _check_long_column_names
     @classmethod
     def _check_long_column_names(cls, databases):
         """
@@ -2323,6 +2400,7 @@ class Model(AltersData, metaclass=ModelBase):
 
         return errors
 
+    # [TODO] Model > _get_expr_references
     @classmethod
     def _get_expr_references(cls, expr):
         if isinstance(expr, Q):
@@ -2339,6 +2417,7 @@ class Model(AltersData, metaclass=ModelBase):
             for src_expr in expr.get_source_expressions():
                 yield from cls._get_expr_references(src_expr)
 
+    # [TODO] Model > _check_constraints
     @classmethod
     def _check_constraints(cls, databases):
         errors = []
@@ -2563,6 +2642,7 @@ class Model(AltersData, metaclass=ModelBase):
 # ORDERING METHODS #########################
 
 
+# [TODO] method_set_order
 def method_set_order(self, ordered_obj, id_list, using=None):
     order_wrt = ordered_obj._meta.order_with_respect_to
     filter_args = order_wrt.get_forward_related_filter(self)
@@ -2572,6 +2652,7 @@ def method_set_order(self, ordered_obj, id_list, using=None):
     )
 
 
+# [TODO] method_get_order
 def method_get_order(self, ordered_obj):
     order_wrt = ordered_obj._meta.order_with_respect_to
     filter_args = order_wrt.get_forward_related_filter(self)
@@ -2579,6 +2660,7 @@ def method_get_order(self, ordered_obj):
     return ordered_obj.objects.filter(**filter_args).values_list(pk_name, flat=True)
 
 
+# [TODO] make_foreign_order_accessors
 def make_foreign_order_accessors(model, related_model):
     setattr(
         related_model,
@@ -2597,6 +2679,7 @@ def make_foreign_order_accessors(model, related_model):
 ########
 
 
+# [TODO] model_unpickle
 def model_unpickle(model_id):
     """Used to unpickle Model subclasses with deferred fields."""
     if isinstance(model_id, tuple):

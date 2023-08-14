@@ -13,21 +13,25 @@ from django.core.files import locks
 from django.core.files.move import file_move_safe
 
 
+# [TODO] FileBasedCache
 class FileBasedCache(BaseCache):
     cache_suffix = ".djcache"
     pickle_protocol = pickle.HIGHEST_PROTOCOL
 
+    # [TODO] FileBasedCache > __init__
     def __init__(self, dir, params):
         super().__init__(params)
         self._dir = os.path.abspath(dir)
         self._createdir()
 
+    # [TODO] FileBasedCache > add
     def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
         if self.has_key(key, version):
             return False
         self.set(key, value, timeout, version)
         return True
 
+    # [TODO] FileBasedCache > get
     def get(self, key, default=None, version=None):
         fname = self._key_to_file(key, version)
         try:
@@ -38,11 +42,13 @@ class FileBasedCache(BaseCache):
             pass
         return default
 
+    # [TODO] FileBasedCache > _write_content
     def _write_content(self, file, timeout, value):
         expiry = self.get_backend_timeout(timeout)
         file.write(pickle.dumps(expiry, self.pickle_protocol))
         file.write(zlib.compress(pickle.dumps(value, self.pickle_protocol)))
 
+    # [TODO] FileBasedCache > set
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
         self._createdir()  # Cache dir can be deleted at any time.
         fname = self._key_to_file(key, version)
@@ -58,6 +64,7 @@ class FileBasedCache(BaseCache):
             if not renamed:
                 os.remove(tmp_path)
 
+    # [TODO] FileBasedCache > touch
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
         try:
             with open(self._key_to_file(key, version), "r+b") as f:
@@ -75,9 +82,11 @@ class FileBasedCache(BaseCache):
         except FileNotFoundError:
             return False
 
+    # [TODO] FileBasedCache > delete
     def delete(self, key, version=None):
         return self._delete(self._key_to_file(key, version))
 
+    # [TODO] FileBasedCache > _delete
     def _delete(self, fname):
         if not fname.startswith(self._dir) or not os.path.exists(fname):
             return False
@@ -88,6 +97,7 @@ class FileBasedCache(BaseCache):
             return False
         return True
 
+    # [TODO] FileBasedCache > has_key
     def has_key(self, key, version=None):
         fname = self._key_to_file(key, version)
         try:
@@ -96,6 +106,7 @@ class FileBasedCache(BaseCache):
         except FileNotFoundError:
             return False
 
+    # [TODO] FileBasedCache > _cull
     def _cull(self):
         """
         Remove random cache entries if max_entries is reached at a ratio
@@ -113,6 +124,7 @@ class FileBasedCache(BaseCache):
         for fname in filelist:
             self._delete(fname)
 
+    # [TODO] FileBasedCache > _createdir
     def _createdir(self):
         # Set the umask because os.makedirs() doesn't apply the "mode" argument
         # to intermediate-level directories.
@@ -122,6 +134,7 @@ class FileBasedCache(BaseCache):
         finally:
             os.umask(old_umask)
 
+    # [TODO] FileBasedCache > _key_to_file
     def _key_to_file(self, key, version=None):
         """
         Convert a key into a cache file path. Basically this is the
@@ -138,6 +151,7 @@ class FileBasedCache(BaseCache):
             ),
         )
 
+    # [TODO] FileBasedCache > clear
     def clear(self):
         """
         Remove all the cache files.
@@ -145,6 +159,7 @@ class FileBasedCache(BaseCache):
         for fname in self._list_cache_files():
             self._delete(fname)
 
+    # [TODO] FileBasedCache > _is_expired
     def _is_expired(self, f):
         """
         Take an open cache file `f` and delete it if it's expired.
@@ -159,6 +174,7 @@ class FileBasedCache(BaseCache):
             return True
         return False
 
+    # [TODO] FileBasedCache > _list_cache_files
     def _list_cache_files(self):
         """
         Get a list of paths to all the cache files. These are all the files

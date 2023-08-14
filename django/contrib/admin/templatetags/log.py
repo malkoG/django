@@ -3,15 +3,19 @@ from django import template
 register = template.Library()
 
 
+# [TODO] AdminLogNode
 class AdminLogNode(template.Node):
+    # [TODO] AdminLogNode > __init__
     def __init__(self, limit, varname, user):
         self.limit = limit
         self.varname = varname
         self.user = user
 
+    # [TODO] AdminLogNode > __repr__
     def __repr__(self):
         return "<GetAdminLog Node>"
 
+    # [TODO] AdminLogNode > render
     def render(self, context):
         entries = context["log_entries"]
         if self.user is not None:
@@ -23,6 +27,7 @@ class AdminLogNode(template.Node):
         return ""
 
 
+# [TODO] get_admin_log
 @register.tag
 def get_admin_log(parser, token):
     """

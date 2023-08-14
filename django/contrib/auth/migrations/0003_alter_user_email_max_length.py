@@ -1,6 +1,7 @@
 from django.db import migrations, models
 
 
+# [TODO] Migration
 class Migration(migrations.Migration):
     dependencies = [
         ("auth", "0002_alter_permission_name_max_length"),

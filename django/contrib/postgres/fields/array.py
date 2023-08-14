@@ -15,6 +15,7 @@ from .utils import AttributeSetter
 __all__ = ["ArrayField"]
 
 
+# [TODO] ArrayField
 class ArrayField(CheckFieldDefaultMixin, Field):
     empty_strings_allowed = False
     default_error_messages = {
@@ -23,6 +24,7 @@ class ArrayField(CheckFieldDefaultMixin, Field):
     }
     _default_hint = ("list", "[]")
 
+    # [TODO] ArrayField > __init__
     def __init__(self, base_field, size=None, **kwargs):
         self.base_field = base_field
         self.db_collation = getattr(self.base_field, "db_collation", None)
@@ -38,6 +40,7 @@ class ArrayField(CheckFieldDefaultMixin, Field):
             self.from_db_value = self._from_db_value
         super().__init__(**kwargs)
 
+    # [TODO] ArrayField > model
     @property
     def model(self):
         try:
@@ -47,15 +50,18 @@ class ArrayField(CheckFieldDefaultMixin, Field):
                 "'%s' object has no attribute 'model'" % self.__class__.__name__
             )
 
+    # [TODO] ArrayField > model
     @model.setter
     def model(self, model):
         self.__dict__["model"] = model
         self.base_field.model = model
 
+    # [TODO] ArrayField > _choices_is_value
     @classmethod
     def _choices_is_value(cls, value):
         return isinstance(value, (list, tuple)) or super()._choices_is_value(value)
 
+    # [TODO] ArrayField > check
     def check(self, **kwargs):
         errors = super().check(**kwargs)
         if self.base_field.remote_field:
@@ -99,30 +105,37 @@ class ArrayField(CheckFieldDefaultMixin, Field):
                     )
         return errors
 
+    # [TODO] ArrayField > set_attributes_from_name
     def set_attributes_from_name(self, name):
         super().set_attributes_from_name(name)
         self.base_field.set_attributes_from_name(name)
 
+    # [TODO] ArrayField > description
     @property
     def description(self):
         return "Array of %s" % self.base_field.description
 
+    # [TODO] ArrayField > db_type
     def db_type(self, connection):
         size = self.size or ""
         return "%s[%s]" % (self.base_field.db_type(connection), size)
 
+    # [TODO] ArrayField > cast_db_type
     def cast_db_type(self, connection):
         size = self.size or ""
         return "%s[%s]" % (self.base_field.cast_db_type(connection), size)
 
+    # [TODO] ArrayField > db_parameters
     def db_parameters(self, connection):
         db_params = super().db_parameters(connection)
         db_params["collation"] = self.db_collation
         return db_params
 
+    # [TODO] ArrayField > get_placeholder
     def get_placeholder(self, value, compiler, connection):
         return "%s::{}".format(self.db_type(connection))
 
+    # [TODO] ArrayField > get_db_prep_value
     def get_db_prep_value(self, value, connection, prepared=False):
         if isinstance(value, (list, tuple)):
             return [
@@ -131,6 +144,7 @@ class ArrayField(CheckFieldDefaultMixin, Field):
             ]
         return value
 
+    # [TODO] ArrayField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if path == "django.contrib.postgres.fields.array.ArrayField":
@@ -143,6 +157,7 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         )
         return name, path, args, kwargs
 
+    # [TODO] ArrayField > to_python
     def to_python(self, value):
         if isinstance(value, str):
             # Assume we're deserializing
@@ -150,6 +165,7 @@ class ArrayField(CheckFieldDefaultMixin, Field):
             value = [self.base_field.to_python(val) for val in vals]
         return value
 
+    # [TODO] ArrayField > _from_db_value
     def _from_db_value(self, value, expression, connection):
         if value is None:
             return value
@@ -158,6 +174,7 @@ class ArrayField(CheckFieldDefaultMixin, Field):
             for item in value
         ]
 
+    # [TODO] ArrayField > value_to_string
     def value_to_string(self, obj):
         values = []
         vals = self.value_from_object(obj)
@@ -171,6 +188,7 @@ class ArrayField(CheckFieldDefaultMixin, Field):
                 values.append(base_field.value_to_string(obj))
         return json.dumps(values)
 
+    # [TODO] ArrayField > get_transform
     def get_transform(self, name):
         transform = super().get_transform(name)
         if transform:
@@ -192,6 +210,7 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         else:
             return SliceTransformFactory(start, end)
 
+    # [TODO] ArrayField > validate
     def validate(self, value, model_instance):
         super().validate(value, model_instance)
         for index, part in enumerate(value):
@@ -211,6 +230,7 @@ class ArrayField(CheckFieldDefaultMixin, Field):
                     code="nested_array_mismatch",
                 )
 
+    # [TODO] ArrayField > run_validators
     def run_validators(self, value):
         super().run_validators(value)
         for index, part in enumerate(value):
@@ -224,6 +244,7 @@ class ArrayField(CheckFieldDefaultMixin, Field):
                     params={"nth": index + 1},
                 )
 
+    # [TODO] ArrayField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -235,7 +256,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         )
 
 
+# [TODO] ArrayRHSMixin
 class ArrayRHSMixin:
+    # [TODO] ArrayRHSMixin > __init__
     def __init__(self, lhs, rhs):
         # Don't wrap arrays that contains only None values, psycopg doesn't
         # allow this.
@@ -253,11 +276,13 @@ class ArrayRHSMixin:
             )
         super().__init__(lhs, rhs)
 
+    # [TODO] ArrayRHSMixin > process_rhs
     def process_rhs(self, compiler, connection):
         rhs, rhs_params = super().process_rhs(compiler, connection)
         cast_type = self.lhs.output_field.cast_db_type(connection)
         return "%s::%s" % (rhs, cast_type), rhs_params
 
+    # [TODO] ArrayRHSMixin > _rhs_not_none_values
     def _rhs_not_none_values(self, rhs):
         for x in rhs:
             if isinstance(x, (list, tuple)):
@@ -266,26 +291,31 @@ class ArrayRHSMixin:
                 yield True
 
 
+# [TODO] ArrayContains
 @ArrayField.register_lookup
 class ArrayContains(ArrayRHSMixin, lookups.DataContains):
     pass
 
 
+# [TODO] ArrayContainedBy
 @ArrayField.register_lookup
 class ArrayContainedBy(ArrayRHSMixin, lookups.ContainedBy):
     pass
 
 
+# [TODO] ArrayExact
 @ArrayField.register_lookup
 class ArrayExact(ArrayRHSMixin, Exact):
     pass
 
 
+# [TODO] ArrayOverlap
 @ArrayField.register_lookup
 class ArrayOverlap(ArrayRHSMixin, lookups.Overlap):
     pass
 
 
+# [TODO] ArrayLenTransform
 @ArrayField.register_lookup
 class ArrayLenTransform(Transform):
     lookup_name = "len"
@@ -300,6 +330,7 @@ class ArrayLenTransform(Transform):
         ) % {"lhs": lhs}, params * 2
 
 
+# [TODO] ArrayInLookup
 @ArrayField.register_lookup
 class ArrayInLookup(In):
     def get_prep_lookup(self):
@@ -317,38 +348,48 @@ class ArrayInLookup(In):
         return prepared_values
 
 
+# [TODO] IndexTransform
 class IndexTransform(Transform):
+    # [TODO] IndexTransform > __init__
     def __init__(self, index, base_field, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.index = index
         self.base_field = base_field
 
+    # [TODO] IndexTransform > as_sql
     def as_sql(self, compiler, connection):
         lhs, params = compiler.compile(self.lhs)
         if not lhs.endswith("]"):
             lhs = "(%s)" % lhs
         return "%s[%%s]" % lhs, (*params, self.index)
 
+    # [TODO] IndexTransform > output_field
     @property
     def output_field(self):
         return self.base_field
 
 
+# [TODO] IndexTransformFactory
 class IndexTransformFactory:
+    # [TODO] IndexTransformFactory > __init__
     def __init__(self, index, base_field):
         self.index = index
         self.base_field = base_field
 
+    # [TODO] IndexTransformFactory > __call__
     def __call__(self, *args, **kwargs):
         return IndexTransform(self.index, self.base_field, *args, **kwargs)
 
 
+# [TODO] SliceTransform
 class SliceTransform(Transform):
+    # [TODO] SliceTransform > __init__
     def __init__(self, start, end, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.start = start
         self.end = end
 
+    # [TODO] SliceTransform > as_sql
     def as_sql(self, compiler, connection):
         lhs, params = compiler.compile(self.lhs)
         if not lhs.endswith("]"):
@@ -356,10 +397,13 @@ class SliceTransform(Transform):
         return "%s[%%s:%%s]" % lhs, (*params, self.start, self.end)
 
 
+# [TODO] SliceTransformFactory
 class SliceTransformFactory:
+    # [TODO] SliceTransformFactory > __init__
     def __init__(self, start, end):
         self.start = start
         self.end = end
 
+    # [TODO] SliceTransformFactory > __call__
     def __call__(self, *args, **kwargs):
         return SliceTransform(self.start, self.end, *args, **kwargs)

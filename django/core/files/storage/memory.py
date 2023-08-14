@@ -24,19 +24,24 @@ from .mixins import StorageSettingsMixin
 __all__ = ("InMemoryStorage",)
 
 
+# [TODO] TimingMixin
 class TimingMixin:
+    # [TODO] TimingMixin > _initialize_times
     def _initialize_times(self):
         self.created_time = now()
         self.accessed_time = self.created_time
         self.modified_time = self.created_time
 
+    # [TODO] TimingMixin > _update_accessed_time
     def _update_accessed_time(self):
         self.accessed_time = now()
 
+    # [TODO] TimingMixin > _update_modified_time
     def _update_modified_time(self):
         self.modified_time = now()
 
 
+# [TODO] InMemoryFileNode
 class InMemoryFileNode(ContentFile, TimingMixin):
     """
     Helper class representing an in-memory file node.
@@ -45,25 +50,30 @@ class InMemoryFileNode(ContentFile, TimingMixin):
     modification, and access times.
     """
 
+    # [TODO] InMemoryFileNode > __init__
     def __init__(self, content="", name=""):
         self.file = None
         self._content_type = type(content)
         self._initialize_stream()
         self._initialize_times()
 
+    # [TODO] InMemoryFileNode > open
     def open(self, mode):
         self._convert_stream_content(mode)
         self._update_accessed_time()
         return super().open(mode)
 
+    # [TODO] InMemoryFileNode > write
     def write(self, data):
         super().write(data)
         self._update_modified_time()
 
+    # [TODO] InMemoryFileNode > _initialize_stream
     def _initialize_stream(self):
         """Initialize underlying stream according to the content type."""
         self.file = io.BytesIO() if self._content_type == bytes else io.StringIO()
 
+    # [TODO] InMemoryFileNode > _convert_stream_content
     def _convert_stream_content(self, mode):
         """Convert actual file content according to the opening mode."""
         new_content_type = bytes if "b" in mode else str
@@ -79,6 +89,7 @@ class InMemoryFileNode(ContentFile, TimingMixin):
         self.file.write(content)
 
 
+# [TODO] InMemoryDirNode
 class InMemoryDirNode(TimingMixin):
     """
     Helper class representing an in-memory directory node.
@@ -87,10 +98,12 @@ class InMemoryDirNode(TimingMixin):
     needed.
     """
 
+    # [TODO] InMemoryDirNode > __init__
     def __init__(self):
         self._children = {}
         self._initialize_times()
 
+    # [TODO] InMemoryDirNode > resolve
     def resolve(self, path, create_if_missing=False, leaf_cls=None, check_exists=True):
         """
         Navigate current directory tree, returning node matching path or
@@ -138,6 +151,7 @@ class InMemoryDirNode(TimingMixin):
 
         return current_node
 
+    # [TODO] InMemoryDirNode > _resolve_child
     def _resolve_child(self, path_segment, create_if_missing, child_cls):
         if create_if_missing:
             self._update_accessed_time()
@@ -145,6 +159,7 @@ class InMemoryDirNode(TimingMixin):
             return self._children.setdefault(path_segment, child_cls())
         return self._children.get(path_segment)
 
+    # [TODO] InMemoryDirNode > listdir
     def listdir(self):
         directories, files = [], []
         for name, entry in self._children.items():
@@ -154,6 +169,7 @@ class InMemoryDirNode(TimingMixin):
                 files.append(name)
         return directories, files
 
+    # [TODO] InMemoryDirNode > remove_child
     def remove_child(self, name):
         if name in self._children:
             self._update_accessed_time()
@@ -161,6 +177,7 @@ class InMemoryDirNode(TimingMixin):
             del self._children[name]
 
 
+# [TODO] InMemoryStorage
 @deconstructible(path="django.core.files.storage.InMemoryStorage")
 class InMemoryStorage(Storage, StorageSettingsMixin):
     """A storage saving files in memory."""

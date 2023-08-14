@@ -5,6 +5,7 @@ from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] ASCIIUsernameValidator
 @deconstructible
 class ASCIIUsernameValidator(validators.RegexValidator):
     regex = r"^[\w.@+-]+\Z"
@@ -15,6 +16,7 @@ class ASCIIUsernameValidator(validators.RegexValidator):
     flags = re.ASCII
 
 
+# [TODO] UnicodeUsernameValidator
 @deconstructible
 class UnicodeUsernameValidator(validators.RegexValidator):
     regex = r"^[\w.@+-]+\Z"

@@ -30,18 +30,21 @@ import zipfile
 from django.core.exceptions import SuspiciousOperation
 
 
+# [TODO] ArchiveException
 class ArchiveException(Exception):
     """
     Base exception class for all archive errors.
     """
 
 
+# [TODO] UnrecognizedArchiveFormat
 class UnrecognizedArchiveFormat(ArchiveException):
     """
     Error raised when passed file is not a recognized archive format.
     """
 
 
+# [TODO] extract
 def extract(path, to_path):
     """
     Unpack the tar or zip file at the specified path to the directory
@@ -51,14 +54,17 @@ def extract(path, to_path):
         archive.extract(to_path)
 
 
+# [TODO] Archive
 class Archive:
     """
     The external API class that encapsulates an archive implementation.
     """
 
+    # [TODO] Archive > __init__
     def __init__(self, file):
         self._archive = self._archive_cls(file)(file)
 
+    # [TODO] Archive > _archive_cls
     @staticmethod
     def _archive_cls(file):
         cls = None
@@ -82,27 +88,34 @@ class Archive:
             )
         return cls
 
+    # [TODO] Archive > __enter__
     def __enter__(self):
         return self
 
+    # [TODO] Archive > __exit__
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
+    # [TODO] Archive > extract
     def extract(self, to_path):
         self._archive.extract(to_path)
 
+    # [TODO] Archive > list
     def list(self):
         self._archive.list()
 
+    # [TODO] Archive > close
     def close(self):
         self._archive.close()
 
 
+# [TODO] BaseArchive
 class BaseArchive:
     """
     Base Archive class.  Implementations should inherit this class.
     """
 
+    # [TODO] BaseArchive > _copy_permissions
     @staticmethod
     def _copy_permissions(mode, filename):
         """
@@ -113,6 +126,7 @@ class BaseArchive:
         if mode & stat.S_IROTH:
             os.chmod(filename, mode)
 
+    # [TODO] BaseArchive > split_leading_dir
     def split_leading_dir(self, path):
         path = str(path)
         path = path.lstrip("/").lstrip("\\")
@@ -125,6 +139,7 @@ class BaseArchive:
         else:
             return path, ""
 
+    # [TODO] BaseArchive > has_leading_dir
     def has_leading_dir(self, paths):
         """
         Return True if all the paths have the same leading path name
@@ -141,6 +156,7 @@ class BaseArchive:
                 return False
         return True
 
+    # [TODO] BaseArchive > target_filename
     def target_filename(self, to_path, name):
         target_path = os.path.abspath(to_path)
         filename = os.path.abspath(os.path.join(target_path, name))
@@ -148,24 +164,30 @@ class BaseArchive:
             raise SuspiciousOperation("Archive contains invalid path: '%s'" % name)
         return filename
 
+    # [TODO] BaseArchive > extract
     def extract(self):
         raise NotImplementedError(
             "subclasses of BaseArchive must provide an extract() method"
         )
 
+    # [TODO] BaseArchive > list
     def list(self):
         raise NotImplementedError(
             "subclasses of BaseArchive must provide a list() method"
         )
 
 
+# [TODO] TarArchive
 class TarArchive(BaseArchive):
+    # [TODO] TarArchive > __init__
     def __init__(self, file):
         self._archive = tarfile.open(file)
 
+    # [TODO] TarArchive > list
     def list(self, *args, **kwargs):
         self._archive.list(*args, **kwargs)
 
+    # [TODO] TarArchive > extract
     def extract(self, to_path):
         members = self._archive.getmembers()
         leading = self.has_leading_dir(x.name for x in members)
@@ -198,17 +220,22 @@ class TarArchive(BaseArchive):
                     if extracted:
                         extracted.close()
 
+    # [TODO] TarArchive > close
     def close(self):
         self._archive.close()
 
 
+# [TODO] ZipArchive
 class ZipArchive(BaseArchive):
+    # [TODO] ZipArchive > __init__
     def __init__(self, file):
         self._archive = zipfile.ZipFile(file)
 
+    # [TODO] ZipArchive > list
     def list(self, *args, **kwargs):
         self._archive.printdir(*args, **kwargs)
 
+    # [TODO] ZipArchive > extract
     def extract(self, to_path):
         namelist = self._archive.namelist()
         leading = self.has_leading_dir(namelist)
@@ -233,6 +260,7 @@ class ZipArchive(BaseArchive):
                 mode = info.external_attr >> 16
                 self._copy_permissions(mode, filename)
 
+    # [TODO] ZipArchive > close
     def close(self):
         self._archive.close()
 

@@ -15,12 +15,15 @@ from django.utils.functional import cached_property
 from django.utils.version import get_version_tuple
 
 
+# [TODO] SpatialiteNullCheckOperator
 class SpatialiteNullCheckOperator(SpatialOperator):
+    # [TODO] SpatialiteNullCheckOperator > as_sql
     def as_sql(self, connection, lookup, template_params, sql_params):
         sql, params = super().as_sql(connection, lookup, template_params, sql_params)
         return "%s > 0" % sql, params
 
 
+# [TODO] SpatiaLiteOperations
 class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
     name = "spatialite"
     spatialite = True
@@ -78,6 +81,7 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
         "Union": "ST_Union",
     }
 
+    # [TODO] SpatiaLiteOperations > unsupported_functions
     @cached_property
     def unsupported_functions(self):
         unsupported = {"BoundingCircle", "GeometryDistance", "IsEmpty", "MemSize"}
@@ -85,6 +89,7 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
             unsupported |= {"Azimuth", "GeoHash", "MakeValid"}
         return unsupported
 
+    # [TODO] SpatiaLiteOperations > spatial_version
     @cached_property
     def spatial_version(self):
         """Determine the version of the SpatiaLite library."""
@@ -100,6 +105,7 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
             raise ImproperlyConfigured("GeoDjango supports SpatiaLite 4.3.0 and above.")
         return version
 
+    # [TODO] SpatiaLiteOperations > convert_extent
     def convert_extent(self, box):
         """
         Convert the polygon data received from SpatiaLite to min/max values.
@@ -111,6 +117,7 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
         xmax, ymax = shell[2][:2]
         return (xmin, ymin, xmax, ymax)
 
+    # [TODO] SpatiaLiteOperations > geo_db_type
     def geo_db_type(self, f):
         """
         Return None because geometry columns are added via the
@@ -118,6 +125,7 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
         """
         return None
 
+    # [TODO] SpatiaLiteOperations > get_distance
     def get_distance(self, f, value, lookup_type):
         """
         Return the distance parameters for the given geometry field,
@@ -142,6 +150,7 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
             dist_param = value
         return [dist_param]
 
+    # [TODO] SpatiaLiteOperations > _get_spatialite_func
     def _get_spatialite_func(self, func):
         """
         Helper routine for calling SpatiaLite functions and returning
@@ -156,22 +165,27 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
             cursor.close()
         return row[0]
 
+    # [TODO] SpatiaLiteOperations > geos_version
     def geos_version(self):
         "Return the version of GEOS used by SpatiaLite as a string."
         return self._get_spatialite_func("geos_version()")
 
+    # [TODO] SpatiaLiteOperations > proj_version
     def proj_version(self):
         """Return the version of the PROJ library used by SpatiaLite."""
         return self._get_spatialite_func("proj4_version()")
 
+    # [TODO] SpatiaLiteOperations > lwgeom_version
     def lwgeom_version(self):
         """Return the version of LWGEOM library used by SpatiaLite."""
         return self._get_spatialite_func("lwgeom_version()")
 
+    # [TODO] SpatiaLiteOperations > rttopo_version
     def rttopo_version(self):
         """Return the version of RTTOPO library used by SpatiaLite."""
         return self._get_spatialite_func("rttopo_version()")
 
+    # [TODO] SpatiaLiteOperations > geom_lib_version
     def geom_lib_version(self):
         """
         Return the version of the version-dependant geom library used by
@@ -182,10 +196,12 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
         else:
             return self.lwgeom_version()
 
+    # [TODO] SpatiaLiteOperations > spatialite_version
     def spatialite_version(self):
         "Return the SpatiaLite library version as a string."
         return self._get_spatialite_func("spatialite_version()")
 
+    # [TODO] SpatiaLiteOperations > spatialite_version_tuple
     def spatialite_version_tuple(self):
         """
         Return the SpatiaLite version as a tuple (version string, major,
@@ -194,6 +210,7 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
         version = self.spatialite_version()
         return (version,) + get_version_tuple(version)
 
+    # [TODO] SpatiaLiteOperations > spatial_aggregate_name
     def spatial_aggregate_name(self, agg_name):
         """
         Return the spatial aggregate SQL template and function for the
@@ -203,6 +220,7 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
         return getattr(self, agg_name)
 
     # Routines for getting the OGC-compliant models.
+    # [TODO] SpatiaLiteOperations > geometry_columns
     def geometry_columns(self):
         from django.contrib.gis.db.backends.spatialite.models import (
             SpatialiteGeometryColumns,
@@ -210,6 +228,7 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
         return SpatialiteGeometryColumns
 
+    # [TODO] SpatiaLiteOperations > spatial_ref_sys
     def spatial_ref_sys(self):
         from django.contrib.gis.db.backends.spatialite.models import (
             SpatialiteSpatialRefSys,
@@ -217,6 +236,7 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
         return SpatialiteSpatialRefSys
 
+    # [TODO] SpatiaLiteOperations > get_geometry_converter
     def get_geometry_converter(self, expression):
         geom_class = expression.output_field.geom_class
         read = wkb_r().read

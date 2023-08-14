@@ -3,12 +3,15 @@ from django.db.backends.base.validation import BaseDatabaseValidation
 from django.utils.version import get_docs_version
 
 
+# [TODO] DatabaseValidation
 class DatabaseValidation(BaseDatabaseValidation):
+    # [TODO] DatabaseValidation > check
     def check(self, **kwargs):
         issues = super().check(**kwargs)
         issues.extend(self._check_sql_mode(**kwargs))
         return issues
 
+    # [TODO] DatabaseValidation > _check_sql_mode
     def _check_sql_mode(self, **kwargs):
         if not (
             self.connection.sql_mode & {"STRICT_TRANS_TABLES", "STRICT_ALL_TABLES"}
@@ -35,6 +38,7 @@ class DatabaseValidation(BaseDatabaseValidation):
             ]
         return []
 
+    # [TODO] DatabaseValidation > check_field_type
     def check_field_type(self, field, field_type):
         """
         MySQL has the following field length restriction:

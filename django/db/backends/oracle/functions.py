@@ -1,6 +1,7 @@
 from django.db.models import DecimalField, DurationField, Func
 
 
+# [TODO] IntervalToSeconds
 class IntervalToSeconds(Func):
     function = ""
     template = """
@@ -10,16 +11,19 @@ class IntervalToSeconds(Func):
     EXTRACT(second from %(expressions)s)
     """
 
+    # [TODO] IntervalToSeconds > __init__
     def __init__(self, expression, *, output_field=None, **extra):
         super().__init__(
             expression, output_field=output_field or DecimalField(), **extra
         )
 
 
+# [TODO] SecondsToInterval
 class SecondsToInterval(Func):
     function = "NUMTODSINTERVAL"
     template = "%(function)s(%(expressions)s, 'SECOND')"
 
+    # [TODO] SecondsToInterval > __init__
     def __init__(self, expression, *, output_field=None, **extra):
         super().__init__(
             expression, output_field=output_field or DurationField(), **extra

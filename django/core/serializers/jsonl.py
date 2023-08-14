@@ -10,11 +10,13 @@ from django.core.serializers.python import Deserializer as PythonDeserializer
 from django.core.serializers.python import Serializer as PythonSerializer
 
 
+# [TODO] Serializer
 class Serializer(PythonSerializer):
     """Convert a queryset to JSON Lines."""
 
     internal_use_only = False
 
+    # [TODO] Serializer > _init_options
     def _init_options(self):
         self._current = None
         self.json_kwargs = self.options.copy()
@@ -25,20 +27,24 @@ class Serializer(PythonSerializer):
         self.json_kwargs.setdefault("cls", DjangoJSONEncoder)
         self.json_kwargs.setdefault("ensure_ascii", False)
 
+    # [TODO] Serializer > start_serialization
     def start_serialization(self):
         self._init_options()
 
+    # [TODO] Serializer > end_object
     def end_object(self, obj):
         # self._current has the field data
         json.dump(self.get_dump_object(obj), self.stream, **self.json_kwargs)
         self.stream.write("\n")
         self._current = None
 
+    # [TODO] Serializer > getvalue
     def getvalue(self):
         # Grandparent super
         return super(PythonSerializer, self).getvalue()
 
 
+# [TODO] Deserializer
 def Deserializer(stream_or_string, **options):
     """Deserialize a stream or string of JSON data."""
     if isinstance(stream_or_string, bytes):

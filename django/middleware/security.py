@@ -5,7 +5,9 @@ from django.http import HttpResponsePermanentRedirect
 from django.utils.deprecation import MiddlewareMixin
 
 
+# [TODO] SecurityMiddleware
 class SecurityMiddleware(MiddlewareMixin):
+    # [TODO] SecurityMiddleware > __init__
     def __init__(self, get_response):
         super().__init__(get_response)
         self.sts_seconds = settings.SECURE_HSTS_SECONDS
@@ -18,6 +20,7 @@ class SecurityMiddleware(MiddlewareMixin):
         self.referrer_policy = settings.SECURE_REFERRER_POLICY
         self.cross_origin_opener_policy = settings.SECURE_CROSS_ORIGIN_OPENER_POLICY
 
+    # [TODO] SecurityMiddleware > process_request
     def process_request(self, request):
         path = request.path.lstrip("/")
         if (
@@ -30,6 +33,7 @@ class SecurityMiddleware(MiddlewareMixin):
                 "https://%s%s" % (host, request.get_full_path())
             )
 
+    # [TODO] SecurityMiddleware > process_response
     def process_response(self, request, response):
         if (
             self.sts_seconds

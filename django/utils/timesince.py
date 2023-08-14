@@ -25,6 +25,7 @@ TIME_CHUNKS = [
 MONTHS_DAYS = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 
+# [TODO] timesince
 def timesince(d, now=None, reversed=False, time_strings=None, depth=2):
     """
     Take two datetime objects and return the time between d and now as a nicely
@@ -135,6 +136,7 @@ def timesince(d, now=None, reversed=False, time_strings=None, depth=2):
     return gettext(", ").join(result)
 
 
+# [TODO] timeuntil
 def timeuntil(d, now=None, time_strings=None, depth=2):
     """
     Like timesince, but return a string measuring the time until the given time.

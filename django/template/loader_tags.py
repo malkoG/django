@@ -11,27 +11,34 @@ register = Library()
 BLOCK_CONTEXT_KEY = "block_context"
 
 
+# [TODO] BlockContext
 class BlockContext:
+    # [TODO] BlockContext > __init__
     def __init__(self):
         # Dictionary of FIFO queues.
         self.blocks = defaultdict(list)
 
+    # [TODO] BlockContext > __repr__
     def __repr__(self):
         return f"<{self.__class__.__qualname__}: blocks={self.blocks!r}>"
 
+    # [TODO] BlockContext > add_blocks
     def add_blocks(self, blocks):
         for name, block in blocks.items():
             self.blocks[name].insert(0, block)
 
+    # [TODO] BlockContext > pop
     def pop(self, name):
         try:
             return self.blocks[name].pop()
         except IndexError:
             return None
 
+    # [TODO] BlockContext > push
     def push(self, name, block):
         self.blocks[name].append(block)
 
+    # [TODO] BlockContext > get_block
     def get_block(self, name):
         try:
             return self.blocks[name][-1]
@@ -39,15 +46,19 @@ class BlockContext:
             return None
 
 
+# [TODO] BlockNode
 class BlockNode(Node):
+    # [TODO] BlockNode > __init__
     def __init__(self, name, nodelist, parent=None):
         self.name = name
         self.nodelist = nodelist
         self.parent = parent
 
+    # [TODO] BlockNode > __repr__
     def __repr__(self):
         return "<Block Node: %s. Contents: %r>" % (self.name, self.nodelist)
 
+    # [TODO] BlockNode > render
     def render(self, context):
         block_context = context.render_context.get(BLOCK_CONTEXT_KEY)
         with context.push():
@@ -67,6 +78,7 @@ class BlockNode(Node):
                     block_context.push(self.name, push)
         return result
 
+    # [TODO] BlockNode > super
     def super(self):
         if not hasattr(self, "context"):
             raise TemplateSyntaxError(
@@ -82,19 +94,23 @@ class BlockNode(Node):
         return ""
 
 
+# [TODO] ExtendsNode
 class ExtendsNode(Node):
     must_be_first = True
     context_key = "extends_context"
 
+    # [TODO] ExtendsNode > __init__
     def __init__(self, nodelist, parent_name, template_dirs=None):
         self.nodelist = nodelist
         self.parent_name = parent_name
         self.template_dirs = template_dirs
         self.blocks = {n.name: n for n in nodelist.get_nodes_by_type(BlockNode)}
 
+    # [TODO] ExtendsNode > __repr__
     def __repr__(self):
         return "<%s: extends %s>" % (self.__class__.__name__, self.parent_name.token)
 
+    # [TODO] ExtendsNode > find_template
     def find_template(self, template_name, context):
         """
         This is a wrapper around engine.find_template(). A history is kept in
@@ -113,6 +129,7 @@ class ExtendsNode(Node):
         history.append(origin)
         return template
 
+    # [TODO] ExtendsNode > get_parent
     def get_parent(self, context):
         parent = self.parent_name.resolve(context)
         if not parent:
@@ -130,6 +147,7 @@ class ExtendsNode(Node):
             return parent.template
         return self.find_template(parent, context)
 
+    # [TODO] ExtendsNode > render
     def render(self, context):
         compiled_parent = self.get_parent(context)
 
@@ -159,9 +177,11 @@ class ExtendsNode(Node):
             return compiled_parent._render(context)
 
 
+# [TODO] IncludeNode
 class IncludeNode(Node):
     context_key = "__include_context"
 
+    # [TODO] IncludeNode > __init__
     def __init__(
         self, template, *args, extra_context=None, isolated_context=False, **kwargs
     ):
@@ -170,9 +190,11 @@ class IncludeNode(Node):
         self.isolated_context = isolated_context
         super().__init__(*args, **kwargs)
 
+    # [TODO] IncludeNode > __repr__
     def __repr__(self):
         return f"<{self.__class__.__qualname__}: template={self.template!r}>"
 
+    # [TODO] IncludeNode > render
     def render(self, context):
         """
         Render the specified template and context. Cache the template object
@@ -210,6 +232,7 @@ class IncludeNode(Node):
             return template.render(context)
 
 
+# [TODO] do_block
 @register.tag("block")
 def do_block(parser, token):
     """
@@ -242,6 +265,7 @@ def do_block(parser, token):
     return BlockNode(block_name, nodelist)
 
 
+# [TODO] construct_relative_path
 def construct_relative_path(current_template_name, relative_name):
     """
     Convert a relative path (starting with './' or '../') to the full template
@@ -276,6 +300,7 @@ def construct_relative_path(current_template_name, relative_name):
     return f'"{new_name}"' if has_quotes else new_name
 
 
+# [TODO] do_extends
 @register.tag("extends")
 def do_extends(parser, token):
     """
@@ -300,6 +325,7 @@ def do_extends(parser, token):
     return ExtendsNode(nodelist, parent_name)
 
 
+# [TODO] do_include
 @register.tag("include")
 def do_include(parser, token):
     """

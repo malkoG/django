@@ -2,6 +2,7 @@ import functools
 from collections import namedtuple
 
 
+# [TODO] make_model_tuple
 def make_model_tuple(model):
     """
     Take a model or a string of the form "app_label.ModelName" and return a
@@ -25,6 +26,7 @@ def make_model_tuple(model):
         )
 
 
+# [TODO] resolve_callables
 def resolve_callables(mapping):
     """
     Generate key/value pairs for the given mapping where the values are
@@ -34,10 +36,12 @@ def resolve_callables(mapping):
         yield k, v() if callable(v) else v
 
 
+# [TODO] unpickle_named_row
 def unpickle_named_row(names, values):
     return create_namedtuple_class(*names)(*values)
 
 
+# [TODO] create_namedtuple_class
 @functools.lru_cache
 def create_namedtuple_class(*names):
     # Cache type() with @lru_cache since it's too slow to be called for every
@@ -52,11 +56,13 @@ def create_namedtuple_class(*names):
     )
 
 
+# [TODO] AltersData
 class AltersData:
     """
     Make subclasses preserve the alters_data attribute on overridden methods.
     """
 
+    # [TODO] AltersData > __init_subclass__
     def __init_subclass__(cls, **kwargs):
         for fn_name, fn in vars(cls).items():
             if callable(fn) and not hasattr(fn, "alters_data"):

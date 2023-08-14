@@ -13,6 +13,7 @@ from .resolvers import (
 )
 
 
+# [TODO] include
 def include(arg, namespace=None):
     app_name = None
     if isinstance(arg, tuple):
@@ -58,6 +59,7 @@ def include(arg, namespace=None):
     return (urlconf_module, app_name, namespace)
 
 
+# [TODO] _path
 def _path(route, view, kwargs=None, name=None, Pattern=None):
     from django.views import View
 

@@ -4,10 +4,12 @@ from django.utils._os import safe_join
 from django.utils.functional import cached_property
 
 
+# [TODO] BaseEngine
 class BaseEngine:
     # Core methods: engines have to provide their own implementation
     #               (except for from_string which is optional).
 
+    # [TODO] BaseEngine > __init__
     def __init__(self, params):
         """
         Initialize the template engine.
@@ -23,6 +25,7 @@ class BaseEngine:
                 "Unknown parameters: {}".format(", ".join(params))
             )
 
+    # [TODO] BaseEngine > app_dirname
     @property
     def app_dirname(self):
         raise ImproperlyConfigured(
@@ -30,6 +33,7 @@ class BaseEngine:
             "applications.".format(self.__class__.__name__)
         )
 
+    # [TODO] BaseEngine > from_string
     def from_string(self, template_code):
         """
         Create and return a template for the given source code.
@@ -40,6 +44,7 @@ class BaseEngine:
             "subclasses of BaseEngine should provide a from_string() method"
         )
 
+    # [TODO] BaseEngine > get_template
     def get_template(self, template_name):
         """
         Load and return a template for the given name.
@@ -53,6 +58,7 @@ class BaseEngine:
     # Utility methods: they are provided to minimize code duplication and
     #                  security issues in third-party backends.
 
+    # [TODO] BaseEngine > template_dirs
     @cached_property
     def template_dirs(self):
         """
@@ -64,6 +70,7 @@ class BaseEngine:
             template_dirs += get_app_template_dirs(self.app_dirname)
         return template_dirs
 
+    # [TODO] BaseEngine > iter_template_filenames
     def iter_template_filenames(self, template_name):
         """
         Iterate over candidate files for template_name.

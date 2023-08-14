@@ -7,18 +7,23 @@ from django.db import IntegrityError, connections, models, transaction
 from django.db.models import query_utils, signals, sql
 
 
+# [TODO] ProtectedError
 class ProtectedError(IntegrityError):
+    # [TODO] ProtectedError > __init__
     def __init__(self, msg, protected_objects):
         self.protected_objects = protected_objects
         super().__init__(msg, protected_objects)
 
 
+# [TODO] RestrictedError
 class RestrictedError(IntegrityError):
+    # [TODO] RestrictedError > __init__
     def __init__(self, msg, restricted_objects):
         self.restricted_objects = restricted_objects
         super().__init__(msg, restricted_objects)
 
 
+# [TODO] CASCADE
 def CASCADE(collector, field, sub_objs, using):
     collector.collect(
         sub_objs,
@@ -31,6 +36,7 @@ def CASCADE(collector, field, sub_objs, using):
         collector.add_field_update(field, None, sub_objs)
 
 
+# [TODO] PROTECT
 def PROTECT(collector, field, sub_objs, using):
     raise ProtectedError(
         "Cannot delete some instances of model '%s' because they are "
@@ -44,11 +50,13 @@ def PROTECT(collector, field, sub_objs, using):
     )
 
 
+# [TODO] RESTRICT
 def RESTRICT(collector, field, sub_objs, using):
     collector.add_restricted_objects(field, sub_objs)
     collector.add_dependency(field.remote_field.model, field.model)
 
 
+# [TODO] SET
 def SET(value):
     if callable(value):
 
@@ -65,6 +73,7 @@ def SET(value):
     return set_on_delete
 
 
+# [TODO] SET_NULL
 def SET_NULL(collector, field, sub_objs, using):
     collector.add_field_update(field, None, sub_objs)
 
@@ -72,6 +81,7 @@ def SET_NULL(collector, field, sub_objs, using):
 SET_NULL.lazy_sub_objs = True
 
 
+# [TODO] SET_DEFAULT
 def SET_DEFAULT(collector, field, sub_objs, using):
     collector.add_field_update(field, field.get_default(), sub_objs)
 
@@ -79,10 +89,12 @@ def SET_DEFAULT(collector, field, sub_objs, using):
 SET_DEFAULT.lazy_sub_objs = True
 
 
+# [TODO] DO_NOTHING
 def DO_NOTHING(collector, field, sub_objs, using):
     pass
 
 
+# [TODO] get_candidate_relations_to_delete
 def get_candidate_relations_to_delete(opts):
     # The candidate relations are the ones that come from N-1 and 1-1 relations.
     # N-N  (i.e., many-to-many) relations aren't candidates for deletion.
@@ -93,7 +105,9 @@ def get_candidate_relations_to_delete(opts):
     )
 
 
+# [TODO] Collector
 class Collector:
+    # [TODO] Collector > __init__
     def __init__(self, using, origin=None):
         self.using = using
         # A Model or QuerySet object.
@@ -115,6 +129,7 @@ class Collector:
         # parent.
         self.dependencies = defaultdict(set)  # {model: {models}}
 
+    # [TODO] Collector > add
     def add(self, objs, source=None, nullable=False, reverse_dependency=False):
         """
         Add 'objs' to the collection of objects to be deleted.  If the call is
@@ -139,6 +154,7 @@ class Collector:
             self.add_dependency(source, model, reverse_dependency=reverse_dependency)
         return new_objs
 
+    # [TODO] Collector > add_dependency
     def add_dependency(self, model, dependency, reverse_dependency=False):
         if reverse_dependency:
             model, dependency = dependency, model
@@ -147,6 +163,7 @@ class Collector:
         )
         self.data.setdefault(dependency, self.data.default_factory())
 
+    # [TODO] Collector > add_field_update
     def add_field_update(self, field, value, objs):
         """
         Schedule a field update. 'objs' must be a homogeneous iterable
@@ -154,11 +171,13 @@ class Collector:
         """
         self.field_updates[field, value].append(objs)
 
+    # [TODO] Collector > add_restricted_objects
     def add_restricted_objects(self, field, objs):
         if objs:
             model = objs[0].__class__
             self.restricted_objects[model][field].update(objs)
 
+    # [TODO] Collector > clear_restricted_objects_from_set
     def clear_restricted_objects_from_set(self, model, objs):
         if model in self.restricted_objects:
             self.restricted_objects[model] = {
@@ -166,6 +185,7 @@ class Collector:
                 for field, items in self.restricted_objects[model].items()
             }
 
+    # [TODO] Collector > clear_restricted_objects_from_queryset
     def clear_restricted_objects_from_queryset(self, model, qs):
         if model in self.restricted_objects:
             objs = set(
@@ -179,11 +199,13 @@ class Collector:
             )
             self.clear_restricted_objects_from_set(model, objs)
 
+    # [TODO] Collector > _has_signal_listeners
     def _has_signal_listeners(self, model):
         return signals.pre_delete.has_listeners(
             model
         ) or signals.post_delete.has_listeners(model)
 
+    # [TODO] Collector > can_fast_delete
     def can_fast_delete(self, objs, from_field=None):
         """
         Determine if the objects in the given queryset-like or single object
@@ -228,6 +250,7 @@ class Collector:
             )
         )
 
+    # [TODO] Collector > get_del_batches
     def get_del_batches(self, objs, fields):
         """
         Return the objs in suitably sized batches for the used connection.
@@ -244,6 +267,7 @@ class Collector:
         else:
             return [objs]
 
+    # [TODO] Collector > collect
     def collect(
         self,
         objs,
@@ -400,6 +424,7 @@ class Collector:
                         set(chain.from_iterable(restricted_objects.values())),
                     )
 
+    # [TODO] Collector > related_objects
     def related_objects(self, related_model, related_fields, objs):
         """
         Get a QuerySet of the related model to objs via related fields.
@@ -410,11 +435,13 @@ class Collector:
         )
         return related_model._base_manager.using(self.using).filter(predicate)
 
+    # [TODO] Collector > instances_with_model
     def instances_with_model(self):
         for model, instances in self.data.items():
             for obj in instances:
                 yield model, obj
 
+    # [TODO] Collector > sort
     def sort(self):
         sorted_models = []
         concrete_models = set()
@@ -433,6 +460,7 @@ class Collector:
                 return
         self.data = {model: self.data[model] for model in sorted_models}
 
+    # [TODO] Collector > delete
     def delete(self):
         # sort instance collections
         for model, instances in self.data.items():

@@ -15,6 +15,7 @@ from django.utils.dateparse import parse_date, parse_datetime, parse_time
 from django.utils.functional import cached_property
 
 
+# [TODO] DatabaseOperations
 class DatabaseOperations(BaseDatabaseOperations):
     cast_char_field_without_max_length = "text"
     cast_data_types = {
@@ -26,6 +27,7 @@ class DatabaseOperations(BaseDatabaseOperations):
     # SQLite. Use JSON_TYPE() instead.
     jsonfield_datatype_values = frozenset(["null", "false", "true"])
 
+    # [TODO] DatabaseOperations > bulk_batch_size
     def bulk_batch_size(self, fields, objs):
         """
         SQLite has a compile-time default (SQLITE_LIMIT_VARIABLE_NUMBER) of
@@ -41,6 +43,7 @@ class DatabaseOperations(BaseDatabaseOperations):
         else:
             return len(objs)
 
+    # [TODO] DatabaseOperations > check_expression_support
     def check_expression_support(self, expression):
         bad_fields = (models.DateField, models.DateTimeField, models.TimeField)
         bad_aggregates = (models.Sum, models.Avg, models.Variance, models.StdDev)
@@ -69,6 +72,7 @@ class DatabaseOperations(BaseDatabaseOperations):
                 "accepting multiple arguments."
             )
 
+    # [TODO] DatabaseOperations > date_extract_sql
     def date_extract_sql(self, lookup_type, sql, params):
         """
         Support EXTRACT with a user-defined function django_date_extract()
@@ -77,6 +81,7 @@ class DatabaseOperations(BaseDatabaseOperations):
         """
         return f"django_date_extract(%s, {sql})", (lookup_type.lower(), *params)
 
+    # [TODO] DatabaseOperations > fetch_returned_insert_rows
     def fetch_returned_insert_rows(self, cursor):
         """
         Given a cursor object that has just performed an INSERT...RETURNING
@@ -84,10 +89,12 @@ class DatabaseOperations(BaseDatabaseOperations):
         """
         return cursor.fetchall()
 
+    # [TODO] DatabaseOperations > format_for_duration_arithmetic
     def format_for_duration_arithmetic(self, sql):
         """Do nothing since formatting is handled in the custom function."""
         return sql
 
+    # [TODO] DatabaseOperations > date_trunc_sql
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
         return f"django_date_trunc(%s, {sql}, %s, %s)", (
             lookup_type.lower(),
@@ -95,6 +102,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             *self._convert_tznames_to_sql(tzname),
         )
 
+    # [TODO] DatabaseOperations > time_trunc_sql
     def time_trunc_sql(self, lookup_type, sql, params, tzname=None):
         return f"django_time_trunc(%s, {sql}, %s, %s)", (
             lookup_type.lower(),
@@ -102,23 +110,27 @@ class DatabaseOperations(BaseDatabaseOperations):
             *self._convert_tznames_to_sql(tzname),
         )
 
+    # [TODO] DatabaseOperations > _convert_tznames_to_sql
     def _convert_tznames_to_sql(self, tzname):
         if tzname and settings.USE_TZ:
             return tzname, self.connection.timezone_name
         return None, None
 
+    # [TODO] DatabaseOperations > datetime_cast_date_sql
     def datetime_cast_date_sql(self, sql, params, tzname):
         return f"django_datetime_cast_date({sql}, %s, %s)", (
             *params,
             *self._convert_tznames_to_sql(tzname),
         )
 
+    # [TODO] DatabaseOperations > datetime_cast_time_sql
     def datetime_cast_time_sql(self, sql, params, tzname):
         return f"django_datetime_cast_time({sql}, %s, %s)", (
             *params,
             *self._convert_tznames_to_sql(tzname),
         )
 
+    # [TODO] DatabaseOperations > datetime_extract_sql
     def datetime_extract_sql(self, lookup_type, sql, params, tzname):
         return f"django_datetime_extract(%s, {sql}, %s, %s)", (
             lookup_type.lower(),
@@ -126,6 +138,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             *self._convert_tznames_to_sql(tzname),
         )
 
+    # [TODO] DatabaseOperations > datetime_trunc_sql
     def datetime_trunc_sql(self, lookup_type, sql, params, tzname):
         return f"django_datetime_trunc(%s, {sql}, %s, %s)", (
             lookup_type.lower(),
@@ -133,12 +146,15 @@ class DatabaseOperations(BaseDatabaseOperations):
             *self._convert_tznames_to_sql(tzname),
         )
 
+    # [TODO] DatabaseOperations > time_extract_sql
     def time_extract_sql(self, lookup_type, sql, params):
         return f"django_time_extract(%s, {sql})", (lookup_type.lower(), *params)
 
+    # [TODO] DatabaseOperations > pk_default_value
     def pk_default_value(self):
         return "NULL"
 
+    # [TODO] DatabaseOperations > _quote_params_for_last_executed_query
     def _quote_params_for_last_executed_query(self, params):
         """
         Only for last_executed_query! Don't use this to execute SQL queries!
@@ -166,6 +182,7 @@ class DatabaseOperations(BaseDatabaseOperations):
         finally:
             cursor.close()
 
+    # [TODO] DatabaseOperations > last_executed_query
     def last_executed_query(self, cursor, sql, params):
         # Python substitutes parameters in Modules/_sqlite/cursor.c with:
         # bind_parameters(state, self->statement, parameters);
@@ -184,14 +201,17 @@ class DatabaseOperations(BaseDatabaseOperations):
         else:
             return sql
 
+    # [TODO] DatabaseOperations > quote_name
     def quote_name(self, name):
         if name.startswith('"') and name.endswith('"'):
             return name  # Quoting once is enough.
         return '"%s"' % name
 
+    # [TODO] DatabaseOperations > no_limit_value
     def no_limit_value(self):
         return -1
 
+    # [TODO] DatabaseOperations > __references_graph
     def __references_graph(self, table_name):
         query = """
         WITH tables AS (
@@ -211,12 +231,14 @@ class DatabaseOperations(BaseDatabaseOperations):
             results = cursor.execute(query, params)
             return [row[0] for row in results.fetchall()]
 
+    # [TODO] DatabaseOperations > _references_graph
     @cached_property
     def _references_graph(self):
         # 512 is large enough to fit the ~330 tables (as of this writing) in
         # Django's test suite.
         return lru_cache(maxsize=512)(self.__references_graph)
 
+    # [TODO] DatabaseOperations > sql_flush
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
         if tables and allow_cascade:
             # Simulate TRUNCATE CASCADE by recursively collecting the tables
@@ -238,6 +260,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             sql.extend(self.sequence_reset_by_name_sql(style, sequences))
         return sql
 
+    # [TODO] DatabaseOperations > sequence_reset_by_name_sql
     def sequence_reset_by_name_sql(self, style, sequences):
         if not sequences:
             return []
@@ -257,6 +280,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             ),
         ]
 
+    # [TODO] DatabaseOperations > adapt_datetimefield_value
     def adapt_datetimefield_value(self, value):
         if value is None:
             return None
@@ -277,6 +301,7 @@ class DatabaseOperations(BaseDatabaseOperations):
 
         return str(value)
 
+    # [TODO] DatabaseOperations > adapt_timefield_value
     def adapt_timefield_value(self, value):
         if value is None:
             return None
@@ -291,6 +316,7 @@ class DatabaseOperations(BaseDatabaseOperations):
 
         return str(value)
 
+    # [TODO] DatabaseOperations > get_db_converters
     def get_db_converters(self, expression):
         converters = super().get_db_converters(expression)
         internal_type = expression.output_field.get_internal_type()
@@ -308,6 +334,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             converters.append(self.convert_booleanfield_value)
         return converters
 
+    # [TODO] DatabaseOperations > convert_datetimefield_value
     def convert_datetimefield_value(self, value, expression, connection):
         if value is not None:
             if not isinstance(value, datetime.datetime):
@@ -316,18 +343,21 @@ class DatabaseOperations(BaseDatabaseOperations):
                 value = timezone.make_aware(value, self.connection.timezone)
         return value
 
+    # [TODO] DatabaseOperations > convert_datefield_value
     def convert_datefield_value(self, value, expression, connection):
         if value is not None:
             if not isinstance(value, datetime.date):
                 value = parse_date(value)
         return value
 
+    # [TODO] DatabaseOperations > convert_timefield_value
     def convert_timefield_value(self, value, expression, connection):
         if value is not None:
             if not isinstance(value, datetime.time):
                 value = parse_time(value)
         return value
 
+    # [TODO] DatabaseOperations > get_decimalfield_converter
     def get_decimalfield_converter(self, expression):
         # SQLite stores only 15 significant digits. Digits coming from
         # float inaccuracy must be removed.
@@ -351,19 +381,23 @@ class DatabaseOperations(BaseDatabaseOperations):
 
         return converter
 
+    # [TODO] DatabaseOperations > convert_uuidfield_value
     def convert_uuidfield_value(self, value, expression, connection):
         if value is not None:
             value = uuid.UUID(value)
         return value
 
+    # [TODO] DatabaseOperations > convert_booleanfield_value
     def convert_booleanfield_value(self, value, expression, connection):
         return bool(value) if value in (1, 0) else value
 
+    # [TODO] DatabaseOperations > bulk_insert_sql
     def bulk_insert_sql(self, fields, placeholder_rows):
         placeholder_rows_sql = (", ".join(row) for row in placeholder_rows)
         values_sql = ", ".join(f"({sql})" for sql in placeholder_rows_sql)
         return f"VALUES {values_sql}"
 
+    # [TODO] DatabaseOperations > combine_expression
     def combine_expression(self, connector, sub_expressions):
         # SQLite doesn't have a ^ operator, so use the user-defined POWER
         # function that's registered in connect().
@@ -373,6 +407,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             return "BITXOR(%s)" % ",".join(sub_expressions)
         return super().combine_expression(connector, sub_expressions)
 
+    # [TODO] DatabaseOperations > combine_duration_expression
     def combine_duration_expression(self, connector, sub_expressions):
         if connector not in ["+", "-", "*", "/"]:
             raise DatabaseError("Invalid connector for timedelta: %s." % connector)
@@ -381,6 +416,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             raise ValueError("Too many params for timedelta operations.")
         return "django_format_dtdelta(%s)" % ", ".join(fn_params)
 
+    # [TODO] DatabaseOperations > integer_field_range
     def integer_field_range(self, internal_type):
         # SQLite doesn't enforce any integer constraints, but sqlite3 supports
         # integers up to 64 bits.
@@ -392,6 +428,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             return (0, 9223372036854775807)
         return (-9223372036854775808, 9223372036854775807)
 
+    # [TODO] DatabaseOperations > subtract_temporals
     def subtract_temporals(self, internal_type, lhs, rhs):
         lhs_sql, lhs_params = lhs
         rhs_sql, rhs_params = rhs
@@ -400,11 +437,13 @@ class DatabaseOperations(BaseDatabaseOperations):
             return "django_time_diff(%s, %s)" % (lhs_sql, rhs_sql), params
         return "django_timestamp_diff(%s, %s)" % (lhs_sql, rhs_sql), params
 
+    # [TODO] DatabaseOperations > insert_statement
     def insert_statement(self, on_conflict=None):
         if on_conflict == OnConflict.IGNORE:
             return "INSERT OR IGNORE INTO"
         return super().insert_statement(on_conflict=on_conflict)
 
+    # [TODO] DatabaseOperations > return_insert_columns
     def return_insert_columns(self, fields):
         # SQLite < 3.35 doesn't support an INSERT...RETURNING statement.
         if not fields:
@@ -419,6 +458,7 @@ class DatabaseOperations(BaseDatabaseOperations):
         ]
         return "RETURNING %s" % ", ".join(columns), ()
 
+    # [TODO] DatabaseOperations > on_conflict_suffix_sql
     def on_conflict_suffix_sql(self, fields, on_conflict, update_fields, unique_fields):
         if (
             on_conflict == OnConflict.UPDATE

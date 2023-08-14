@@ -3,9 +3,11 @@ import signal
 from django.db.backends.base.client import BaseDatabaseClient
 
 
+# [TODO] DatabaseClient
 class DatabaseClient(BaseDatabaseClient):
     executable_name = "mysql"
 
+    # [TODO] DatabaseClient > settings_to_cmd_args_env
     @classmethod
     def settings_to_cmd_args_env(cls, settings_dict, parameters):
         args = [cls.executable_name]
@@ -61,6 +63,7 @@ class DatabaseClient(BaseDatabaseClient):
         args.extend(parameters)
         return args, env
 
+    # [TODO] DatabaseClient > runshell
     def runshell(self, parameters):
         sigint_handler = signal.getsignal(signal.SIGINT)
         try:

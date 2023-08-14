@@ -9,11 +9,13 @@ from django.db.models.sql.query import Query
 __all__ = ["DeleteQuery", "UpdateQuery", "InsertQuery", "AggregateQuery"]
 
 
+# [TODO] DeleteQuery
 class DeleteQuery(Query):
     """A DELETE SQL query."""
 
     compiler = "SQLDeleteCompiler"
 
+    # [TODO] DeleteQuery > do_query
     def do_query(self, table, where, using):
         self.alias_map = {table: self.alias_map[table]}
         self.where = where
@@ -23,6 +25,7 @@ class DeleteQuery(Query):
                 return cursor.rowcount
         return 0
 
+    # [TODO] DeleteQuery > delete_batch
     def delete_batch(self, pk_list, using):
         """
         Set up and execute delete queries for all the objects in pk_list.
@@ -45,15 +48,18 @@ class DeleteQuery(Query):
         return num_deleted
 
 
+# [TODO] UpdateQuery
 class UpdateQuery(Query):
     """An UPDATE SQL query."""
 
     compiler = "SQLUpdateCompiler"
 
+    # [TODO] UpdateQuery > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._setup_query()
 
+    # [TODO] UpdateQuery > _setup_query
     def _setup_query(self):
         """
         Run on initialization and at the end of chaining. Any attributes that
@@ -63,11 +69,13 @@ class UpdateQuery(Query):
         self.related_ids = None
         self.related_updates = {}
 
+    # [TODO] UpdateQuery > clone
     def clone(self):
         obj = super().clone()
         obj.related_updates = self.related_updates.copy()
         return obj
 
+    # [TODO] UpdateQuery > update_batch
     def update_batch(self, pk_list, values, using):
         self.add_update_values(values)
         for offset in range(0, len(pk_list), GET_ITERATOR_CHUNK_SIZE):
@@ -77,6 +85,7 @@ class UpdateQuery(Query):
             )
             self.get_compiler(using).execute_sql(NO_RESULTS)
 
+    # [TODO] UpdateQuery > add_update_values
     def add_update_values(self, values):
         """
         Convert a dictionary of field name to value mappings into an update
@@ -101,6 +110,7 @@ class UpdateQuery(Query):
             values_seq.append((field, model, val))
         return self.add_update_fields(values_seq)
 
+    # [TODO] UpdateQuery > add_update_fields
     def add_update_fields(self, values_seq):
         """
         Append a sequence of (field, model, value) triples to the internal list
@@ -113,6 +123,7 @@ class UpdateQuery(Query):
                 val = val.resolve_expression(self, allow_joins=False, for_save=True)
             self.values.append((field, model, val))
 
+    # [TODO] UpdateQuery > add_related_update
     def add_related_update(self, model, field, value):
         """
         Add (name, value) to an update query for an ancestor model.
@@ -121,6 +132,7 @@ class UpdateQuery(Query):
         """
         self.related_updates.setdefault(model, []).append((field, None, value))
 
+    # [TODO] UpdateQuery > get_related_updates
     def get_related_updates(self):
         """
         Return a list of query objects: one for each update required to an
@@ -139,9 +151,11 @@ class UpdateQuery(Query):
         return result
 
 
+# [TODO] InsertQuery
 class InsertQuery(Query):
     compiler = "SQLInsertCompiler"
 
+    # [TODO] InsertQuery > __init__
     def __init__(
         self, *args, on_conflict=None, update_fields=None, unique_fields=None, **kwargs
     ):
@@ -152,12 +166,14 @@ class InsertQuery(Query):
         self.update_fields = update_fields or []
         self.unique_fields = unique_fields or []
 
+    # [TODO] InsertQuery > insert_values
     def insert_values(self, fields, objs, raw=False):
         self.fields = fields
         self.objs = objs
         self.raw = raw
 
 
+# [TODO] AggregateQuery
 class AggregateQuery(Query):
     """
     Take another query as a parameter to the FROM clause and only select the
@@ -166,6 +182,7 @@ class AggregateQuery(Query):
 
     compiler = "SQLAggregateCompiler"
 
+    # [TODO] AggregateQuery > __init__
     def __init__(self, model, inner_query):
         self.inner_query = inner_query
         super().__init__(model)

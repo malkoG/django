@@ -4,6 +4,7 @@ backends.
 """
 
 
+# [TODO] SpatialOperator
 class SpatialOperator:
     """
     Class encapsulating the behavior specific to a GIS operation (used by lookups).
@@ -11,10 +12,12 @@ class SpatialOperator:
 
     sql_template = None
 
+    # [TODO] SpatialOperator > __init__
     def __init__(self, op=None, func=None):
         self.op = op
         self.func = func
 
+    # [TODO] SpatialOperator > default_template
     @property
     def default_template(self):
         if self.func:
@@ -22,6 +25,7 @@ class SpatialOperator:
         else:
             return "%(lhs)s %(op)s %(rhs)s"
 
+    # [TODO] SpatialOperator > as_sql
     def as_sql(self, connection, lookup, template_params, sql_params):
         sql_template = self.sql_template or lookup.sql_template or self.default_template
         template_params.update({"op": self.op, "func": self.func})

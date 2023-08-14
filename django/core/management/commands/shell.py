@@ -7,6 +7,7 @@ from django.core.management import BaseCommand, CommandError
 from django.utils.datastructures import OrderedSet
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = (
         "Runs a Python interactive interpreter. Tries to use IPython or "
@@ -17,6 +18,7 @@ class Command(BaseCommand):
     requires_system_checks = []
     shells = ["ipython", "bpython", "python"]
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "--no-startup",
@@ -44,16 +46,19 @@ class Command(BaseCommand):
             ),
         )
 
+    # [TODO] Command > ipython
     def ipython(self, options):
         from IPython import start_ipython
 
         start_ipython(argv=[])
 
+    # [TODO] Command > bpython
     def bpython(self, options):
         import bpython
 
         bpython.embed()
 
+    # [TODO] Command > python
     def python(self, options):
         import code
 
@@ -111,6 +116,7 @@ class Command(BaseCommand):
         # Start the interactive interpreter.
         code.interact(local=imported_objects)
 
+    # [TODO] Command > handle
     def handle(self, **options):
         # Execute the command and exit.
         if options["command"]:

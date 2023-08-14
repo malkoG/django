@@ -1,3 +1,4 @@
+# [TODO] MigrationOptimizer
 class MigrationOptimizer:
     """
     Power the optimization process, where you provide a list of Operations
@@ -9,6 +10,7 @@ class MigrationOptimizer:
     nothing.
     """
 
+    # [TODO] MigrationOptimizer > optimize
     def optimize(self, operations, app_label):
         """
         Main optimization entry point. Pass in a list of Operation instances,
@@ -37,6 +39,7 @@ class MigrationOptimizer:
                 return result
             operations = result
 
+    # [TODO] MigrationOptimizer > optimize_inner
     def optimize_inner(self, operations, app_label):
         """Inner optimization loop."""
         new_operations = []

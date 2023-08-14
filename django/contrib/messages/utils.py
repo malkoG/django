@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.messages import constants
 
 
+# [TODO] get_level_tags
 def get_level_tags():
     """
     Return the message level tags.

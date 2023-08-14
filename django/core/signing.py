@@ -51,18 +51,21 @@ _SEP_UNSAFE = _lazy_re_compile(r"^[A-z0-9-_=]*$")
 BASE62_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 
+# [TODO] BadSignature
 class BadSignature(Exception):
     """Signature does not match."""
 
     pass
 
 
+# [TODO] SignatureExpired
 class SignatureExpired(BadSignature):
     """Signature timestamp is older than required max_age."""
 
     pass
 
 
+# [TODO] b62_encode
 def b62_encode(s):
     if s == 0:
         return "0"
@@ -75,6 +78,7 @@ def b62_encode(s):
     return sign + encoded
 
 
+# [TODO] b62_decode
 def b62_decode(s):
     if s == "0":
         return 0
@@ -88,26 +92,31 @@ def b62_decode(s):
     return sign * decoded
 
 
+# [TODO] b64_encode
 def b64_encode(s):
     return base64.urlsafe_b64encode(s).strip(b"=")
 
 
+# [TODO] b64_decode
 def b64_decode(s):
     pad = b"=" * (-len(s) % 4)
     return base64.urlsafe_b64decode(s + pad)
 
 
+# [TODO] base64_hmac
 def base64_hmac(salt, value, key, algorithm="sha1"):
     return b64_encode(
         salted_hmac(salt, value, key, algorithm=algorithm).digest()
     ).decode()
 
 
+# [TODO] _cookie_signer_key
 def _cookie_signer_key(key):
     # SECRET_KEYS items may be str or bytes.
     return b"django.http.cookies" + force_bytes(key)
 
 
+# [TODO] get_cookie_signer
 def get_cookie_signer(salt="django.core.signing.get_cookie_signer"):
     Signer = import_string(settings.SIGNING_BACKEND)
     return Signer(
@@ -117,19 +126,23 @@ def get_cookie_signer(salt="django.core.signing.get_cookie_signer"):
     )
 
 
+# [TODO] JSONSerializer
 class JSONSerializer:
     """
     Simple wrapper around json to be used in signing.dumps and
     signing.loads.
     """
 
+    # [TODO] JSONSerializer > dumps
     def dumps(self, obj):
         return json.dumps(obj, separators=(",", ":")).encode("latin-1")
 
+    # [TODO] JSONSerializer > loads
     def loads(self, data):
         return json.loads(data.decode("latin-1"))
 
 
+# [TODO] dumps
 def dumps(
     obj, key=None, salt="django.core.signing", serializer=JSONSerializer, compress=False
 ):
@@ -154,6 +167,7 @@ def dumps(
     )
 
 
+# [TODO] loads
 def loads(
     s,
     key=None,
@@ -176,11 +190,13 @@ def loads(
     )
 
 
+# [TODO] Signer
 class Signer:
     # RemovedInDjango51Warning: When the deprecation ends, replace with:
     # def __init__(
     #   self, *, key=None, sep=":", salt=None, algorithm=None, fallback_keys=None
     # ):
+    # [TODO] Signer > __init__
     def __init__(
         self,
         *args,
@@ -221,13 +237,16 @@ class Signer:
                 "only A-z0-9-_=)" % sep,
             )
 
+    # [TODO] Signer > signature
     def signature(self, value, key=None):
         key = key or self.key
         return base64_hmac(self.salt + "signer", value, key, algorithm=self.algorithm)
 
+    # [TODO] Signer > sign
     def sign(self, value):
         return "%s%s%s" % (value, self.sep, self.signature(value))
 
+    # [TODO] Signer > unsign
     def unsign(self, signed_value):
         if self.sep not in signed_value:
             raise BadSignature('No "%s" found in value' % self.sep)
@@ -237,6 +256,7 @@ class Signer:
                 return value
         raise BadSignature('Signature "%s" does not match' % sig)
 
+    # [TODO] Signer > sign_object
     def sign_object(self, obj, serializer=JSONSerializer, compress=False):
         """
         Return URL-safe, hmac signed base64 compressed JSON string.
@@ -262,6 +282,7 @@ class Signer:
             base64d = "." + base64d
         return self.sign(base64d)
 
+    # [TODO] Signer > unsign_object
     def unsign_object(self, signed_obj, serializer=JSONSerializer, **kwargs):
         # Signer.unsign() returns str but base64 and zlib compression operate
         # on bytes.
@@ -276,14 +297,18 @@ class Signer:
         return serializer().loads(data)
 
 
+# [TODO] TimestampSigner
 class TimestampSigner(Signer):
+    # [TODO] TimestampSigner > timestamp
     def timestamp(self):
         return b62_encode(int(time.time()))
 
+    # [TODO] TimestampSigner > sign
     def sign(self, value):
         value = "%s%s%s" % (value, self.sep, self.timestamp())
         return super().sign(value)
 
+    # [TODO] TimestampSigner > unsign
     def unsign(self, value, max_age=None):
         """
         Retrieve original value and check it wasn't signed more

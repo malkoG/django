@@ -21,6 +21,7 @@ from .mixins import CheckFieldDefaultMixin
 __all__ = ["JSONField"]
 
 
+# [TODO] JSONField
 class JSONField(CheckFieldDefaultMixin, Field):
     empty_strings_allowed = False
     description = _("A JSON object")
@@ -29,6 +30,7 @@ class JSONField(CheckFieldDefaultMixin, Field):
     }
     _default_hint = ("dict", "{}")
 
+    # [TODO] JSONField > __init__
     def __init__(
         self,
         verbose_name=None,
@@ -45,12 +47,14 @@ class JSONField(CheckFieldDefaultMixin, Field):
         self.decoder = decoder
         super().__init__(verbose_name, name, **kwargs)
 
+    # [TODO] JSONField > check
     def check(self, **kwargs):
         errors = super().check(**kwargs)
         databases = kwargs.get("databases") or []
         errors.extend(self._check_supported(databases))
         return errors
 
+    # [TODO] JSONField > _check_supported
     def _check_supported(self, databases):
         errors = []
         for db in databases:
@@ -75,6 +79,7 @@ class JSONField(CheckFieldDefaultMixin, Field):
                 )
         return errors
 
+    # [TODO] JSONField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if self.encoder is not None:
@@ -83,6 +88,7 @@ class JSONField(CheckFieldDefaultMixin, Field):
             kwargs["decoder"] = self.decoder
         return name, path, args, kwargs
 
+    # [TODO] JSONField > from_db_value
     def from_db_value(self, value, expression, connection):
         if value is None:
             return value
@@ -95,9 +101,11 @@ class JSONField(CheckFieldDefaultMixin, Field):
         except json.JSONDecodeError:
             return value
 
+    # [TODO] JSONField > get_internal_type
     def get_internal_type(self):
         return "JSONField"
 
+    # [TODO] JSONField > get_db_prep_value
     def get_db_prep_value(self, value, connection, prepared=False):
         if not prepared:
             value = self.get_prep_value(value)
@@ -130,17 +138,20 @@ class JSONField(CheckFieldDefaultMixin, Field):
             return value
         return connection.ops.adapt_json_value(value, self.encoder)
 
+    # [TODO] JSONField > get_db_prep_save
     def get_db_prep_save(self, value, connection):
         if value is None:
             return value
         return self.get_db_prep_value(value, connection)
 
+    # [TODO] JSONField > get_transform
     def get_transform(self, name):
         transform = super().get_transform(name)
         if transform:
             return transform
         return KeyTransformFactory(name)
 
+    # [TODO] JSONField > validate
     def validate(self, value, model_instance):
         super().validate(value, model_instance)
         try:
@@ -152,9 +163,11 @@ class JSONField(CheckFieldDefaultMixin, Field):
                 params={"value": value},
             )
 
+    # [TODO] JSONField > value_to_string
     def value_to_string(self, obj):
         return self.value_from_object(obj)
 
+    # [TODO] JSONField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -166,6 +179,7 @@ class JSONField(CheckFieldDefaultMixin, Field):
         )
 
 
+# [TODO] compile_json_path
 def compile_json_path(key_transforms, include_root=True):
     path = ["$"] if include_root else []
     for key_transform in key_transforms:
@@ -179,10 +193,12 @@ def compile_json_path(key_transforms, include_root=True):
     return "".join(path)
 
 
+# [TODO] DataContains
 class DataContains(FieldGetDbPrepValueMixin, PostgresOperatorLookup):
     lookup_name = "contains"
     postgres_operator = "@>"
 
+    # [TODO] DataContains > as_sql
     def as_sql(self, compiler, connection):
         if not connection.features.supports_json_field_contains:
             raise NotSupportedError(
@@ -194,10 +210,12 @@ class DataContains(FieldGetDbPrepValueMixin, PostgresOperatorLookup):
         return "JSON_CONTAINS(%s, %s)" % (lhs, rhs), params
 
 
+# [TODO] ContainedBy
 class ContainedBy(FieldGetDbPrepValueMixin, PostgresOperatorLookup):
     lookup_name = "contained_by"
     postgres_operator = "<@"
 
+    # [TODO] ContainedBy > as_sql
     def as_sql(self, compiler, connection):
         if not connection.features.supports_json_field_contains:
             raise NotSupportedError(
@@ -209,13 +227,16 @@ class ContainedBy(FieldGetDbPrepValueMixin, PostgresOperatorLookup):
         return "JSON_CONTAINS(%s, %s)" % (rhs, lhs), params
 
 
+# [TODO] HasKeyLookup
 class HasKeyLookup(PostgresOperatorLookup):
     logical_operator = None
 
+    # [TODO] HasKeyLookup > compile_json_path_final_key
     def compile_json_path_final_key(self, key_transform):
         # Compile the final key without interpreting ints as array elements.
         return ".%s" % json.dumps(key_transform)
 
+    # [TODO] HasKeyLookup > as_sql
     def as_sql(self, compiler, connection, template=None):
         # Process JSON path from the left-hand side.
         if isinstance(self.lhs, KeyTransform):
@@ -246,11 +267,13 @@ class HasKeyLookup(PostgresOperatorLookup):
             sql = "(%s)" % self.logical_operator.join([sql] * len(rhs_params))
         return sql, tuple(lhs_params) + tuple(rhs_params)
 
+    # [TODO] HasKeyLookup > as_mysql
     def as_mysql(self, compiler, connection):
         return self.as_sql(
             compiler, connection, template="JSON_CONTAINS_PATH(%s, 'one', %%s)"
         )
 
+    # [TODO] HasKeyLookup > as_oracle
     def as_oracle(self, compiler, connection):
         sql, params = self.as_sql(
             compiler, connection, template="JSON_EXISTS(%s, '%%s')"
@@ -259,6 +282,7 @@ class HasKeyLookup(PostgresOperatorLookup):
         # as bind variables on Oracle.
         return sql % tuple(params), []
 
+    # [TODO] HasKeyLookup > as_postgresql
     def as_postgresql(self, compiler, connection):
         if isinstance(self.rhs, KeyTransform):
             *_, rhs_key_transforms = self.rhs.preprocess_lhs(compiler, connection)
@@ -267,38 +291,46 @@ class HasKeyLookup(PostgresOperatorLookup):
             self.rhs = rhs_key_transforms[-1]
         return super().as_postgresql(compiler, connection)
 
+    # [TODO] HasKeyLookup > as_sqlite
     def as_sqlite(self, compiler, connection):
         return self.as_sql(
             compiler, connection, template="JSON_TYPE(%s, %%s) IS NOT NULL"
         )
 
 
+# [TODO] HasKey
 class HasKey(HasKeyLookup):
     lookup_name = "has_key"
     postgres_operator = "?"
     prepare_rhs = False
 
 
+# [TODO] HasKeys
 class HasKeys(HasKeyLookup):
     lookup_name = "has_keys"
     postgres_operator = "?&"
     logical_operator = " AND "
 
+    # [TODO] HasKeys > get_prep_lookup
     def get_prep_lookup(self):
         return [str(item) for item in self.rhs]
 
 
+# [TODO] HasAnyKeys
 class HasAnyKeys(HasKeys):
     lookup_name = "has_any_keys"
     postgres_operator = "?|"
     logical_operator = " OR "
 
 
+# [TODO] HasKeyOrArrayIndex
 class HasKeyOrArrayIndex(HasKey):
+    # [TODO] HasKeyOrArrayIndex > compile_json_path_final_key
     def compile_json_path_final_key(self, key_transform):
         return compile_json_path([key_transform], include_root=False)
 
 
+# [TODO] CaseInsensitiveMixin
 class CaseInsensitiveMixin:
     """
     Mixin to allow case-insensitive comparison of JSON values on MySQL.
@@ -307,12 +339,14 @@ class CaseInsensitiveMixin:
     case-sensitive.
     """
 
+    # [TODO] CaseInsensitiveMixin > process_lhs
     def process_lhs(self, compiler, connection):
         lhs, lhs_params = super().process_lhs(compiler, connection)
         if connection.vendor == "mysql":
             return "LOWER(%s)" % lhs, lhs_params
         return lhs, lhs_params
 
+    # [TODO] CaseInsensitiveMixin > process_rhs
     def process_rhs(self, compiler, connection):
         rhs, rhs_params = super().process_rhs(compiler, connection)
         if connection.vendor == "mysql":
@@ -320,9 +354,11 @@ class CaseInsensitiveMixin:
         return rhs, rhs_params
 
 
+# [TODO] JSONExact
 class JSONExact(lookups.Exact):
     can_use_none_as_rhs = True
 
+    # [TODO] JSONExact > process_rhs
     def process_rhs(self, compiler, connection):
         rhs, rhs_params = super().process_rhs(compiler, connection)
         # Treat None lookup values as null.
@@ -334,6 +370,7 @@ class JSONExact(lookups.Exact):
         return rhs, rhs_params
 
 
+# [TODO] JSONIContains
 class JSONIContains(CaseInsensitiveMixin, lookups.IContains):
     pass
 
@@ -347,14 +384,17 @@ JSONField.register_lookup(JSONExact)
 JSONField.register_lookup(JSONIContains)
 
 
+# [TODO] KeyTransform
 class KeyTransform(Transform):
     postgres_operator = "->"
     postgres_nested_operator = "#>"
 
+    # [TODO] KeyTransform > __init__
     def __init__(self, key_name, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.key_name = str(key_name)
 
+    # [TODO] KeyTransform > preprocess_lhs
     def preprocess_lhs(self, compiler, connection):
         key_transforms = [self.key_name]
         previous = self.lhs
@@ -367,11 +407,13 @@ class KeyTransform(Transform):
             key_transforms = [key.replace("%", "%%") for key in key_transforms]
         return lhs, params, key_transforms
 
+    # [TODO] KeyTransform > as_mysql
     def as_mysql(self, compiler, connection):
         lhs, params, key_transforms = self.preprocess_lhs(compiler, connection)
         json_path = compile_json_path(key_transforms)
         return "JSON_EXTRACT(%s, %%s)" % lhs, tuple(params) + (json_path,)
 
+    # [TODO] KeyTransform > as_oracle
     def as_oracle(self, compiler, connection):
         lhs, params, key_transforms = self.preprocess_lhs(compiler, connection)
         json_path = compile_json_path(key_transforms)
@@ -380,6 +422,7 @@ class KeyTransform(Transform):
             % ((lhs, json_path) * 2)
         ), tuple(params) * 2
 
+    # [TODO] KeyTransform > as_postgresql
     def as_postgresql(self, compiler, connection):
         lhs, params, key_transforms = self.preprocess_lhs(compiler, connection)
         if len(key_transforms) > 1:
@@ -391,6 +434,7 @@ class KeyTransform(Transform):
             lookup = self.key_name
         return "(%s %s %%s)" % (lhs, self.postgres_operator), tuple(params) + (lookup,)
 
+    # [TODO] KeyTransform > as_sqlite
     def as_sqlite(self, compiler, connection):
         lhs, params, key_transforms = self.preprocess_lhs(compiler, connection)
         json_path = compile_json_path(key_transforms)
@@ -403,11 +447,13 @@ class KeyTransform(Transform):
         ) % (lhs, datatype_values, lhs, lhs), (tuple(params) + (json_path,)) * 3
 
 
+# [TODO] KeyTextTransform
 class KeyTextTransform(KeyTransform):
     postgres_operator = "->>"
     postgres_nested_operator = "#>>"
     output_field = TextField()
 
+    # [TODO] KeyTextTransform > as_mysql
     def as_mysql(self, compiler, connection):
         if connection.mysql_is_mariadb:
             # MariaDB doesn't support -> and ->> operators (see MDEV-13594).
@@ -418,6 +464,7 @@ class KeyTextTransform(KeyTransform):
             json_path = compile_json_path(key_transforms)
             return "(%s ->> %%s)" % lhs, tuple(params) + (json_path,)
 
+    # [TODO] KeyTextTransform > from_lookup
     @classmethod
     def from_lookup(cls, lookup):
         transform, *keys = lookup.split(LOOKUP_SEP)
@@ -431,6 +478,7 @@ class KeyTextTransform(KeyTransform):
 KT = KeyTextTransform.from_lookup
 
 
+# [TODO] KeyTransformTextLookupMixin
 class KeyTransformTextLookupMixin:
     """
     Mixin for combining with a lookup expecting a text lhs from a JSONField
@@ -439,6 +487,7 @@ class KeyTransformTextLookupMixin:
     representation.
     """
 
+    # [TODO] KeyTransformTextLookupMixin > __init__
     def __init__(self, key_transform, *args, **kwargs):
         if not isinstance(key_transform, KeyTransform):
             raise TypeError(
@@ -453,8 +502,10 @@ class KeyTransformTextLookupMixin:
         super().__init__(key_text_transform, *args, **kwargs)
 
 
+# [TODO] KeyTransformIsNull
 class KeyTransformIsNull(lookups.IsNull):
     # key__isnull=False is the same as has_key='key'
+    # [TODO] KeyTransformIsNull > as_oracle
     def as_oracle(self, compiler, connection):
         sql, params = HasKeyOrArrayIndex(
             self.lhs.lhs,
@@ -466,6 +517,7 @@ class KeyTransformIsNull(lookups.IsNull):
         lhs, lhs_params, _ = self.lhs.preprocess_lhs(compiler, connection)
         return "(NOT %s OR %s IS NULL)" % (sql, lhs), tuple(params) + tuple(lhs_params)
 
+    # [TODO] KeyTransformIsNull > as_sqlite
     def as_sqlite(self, compiler, connection):
         template = "JSON_TYPE(%s, %%s) IS NULL"
         if not self.rhs:
@@ -477,7 +529,9 @@ class KeyTransformIsNull(lookups.IsNull):
         )
 
 
+# [TODO] KeyTransformIn
 class KeyTransformIn(lookups.In):
+    # [TODO] KeyTransformIn > resolve_expression_parameter
     def resolve_expression_parameter(self, compiler, connection, sql, param):
         sql, params = super().resolve_expression_parameter(
             compiler,
@@ -506,7 +560,9 @@ class KeyTransformIn(lookups.In):
         return sql, params
 
 
+# [TODO] KeyTransformExact
 class KeyTransformExact(JSONExact):
+    # [TODO] KeyTransformExact > process_rhs
     def process_rhs(self, compiler, connection):
         if isinstance(self.rhs, KeyTransform):
             return super(lookups.Exact, self).process_rhs(compiler, connection)
@@ -531,6 +587,7 @@ class KeyTransformExact(JSONExact):
             rhs %= tuple(func)
         return rhs, rhs_params
 
+    # [TODO] KeyTransformExact > as_oracle
     def as_oracle(self, compiler, connection):
         rhs, rhs_params = super().process_rhs(compiler, connection)
         if rhs_params == ["null"]:
@@ -546,49 +603,59 @@ class KeyTransformExact(JSONExact):
         return super().as_sql(compiler, connection)
 
 
+# [TODO] KeyTransformIExact
 class KeyTransformIExact(
     CaseInsensitiveMixin, KeyTransformTextLookupMixin, lookups.IExact
 ):
     pass
 
 
+# [TODO] KeyTransformIContains
 class KeyTransformIContains(
     CaseInsensitiveMixin, KeyTransformTextLookupMixin, lookups.IContains
 ):
     pass
 
 
+# [TODO] KeyTransformStartsWith
 class KeyTransformStartsWith(KeyTransformTextLookupMixin, lookups.StartsWith):
     pass
 
 
+# [TODO] KeyTransformIStartsWith
 class KeyTransformIStartsWith(
     CaseInsensitiveMixin, KeyTransformTextLookupMixin, lookups.IStartsWith
 ):
     pass
 
 
+# [TODO] KeyTransformEndsWith
 class KeyTransformEndsWith(KeyTransformTextLookupMixin, lookups.EndsWith):
     pass
 
 
+# [TODO] KeyTransformIEndsWith
 class KeyTransformIEndsWith(
     CaseInsensitiveMixin, KeyTransformTextLookupMixin, lookups.IEndsWith
 ):
     pass
 
 
+# [TODO] KeyTransformRegex
 class KeyTransformRegex(KeyTransformTextLookupMixin, lookups.Regex):
     pass
 
 
+# [TODO] KeyTransformIRegex
 class KeyTransformIRegex(
     CaseInsensitiveMixin, KeyTransformTextLookupMixin, lookups.IRegex
 ):
     pass
 
 
+# [TODO] KeyTransformNumericLookupMixin
 class KeyTransformNumericLookupMixin:
+    # [TODO] KeyTransformNumericLookupMixin > process_rhs
     def process_rhs(self, compiler, connection):
         rhs, rhs_params = super().process_rhs(compiler, connection)
         if not connection.features.has_native_json_field:
@@ -596,18 +663,22 @@ class KeyTransformNumericLookupMixin:
         return rhs, rhs_params
 
 
+# [TODO] KeyTransformLt
 class KeyTransformLt(KeyTransformNumericLookupMixin, lookups.LessThan):
     pass
 
 
+# [TODO] KeyTransformLte
 class KeyTransformLte(KeyTransformNumericLookupMixin, lookups.LessThanOrEqual):
     pass
 
 
+# [TODO] KeyTransformGt
 class KeyTransformGt(KeyTransformNumericLookupMixin, lookups.GreaterThan):
     pass
 
 
+# [TODO] KeyTransformGte
 class KeyTransformGte(KeyTransformNumericLookupMixin, lookups.GreaterThanOrEqual):
     pass
 
@@ -630,9 +701,12 @@ KeyTransform.register_lookup(KeyTransformGt)
 KeyTransform.register_lookup(KeyTransformGte)
 
 
+# [TODO] KeyTransformFactory
 class KeyTransformFactory:
+    # [TODO] KeyTransformFactory > __init__
     def __init__(self, key_name):
         self.key_name = key_name
 
+    # [TODO] KeyTransformFactory > __call__
     def __call__(self, *args, **kwargs):
         return KeyTransform(self.key_name, *args, **kwargs)

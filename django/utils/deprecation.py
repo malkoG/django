@@ -4,10 +4,12 @@ import warnings
 from asgiref.sync import iscoroutinefunction, markcoroutinefunction, sync_to_async
 
 
+# [TODO] RemovedInDjango51Warning
 class RemovedInDjango51Warning(DeprecationWarning):
     pass
 
 
+# [TODO] RemovedInDjango60Warning
 class RemovedInDjango60Warning(PendingDeprecationWarning):
     pass
 
@@ -16,7 +18,9 @@ RemovedInNextVersionWarning = RemovedInDjango51Warning
 RemovedAfterNextVersionWarning = RemovedInDjango60Warning
 
 
+# [TODO] warn_about_renamed_method
 class warn_about_renamed_method:
+    # [TODO] warn_about_renamed_method > __init__
     def __init__(
         self, class_name, old_method_name, new_method_name, deprecation_warning
     ):
@@ -25,6 +29,7 @@ class warn_about_renamed_method:
         self.new_method_name = new_method_name
         self.deprecation_warning = deprecation_warning
 
+    # [TODO] warn_about_renamed_method > __call__
     def __call__(self, f):
         def wrapper(*args, **kwargs):
             warnings.warn(
@@ -38,6 +43,7 @@ class warn_about_renamed_method:
         return wrapper
 
 
+# [TODO] RenameMethodsBase
 class RenameMethodsBase(type):
     """
     Handles the deprecation paths when renaming a method.
@@ -52,6 +58,7 @@ class RenameMethodsBase(type):
 
     renamed_methods = ()
 
+    # [TODO] RenameMethodsBase > __new__
     def __new__(cls, name, bases, attrs):
         new_class = super().__new__(cls, name, bases, attrs)
 
@@ -83,7 +90,9 @@ class RenameMethodsBase(type):
         return new_class
 
 
+# [TODO] DeprecationInstanceCheck
 class DeprecationInstanceCheck(type):
+    # [TODO] DeprecationInstanceCheck > __instancecheck__
     def __instancecheck__(self, instance):
         warnings.warn(
             "`%s` is deprecated, use `%s` instead." % (self.__name__, self.alternative),
@@ -93,10 +102,12 @@ class DeprecationInstanceCheck(type):
         return super().__instancecheck__(instance)
 
 
+# [TODO] MiddlewareMixin
 class MiddlewareMixin:
     sync_capable = True
     async_capable = True
 
+    # [TODO] MiddlewareMixin > __init__
     def __init__(self, get_response):
         if get_response is None:
             raise ValueError("get_response must be provided.")
@@ -104,6 +115,7 @@ class MiddlewareMixin:
         self._async_check()
         super().__init__()
 
+    # [TODO] MiddlewareMixin > __repr__
     def __repr__(self):
         return "<%s get_response=%s>" % (
             self.__class__.__qualname__,
@@ -114,6 +126,7 @@ class MiddlewareMixin:
             ),
         )
 
+    # [TODO] MiddlewareMixin > _async_check
     def _async_check(self):
         """
         If get_response is a coroutine function, turns us into async mode so
@@ -124,6 +137,7 @@ class MiddlewareMixin:
             # inside __call__ to avoid swapping out dunder methods
             markcoroutinefunction(self)
 
+    # [TODO] MiddlewareMixin > __call__
     def __call__(self, request):
         # Exit out to async mode, if needed
         if iscoroutinefunction(self):
@@ -136,6 +150,7 @@ class MiddlewareMixin:
             response = self.process_response(request, response)
         return response
 
+    # [TODO] MiddlewareMixin > __acall__
     async def __acall__(self, request):
         """
         Async version of __call__ that is swapped in when an async request

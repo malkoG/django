@@ -6,6 +6,7 @@ from django.utils.timezone import now
 from .exceptions import MigrationSchemaMissing
 
 
+# [TODO] MigrationRecorder
 class MigrationRecorder:
     """
     Deal with storing migration records in the database.
@@ -21,6 +22,7 @@ class MigrationRecorder:
 
     _migration_class = None
 
+    # [TODO] MigrationRecorder > Migration
     @classproperty
     def Migration(cls):
         """
@@ -45,14 +47,17 @@ class MigrationRecorder:
             cls._migration_class = Migration
         return cls._migration_class
 
+    # [TODO] MigrationRecorder > __init__
     def __init__(self, connection):
         self.connection = connection
         self._has_table = False
 
+    # [TODO] MigrationRecorder > migration_qs
     @property
     def migration_qs(self):
         return self.Migration.objects.using(self.connection.alias)
 
+    # [TODO] MigrationRecorder > has_table
     def has_table(self):
         """Return True if the django_migrations table exists."""
         # If the migrations table has already been confirmed to exist, don't
@@ -66,6 +71,7 @@ class MigrationRecorder:
         self._has_table = self.Migration._meta.db_table in tables
         return self._has_table
 
+    # [TODO] MigrationRecorder > ensure_schema
     def ensure_schema(self):
         """Ensure the table exists and has the correct schema."""
         # If the table's there, that's fine - we've never changed its schema
@@ -81,6 +87,7 @@ class MigrationRecorder:
                 "Unable to create the django_migrations table (%s)" % exc
             )
 
+    # [TODO] MigrationRecorder > applied_migrations
     def applied_migrations(self):
         """
         Return a dict mapping (app_name, migration_name) to Migration instances
@@ -96,16 +103,19 @@ class MigrationRecorder:
             # are applied.
             return {}
 
+    # [TODO] MigrationRecorder > record_applied
     def record_applied(self, app, name):
         """Record that a migration was applied."""
         self.ensure_schema()
         self.migration_qs.create(app=app, name=name)
 
+    # [TODO] MigrationRecorder > record_unapplied
     def record_unapplied(self, app, name):
         """Record that a migration was unapplied."""
         self.ensure_schema()
         self.migration_qs.filter(app=app, name=name).delete()
 
+    # [TODO] MigrationRecorder > flush
     def flush(self):
         """Delete all migration records. Useful for testing migrations."""
         self.migration_qs.all().delete()

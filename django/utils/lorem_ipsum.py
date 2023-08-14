@@ -222,6 +222,7 @@ COMMON_WORDS = (
 )
 
 
+# [TODO] sentence
 def sentence():
     """
     Return a randomly generated sentence of lorem ipsum text.
@@ -240,6 +241,7 @@ def sentence():
     return "%s%s%s" % (s[0].upper(), s[1:], random.choice("?."))
 
 
+# [TODO] paragraph
 def paragraph():
     """
     Return a randomly generated paragraph of lorem ipsum text.
@@ -249,6 +251,7 @@ def paragraph():
     return " ".join(sentence() for i in range(random.randint(1, 4)))
 
 
+# [TODO] paragraphs
 def paragraphs(count, common=True):
     """
     Return a list of paragraphs as returned by paragraph().
@@ -266,6 +269,7 @@ def paragraphs(count, common=True):
     return paras
 
 
+# [TODO] words
 def words(count, common=True):
     """
     Return a string of `count` lorem ipsum words separated by a single space.

@@ -22,6 +22,7 @@ InfoLine = namedtuple(
 TableInfo = namedtuple("TableInfo", BaseTableInfo._fields + ("comment",))
 
 
+# [TODO] DatabaseIntrospection
 class DatabaseIntrospection(BaseDatabaseIntrospection):
     data_types_reverse = {
         FIELD_TYPE.BLOB: "TextField",
@@ -47,6 +48,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         FIELD_TYPE.VAR_STRING: "CharField",
     }
 
+    # [TODO] DatabaseIntrospection > get_field_type
     def get_field_type(self, data_type, description):
         field_type = super().get_field_type(data_type, description)
         if "auto_increment" in description.extra:
@@ -71,6 +73,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             return "JSONField"
         return field_type
 
+    # [TODO] DatabaseIntrospection > get_table_list
     def get_table_list(self, cursor):
         """Return a list of table and view names in the current database."""
         cursor.execute(
@@ -88,6 +91,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             for row in cursor.fetchall()
         ]
 
+    # [TODO] DatabaseIntrospection > get_table_description
     def get_table_description(self, cursor, table_name):
         """
         Return a description of the table with the DB-API cursor.description
@@ -180,6 +184,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             )
         return fields
 
+    # [TODO] DatabaseIntrospection > get_sequences
     def get_sequences(self, cursor, table_name, table_fields=()):
         for field_info in self.get_table_description(cursor, table_name):
             if "auto_increment" in field_info.extra:
@@ -187,6 +192,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
                 return [{"table": table_name, "column": field_info.name}]
         return []
 
+    # [TODO] DatabaseIntrospection > get_relations
     def get_relations(self, cursor, table_name):
         """
         Return a dictionary of {field_name: (field_name_other_table, other_table)}
@@ -208,6 +214,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             for field_name, other_field, other_table in cursor.fetchall()
         }
 
+    # [TODO] DatabaseIntrospection > get_storage_engine
     def get_storage_engine(self, cursor, table_name):
         """
         Retrieve the storage engine for a given table. Return the default
@@ -228,6 +235,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             return self.connection.features._mysql_storage_engine
         return result[0]
 
+    # [TODO] DatabaseIntrospection > _parse_constraint_columns
     def _parse_constraint_columns(self, check_clause, columns):
         check_columns = OrderedSet()
         statement = sqlparse.parse(check_clause)[0]
@@ -241,6 +249,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
                 check_columns.add(token.value[1:-1])
         return check_columns
 
+    # [TODO] DatabaseIntrospection > get_constraints
     def get_constraints(self, cursor, table_name):
         """
         Retrieve any constraints or keys (unique, pk, fk, check, index) across

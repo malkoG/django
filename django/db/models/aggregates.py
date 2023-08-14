@@ -22,6 +22,7 @@ __all__ = [
 ]
 
 
+# [TODO] Aggregate
 class Aggregate(Func):
     template = "%(function)s(%(distinct)s%(expressions)s)"
     contains_aggregate = True
@@ -31,6 +32,7 @@ class Aggregate(Func):
     allow_distinct = False
     empty_result_set_value = None
 
+    # [TODO] Aggregate > __init__
     def __init__(
         self, *expressions, distinct=False, filter=None, default=None, **extra
     ):
@@ -43,20 +45,24 @@ class Aggregate(Func):
         self.default = default
         super().__init__(*expressions, **extra)
 
+    # [TODO] Aggregate > get_source_fields
     def get_source_fields(self):
         # Don't return the filter expression since it's not a source field.
         return [e._output_field_or_none for e in super().get_source_expressions()]
 
+    # [TODO] Aggregate > get_source_expressions
     def get_source_expressions(self):
         source_expressions = super().get_source_expressions()
         if self.filter:
             return source_expressions + [self.filter]
         return source_expressions
 
+    # [TODO] Aggregate > set_source_expressions
     def set_source_expressions(self, exprs):
         self.filter = self.filter and exprs.pop()
         return super().set_source_expressions(exprs)
 
+    # [TODO] Aggregate > resolve_expression
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
@@ -101,6 +107,7 @@ class Aggregate(Func):
         coalesce.is_summary = c.is_summary
         return coalesce
 
+    # [TODO] Aggregate > default_alias
     @property
     def default_alias(self):
         expressions = self.get_source_expressions()
@@ -108,9 +115,11 @@ class Aggregate(Func):
             return "%s__%s" % (expressions[0].name, self.name.lower())
         raise TypeError("Complex expressions require an alias")
 
+    # [TODO] Aggregate > get_group_by_cols
     def get_group_by_cols(self):
         return []
 
+    # [TODO] Aggregate > as_sql
     def as_sql(self, compiler, connection, **extra_context):
         extra_context["distinct"] = "DISTINCT " if self.distinct else ""
         if self.filter:
@@ -142,6 +151,7 @@ class Aggregate(Func):
                 )
         return super().as_sql(compiler, connection, **extra_context)
 
+    # [TODO] Aggregate > _get_repr_options
     def _get_repr_options(self):
         options = super()._get_repr_options()
         if self.distinct:
@@ -151,12 +161,14 @@ class Aggregate(Func):
         return options
 
 
+# [TODO] Avg
 class Avg(FixDurationInputMixin, NumericOutputFieldMixin, Aggregate):
     function = "AVG"
     name = "Avg"
     allow_distinct = True
 
 
+# [TODO] Count
 class Count(Aggregate):
     function = "COUNT"
     name = "Count"
@@ -164,6 +176,7 @@ class Count(Aggregate):
     allow_distinct = True
     empty_result_set_value = 0
 
+    # [TODO] Count > __init__
     def __init__(self, expression, filter=None, **extra):
         if expression == "*":
             expression = Star()
@@ -172,39 +185,48 @@ class Count(Aggregate):
         super().__init__(expression, filter=filter, **extra)
 
 
+# [TODO] Max
 class Max(Aggregate):
     function = "MAX"
     name = "Max"
 
 
+# [TODO] Min
 class Min(Aggregate):
     function = "MIN"
     name = "Min"
 
 
+# [TODO] StdDev
 class StdDev(NumericOutputFieldMixin, Aggregate):
     name = "StdDev"
 
+    # [TODO] StdDev > __init__
     def __init__(self, expression, sample=False, **extra):
         self.function = "STDDEV_SAMP" if sample else "STDDEV_POP"
         super().__init__(expression, **extra)
 
+    # [TODO] StdDev > _get_repr_options
     def _get_repr_options(self):
         return {**super()._get_repr_options(), "sample": self.function == "STDDEV_SAMP"}
 
 
+# [TODO] Sum
 class Sum(FixDurationInputMixin, Aggregate):
     function = "SUM"
     name = "Sum"
     allow_distinct = True
 
 
+# [TODO] Variance
 class Variance(NumericOutputFieldMixin, Aggregate):
     name = "Variance"
 
+    # [TODO] Variance > __init__
     def __init__(self, expression, sample=False, **extra):
         self.function = "VAR_SAMP" if sample else "VAR_POP"
         super().__init__(expression, **extra)
 
+    # [TODO] Variance > _get_repr_options
     def _get_repr_options(self):
         return {**super()._get_repr_options(), "sample": self.function == "VAR_SAMP"}

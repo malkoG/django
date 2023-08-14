@@ -3,11 +3,13 @@ from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.core.management.commands.runserver import Command as RunserverCommand
 
 
+# [TODO] Command
 class Command(RunserverCommand):
     help = (
         "Starts a lightweight web server for development and also serves static files."
     )
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         super().add_arguments(parser)
         parser.add_argument(
@@ -23,6 +25,7 @@ class Command(RunserverCommand):
             help="Allows serving static files even if DEBUG is False.",
         )
 
+    # [TODO] Command > get_handler
     def get_handler(self, *args, **options):
         """
         Return the static files serving handler wrapping the default handler,

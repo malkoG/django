@@ -21,6 +21,7 @@ from .serializers import RangeSerializer
 from .signals import register_type_handlers
 
 
+# [TODO] uninstall_if_needed
 def uninstall_if_needed(setting, value, enter, **kwargs):
     """
     Undo the effects of PostgresConfig.ready() when django.contrib.postgres
@@ -49,10 +50,12 @@ def uninstall_if_needed(setting, value, enter, **kwargs):
         MigrationWriter.unregister_serializer(RANGE_TYPES)
 
 
+# [TODO] PostgresConfig
 class PostgresConfig(AppConfig):
     name = "django.contrib.postgres"
     verbose_name = _("PostgreSQL extensions")
 
+    # [TODO] PostgresConfig > ready
     def ready(self):
         setting_changed.connect(uninstall_if_needed)
         # Connections may already exist before we are called.

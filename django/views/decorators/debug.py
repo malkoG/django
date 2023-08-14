@@ -8,6 +8,7 @@ from django.http import HttpRequest
 coroutine_functions_to_sensitive_variables = {}
 
 
+# [TODO] sensitive_variables
 def sensitive_variables(*variables):
     """
     Indicate which variables used in the decorated function are sensitive so
@@ -77,6 +78,7 @@ def sensitive_variables(*variables):
     return decorator
 
 
+# [TODO] sensitive_post_parameters
 def sensitive_post_parameters(*parameters):
     """
     Indicate which POST parameters used in the decorated view are sensitive,

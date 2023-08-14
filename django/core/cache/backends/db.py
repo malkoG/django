@@ -9,12 +9,14 @@ from django.db import DatabaseError, connections, models, router, transaction
 from django.utils.timezone import now as tz_now
 
 
+# [TODO] Options
 class Options:
     """A class that will quack like a Django model _meta class.
 
     This allows cache operations to be controlled by the router
     """
 
+    # [TODO] Options > __init__
     def __init__(self, table):
         self.db_table = table
         self.app_label = "django_cache"
@@ -28,7 +30,9 @@ class Options:
         self.swapped = False
 
 
+# [TODO] BaseDatabaseCache
 class BaseDatabaseCache(BaseCache):
+    # [TODO] BaseDatabaseCache > __init__
     def __init__(self, table, params):
         super().__init__(params)
         self._table = table
@@ -39,6 +43,7 @@ class BaseDatabaseCache(BaseCache):
         self.cache_model_class = CacheEntry
 
 
+# [TODO] DatabaseCache
 class DatabaseCache(BaseDatabaseCache):
     # This class uses cursors provided by the database connection. This means
     # it reads expiration values as aware or naive datetimes, depending on the
@@ -48,9 +53,11 @@ class DatabaseCache(BaseDatabaseCache):
 
     pickle_protocol = pickle.HIGHEST_PROTOCOL
 
+    # [TODO] DatabaseCache > get
     def get(self, key, default=None, version=None):
         return self.get_many([key], version).get(key, default)
 
+    # [TODO] DatabaseCache > get_many
     def get_many(self, keys, version=None):
         if not keys:
             return {}
@@ -97,18 +104,22 @@ class DatabaseCache(BaseDatabaseCache):
         self._base_delete_many(expired_keys)
         return result
 
+    # [TODO] DatabaseCache > set
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
         key = self.make_and_validate_key(key, version=version)
         self._base_set("set", key, value, timeout)
 
+    # [TODO] DatabaseCache > add
     def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
         key = self.make_and_validate_key(key, version=version)
         return self._base_set("add", key, value, timeout)
 
+    # [TODO] DatabaseCache > touch
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
         key = self.make_and_validate_key(key, version=version)
         return self._base_set("touch", key, None, timeout)
 
+    # [TODO] DatabaseCache > _base_set
     def _base_set(self, mode, key, value, timeout=DEFAULT_TIMEOUT):
         timeout = self.get_backend_timeout(timeout)
         db = router.db_for_write(self.cache_model_class)
@@ -202,14 +213,17 @@ class DatabaseCache(BaseDatabaseCache):
             else:
                 return True
 
+    # [TODO] DatabaseCache > delete
     def delete(self, key, version=None):
         key = self.make_and_validate_key(key, version=version)
         return self._base_delete_many([key])
 
+    # [TODO] DatabaseCache > delete_many
     def delete_many(self, keys, version=None):
         keys = [self.make_and_validate_key(key, version=version) for key in keys]
         self._base_delete_many(keys)
 
+    # [TODO] DatabaseCache > _base_delete_many
     def _base_delete_many(self, keys):
         if not keys:
             return False
@@ -231,6 +245,7 @@ class DatabaseCache(BaseDatabaseCache):
             )
             return bool(cursor.rowcount)
 
+    # [TODO] DatabaseCache > has_key
     def has_key(self, key, version=None):
         key = self.make_and_validate_key(key, version=version)
 
@@ -253,6 +268,7 @@ class DatabaseCache(BaseDatabaseCache):
             )
             return cursor.fetchone() is not None
 
+    # [TODO] DatabaseCache > _cull
     def _cull(self, db, cursor, now, num):
         if self._cull_frequency == 0:
             self.clear()
@@ -285,6 +301,7 @@ class DatabaseCache(BaseDatabaseCache):
                         [last_cache_key[0]],
                     )
 
+    # [TODO] DatabaseCache > clear
     def clear(self):
         db = router.db_for_write(self.cache_model_class)
         connection = connections[db]

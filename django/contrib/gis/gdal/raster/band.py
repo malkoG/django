@@ -14,15 +14,18 @@ from .const import (
 )
 
 
+# [TODO] GDALBand
 class GDALBand(GDALRasterBase):
     """
     Wrap a GDAL raster band, needs to be obtained from a GDALRaster object.
     """
 
+    # [TODO] GDALBand > __init__
     def __init__(self, source, index):
         self.source = source
         self._ptr = capi.get_ds_raster_band(source._ptr, index)
 
+    # [TODO] GDALBand > _flush
     def _flush(self):
         """
         Call the flush method on the Band's parent raster and force a refresh
@@ -31,6 +34,7 @@ class GDALBand(GDALRasterBase):
         self.source._flush()
         self._stats_refresh = True
 
+    # [TODO] GDALBand > description
     @property
     def description(self):
         """
@@ -38,6 +42,7 @@ class GDALBand(GDALRasterBase):
         """
         return force_str(capi.get_band_description(self._ptr))
 
+    # [TODO] GDALBand > width
     @property
     def width(self):
         """
@@ -45,6 +50,7 @@ class GDALBand(GDALRasterBase):
         """
         return capi.get_band_xsize(self._ptr)
 
+    # [TODO] GDALBand > height
     @property
     def height(self):
         """
@@ -52,6 +58,7 @@ class GDALBand(GDALRasterBase):
         """
         return capi.get_band_ysize(self._ptr)
 
+    # [TODO] GDALBand > pixel_count
     @property
     def pixel_count(self):
         """
@@ -61,6 +68,7 @@ class GDALBand(GDALRasterBase):
 
     _stats_refresh = False
 
+    # [TODO] GDALBand > statistics
     def statistics(self, refresh=False, approximate=False):
         """
         Compute statistics on the pixel values of this band.
@@ -113,6 +121,7 @@ class GDALBand(GDALRasterBase):
 
         return result
 
+    # [TODO] GDALBand > min
     @property
     def min(self):
         """
@@ -120,6 +129,7 @@ class GDALBand(GDALRasterBase):
         """
         return self.statistics()[0]
 
+    # [TODO] GDALBand > max
     @property
     def max(self):
         """
@@ -127,6 +137,7 @@ class GDALBand(GDALRasterBase):
         """
         return self.statistics()[1]
 
+    # [TODO] GDALBand > mean
     @property
     def mean(self):
         """
@@ -134,6 +145,7 @@ class GDALBand(GDALRasterBase):
         """
         return self.statistics()[2]
 
+    # [TODO] GDALBand > std
     @property
     def std(self):
         """
@@ -141,6 +153,7 @@ class GDALBand(GDALRasterBase):
         """
         return self.statistics()[3]
 
+    # [TODO] GDALBand > nodata_value
     @property
     def nodata_value(self):
         """
@@ -156,6 +169,7 @@ class GDALBand(GDALRasterBase):
             value = int(value)
         return value
 
+    # [TODO] GDALBand > nodata_value
     @nodata_value.setter
     def nodata_value(self, value):
         """
@@ -169,6 +183,7 @@ class GDALBand(GDALRasterBase):
             capi.set_band_nodata_value(self._ptr, value)
         self._flush()
 
+    # [TODO] GDALBand > datatype
     def datatype(self, as_string=False):
         """
         Return the GDAL Pixel Datatype for this band.
@@ -178,6 +193,7 @@ class GDALBand(GDALRasterBase):
             dtype = GDAL_PIXEL_TYPES[dtype]
         return dtype
 
+    # [TODO] GDALBand > color_interp
     def color_interp(self, as_string=False):
         """Return the GDAL color interpretation for this band."""
         color = capi.get_band_color_interp(self._ptr)
@@ -185,6 +201,7 @@ class GDALBand(GDALRasterBase):
             color = GDAL_COLOR_TYPES[color]
         return color
 
+    # [TODO] GDALBand > data
     def data(self, data=None, offset=None, size=None, shape=None, as_memoryview=False):
         """
         Read or writes pixel values for this band. Blocks of data can
@@ -254,18 +271,23 @@ class GDALBand(GDALRasterBase):
             self._flush()
 
 
+# [TODO] BandList
 class BandList(list):
+    # [TODO] BandList > __init__
     def __init__(self, source):
         self.source = source
         super().__init__()
 
+    # [TODO] BandList > __iter__
     def __iter__(self):
         for idx in range(1, len(self) + 1):
             yield GDALBand(self.source, idx)
 
+    # [TODO] BandList > __len__
     def __len__(self):
         return capi.get_ds_raster_count(self.source._ptr)
 
+    # [TODO] BandList > __getitem__
     def __getitem__(self, index):
         try:
             return GDALBand(self.source, index + 1)

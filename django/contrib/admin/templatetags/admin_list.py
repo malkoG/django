@@ -33,6 +33,7 @@ from .base import InclusionAdminNode
 register = Library()
 
 
+# [TODO] paginator_number
 @register.simple_tag
 def paginator_number(cl, i):
     """
@@ -51,6 +52,7 @@ def paginator_number(cl, i):
         )
 
 
+# [TODO] pagination
 def pagination(cl):
     """
     Generate the series of links to the pages in a paginated list.
@@ -70,6 +72,7 @@ def pagination(cl):
     }
 
 
+# [TODO] pagination_tag
 @register.tag(name="pagination")
 def pagination_tag(parser, token):
     return InclusionAdminNode(
@@ -81,6 +84,7 @@ def pagination_tag(parser, token):
     )
 
 
+# [TODO] result_headers
 def result_headers(cl):
     """
     Generate the list column headers.
@@ -177,6 +181,7 @@ def result_headers(cl):
         }
 
 
+# [TODO] _boolean_icon
 def _boolean_icon(field_val):
     icon_url = static(
         "admin/img/icon-%s.svg" % {True: "yes", False: "no", None: "unknown"}[field_val]
@@ -184,6 +189,7 @@ def _boolean_icon(field_val):
     return format_html('<img src="{}" alt="{}">', icon_url, field_val)
 
 
+# [TODO] _coerce_field_name
 def _coerce_field_name(field_name, field_index):
     """
     Coerce a field_name (which may be a callable) to a string.
@@ -196,6 +202,7 @@ def _coerce_field_name(field_name, field_index):
     return field_name
 
 
+# [TODO] items_for_result
 def items_for_result(cl, result, form):
     """
     Generate the actual list of data.
@@ -295,6 +302,7 @@ def items_for_result(cl, result, form):
         yield format_html("<td>{}</td>", form[cl.model._meta.pk.name])
 
 
+# [TODO] ResultList
 class ResultList(list):
     """
     Wrapper class used to return items in a list_editable changelist, annotated
@@ -302,11 +310,13 @@ class ResultList(list):
     backwards compatibility with existing admin templates.
     """
 
+    # [TODO] ResultList > __init__
     def __init__(self, form, *items):
         self.form = form
         super().__init__(*items)
 
 
+# [TODO] results
 def results(cl):
     if cl.formset:
         for res, form in zip(cl.result_list, cl.formset.forms):
@@ -316,6 +326,7 @@ def results(cl):
             yield ResultList(None, items_for_result(cl, res, None))
 
 
+# [TODO] result_hidden_fields
 def result_hidden_fields(cl):
     if cl.formset:
         for res, form in zip(cl.result_list, cl.formset.forms):
@@ -323,6 +334,7 @@ def result_hidden_fields(cl):
                 yield mark_safe(form[cl.model._meta.pk.name])
 
 
+# [TODO] result_list
 def result_list(cl):
     """
     Display the headers and data list together.
@@ -341,6 +353,7 @@ def result_list(cl):
     }
 
 
+# [TODO] result_list_tag
 @register.tag(name="result_list")
 def result_list_tag(parser, token):
     return InclusionAdminNode(
@@ -352,6 +365,7 @@ def result_list_tag(parser, token):
     )
 
 
+# [TODO] date_hierarchy
 def date_hierarchy(cl):
     """
     Display the date hierarchy for date drill-down functionality.
@@ -456,6 +470,7 @@ def date_hierarchy(cl):
             }
 
 
+# [TODO] date_hierarchy_tag
 @register.tag(name="date_hierarchy")
 def date_hierarchy_tag(parser, token):
     return InclusionAdminNode(
@@ -467,6 +482,7 @@ def date_hierarchy_tag(parser, token):
     )
 
 
+# [TODO] search_form
 def search_form(cl):
     """
     Display a search form for searching the list.
@@ -480,6 +496,7 @@ def search_form(cl):
     }
 
 
+# [TODO] search_form_tag
 @register.tag(name="search_form")
 def search_form_tag(parser, token):
     return InclusionAdminNode(
@@ -491,6 +508,7 @@ def search_form_tag(parser, token):
     )
 
 
+# [TODO] admin_list_filter
 @register.simple_tag
 def admin_list_filter(cl, spec):
     tpl = get_template(spec.template)
@@ -503,6 +521,7 @@ def admin_list_filter(cl, spec):
     )
 
 
+# [TODO] admin_actions
 def admin_actions(context):
     """
     Track the number of times the action field has been rendered on the page,
@@ -512,6 +531,7 @@ def admin_actions(context):
     return context
 
 
+# [TODO] admin_actions_tag
 @register.tag(name="admin_actions")
 def admin_actions_tag(parser, token):
     return InclusionAdminNode(
@@ -519,6 +539,7 @@ def admin_actions_tag(parser, token):
     )
 
 
+# [TODO] change_list_object_tools_tag
 @register.tag(name="change_list_object_tools")
 def change_list_object_tools_tag(parser, token):
     """Display the row of change list object tools."""

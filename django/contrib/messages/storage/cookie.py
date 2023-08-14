@@ -8,6 +8,7 @@ from django.http import SimpleCookie
 from django.utils.safestring import SafeData, mark_safe
 
 
+# [TODO] MessageEncoder
 class MessageEncoder(json.JSONEncoder):
     """
     Compactly serialize instances of the ``Message`` class as JSON.
@@ -15,6 +16,7 @@ class MessageEncoder(json.JSONEncoder):
 
     message_key = "__json_message"
 
+    # [TODO] MessageEncoder > default
     def default(self, obj):
         if isinstance(obj, Message):
             # Using 0/1 here instead of False/True to produce more compact json
@@ -26,11 +28,13 @@ class MessageEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
+# [TODO] MessageDecoder
 class MessageDecoder(json.JSONDecoder):
     """
     Decode JSON that includes serialized ``Message`` instances.
     """
 
+    # [TODO] MessageDecoder > process_messages
     def process_messages(self, obj):
         if isinstance(obj, list) and obj:
             if obj[0] == MessageEncoder.message_key:
@@ -42,12 +46,15 @@ class MessageDecoder(json.JSONDecoder):
             return {key: self.process_messages(value) for key, value in obj.items()}
         return obj
 
+    # [TODO] MessageDecoder > decode
     def decode(self, s, **kwargs):
         decoded = super().decode(s, **kwargs)
         return self.process_messages(decoded)
 
 
+# [TODO] MessagePartSerializer
 class MessagePartSerializer:
+    # [TODO] MessagePartSerializer > dumps
     def dumps(self, obj):
         return [
             json.dumps(
@@ -59,7 +66,9 @@ class MessagePartSerializer:
         ]
 
 
+# [TODO] MessagePartGatherSerializer
 class MessagePartGatherSerializer:
+    # [TODO] MessagePartGatherSerializer > dumps
     def dumps(self, obj):
         """
         The parameter is an already serialized list of Message objects. No need
@@ -68,11 +77,14 @@ class MessagePartGatherSerializer:
         return ("[" + ",".join(obj) + "]").encode("latin-1")
 
 
+# [TODO] MessageSerializer
 class MessageSerializer:
+    # [TODO] MessageSerializer > loads
     def loads(self, data):
         return json.loads(data.decode("latin-1"), cls=MessageDecoder)
 
 
+# [TODO] CookieStorage
 class CookieStorage(BaseStorage):
     """
     Store messages in a cookie.
@@ -87,10 +99,12 @@ class CookieStorage(BaseStorage):
     not_finished_json = json.dumps("__messagesnotfinished__")
     key_salt = "django.contrib.messages"
 
+    # [TODO] CookieStorage > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.signer = signing.get_cookie_signer(salt=self.key_salt)
 
+    # [TODO] CookieStorage > _get
     def _get(self, *args, **kwargs):
         """
         Retrieve a list of messages from the messages cookie. If the
@@ -106,6 +120,7 @@ class CookieStorage(BaseStorage):
             messages.pop()
         return messages, all_retrieved
 
+    # [TODO] CookieStorage > _update_cookie
     def _update_cookie(self, encoded_data, response):
         """
         Either set the cookie with the encoded data if there is any data to
@@ -127,6 +142,7 @@ class CookieStorage(BaseStorage):
                 samesite=settings.SESSION_COOKIE_SAMESITE,
             )
 
+    # [TODO] CookieStorage > _store
     def _store(self, messages, response, remove_oldest=True, *args, **kwargs):
         """
         Store the messages to a cookie and return a list of any messages which
@@ -172,6 +188,7 @@ class CookieStorage(BaseStorage):
         self._update_cookie(encoded_data, response)
         return unstored_messages
 
+    # [TODO] CookieStorage > _encode_parts
     def _encode_parts(self, messages, encode_empty=False):
         """
         Return an encoded version of the serialized messages list which can be
@@ -185,6 +202,7 @@ class CookieStorage(BaseStorage):
                 messages, serializer=MessagePartGatherSerializer, compress=True
             )
 
+    # [TODO] CookieStorage > _encode
     def _encode(self, messages, encode_empty=False):
         """
         Return an encoded version of the messages list which can be stored as
@@ -195,6 +213,7 @@ class CookieStorage(BaseStorage):
         serialized_messages = MessagePartSerializer().dumps(messages)
         return self._encode_parts(serialized_messages, encode_empty=encode_empty)
 
+    # [TODO] CookieStorage > _decode
     def _decode(self, data):
         """
         Safely decode an encoded text stream back into a list of messages.
@@ -214,6 +233,7 @@ class CookieStorage(BaseStorage):
         return None
 
 
+# [TODO] bisect_keep_left
 def bisect_keep_left(a, fn):
     """
     Find the index of the first element from the start of the array that
@@ -231,6 +251,7 @@ def bisect_keep_left(a, fn):
     return lo
 
 
+# [TODO] bisect_keep_right
 def bisect_keep_right(a, fn):
     """
     Find the index of the first element from the end of the array that verifies

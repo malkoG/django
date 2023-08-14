@@ -55,7 +55,9 @@ IGNORED_PARAMS = (
 )
 
 
+# [TODO] ChangeListSearchForm
 class ChangeListSearchForm(forms.Form):
+    # [TODO] ChangeListSearchForm > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Populate "fields" dynamically because SEARCH_VAR is a variable:
@@ -64,9 +66,11 @@ class ChangeListSearchForm(forms.Form):
         }
 
 
+# [TODO] ChangeList
 class ChangeList:
     search_form_class = ChangeListSearchForm
 
+    # [TODO] ChangeList > __init__
     def __init__(
         self,
         request,
@@ -152,6 +156,7 @@ class ChangeList:
         self.title = title % self.opts.verbose_name
         self.pk_attname = self.lookup_opts.pk.attname
 
+    # [TODO] ChangeList > __repr__
     def __repr__(self):
         return "<%s: model=%s model_admin=%s>" % (
             self.__class__.__qualname__,
@@ -159,6 +164,7 @@ class ChangeList:
             self.model_admin.__class__.__qualname__,
         )
 
+    # [TODO] ChangeList > get_filters_params
     def get_filters_params(self, params=None):
         """
         Return all params except IGNORED_PARAMS.
@@ -172,6 +178,7 @@ class ChangeList:
                 del lookup_params[ignored]
         return lookup_params
 
+    # [TODO] ChangeList > get_filters
     def get_filters(self, request):
         lookup_params = self.get_filters_params()
         may_have_duplicates = False
@@ -286,6 +293,7 @@ class ChangeList:
         except FieldDoesNotExist as e:
             raise IncorrectLookupParameters(e) from e
 
+    # [TODO] ChangeList > get_query_string
     def get_query_string(self, new_params=None, remove=None):
         if new_params is None:
             new_params = {}
@@ -304,6 +312,7 @@ class ChangeList:
                 p[k] = v
         return "?%s" % urlencode(sorted(p.items()), doseq=True)
 
+    # [TODO] ChangeList > get_results
     def get_results(self, request):
         paginator = self.model_admin.get_paginator(
             request, self.queryset, self.list_per_page
@@ -344,6 +353,7 @@ class ChangeList:
         self.multi_page = multi_page
         self.paginator = paginator
 
+    # [TODO] ChangeList > _get_default_ordering
     def _get_default_ordering(self):
         ordering = []
         if self.model_admin.ordering:
@@ -352,6 +362,7 @@ class ChangeList:
             ordering = self.lookup_opts.ordering
         return ordering
 
+    # [TODO] ChangeList > get_ordering_field
     def get_ordering_field(self, field_name):
         """
         Return the proper model field name corresponding to the given
@@ -376,6 +387,7 @@ class ChangeList:
                 attr = attr.fget
             return getattr(attr, "admin_order_field", None)
 
+    # [TODO] ChangeList > get_ordering
     def get_ordering(self, request, queryset):
         """
         Return the list of ordering fields for the change list.
@@ -423,6 +435,7 @@ class ChangeList:
 
         return self._get_deterministic_ordering(ordering)
 
+    # [TODO] ChangeList > _get_deterministic_ordering
     def _get_deterministic_ordering(self, ordering):
         """
         Ensure a deterministic order across all database backends. Search for a
@@ -488,6 +501,7 @@ class ChangeList:
                 ordering.append("-pk")
         return ordering
 
+    # [TODO] ChangeList > get_ordering_field_columns
     def get_ordering_field_columns(self):
         """
         Return a dictionary of ordering field column numbers and asc/desc.
@@ -528,6 +542,7 @@ class ChangeList:
                 ordering_fields[idx] = "desc" if pfx == "-" else "asc"
         return ordering_fields
 
+    # [TODO] ChangeList > get_queryset
     def get_queryset(self, request, exclude_parameters=None):
         # First, we collect all the declared list filters.
         (
@@ -591,6 +606,7 @@ class ChangeList:
         else:
             return qs
 
+    # [TODO] ChangeList > apply_select_related
     def apply_select_related(self, qs):
         if self.list_select_related is True:
             return qs.select_related()
@@ -603,6 +619,7 @@ class ChangeList:
             return qs.select_related(*self.list_select_related)
         return qs
 
+    # [TODO] ChangeList > has_related_field_in_list_display
     def has_related_field_in_list_display(self):
         for field_name in self.list_display:
             try:
@@ -616,6 +633,7 @@ class ChangeList:
                         return True
         return False
 
+    # [TODO] ChangeList > url_for_result
     def url_for_result(self, result):
         pk = getattr(result, self.pk_attname)
         return reverse(

@@ -5,6 +5,7 @@ from django.core.cache import caches
 KEY_PREFIX = "django.contrib.sessions.cache"
 
 
+# [TODO] SessionStore
 class SessionStore(SessionBase):
     """
     A cache-based session store.
@@ -12,14 +13,17 @@ class SessionStore(SessionBase):
 
     cache_key_prefix = KEY_PREFIX
 
+    # [TODO] SessionStore > __init__
     def __init__(self, session_key=None):
         self._cache = caches[settings.SESSION_CACHE_ALIAS]
         super().__init__(session_key)
 
+    # [TODO] SessionStore > cache_key
     @property
     def cache_key(self):
         return self.cache_key_prefix + self._get_or_create_session_key()
 
+    # [TODO] SessionStore > load
     def load(self):
         try:
             session_data = self._cache.get(self.cache_key)
@@ -32,6 +36,7 @@ class SessionStore(SessionBase):
         self._session_key = None
         return {}
 
+    # [TODO] SessionStore > create
     def create(self):
         # Because a cache can fail silently (e.g. memcache), we don't know if
         # we are failing to create a new session because of a key collision or
@@ -51,6 +56,7 @@ class SessionStore(SessionBase):
             "It is likely that the cache is unavailable."
         )
 
+    # [TODO] SessionStore > save
     def save(self, must_create=False):
         if self.session_key is None:
             return self.create()
@@ -68,11 +74,13 @@ class SessionStore(SessionBase):
         if must_create and not result:
             raise CreateError
 
+    # [TODO] SessionStore > exists
     def exists(self, session_key):
         return (
             bool(session_key) and (self.cache_key_prefix + session_key) in self._cache
         )
 
+    # [TODO] SessionStore > delete
     def delete(self, session_key=None):
         if session_key is None:
             if self.session_key is None:
@@ -80,6 +88,7 @@ class SessionStore(SessionBase):
             session_key = self.session_key
         self._cache.delete(self.cache_key_prefix + session_key)
 
+    # [TODO] SessionStore > clear_expired
     @classmethod
     def clear_expired(cls):
         pass

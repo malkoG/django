@@ -5,6 +5,7 @@ from django.conf import settings
 from . import Error, Tags, register
 
 
+# [TODO] check_setting_file_upload_temp_dir
 @register(Tags.files)
 def check_setting_file_upload_temp_dir(app_configs, **kwargs):
     setting = getattr(settings, "FILE_UPLOAD_TEMP_DIR", None)

@@ -9,6 +9,7 @@ from django.db.backends.utils import strip_quotes
 from django.db.models import NOT_PROVIDED, UniqueConstraint
 
 
+# [TODO] DatabaseSchemaEditor
 class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     sql_delete_table = "DROP TABLE %(table)s"
     sql_create_fk = None
@@ -20,6 +21,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     sql_create_unique = "CREATE UNIQUE INDEX %(name)s ON %(table)s (%(columns)s)"
     sql_delete_unique = "DROP INDEX %(name)s"
 
+    # [TODO] DatabaseSchemaEditor > __enter__
     def __enter__(self):
         # Some SQLite schema alterations need foreign key constraints to be
         # disabled. Enforce it here for the duration of the schema edition.
@@ -33,11 +35,13 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             )
         return super().__enter__()
 
+    # [TODO] DatabaseSchemaEditor > __exit__
     def __exit__(self, exc_type, exc_value, traceback):
         self.connection.check_constraints()
         super().__exit__(exc_type, exc_value, traceback)
         self.connection.enable_constraint_checking()
 
+    # [TODO] DatabaseSchemaEditor > quote_value
     def quote_value(self, value):
         # The backend "mostly works" without this function and there are use
         # cases for compiling Python without the sqlite3 libraries (e.g.
@@ -69,9 +73,11 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                 "Cannot quote parameter value %r of type %s" % (value, type(value))
             )
 
+    # [TODO] DatabaseSchemaEditor > prepare_default
     def prepare_default(self, value):
         return self.quote_value(value)
 
+    # [TODO] DatabaseSchemaEditor > _remake_table
     def _remake_table(
         self, model, create_field=None, delete_field=None, alter_fields=None
     ):
@@ -268,6 +274,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         if restore_pk_field:
             restore_pk_field.primary_key = True
 
+    # [TODO] DatabaseSchemaEditor > delete_model
     def delete_model(self, model, handle_autom2m=True):
         if handle_autom2m:
             super().delete_model(model)
@@ -286,6 +293,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                 ):
                     self.deferred_sql.remove(sql)
 
+    # [TODO] DatabaseSchemaEditor > add_field
     def add_field(self, model, field):
         """Create a field on a model."""
         from django.db.models.expressions import Value
@@ -314,6 +322,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         else:
             super().add_field(model, field)
 
+    # [TODO] DatabaseSchemaEditor > remove_field
     def remove_field(self, model, field):
         """
         Remove a field from a model. Usually involves deleting a column,
@@ -342,6 +351,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                 return
             self._remake_table(model, delete_field=field)
 
+    # [TODO] DatabaseSchemaEditor > _alter_field
     def _alter_field(
         self,
         model,
@@ -400,6 +410,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             for related_model in related_models:
                 self._remake_table(related_model)
 
+    # [TODO] DatabaseSchemaEditor > _alter_many_to_many
     def _alter_many_to_many(self, model, old_field, new_field, strict):
         """Alter M2Ms to repoint their to= endpoints."""
         if (
@@ -464,6 +475,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         # Delete the old through table
         self.delete_model(old_field.remote_field.through)
 
+    # [TODO] DatabaseSchemaEditor > add_constraint
     def add_constraint(self, model, constraint):
         if isinstance(constraint, UniqueConstraint) and (
             constraint.condition
@@ -475,6 +487,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         else:
             self._remake_table(model)
 
+    # [TODO] DatabaseSchemaEditor > remove_constraint
     def remove_constraint(self, model, constraint):
         if isinstance(constraint, UniqueConstraint) and (
             constraint.condition
@@ -486,5 +499,6 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         else:
             self._remake_table(model)
 
+    # [TODO] DatabaseSchemaEditor > _collate_sql
     def _collate_sql(self, collation):
         return "COLLATE " + collation

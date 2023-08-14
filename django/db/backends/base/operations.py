@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.encoding import force_str
 
 
+# [TODO] BaseDatabaseOperations
 class BaseDatabaseOperations:
     """
     Encapsulate backend-specific differences, such as the way a backend
@@ -56,10 +57,12 @@ class BaseDatabaseOperations:
     # Prefix for EXPLAIN queries, or None EXPLAIN isn't supported.
     explain_prefix = None
 
+    # [TODO] BaseDatabaseOperations > __init__
     def __init__(self, connection):
         self.connection = connection
         self._cache = None
 
+    # [TODO] BaseDatabaseOperations > autoinc_sql
     def autoinc_sql(self, table, column):
         """
         Return any SQL needed to support auto-incrementing primary keys, or
@@ -69,6 +72,7 @@ class BaseDatabaseOperations:
         """
         return None
 
+    # [TODO] BaseDatabaseOperations > bulk_batch_size
     def bulk_batch_size(self, fields, objs):
         """
         Return the maximum allowed batch size for the backend. The fields
@@ -77,12 +81,14 @@ class BaseDatabaseOperations:
         """
         return len(objs)
 
+    # [TODO] BaseDatabaseOperations > format_for_duration_arithmetic
     def format_for_duration_arithmetic(self, sql):
         raise NotImplementedError(
             "subclasses of BaseDatabaseOperations may require a "
             "format_for_duration_arithmetic() method."
         )
 
+    # [TODO] BaseDatabaseOperations > cache_key_culling_sql
     def cache_key_culling_sql(self):
         """
         Return an SQL query that retrieves the first cache key greater than the
@@ -94,6 +100,7 @@ class BaseDatabaseOperations:
         cache_key = self.quote_name("cache_key")
         return f"SELECT {cache_key} FROM %s ORDER BY {cache_key} LIMIT 1 OFFSET %%s"
 
+    # [TODO] BaseDatabaseOperations > unification_cast_sql
     def unification_cast_sql(self, output_field):
         """
         Given a field instance, return the SQL that casts the result of a union
@@ -102,6 +109,7 @@ class BaseDatabaseOperations:
         """
         return "%s"
 
+    # [TODO] BaseDatabaseOperations > date_extract_sql
     def date_extract_sql(self, lookup_type, sql, params):
         """
         Given a lookup_type of 'year', 'month', or 'day', return the SQL that
@@ -112,6 +120,7 @@ class BaseDatabaseOperations:
             "method"
         )
 
+    # [TODO] BaseDatabaseOperations > date_trunc_sql
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
         """
         Given a lookup_type of 'year', 'month', or 'day', return the SQL that
@@ -126,6 +135,7 @@ class BaseDatabaseOperations:
             "method."
         )
 
+    # [TODO] BaseDatabaseOperations > datetime_cast_date_sql
     def datetime_cast_date_sql(self, sql, params, tzname):
         """
         Return the SQL to cast a datetime value to date value.
@@ -135,6 +145,7 @@ class BaseDatabaseOperations:
             "datetime_cast_date_sql() method."
         )
 
+    # [TODO] BaseDatabaseOperations > datetime_cast_time_sql
     def datetime_cast_time_sql(self, sql, params, tzname):
         """
         Return the SQL to cast a datetime value to time value.
@@ -144,6 +155,7 @@ class BaseDatabaseOperations:
             "datetime_cast_time_sql() method"
         )
 
+    # [TODO] BaseDatabaseOperations > datetime_extract_sql
     def datetime_extract_sql(self, lookup_type, sql, params, tzname):
         """
         Given a lookup_type of 'year', 'month', 'day', 'hour', 'minute', or
@@ -155,6 +167,7 @@ class BaseDatabaseOperations:
             "method"
         )
 
+    # [TODO] BaseDatabaseOperations > datetime_trunc_sql
     def datetime_trunc_sql(self, lookup_type, sql, params, tzname):
         """
         Given a lookup_type of 'year', 'month', 'day', 'hour', 'minute', or
@@ -166,6 +179,7 @@ class BaseDatabaseOperations:
             "method"
         )
 
+    # [TODO] BaseDatabaseOperations > time_trunc_sql
     def time_trunc_sql(self, lookup_type, sql, params, tzname=None):
         """
         Given a lookup_type of 'hour', 'minute' or 'second', return the SQL
@@ -179,6 +193,7 @@ class BaseDatabaseOperations:
             "subclasses of BaseDatabaseOperations may require a time_trunc_sql() method"
         )
 
+    # [TODO] BaseDatabaseOperations > time_extract_sql
     def time_extract_sql(self, lookup_type, sql, params):
         """
         Given a lookup_type of 'hour', 'minute', or 'second', return the SQL
@@ -186,6 +201,7 @@ class BaseDatabaseOperations:
         """
         return self.date_extract_sql(lookup_type, sql, params)
 
+    # [TODO] BaseDatabaseOperations > deferrable_sql
     def deferrable_sql(self):
         """
         Return the SQL to make a constraint "initially deferred" during a
@@ -193,6 +209,7 @@ class BaseDatabaseOperations:
         """
         return ""
 
+    # [TODO] BaseDatabaseOperations > distinct_sql
     def distinct_sql(self, fields, params):
         """
         Return an SQL DISTINCT clause which removes duplicate rows from the
@@ -206,6 +223,7 @@ class BaseDatabaseOperations:
         else:
             return ["DISTINCT"], []
 
+    # [TODO] BaseDatabaseOperations > fetch_returned_insert_columns
     def fetch_returned_insert_columns(self, cursor, returning_params):
         """
         Given a cursor object that has just performed an INSERT...RETURNING
@@ -213,6 +231,7 @@ class BaseDatabaseOperations:
         """
         return cursor.fetchone()
 
+    # [TODO] BaseDatabaseOperations > field_cast_sql
     def field_cast_sql(self, db_type, internal_type):
         """
         Given a column type (e.g. 'BLOB', 'VARCHAR') and an internal type
@@ -222,6 +241,7 @@ class BaseDatabaseOperations:
         """
         return "%s"
 
+    # [TODO] BaseDatabaseOperations > force_no_ordering
     def force_no_ordering(self):
         """
         Return a list used in the "ORDER BY" clause to force no ordering at
@@ -229,6 +249,7 @@ class BaseDatabaseOperations:
         """
         return []
 
+    # [TODO] BaseDatabaseOperations > for_update_sql
     def for_update_sql(self, nowait=False, skip_locked=False, of=(), no_key=False):
         """
         Return the FOR UPDATE SQL clause to lock rows for an update operation.
@@ -240,6 +261,7 @@ class BaseDatabaseOperations:
             " SKIP LOCKED" if skip_locked else "",
         )
 
+    # [TODO] BaseDatabaseOperations > _get_limit_offset_params
     def _get_limit_offset_params(self, low_mark, high_mark):
         offset = low_mark or 0
         if high_mark is not None:
@@ -248,6 +270,7 @@ class BaseDatabaseOperations:
             return self.connection.ops.no_limit_value(), offset
         return None, offset
 
+    # [TODO] BaseDatabaseOperations > limit_offset_sql
     def limit_offset_sql(self, low_mark, high_mark):
         """Return LIMIT/OFFSET SQL clause."""
         limit, offset = self._get_limit_offset_params(low_mark, high_mark)
@@ -260,6 +283,7 @@ class BaseDatabaseOperations:
             if sql
         )
 
+    # [TODO] BaseDatabaseOperations > last_executed_query
     def last_executed_query(self, cursor, sql, params):
         """
         Return a string of the query last executed by the given cursor, with
@@ -284,6 +308,7 @@ class BaseDatabaseOperations:
 
         return "QUERY = %r - PARAMS = %r" % (sql, u_params)
 
+    # [TODO] BaseDatabaseOperations > last_insert_id
     def last_insert_id(self, cursor, table_name, pk_name):
         """
         Given a cursor object that has just performed an INSERT statement into
@@ -293,6 +318,7 @@ class BaseDatabaseOperations:
         """
         return cursor.lastrowid
 
+    # [TODO] BaseDatabaseOperations > lookup_cast
     def lookup_cast(self, lookup_type, internal_type=None):
         """
         Return the string to use in a query when performing lookups
@@ -301,6 +327,7 @@ class BaseDatabaseOperations:
         """
         return "%s"
 
+    # [TODO] BaseDatabaseOperations > max_in_list_size
     def max_in_list_size(self):
         """
         Return the maximum number of items that can be passed in a single 'IN'
@@ -308,6 +335,7 @@ class BaseDatabaseOperations:
         """
         return None
 
+    # [TODO] BaseDatabaseOperations > max_name_length
     def max_name_length(self):
         """
         Return the maximum length of table and column names, or None if there
@@ -315,6 +343,7 @@ class BaseDatabaseOperations:
         """
         return None
 
+    # [TODO] BaseDatabaseOperations > no_limit_value
     def no_limit_value(self):
         """
         Return the value to use for the LIMIT when we are wanting "LIMIT
@@ -324,6 +353,7 @@ class BaseDatabaseOperations:
             "subclasses of BaseDatabaseOperations may require a no_limit_value() method"
         )
 
+    # [TODO] BaseDatabaseOperations > pk_default_value
     def pk_default_value(self):
         """
         Return the value to use during an INSERT statement to specify that
@@ -331,6 +361,7 @@ class BaseDatabaseOperations:
         """
         return "DEFAULT"
 
+    # [TODO] BaseDatabaseOperations > prepare_sql_script
     def prepare_sql_script(self, sql):
         """
         Take an SQL script that may contain multiple lines and return a list
@@ -346,6 +377,7 @@ class BaseDatabaseOperations:
             if statement
         ]
 
+    # [TODO] BaseDatabaseOperations > process_clob
     def process_clob(self, value):
         """
         Return the value of a CLOB column, for backends that return a locator
@@ -353,6 +385,7 @@ class BaseDatabaseOperations:
         """
         return value
 
+    # [TODO] BaseDatabaseOperations > return_insert_columns
     def return_insert_columns(self, fields):
         """
         For backends that support returning columns as part of an insert query,
@@ -361,6 +394,7 @@ class BaseDatabaseOperations:
         """
         pass
 
+    # [TODO] BaseDatabaseOperations > compiler
     def compiler(self, compiler_name):
         """
         Return the SQLCompiler class corresponding to the given name,
@@ -371,6 +405,7 @@ class BaseDatabaseOperations:
             self._cache = import_module(self.compiler_module)
         return getattr(self._cache, compiler_name)
 
+    # [TODO] BaseDatabaseOperations > quote_name
     def quote_name(self, name):
         """
         Return a quoted version of the given table, index, or column name. Do
@@ -380,6 +415,7 @@ class BaseDatabaseOperations:
             "subclasses of BaseDatabaseOperations may require a quote_name() method"
         )
 
+    # [TODO] BaseDatabaseOperations > regex_lookup
     def regex_lookup(self, lookup_type):
         """
         Return the string to use in a query when performing regular expression
@@ -393,6 +429,7 @@ class BaseDatabaseOperations:
             "subclasses of BaseDatabaseOperations may require a regex_lookup() method"
         )
 
+    # [TODO] BaseDatabaseOperations > savepoint_create_sql
     def savepoint_create_sql(self, sid):
         """
         Return the SQL for starting a new savepoint. Only required if the
@@ -401,18 +438,21 @@ class BaseDatabaseOperations:
         """
         return "SAVEPOINT %s" % self.quote_name(sid)
 
+    # [TODO] BaseDatabaseOperations > savepoint_commit_sql
     def savepoint_commit_sql(self, sid):
         """
         Return the SQL for committing the given savepoint.
         """
         return "RELEASE SAVEPOINT %s" % self.quote_name(sid)
 
+    # [TODO] BaseDatabaseOperations > savepoint_rollback_sql
     def savepoint_rollback_sql(self, sid):
         """
         Return the SQL for rolling back the given savepoint.
         """
         return "ROLLBACK TO SAVEPOINT %s" % self.quote_name(sid)
 
+    # [TODO] BaseDatabaseOperations > set_time_zone_sql
     def set_time_zone_sql(self):
         """
         Return the SQL that will set the connection's time zone.
@@ -421,6 +461,7 @@ class BaseDatabaseOperations:
         """
         return ""
 
+    # [TODO] BaseDatabaseOperations > sql_flush
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
         """
         Return a list of SQL statements required to remove all data from
@@ -441,6 +482,7 @@ class BaseDatabaseOperations:
             "subclasses of BaseDatabaseOperations must provide an sql_flush() method"
         )
 
+    # [TODO] BaseDatabaseOperations > execute_sql_flush
     def execute_sql_flush(self, sql_list):
         """Execute a list of SQL statements to flush the database."""
         with transaction.atomic(
@@ -451,6 +493,7 @@ class BaseDatabaseOperations:
                 for sql in sql_list:
                     cursor.execute(sql)
 
+    # [TODO] BaseDatabaseOperations > sequence_reset_by_name_sql
     def sequence_reset_by_name_sql(self, style, sequences):
         """
         Return a list of the SQL statements required to reset sequences
@@ -461,6 +504,7 @@ class BaseDatabaseOperations:
         """
         return []
 
+    # [TODO] BaseDatabaseOperations > sequence_reset_sql
     def sequence_reset_sql(self, style, model_list):
         """
         Return a list of the SQL statements required to reset sequences for
@@ -471,16 +515,19 @@ class BaseDatabaseOperations:
         """
         return []  # No sequence reset required by default.
 
+    # [TODO] BaseDatabaseOperations > start_transaction_sql
     def start_transaction_sql(self):
         """Return the SQL statement required to start a transaction."""
         return "BEGIN;"
 
+    # [TODO] BaseDatabaseOperations > end_transaction_sql
     def end_transaction_sql(self, success=True):
         """Return the SQL statement required to end a transaction."""
         if not success:
             return "ROLLBACK;"
         return "COMMIT;"
 
+    # [TODO] BaseDatabaseOperations > tablespace_sql
     def tablespace_sql(self, tablespace, inline=False):
         """
         Return the SQL that will be used in a query to define the tablespace.
@@ -492,6 +539,7 @@ class BaseDatabaseOperations:
         """
         return ""
 
+    # [TODO] BaseDatabaseOperations > prep_for_like_query
     def prep_for_like_query(self, x):
         """Prepare a value for use in a LIKE query."""
         return str(x).replace("\\", "\\\\").replace("%", r"\%").replace("_", r"\_")
@@ -500,6 +548,7 @@ class BaseDatabaseOperations:
     # need not necessarily be implemented using "LIKE" in the backend.
     prep_for_iexact_query = prep_for_like_query
 
+    # [TODO] BaseDatabaseOperations > validate_autopk_value
     def validate_autopk_value(self, value):
         """
         Certain backends do not accept some values for "serial" fields
@@ -508,6 +557,7 @@ class BaseDatabaseOperations:
         """
         return value
 
+    # [TODO] BaseDatabaseOperations > adapt_unknown_value
     def adapt_unknown_value(self, value):
         """
         Transform a value to something compatible with the backend driver.
@@ -527,9 +577,11 @@ class BaseDatabaseOperations:
         else:
             return value
 
+    # [TODO] BaseDatabaseOperations > adapt_integerfield_value
     def adapt_integerfield_value(self, value, internal_type):
         return value
 
+    # [TODO] BaseDatabaseOperations > adapt_datefield_value
     def adapt_datefield_value(self, value):
         """
         Transform a date value to an object compatible with what is expected
@@ -539,6 +591,7 @@ class BaseDatabaseOperations:
             return None
         return str(value)
 
+    # [TODO] BaseDatabaseOperations > adapt_datetimefield_value
     def adapt_datetimefield_value(self, value):
         """
         Transform a datetime value to an object compatible with what is expected
@@ -552,6 +605,7 @@ class BaseDatabaseOperations:
 
         return str(value)
 
+    # [TODO] BaseDatabaseOperations > adapt_timefield_value
     def adapt_timefield_value(self, value):
         """
         Transform a time value to an object compatible with what is expected
@@ -567,6 +621,7 @@ class BaseDatabaseOperations:
             raise ValueError("Django does not support timezone-aware times.")
         return str(value)
 
+    # [TODO] BaseDatabaseOperations > adapt_decimalfield_value
     def adapt_decimalfield_value(self, value, max_digits=None, decimal_places=None):
         """
         Transform a decimal.Decimal value to an object compatible with what is
@@ -574,6 +629,7 @@ class BaseDatabaseOperations:
         """
         return utils.format_number(value, max_digits, decimal_places)
 
+    # [TODO] BaseDatabaseOperations > adapt_ipaddressfield_value
     def adapt_ipaddressfield_value(self, value):
         """
         Transform a string representation of an IP address into the expected
@@ -581,9 +637,11 @@ class BaseDatabaseOperations:
         """
         return value or None
 
+    # [TODO] BaseDatabaseOperations > adapt_json_value
     def adapt_json_value(self, value, encoder):
         return json.dumps(value, cls=encoder)
 
+    # [TODO] BaseDatabaseOperations > year_lookup_bounds_for_date_field
     def year_lookup_bounds_for_date_field(self, value, iso_year=False):
         """
         Return a two-elements list with the lower and upper bound to be used
@@ -605,6 +663,7 @@ class BaseDatabaseOperations:
         second = self.adapt_datefield_value(second)
         return [first, second]
 
+    # [TODO] BaseDatabaseOperations > year_lookup_bounds_for_datetime_field
     def year_lookup_bounds_for_datetime_field(self, value, iso_year=False):
         """
         Return a two-elements list with the lower and upper bound to be used
@@ -630,6 +689,7 @@ class BaseDatabaseOperations:
         second = self.adapt_datetimefield_value(second)
         return [first, second]
 
+    # [TODO] BaseDatabaseOperations > get_db_converters
     def get_db_converters(self, expression):
         """
         Return a list of functions needed to convert field data.
@@ -639,10 +699,12 @@ class BaseDatabaseOperations:
         """
         return []
 
+    # [TODO] BaseDatabaseOperations > convert_durationfield_value
     def convert_durationfield_value(self, value, expression, connection):
         if value is not None:
             return datetime.timedelta(0, 0, value)
 
+    # [TODO] BaseDatabaseOperations > check_expression_support
     def check_expression_support(self, expression):
         """
         Check that the backend supports the provided expression.
@@ -654,6 +716,7 @@ class BaseDatabaseOperations:
         """
         pass
 
+    # [TODO] BaseDatabaseOperations > conditional_expression_supported_in_where_clause
     def conditional_expression_supported_in_where_clause(self, expression):
         """
         Return True, if the conditional expression is supported in the WHERE
@@ -661,6 +724,7 @@ class BaseDatabaseOperations:
         """
         return True
 
+    # [TODO] BaseDatabaseOperations > combine_expression
     def combine_expression(self, connector, sub_expressions):
         """
         Combine a list of subexpressions into a single expression, using
@@ -671,9 +735,11 @@ class BaseDatabaseOperations:
         conn = " %s " % connector
         return conn.join(sub_expressions)
 
+    # [TODO] BaseDatabaseOperations > combine_duration_expression
     def combine_duration_expression(self, connector, sub_expressions):
         return self.combine_expression(connector, sub_expressions)
 
+    # [TODO] BaseDatabaseOperations > binary_placeholder_sql
     def binary_placeholder_sql(self, value):
         """
         Some backends require special syntax to insert binary content (MySQL
@@ -681,6 +747,7 @@ class BaseDatabaseOperations:
         """
         return "%s"
 
+    # [TODO] BaseDatabaseOperations > modify_insert_params
     def modify_insert_params(self, placeholder, params):
         """
         Allow modification of insert parameters. Needed for Oracle Spatial
@@ -688,6 +755,7 @@ class BaseDatabaseOperations:
         """
         return params
 
+    # [TODO] BaseDatabaseOperations > integer_field_range
     def integer_field_range(self, internal_type):
         """
         Given an integer field internal type (e.g. 'PositiveIntegerField'),
@@ -696,6 +764,7 @@ class BaseDatabaseOperations:
         """
         return self.integer_field_ranges[internal_type]
 
+    # [TODO] BaseDatabaseOperations > subtract_temporals
     def subtract_temporals(self, internal_type, lhs, rhs):
         if self.connection.features.supports_temporal_subtraction:
             lhs_sql, lhs_params = lhs
@@ -705,6 +774,7 @@ class BaseDatabaseOperations:
             "This backend does not support %s subtraction." % internal_type
         )
 
+    # [TODO] BaseDatabaseOperations > window_frame_start
     def window_frame_start(self, start):
         if isinstance(start, int):
             if start < 0:
@@ -718,6 +788,7 @@ class BaseDatabaseOperations:
             % start
         )
 
+    # [TODO] BaseDatabaseOperations > window_frame_end
     def window_frame_end(self, end):
         if isinstance(end, int):
             if end == 0:
@@ -731,6 +802,7 @@ class BaseDatabaseOperations:
             % end
         )
 
+    # [TODO] BaseDatabaseOperations > window_frame_rows_start_end
     def window_frame_rows_start_end(self, start=None, end=None):
         """
         Return SQL for start and end points in an OVER clause window frame.
@@ -739,6 +811,7 @@ class BaseDatabaseOperations:
             raise NotSupportedError("This backend does not support window expressions.")
         return self.window_frame_start(start), self.window_frame_end(end)
 
+    # [TODO] BaseDatabaseOperations > window_frame_range_start_end
     def window_frame_range_start_end(self, start=None, end=None):
         start_, end_ = self.window_frame_rows_start_end(start, end)
         features = self.connection.features
@@ -751,6 +824,7 @@ class BaseDatabaseOperations:
             )
         return start_, end_
 
+    # [TODO] BaseDatabaseOperations > explain_query_prefix
     def explain_query_prefix(self, format=None, **options):
         if not self.connection.features.supports_explaining_query_execution:
             raise NotSupportedError(
@@ -772,12 +846,15 @@ class BaseDatabaseOperations:
             raise ValueError("Unknown options: %s" % ", ".join(sorted(options.keys())))
         return self.explain_prefix
 
+    # [TODO] BaseDatabaseOperations > insert_statement
     def insert_statement(self, on_conflict=None):
         return "INSERT INTO"
 
+    # [TODO] BaseDatabaseOperations > on_conflict_suffix_sql
     def on_conflict_suffix_sql(self, fields, on_conflict, update_fields, unique_fields):
         return ""
 
+    # [TODO] BaseDatabaseOperations > prepare_join_on_clause
     def prepare_join_on_clause(self, lhs_table, lhs_field, rhs_table, rhs_field):
         lhs_expr = Col(lhs_table, lhs_field)
         rhs_expr = Col(rhs_table, rhs_field)

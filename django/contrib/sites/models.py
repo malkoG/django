@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 SITE_CACHE = {}
 
 
+# [TODO] _simple_domain_name_validator
 def _simple_domain_name_validator(value):
     """
     Validate that the given value contains no whitespaces to prevent common
@@ -22,15 +23,18 @@ def _simple_domain_name_validator(value):
         )
 
 
+# [TODO] SiteManager
 class SiteManager(models.Manager):
     use_in_migrations = True
 
+    # [TODO] SiteManager > _get_site_by_id
     def _get_site_by_id(self, site_id):
         if site_id not in SITE_CACHE:
             site = self.get(pk=site_id)
             SITE_CACHE[site_id] = site
         return SITE_CACHE[site_id]
 
+    # [TODO] SiteManager > _get_site_by_request
     def _get_site_by_request(self, request):
         host = request.get_host()
         try:
@@ -45,6 +49,7 @@ class SiteManager(models.Manager):
                 SITE_CACHE[domain] = self.get(domain__iexact=domain)
             return SITE_CACHE[domain]
 
+    # [TODO] SiteManager > get_current
     def get_current(self, request=None):
         """
         Return the current Site based on the SITE_ID in the project's settings.
@@ -67,15 +72,18 @@ class SiteManager(models.Manager):
             "Site.objects.get_current() to fix this error."
         )
 
+    # [TODO] SiteManager > clear_cache
     def clear_cache(self):
         """Clear the ``Site`` object cache."""
         global SITE_CACHE
         SITE_CACHE = {}
 
+    # [TODO] SiteManager > get_by_natural_key
     def get_by_natural_key(self, domain):
         return self.get(domain=domain)
 
 
+# [TODO] Site
 class Site(models.Model):
     domain = models.CharField(
         _("domain name"),
@@ -87,19 +95,23 @@ class Site(models.Model):
 
     objects = SiteManager()
 
+    # [TODO] Site > Meta
     class Meta:
         db_table = "django_site"
         verbose_name = _("site")
         verbose_name_plural = _("sites")
         ordering = ["domain"]
 
+    # [TODO] Site > __str__
     def __str__(self):
         return self.domain
 
+    # [TODO] Site > natural_key
     def natural_key(self):
         return (self.domain,)
 
 
+# [TODO] clear_site_cache
 def clear_site_cache(sender, **kwargs):
     """
     Clear the cache (if primed) each time a site is saved or deleted.

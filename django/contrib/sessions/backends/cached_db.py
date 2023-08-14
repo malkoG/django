@@ -9,6 +9,7 @@ from django.core.cache import caches
 KEY_PREFIX = "django.contrib.sessions.cached_db"
 
 
+# [TODO] SessionStore
 class SessionStore(DBStore):
     """
     Implement cached, database backed sessions.
@@ -16,14 +17,17 @@ class SessionStore(DBStore):
 
     cache_key_prefix = KEY_PREFIX
 
+    # [TODO] SessionStore > __init__
     def __init__(self, session_key=None):
         self._cache = caches[settings.SESSION_CACHE_ALIAS]
         super().__init__(session_key)
 
+    # [TODO] SessionStore > cache_key
     @property
     def cache_key(self):
         return self.cache_key_prefix + self._get_or_create_session_key()
 
+    # [TODO] SessionStore > load
     def load(self):
         try:
             data = self._cache.get(self.cache_key)
@@ -43,6 +47,7 @@ class SessionStore(DBStore):
                 data = {}
         return data
 
+    # [TODO] SessionStore > exists
     def exists(self, session_key):
         return (
             session_key
@@ -50,10 +55,12 @@ class SessionStore(DBStore):
             or super().exists(session_key)
         )
 
+    # [TODO] SessionStore > save
     def save(self, must_create=False):
         super().save(must_create)
         self._cache.set(self.cache_key, self._session, self.get_expiry_age())
 
+    # [TODO] SessionStore > delete
     def delete(self, session_key=None):
         super().delete(session_key)
         if session_key is None:
@@ -62,6 +69,7 @@ class SessionStore(DBStore):
             session_key = self.session_key
         self._cache.delete(self.cache_key_prefix + session_key)
 
+    # [TODO] SessionStore > flush
     def flush(self):
         """
         Remove the current session data from the database and regenerate the

@@ -16,6 +16,7 @@ FieldInfo = namedtuple(
 field_size_re = _lazy_re_compile(r"^\s*(?:var)?char\s*\(\s*(\d+)\s*\)\s*$")
 
 
+# [TODO] get_field_size
 def get_field_size(name):
     """Extract the size number from a "varchar(11)" type name"""
     m = field_size_re.search(name)
@@ -25,6 +26,7 @@ def get_field_size(name):
 # This light wrapper "fakes" a dictionary interface, because some SQLite data
 # types include variables in them -- e.g. "varchar(30)" -- and can't be matched
 # as a simple dictionary lookup.
+# [TODO] FlexibleFieldLookupDict
 class FlexibleFieldLookupDict:
     # Maps SQL types to Django Field types. Some of the SQL types have multiple
     # entries here because SQLite allows for anything and doesn't normalize the
@@ -51,14 +53,17 @@ class FlexibleFieldLookupDict:
         "time": "TimeField",
     }
 
+    # [TODO] FlexibleFieldLookupDict > __getitem__
     def __getitem__(self, key):
         key = key.lower().split("(", 1)[0].strip()
         return self.base_data_types_reverse[key]
 
 
+# [TODO] DatabaseIntrospection
 class DatabaseIntrospection(BaseDatabaseIntrospection):
     data_types_reverse = FlexibleFieldLookupDict()
 
+    # [TODO] DatabaseIntrospection > get_field_type
     def get_field_type(self, data_type, description):
         field_type = super().get_field_type(data_type, description)
         if description.pk and field_type in {
@@ -73,6 +78,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             return "JSONField"
         return field_type
 
+    # [TODO] DatabaseIntrospection > get_table_list
     def get_table_list(self, cursor):
         """Return a list of table and view names in the current database."""
         # Skip the sqlite_sequence system table used for autoincrement key
@@ -85,6 +91,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         )
         return [TableInfo(row[0], row[1][0]) for row in cursor.fetchall()]
 
+    # [TODO] DatabaseIntrospection > get_table_description
     def get_table_description(self, cursor, table_name):
         """
         Return a description of the table with the DB-API cursor.description
@@ -132,10 +139,12 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             for cid, name, data_type, notnull, default, pk in table_info
         ]
 
+    # [TODO] DatabaseIntrospection > get_sequences
     def get_sequences(self, cursor, table_name, table_fields=()):
         pk_col = self.get_primary_key_column(cursor, table_name)
         return [{"table": table_name, "column": pk_col}]
 
+    # [TODO] DatabaseIntrospection > get_relations
     def get_relations(self, cursor, table_name):
         """
         Return a dictionary of {column_name: (ref_column_name, ref_table_name)}
@@ -156,12 +165,14 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             ) in cursor.fetchall()
         }
 
+    # [TODO] DatabaseIntrospection > get_primary_key_columns
     def get_primary_key_columns(self, cursor, table_name):
         cursor.execute(
             "PRAGMA table_info(%s)" % self.connection.ops.quote_name(table_name)
         )
         return [name for _, name, *_, pk in cursor.fetchall() if pk]
 
+    # [TODO] DatabaseIntrospection > _parse_column_or_constraint_definition
     def _parse_column_or_constraint_definition(self, tokens, columns):
         token = None
         is_constraint_definition = None
@@ -262,6 +273,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         )
         return constraint_name, unique_constraint, check_constraint, token
 
+    # [TODO] DatabaseIntrospection > _parse_table_constraints
     def _parse_table_constraints(self, sql, columns):
         # Check constraint parsing is based of SQLite syntax diagram.
         # https://www.sqlite.org/syntaxdiagrams.html#table-constraint
@@ -301,6 +313,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
                 break
         return constraints
 
+    # [TODO] DatabaseIntrospection > get_constraints
     def get_constraints(self, cursor, table_name):
         """
         Retrieve any constraints or keys (unique, pk, fk, check, index) across
@@ -398,6 +411,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         )
         return constraints
 
+    # [TODO] DatabaseIntrospection > _get_index_columns_orders
     def _get_index_columns_orders(self, sql):
         tokens = sqlparse.parse(sql)[0]
         for token in tokens:
@@ -406,6 +420,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
                 return ["DESC" if info.endswith("DESC") else "ASC" for info in columns]
         return None
 
+    # [TODO] DatabaseIntrospection > _get_column_collations
     def _get_column_collations(self, cursor, table_name):
         row = cursor.execute(
             """

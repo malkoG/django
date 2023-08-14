@@ -1,6 +1,7 @@
 from django.utils.itercompat import is_iterable
 
 
+# [TODO] make_hashable
 def make_hashable(value):
     """
     Attempt to make value hashable or raise a TypeError if it fails.

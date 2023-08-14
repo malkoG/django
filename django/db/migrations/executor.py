@@ -7,18 +7,21 @@ from .recorder import MigrationRecorder
 from .state import ProjectState
 
 
+# [TODO] MigrationExecutor
 class MigrationExecutor:
     """
     End-to-end migration execution - load migrations and run them up or down
     to a specified set of targets.
     """
 
+    # [TODO] MigrationExecutor > __init__
     def __init__(self, connection, progress_callback=None):
         self.connection = connection
         self.loader = MigrationLoader(self.connection)
         self.recorder = MigrationRecorder(self.connection)
         self.progress_callback = progress_callback
 
+    # [TODO] MigrationExecutor > migration_plan
     def migration_plan(self, targets, clean_start=False):
         """
         Given a set of targets, return a list of (Migration instance, backwards?).
@@ -70,6 +73,7 @@ class MigrationExecutor:
                         applied[migration] = self.loader.graph.nodes[migration]
         return plan
 
+    # [TODO] MigrationExecutor > _create_project_state
     def _create_project_state(self, with_applied_migrations=False):
         """
         Create a project state including all the applications without
@@ -91,6 +95,7 @@ class MigrationExecutor:
                     migration.mutate_state(state, preserve=False)
         return state
 
+    # [TODO] MigrationExecutor > migrate
     def migrate(self, targets, plan=None, state=None, fake=False, fake_initial=False):
         """
         Migrate the database up to the given targets.
@@ -144,6 +149,7 @@ class MigrationExecutor:
 
         return state
 
+    # [TODO] MigrationExecutor > _migrate_all_forwards
     def _migrate_all_forwards(self, state, plan, full_plan, fake, fake_initial):
         """
         Take a list of 2-tuples of the form (migration instance, False) and
@@ -171,6 +177,7 @@ class MigrationExecutor:
 
         return state
 
+    # [TODO] MigrationExecutor > _migrate_all_backwards
     def _migrate_all_backwards(self, plan, full_plan, fake):
         """
         Take a list of 2-tuples of the form (migration instance, True) and
@@ -233,6 +240,7 @@ class MigrationExecutor:
 
         return state
 
+    # [TODO] MigrationExecutor > apply_migration
     def apply_migration(self, state, migration, fake=False, fake_initial=False):
         """Run a migration forwards."""
         migration_recorded = False
@@ -260,6 +268,7 @@ class MigrationExecutor:
             self.progress_callback("apply_success", migration, fake)
         return state
 
+    # [TODO] MigrationExecutor > record_migration
     def record_migration(self, migration):
         # For replacement migrations, record individual statuses
         if migration.replaces:
@@ -268,6 +277,7 @@ class MigrationExecutor:
         else:
             self.recorder.record_applied(migration.app_label, migration.name)
 
+    # [TODO] MigrationExecutor > unapply_migration
     def unapply_migration(self, state, migration, fake=False):
         """Run a migration backwards."""
         if self.progress_callback:
@@ -287,6 +297,7 @@ class MigrationExecutor:
             self.progress_callback("unapply_success", migration, fake)
         return state
 
+    # [TODO] MigrationExecutor > check_replacements
     def check_replacements(self):
         """
         Mark replacement migrations applied if their replaced set all are.
@@ -304,6 +315,7 @@ class MigrationExecutor:
             if all_applied and key not in applied:
                 self.recorder.record_applied(*key)
 
+    # [TODO] MigrationExecutor > detect_soft_applied
     def detect_soft_applied(self, project_state, migration):
         """
         Test whether a migration has been implicitly applied - that the

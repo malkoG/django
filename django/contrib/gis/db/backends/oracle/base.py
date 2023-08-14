@@ -6,6 +6,7 @@ from .operations import OracleOperations
 from .schema import OracleGISSchemaEditor
 
 
+# [TODO] DatabaseWrapper
 class DatabaseWrapper(OracleDatabaseWrapper):
     SchemaEditorClass = OracleGISSchemaEditor
     # Classes instantiated in __init__().

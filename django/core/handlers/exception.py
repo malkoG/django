@@ -21,6 +21,7 @@ from django.utils.log import log_response
 from django.views import debug
 
 
+# [TODO] convert_exception_to_response
 def convert_exception_to_response(get_response):
     """
     Wrap the given get_response callable in exception-to-response conversion.
@@ -60,6 +61,7 @@ def convert_exception_to_response(get_response):
         return inner
 
 
+# [TODO] response_for_exception
 def response_for_exception(request, exc):
     if isinstance(exc, Http404):
         if settings.DEBUG:
@@ -158,6 +160,7 @@ def response_for_exception(request, exc):
     return response
 
 
+# [TODO] get_exception_response
 def get_exception_response(request, resolver, status_code, exception):
     try:
         callback = resolver.resolve_error_handler(status_code)
@@ -169,6 +172,7 @@ def get_exception_response(request, resolver, status_code, exception):
     return response
 
 
+# [TODO] handle_uncaught_exception
 def handle_uncaught_exception(request, resolver, exc_info):
     """
     Processing for any otherwise uncaught exceptions (those that will

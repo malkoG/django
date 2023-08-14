@@ -1,6 +1,7 @@
 from django.db import migrations, models
 
 
+# [TODO] Migration
 class Migration(migrations.Migration):
     dependencies = [
         ("redirects", "0001_initial"),

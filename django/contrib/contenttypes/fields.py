@@ -22,6 +22,7 @@ from django.db.models.utils import AltersData
 from django.utils.functional import cached_property
 
 
+# [TODO] GenericForeignKey
 class GenericForeignKey(FieldCacheMixin):
     """
     Provide a generic many-to-one relation through the ``content_type`` and
@@ -45,6 +46,7 @@ class GenericForeignKey(FieldCacheMixin):
     related_model = None
     remote_field = None
 
+    # [TODO] GenericForeignKey > __init__
     def __init__(
         self, ct_field="content_type", fk_field="object_id", for_concrete_model=True
     ):
@@ -55,12 +57,14 @@ class GenericForeignKey(FieldCacheMixin):
         self.rel = None
         self.column = None
 
+    # [TODO] GenericForeignKey > contribute_to_class
     def contribute_to_class(self, cls, name, **kwargs):
         self.name = name
         self.model = cls
         cls._meta.add_field(self, private=True)
         setattr(cls, name, self)
 
+    # [TODO] GenericForeignKey > get_filter_kwargs_for_object
     def get_filter_kwargs_for_object(self, obj):
         """See corresponding method on Field"""
         return {
@@ -68,6 +72,7 @@ class GenericForeignKey(FieldCacheMixin):
             self.ct_field: getattr(obj, self.ct_field),
         }
 
+    # [TODO] GenericForeignKey > get_forward_related_filter
     def get_forward_related_filter(self, obj):
         """See corresponding method on RelatedField"""
         return {
@@ -75,10 +80,12 @@ class GenericForeignKey(FieldCacheMixin):
             self.ct_field: ContentType.objects.get_for_model(obj).pk,
         }
 
+    # [TODO] GenericForeignKey > __str__
     def __str__(self):
         model = self.model
         return "%s.%s" % (model._meta.label, self.name)
 
+    # [TODO] GenericForeignKey > check
     def check(self, **kwargs):
         return [
             *self._check_field_name(),
@@ -86,6 +93,7 @@ class GenericForeignKey(FieldCacheMixin):
             *self._check_content_type_field(),
         ]
 
+    # [TODO] GenericForeignKey > _check_field_name
     def _check_field_name(self):
         if self.name.endswith("_"):
             return [
@@ -98,6 +106,7 @@ class GenericForeignKey(FieldCacheMixin):
         else:
             return []
 
+    # [TODO] GenericForeignKey > _check_object_id_field
     def _check_object_id_field(self):
         try:
             self.model._meta.get_field(self.fk_field)
@@ -113,6 +122,7 @@ class GenericForeignKey(FieldCacheMixin):
         else:
             return []
 
+    # [TODO] GenericForeignKey > _check_content_type_field
     def _check_content_type_field(self):
         """
         Check if field named `field_name` in model `model` exists and is a
@@ -160,9 +170,11 @@ class GenericForeignKey(FieldCacheMixin):
             else:
                 return []
 
+    # [TODO] GenericForeignKey > get_cache_name
     def get_cache_name(self):
         return self.name
 
+    # [TODO] GenericForeignKey > get_content_type
     def get_content_type(self, obj=None, id=None, using=None):
         if obj is not None:
             return ContentType.objects.db_manager(obj._state.db).get_for_model(
@@ -174,6 +186,7 @@ class GenericForeignKey(FieldCacheMixin):
             # This should never happen. I love comments like this, don't you?
             raise Exception("Impossible arguments to GFK.get_content_type!")
 
+    # [TODO] GenericForeignKey > get_prefetch_queryset
     def get_prefetch_queryset(self, instances, queryset=None):
         if queryset is not None:
             raise ValueError("Custom queryset can't be used for this lookup.")
@@ -223,6 +236,7 @@ class GenericForeignKey(FieldCacheMixin):
             False,
         )
 
+    # [TODO] GenericForeignKey > __get__
     def __get__(self, instance, cls=None):
         if instance is None:
             return self
@@ -256,6 +270,7 @@ class GenericForeignKey(FieldCacheMixin):
         self.set_cached_value(instance, rel_obj)
         return rel_obj
 
+    # [TODO] GenericForeignKey > __set__
     def __set__(self, instance, value):
         ct = None
         fk = None
@@ -268,11 +283,13 @@ class GenericForeignKey(FieldCacheMixin):
         self.set_cached_value(instance, value)
 
 
+# [TODO] GenericRel
 class GenericRel(ForeignObjectRel):
     """
     Used by GenericRelation to store information about the relation.
     """
 
+    # [TODO] GenericRel > __init__
     def __init__(
         self,
         field,
@@ -291,6 +308,7 @@ class GenericRel(ForeignObjectRel):
         )
 
 
+# [TODO] GenericRelation
 class GenericRelation(ForeignObject):
     """
     Provide a reverse to a relation created by a GenericForeignKey.
@@ -309,6 +327,7 @@ class GenericRelation(ForeignObject):
 
     mti_inherited = False
 
+    # [TODO] GenericRelation > __init__
     def __init__(
         self,
         to,
@@ -345,12 +364,14 @@ class GenericRelation(ForeignObject):
         self.content_type_field_name = content_type_field
         self.for_concrete_model = for_concrete_model
 
+    # [TODO] GenericRelation > check
     def check(self, **kwargs):
         return [
             *super().check(**kwargs),
             *self._check_generic_foreign_key_existence(),
         ]
 
+    # [TODO] GenericRelation > _is_matching_generic_foreign_key
     def _is_matching_generic_foreign_key(self, field):
         """
         Return True if field is a GenericForeignKey whose content type and
@@ -363,6 +384,7 @@ class GenericRelation(ForeignObject):
             and field.fk_field == self.object_id_field_name
         )
 
+    # [TODO] GenericRelation > _check_generic_foreign_key_existence
     def _check_generic_foreign_key_existence(self):
         target = self.remote_field.model
         if isinstance(target, ModelBase):
@@ -382,6 +404,7 @@ class GenericRelation(ForeignObject):
         else:
             return []
 
+    # [TODO] GenericRelation > resolve_related_fields
     def resolve_related_fields(self):
         self.to_fields = [self.model._meta.pk.name]
         return [
@@ -391,6 +414,7 @@ class GenericRelation(ForeignObject):
             )
         ]
 
+    # [TODO] GenericRelation > _get_path_info_with_parent
     def _get_path_info_with_parent(self, filtered_relation):
         """
         Return the path that joins the current model through any parent models.
@@ -433,6 +457,7 @@ class GenericRelation(ForeignObject):
             path.extend(field.remote_field.path_infos)
         return path
 
+    # [TODO] GenericRelation > get_path_info
     def get_path_info(self, filtered_relation=None):
         opts = self.remote_field.model._meta
         object_id_field = opts.get_field(self.object_id_field_name)
@@ -452,6 +477,7 @@ class GenericRelation(ForeignObject):
                 )
             ]
 
+    # [TODO] GenericRelation > get_reverse_path_info
     def get_reverse_path_info(self, filtered_relation=None):
         opts = self.model._meta
         from_opts = self.remote_field.model._meta
@@ -467,10 +493,12 @@ class GenericRelation(ForeignObject):
             )
         ]
 
+    # [TODO] GenericRelation > value_to_string
     def value_to_string(self, obj):
         qs = getattr(obj, self.name).all()
         return str([instance.pk for instance in qs])
 
+    # [TODO] GenericRelation > contribute_to_class
     def contribute_to_class(self, cls, name, **kwargs):
         kwargs["private_only"] = True
         super().contribute_to_class(cls, name, **kwargs)
@@ -500,12 +528,15 @@ class GenericRelation(ForeignObject):
                 self.remote_field.model,
             )
 
+    # [TODO] GenericRelation > set_attributes_from_rel
     def set_attributes_from_rel(self):
         pass
 
+    # [TODO] GenericRelation > get_internal_type
     def get_internal_type(self):
         return "ManyToManyField"
 
+    # [TODO] GenericRelation > get_content_type
     def get_content_type(self):
         """
         Return the content type associated with this field's model.
@@ -514,12 +545,14 @@ class GenericRelation(ForeignObject):
             self.model, for_concrete_model=self.for_concrete_model
         )
 
+    # [TODO] GenericRelation > get_extra_restriction
     def get_extra_restriction(self, alias, remote_alias):
         field = self.remote_field.model._meta.get_field(self.content_type_field_name)
         contenttype_pk = self.get_content_type().pk
         lookup = field.get_lookup("exact")(field.get_col(remote_alias), contenttype_pk)
         return WhereNode([lookup], connector=AND)
 
+    # [TODO] GenericRelation > bulk_related_objects
     def bulk_related_objects(self, objs, using=DEFAULT_DB_ALIAS):
         """
         Return all objects related to ``objs`` via this ``GenericRelation``.
@@ -535,6 +568,7 @@ class GenericRelation(ForeignObject):
         )
 
 
+# [TODO] ReverseGenericManyToOneDescriptor
 class ReverseGenericManyToOneDescriptor(ReverseManyToOneDescriptor):
     """
     Accessor to the related objects manager on the one-to-many relation created
@@ -548,6 +582,7 @@ class ReverseGenericManyToOneDescriptor(ReverseManyToOneDescriptor):
     ``post.comments`` is a ReverseGenericManyToOneDescriptor instance.
     """
 
+    # [TODO] ReverseGenericManyToOneDescriptor > related_manager_cls
     @cached_property
     def related_manager_cls(self):
         return create_generic_related_manager(
@@ -556,6 +591,7 @@ class ReverseGenericManyToOneDescriptor(ReverseManyToOneDescriptor):
         )
 
 
+# [TODO] create_generic_related_manager
 def create_generic_related_manager(superclass, rel):
     """
     Factory function to create a manager that subclasses another manager

@@ -15,6 +15,7 @@ from .base import Storage
 from .mixins import StorageSettingsMixin
 
 
+# [TODO] FileSystemStorage
 @deconstructible(path="django.core.files.storage.FileSystemStorage")
 class FileSystemStorage(Storage, StorageSettingsMixin):
     """

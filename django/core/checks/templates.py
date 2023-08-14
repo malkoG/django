@@ -21,6 +21,7 @@ W003 = Warning(
 )
 
 
+# [TODO] check_setting_app_dirs_loaders
 @register(Tags.templates)
 def check_setting_app_dirs_loaders(app_configs, **kwargs):
     return (
@@ -33,6 +34,7 @@ def check_setting_app_dirs_loaders(app_configs, **kwargs):
     )
 
 
+# [TODO] check_string_if_invalid_is_string
 @register(Tags.templates)
 def check_string_if_invalid_is_string(app_configs, **kwargs):
     errors = []
@@ -47,6 +49,7 @@ def check_string_if_invalid_is_string(app_configs, **kwargs):
     return errors
 
 
+# [TODO] check_for_template_tags_with_the_same_name
 @register(Tags.templates)
 def check_for_template_tags_with_the_same_name(app_configs, **kwargs):
     errors = []

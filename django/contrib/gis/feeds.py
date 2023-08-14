@@ -2,12 +2,14 @@ from django.contrib.syndication.views import Feed as BaseFeed
 from django.utils.feedgenerator import Atom1Feed, Rss201rev2Feed
 
 
+# [TODO] GeoFeedMixin
 class GeoFeedMixin:
     """
     This mixin provides the necessary routines for SyndicationFeed subclasses
     to produce simple GeoRSS or W3C Geo elements.
     """
 
+    # [TODO] GeoFeedMixin > georss_coords
     def georss_coords(self, coords):
         """
         In GeoRSS coordinate pairs are ordered by lat/lon and separated by
@@ -16,6 +18,7 @@ class GeoFeedMixin:
         """
         return " ".join("%f %f" % (coord[1], coord[0]) for coord in coords)
 
+    # [TODO] GeoFeedMixin > add_georss_point
     def add_georss_point(self, handler, coords, w3c_geo=False):
         """
         Adds a GeoRSS point with the given coords using the given handler.
@@ -29,6 +32,7 @@ class GeoFeedMixin:
         else:
             handler.addQuickElement("georss:point", self.georss_coords((coords,)))
 
+    # [TODO] GeoFeedMixin > add_georss_element
     def add_georss_element(self, handler, item, w3c_geo=False):
         """Add a GeoRSS XML element using the given item and handler."""
         # Getting the Geometry object.
@@ -88,52 +92,65 @@ class GeoFeedMixin:
 
 
 # ### SyndicationFeed subclasses ###
+# [TODO] GeoRSSFeed
 class GeoRSSFeed(Rss201rev2Feed, GeoFeedMixin):
+    # [TODO] GeoRSSFeed > rss_attributes
     def rss_attributes(self):
         attrs = super().rss_attributes()
         attrs["xmlns:georss"] = "http://www.georss.org/georss"
         return attrs
 
+    # [TODO] GeoRSSFeed > add_item_elements
     def add_item_elements(self, handler, item):
         super().add_item_elements(handler, item)
         self.add_georss_element(handler, item)
 
+    # [TODO] GeoRSSFeed > add_root_elements
     def add_root_elements(self, handler):
         super().add_root_elements(handler)
         self.add_georss_element(handler, self.feed)
 
 
+# [TODO] GeoAtom1Feed
 class GeoAtom1Feed(Atom1Feed, GeoFeedMixin):
+    # [TODO] GeoAtom1Feed > root_attributes
     def root_attributes(self):
         attrs = super().root_attributes()
         attrs["xmlns:georss"] = "http://www.georss.org/georss"
         return attrs
 
+    # [TODO] GeoAtom1Feed > add_item_elements
     def add_item_elements(self, handler, item):
         super().add_item_elements(handler, item)
         self.add_georss_element(handler, item)
 
+    # [TODO] GeoAtom1Feed > add_root_elements
     def add_root_elements(self, handler):
         super().add_root_elements(handler)
         self.add_georss_element(handler, self.feed)
 
 
+# [TODO] W3CGeoFeed
 class W3CGeoFeed(Rss201rev2Feed, GeoFeedMixin):
+    # [TODO] W3CGeoFeed > rss_attributes
     def rss_attributes(self):
         attrs = super().rss_attributes()
         attrs["xmlns:geo"] = "http://www.w3.org/2003/01/geo/wgs84_pos#"
         return attrs
 
+    # [TODO] W3CGeoFeed > add_item_elements
     def add_item_elements(self, handler, item):
         super().add_item_elements(handler, item)
         self.add_georss_element(handler, item, w3c_geo=True)
 
+    # [TODO] W3CGeoFeed > add_root_elements
     def add_root_elements(self, handler):
         super().add_root_elements(handler)
         self.add_georss_element(handler, self.feed, w3c_geo=True)
 
 
 # ### Feed subclass ###
+# [TODO] Feed
 class Feed(BaseFeed):
     """
     This is a subclass of the `Feed` from `django.contrib.syndication`.
@@ -144,8 +161,10 @@ class Feed(BaseFeed):
 
     feed_type = GeoRSSFeed
 
+    # [TODO] Feed > feed_extra_kwargs
     def feed_extra_kwargs(self, obj):
         return {"geometry": self._get_dynamic_attr("geometry", obj)}
 
+    # [TODO] Feed > item_extra_kwargs
     def item_extra_kwargs(self, item):
         return {"geometry": self._get_dynamic_attr("item_geometry", item)}

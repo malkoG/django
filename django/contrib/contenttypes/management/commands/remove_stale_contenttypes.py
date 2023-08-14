@@ -7,9 +7,11 @@ from django.db import DEFAULT_DB_ALIAS, router
 from django.db.models.deletion import Collector
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = "Deletes stale content types in the database."
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "--noinput",
@@ -33,6 +35,7 @@ class Command(BaseCommand):
             ),
         )
 
+    # [TODO] Command > handle
     def handle(self, **options):
         db = options["database"]
         include_stale_apps = options["include_stale_apps"]
@@ -104,7 +107,9 @@ class Command(BaseCommand):
                         self.stdout.write("Stale content types remain.")
 
 
+# [TODO] NoFastDeleteCollector
 class NoFastDeleteCollector(Collector):
+    # [TODO] NoFastDeleteCollector > can_fast_delete
     def can_fast_delete(self, *args, **kwargs):
         """
         Always load related objects to display them when showing confirmation.

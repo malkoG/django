@@ -44,10 +44,12 @@ NUMERIC_TYPES = (int, float, Decimal)
 AREA_PREFIX = "sq_"
 
 
+# [TODO] pretty_name
 def pretty_name(obj):
     return obj.__name__ if obj.__class__ == type else obj.__class__.__name__
 
 
+# [TODO] MeasureBase
 @total_ordering
 class MeasureBase:
     STANDARD_UNIT = None
@@ -245,6 +247,7 @@ class MeasureBase:
             raise AttributeError(f"Unknown unit type: {unit_str}")
 
 
+# [TODO] Distance
 class Distance(MeasureBase):
     STANDARD_UNIT = "m"
     UNITS = {
@@ -324,6 +327,7 @@ class Distance(MeasureBase):
     }
     LALIAS = {k.lower(): v for k, v in ALIAS.items()}
 
+    # [TODO] Distance > __mul__
     def __mul__(self, other):
         if isinstance(other, self.__class__):
             return Area(
@@ -344,6 +348,7 @@ class Distance(MeasureBase):
             )
 
 
+# [TODO] Area
 class Area(MeasureBase):
     STANDARD_UNIT = AREA_PREFIX + Distance.STANDARD_UNIT
     # Getting the square units values and the alias dictionary.
@@ -351,6 +356,7 @@ class Area(MeasureBase):
     ALIAS = {k: "%s%s" % (AREA_PREFIX, v) for k, v in Distance.ALIAS.items()}
     LALIAS = {k.lower(): v for k, v in ALIAS.items()}
 
+    # [TODO] Area > __truediv__
     def __truediv__(self, other):
         if isinstance(other, NUMERIC_TYPES):
             return self.__class__(

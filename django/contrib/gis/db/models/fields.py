@@ -29,6 +29,7 @@ SRIDCacheEntry = namedtuple(
 )
 
 
+# [TODO] get_srid_info
 def get_srid_info(srid, connection):
     """
     Return the units, unit name, and spheroid WKT associated with the
@@ -69,6 +70,7 @@ def get_srid_info(srid, connection):
     return _srid_cache[alias][srid]
 
 
+# [TODO] BaseSpatialField
 class BaseSpatialField(Field):
     """
     The Base GIS Field.
@@ -81,6 +83,7 @@ class BaseSpatialField(Field):
     description = _("The base GIS field.")
     empty_strings_allowed = False
 
+    # [TODO] BaseSpatialField > __init__
     def __init__(self, verbose_name=None, srid=4326, spatial_index=True, **kwargs):
         """
         The initialization function for base spatial fields. Takes the following
@@ -109,6 +112,7 @@ class BaseSpatialField(Field):
 
         super().__init__(**kwargs)
 
+    # [TODO] BaseSpatialField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         # Always include SRID for less fragility; include spatial index if it's
@@ -118,18 +122,23 @@ class BaseSpatialField(Field):
             kwargs["spatial_index"] = self.spatial_index
         return name, path, args, kwargs
 
+    # [TODO] BaseSpatialField > db_type
     def db_type(self, connection):
         return connection.ops.geo_db_type(self)
 
+    # [TODO] BaseSpatialField > spheroid
     def spheroid(self, connection):
         return get_srid_info(self.srid, connection).spheroid
 
+    # [TODO] BaseSpatialField > units
     def units(self, connection):
         return get_srid_info(self.srid, connection).units
 
+    # [TODO] BaseSpatialField > units_name
     def units_name(self, connection):
         return get_srid_info(self.srid, connection).units_name
 
+    # [TODO] BaseSpatialField > geodetic
     def geodetic(self, connection):
         """
         Return true if this field's SRID corresponds with a coordinate
@@ -137,6 +146,7 @@ class BaseSpatialField(Field):
         """
         return get_srid_info(self.srid, connection).geodetic
 
+    # [TODO] BaseSpatialField > get_placeholder
     def get_placeholder(self, value, compiler, connection):
         """
         Return the placeholder for the spatial column for the
@@ -144,6 +154,7 @@ class BaseSpatialField(Field):
         """
         return connection.ops.get_geom_placeholder(self, value, compiler)
 
+    # [TODO] BaseSpatialField > get_srid
     def get_srid(self, obj):
         """
         Return the default SRID for the given geometry or raster, taking into
@@ -157,6 +168,7 @@ class BaseSpatialField(Field):
         else:
             return srid
 
+    # [TODO] BaseSpatialField > get_db_prep_value
     def get_db_prep_value(self, value, connection, *args, **kwargs):
         if value is None:
             return None
@@ -169,6 +181,7 @@ class BaseSpatialField(Field):
             ),
         )
 
+    # [TODO] BaseSpatialField > get_raster_prep_value
     def get_raster_prep_value(self, value, is_candidate):
         """
         Return a GDALRaster if conversion is successful, otherwise return None.
@@ -188,6 +201,7 @@ class BaseSpatialField(Field):
                     "Couldn't create spatial object from lookup value '%s'." % value
                 )
 
+    # [TODO] BaseSpatialField > get_prep_value
     def get_prep_value(self, value):
         obj = super().get_prep_value(value)
         if obj is None:
@@ -224,6 +238,7 @@ class BaseSpatialField(Field):
         return obj
 
 
+# [TODO] GeometryField
 class GeometryField(BaseSpatialField):
     """
     The base Geometry field -- maps to the OpenGIS Specification Geometry type.
@@ -237,6 +252,7 @@ class GeometryField(BaseSpatialField):
     geom_type = "GEOMETRY"
     geom_class = None
 
+    # [TODO] GeometryField > __init__
     def __init__(
         self,
         verbose_name=None,
@@ -277,6 +293,7 @@ class GeometryField(BaseSpatialField):
 
         super().__init__(verbose_name=verbose_name, **kwargs)
 
+    # [TODO] GeometryField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         # Include kwargs if they're not the default values.
@@ -290,6 +307,7 @@ class GeometryField(BaseSpatialField):
             kwargs["tolerance"] = self._tolerance
         return name, path, args, kwargs
 
+    # [TODO] GeometryField > contribute_to_class
     def contribute_to_class(self, cls, name, **kwargs):
         super().contribute_to_class(cls, name, **kwargs)
 
@@ -300,6 +318,7 @@ class GeometryField(BaseSpatialField):
             SpatialProxy(self.geom_class or GEOSGeometry, self, load_func=GEOSGeometry),
         )
 
+    # [TODO] GeometryField > formfield
     def formfield(self, **kwargs):
         defaults = {
             "form_class": self.form_class,
@@ -313,6 +332,7 @@ class GeometryField(BaseSpatialField):
             defaults.setdefault("widget", forms.Textarea)
         return super().formfield(**defaults)
 
+    # [TODO] GeometryField > select_format
     def select_format(self, compiler, sql, params):
         """
         Return the selection format string, depending on the requirements
@@ -325,6 +345,7 @@ class GeometryField(BaseSpatialField):
 
 
 # The OpenGIS Geometry Type Fields
+# [TODO] PointField
 class PointField(GeometryField):
     geom_type = "POINT"
     geom_class = Point
@@ -332,6 +353,7 @@ class PointField(GeometryField):
     description = _("Point")
 
 
+# [TODO] LineStringField
 class LineStringField(GeometryField):
     geom_type = "LINESTRING"
     geom_class = LineString
@@ -339,6 +361,7 @@ class LineStringField(GeometryField):
     description = _("Line string")
 
 
+# [TODO] PolygonField
 class PolygonField(GeometryField):
     geom_type = "POLYGON"
     geom_class = Polygon
@@ -346,6 +369,7 @@ class PolygonField(GeometryField):
     description = _("Polygon")
 
 
+# [TODO] MultiPointField
 class MultiPointField(GeometryField):
     geom_type = "MULTIPOINT"
     geom_class = MultiPoint
@@ -353,6 +377,7 @@ class MultiPointField(GeometryField):
     description = _("Multi-point")
 
 
+# [TODO] MultiLineStringField
 class MultiLineStringField(GeometryField):
     geom_type = "MULTILINESTRING"
     geom_class = MultiLineString
@@ -360,6 +385,7 @@ class MultiLineStringField(GeometryField):
     description = _("Multi-line string")
 
 
+# [TODO] MultiPolygonField
 class MultiPolygonField(GeometryField):
     geom_type = "MULTIPOLYGON"
     geom_class = MultiPolygon
@@ -367,6 +393,7 @@ class MultiPolygonField(GeometryField):
     description = _("Multi polygon")
 
 
+# [TODO] GeometryCollectionField
 class GeometryCollectionField(GeometryField):
     geom_type = "GEOMETRYCOLLECTION"
     geom_class = GeometryCollection
@@ -374,19 +401,23 @@ class GeometryCollectionField(GeometryField):
     description = _("Geometry collection")
 
 
+# [TODO] ExtentField
 class ExtentField(Field):
     "Used as a return value from an extent aggregate"
 
     description = _("Extent Aggregate Field")
 
+    # [TODO] ExtentField > get_internal_type
     def get_internal_type(self):
         return "ExtentField"
 
+    # [TODO] ExtentField > select_format
     def select_format(self, compiler, sql, params):
         select = compiler.connection.ops.select_extent
         return select % sql if select else sql, params
 
 
+# [TODO] RasterField
 class RasterField(BaseSpatialField):
     """
     Raster field for GeoDjango -- evaluates into GDALRaster objects.
@@ -396,6 +427,7 @@ class RasterField(BaseSpatialField):
     geom_type = "RASTER"
     geography = False
 
+    # [TODO] RasterField > _check_connection
     def _check_connection(self, connection):
         # Make sure raster fields are used only on backends with raster support.
         if (
@@ -406,13 +438,16 @@ class RasterField(BaseSpatialField):
                 "Raster fields require backends with raster support."
             )
 
+    # [TODO] RasterField > db_type
     def db_type(self, connection):
         self._check_connection(connection)
         return super().db_type(connection)
 
+    # [TODO] RasterField > from_db_value
     def from_db_value(self, value, expression, connection):
         return connection.ops.parse_raster(value)
 
+    # [TODO] RasterField > contribute_to_class
     def contribute_to_class(self, cls, name, **kwargs):
         super().contribute_to_class(cls, name, **kwargs)
         # Setup for lazy-instantiated Raster object. For large querysets, the
@@ -421,6 +456,7 @@ class RasterField(BaseSpatialField):
         # of the raster attribute.
         setattr(cls, self.attname, SpatialProxy(gdal.GDALRaster, self))
 
+    # [TODO] RasterField > get_transform
     def get_transform(self, name):
         from django.contrib.gis.db.models.lookups import RasterBandTransform
 

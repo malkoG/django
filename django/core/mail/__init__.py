@@ -39,6 +39,7 @@ __all__ = [
 ]
 
 
+# [TODO] get_connection
 def get_connection(backend=None, fail_silently=False, **kwds):
     """Load an email backend and return an instance of it.
 
@@ -51,6 +52,7 @@ def get_connection(backend=None, fail_silently=False, **kwds):
     return klass(fail_silently=fail_silently, **kwds)
 
 
+# [TODO] send_mail
 def send_mail(
     subject,
     message,
@@ -87,6 +89,7 @@ def send_mail(
     return mail.send()
 
 
+# [TODO] send_mass_mail
 def send_mass_mail(
     datatuple, fail_silently=False, auth_user=None, auth_password=None, connection=None
 ):
@@ -114,6 +117,7 @@ def send_mass_mail(
     return connection.send_messages(messages)
 
 
+# [TODO] mail_admins
 def mail_admins(
     subject, message, fail_silently=False, connection=None, html_message=None
 ):
@@ -134,6 +138,7 @@ def mail_admins(
     mail.send(fail_silently=fail_silently)
 
 
+# [TODO] mail_managers
 def mail_managers(
     subject, message, fail_silently=False, connection=None, html_message=None
 ):

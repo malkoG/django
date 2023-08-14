@@ -5,6 +5,7 @@ from django.db.backends.oracle.features import (
 from django.utils.functional import cached_property
 
 
+# [TODO] DatabaseFeatures
 class DatabaseFeatures(BaseSpatialFeatures, OracleDatabaseFeatures):
     supports_add_srs_entry = False
     supports_geometry_field_introspection = False
@@ -14,6 +15,7 @@ class DatabaseFeatures(BaseSpatialFeatures, OracleDatabaseFeatures):
     supports_tolerance_parameter = True
     unsupported_geojson_options = {"bbox", "crs", "precision"}
 
+    # [TODO] DatabaseFeatures > django_test_skips
     @cached_property
     def django_test_skips(self):
         skips = super().django_test_skips

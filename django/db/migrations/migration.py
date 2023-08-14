@@ -6,6 +6,7 @@ from django.db.transaction import atomic
 from .exceptions import IrreversibleError
 
 
+# [TODO] Migration
 class Migration:
     """
     The base class for all migrations.
@@ -52,6 +53,7 @@ class Migration:
     # on database backends which support transactional DDL.
     atomic = True
 
+    # [TODO] Migration > __init__
     def __init__(self, name, app_label):
         self.name = name
         self.app_label = app_label
@@ -61,6 +63,7 @@ class Migration:
         self.run_before = list(self.__class__.run_before)
         self.replaces = list(self.__class__.replaces)
 
+    # [TODO] Migration > __eq__
     def __eq__(self, other):
         return (
             isinstance(other, Migration)
@@ -68,15 +71,19 @@ class Migration:
             and self.app_label == other.app_label
         )
 
+    # [TODO] Migration > __repr__
     def __repr__(self):
         return "<Migration %s.%s>" % (self.app_label, self.name)
 
+    # [TODO] Migration > __str__
     def __str__(self):
         return "%s.%s" % (self.app_label, self.name)
 
+    # [TODO] Migration > __hash__
     def __hash__(self):
         return hash("%s.%s" % (self.app_label, self.name))
 
+    # [TODO] Migration > mutate_state
     def mutate_state(self, project_state, preserve=True):
         """
         Take a ProjectState and return a new one with the migration's
@@ -91,6 +98,7 @@ class Migration:
             operation.state_forwards(self.app_label, new_state)
         return new_state
 
+    # [TODO] Migration > apply
     def apply(self, project_state, schema_editor, collect_sql=False):
         """
         Take a project_state representing all migrations prior to this one
@@ -136,6 +144,7 @@ class Migration:
                 schema_editor.collected_sql.append("-- (no-op)")
         return project_state
 
+    # [TODO] Migration > unapply
     def unapply(self, project_state, schema_editor, collect_sql=False):
         """
         Take a project_state representing all migrations prior to this one
@@ -197,6 +206,7 @@ class Migration:
                 schema_editor.collected_sql.append("-- (no-op)")
         return project_state
 
+    # [TODO] Migration > suggest_name
     def suggest_name(self):
         """
         Suggest a name for the operations this migration might represent. Names
@@ -222,18 +232,21 @@ class Migration:
         return name
 
 
+# [TODO] SwappableTuple
 class SwappableTuple(tuple):
     """
     Subclass of tuple so Django can tell this was originally a swappable
     dependency when it reads the migration file.
     """
 
+    # [TODO] SwappableTuple > __new__
     def __new__(cls, value, setting):
         self = tuple.__new__(cls, value)
         self.setting = setting
         return self
 
 
+# [TODO] swappable_dependency
 def swappable_dependency(value):
     """Turn a setting value into a dependency."""
     return SwappableTuple((value.split(".", 1)[0], "__first__"), value)

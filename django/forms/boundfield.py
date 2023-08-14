@@ -10,9 +10,11 @@ from django.utils.translation import gettext_lazy as _
 __all__ = ("BoundField",)
 
 
+# [TODO] BoundField
 class BoundField(RenderableFieldMixin):
     "A Field plus data"
 
+    # [TODO] BoundField > __init__
     def __init__(self, form, field, name):
         self.form = form
         self.field = field
@@ -27,6 +29,7 @@ class BoundField(RenderableFieldMixin):
         self.help_text = field.help_text or ""
         self.renderer = form.renderer
 
+    # [TODO] BoundField > subwidgets
     @cached_property
     def subwidgets(self):
         """
@@ -46,16 +49,20 @@ class BoundField(RenderableFieldMixin):
             )
         ]
 
+    # [TODO] BoundField > __bool__
     def __bool__(self):
         # BoundField evaluates to True even if it doesn't have subwidgets.
         return True
 
+    # [TODO] BoundField > __iter__
     def __iter__(self):
         return iter(self.subwidgets)
 
+    # [TODO] BoundField > __len__
     def __len__(self):
         return len(self.subwidgets)
 
+    # [TODO] BoundField > __getitem__
     def __getitem__(self, idx):
         # Prevent unnecessary reevaluation when accessing BoundField's attrs
         # from templates.
@@ -66,6 +73,7 @@ class BoundField(RenderableFieldMixin):
             )
         return self.subwidgets[idx]
 
+    # [TODO] BoundField > errors
     @property
     def errors(self):
         """
@@ -75,13 +83,16 @@ class BoundField(RenderableFieldMixin):
             self.name, self.form.error_class(renderer=self.form.renderer)
         )
 
+    # [TODO] BoundField > template_name
     @property
     def template_name(self):
         return self.field.template_name or self.form.renderer.field_template_name
 
+    # [TODO] BoundField > get_context
     def get_context(self):
         return {"field": self}
 
+    # [TODO] BoundField > as_widget
     def as_widget(self, widget=None, attrs=None, only_initial=False):
         """
         Render the field by rendering the passed widget, adding any HTML
@@ -112,22 +123,26 @@ class BoundField(RenderableFieldMixin):
             renderer=self.form.renderer,
         )
 
+    # [TODO] BoundField > as_text
     def as_text(self, attrs=None, **kwargs):
         """
         Return a string of HTML for representing this as an <input type="text">.
         """
         return self.as_widget(TextInput(), attrs, **kwargs)
 
+    # [TODO] BoundField > as_textarea
     def as_textarea(self, attrs=None, **kwargs):
         """Return a string of HTML for representing this as a <textarea>."""
         return self.as_widget(Textarea(), attrs, **kwargs)
 
+    # [TODO] BoundField > as_hidden
     def as_hidden(self, attrs=None, **kwargs):
         """
         Return a string of HTML for representing this as an <input type="hidden">.
         """
         return self.as_widget(self.field.hidden_widget(), attrs, **kwargs)
 
+    # [TODO] BoundField > data
     @property
     def data(self):
         """
@@ -135,6 +150,7 @@ class BoundField(RenderableFieldMixin):
         """
         return self.form._widget_data_value(self.field.widget, self.html_name)
 
+    # [TODO] BoundField > value
     def value(self):
         """
         Return the value for this BoundField, using the initial value if
@@ -145,6 +161,7 @@ class BoundField(RenderableFieldMixin):
             data = self.field.bound_data(self.data, data)
         return self.field.prepare_value(data)
 
+    # [TODO] BoundField > _has_changed
     def _has_changed(self):
         field = self.field
         if field.show_hidden_initial:
@@ -162,6 +179,7 @@ class BoundField(RenderableFieldMixin):
             initial_value = self.initial
         return field.has_changed(initial_value, self.data)
 
+    # [TODO] BoundField > label_tag
     def label_tag(self, contents=None, attrs=None, label_suffix=None, tag=None):
         """
         Wrap the given contents in a <label>, if the field has an ID attribute.
@@ -205,6 +223,7 @@ class BoundField(RenderableFieldMixin):
         }
         return self.form.render(self.form.template_name_label, context)
 
+    # [TODO] BoundField > legend_tag
     def legend_tag(self, contents=None, attrs=None, label_suffix=None):
         """
         Wrap the given contents in a <legend>, if the field has an ID
@@ -217,6 +236,7 @@ class BoundField(RenderableFieldMixin):
         """
         return self.label_tag(contents, attrs, label_suffix, tag="legend")
 
+    # [TODO] BoundField > css_classes
     def css_classes(self, extra_classes=None):
         """
         Return a string of space-separated CSS classes for this field.
@@ -230,11 +250,13 @@ class BoundField(RenderableFieldMixin):
             extra_classes.add(self.form.required_css_class)
         return " ".join(extra_classes)
 
+    # [TODO] BoundField > is_hidden
     @property
     def is_hidden(self):
         """Return True if this BoundField's widget is hidden."""
         return self.field.widget.is_hidden
 
+    # [TODO] BoundField > auto_id
     @property
     def auto_id(self):
         """
@@ -248,6 +270,7 @@ class BoundField(RenderableFieldMixin):
             return self.html_name
         return ""
 
+    # [TODO] BoundField > id_for_label
     @property
     def id_for_label(self):
         """
@@ -259,10 +282,12 @@ class BoundField(RenderableFieldMixin):
         id_ = widget.attrs.get("id") or self.auto_id
         return widget.id_for_label(id_)
 
+    # [TODO] BoundField > initial
     @cached_property
     def initial(self):
         return self.form.get_initial_for_field(self.field, self.name)
 
+    # [TODO] BoundField > build_widget_attrs
     def build_widget_attrs(self, attrs, widget=None):
         widget = widget or self.field.widget
         attrs = dict(attrs)  # Copy attrs to avoid modifying the argument.
@@ -301,12 +326,14 @@ class BoundField(RenderableFieldMixin):
             attrs["aria-describedby"] = f"{self.id_for_label}_helptext"
         return attrs
 
+    # [TODO] BoundField > widget_type
     @property
     def widget_type(self):
         return re.sub(
             r"widget$|input$", "", self.field.widget.__class__.__name__.lower()
         )
 
+    # [TODO] BoundField > use_fieldset
     @property
     def use_fieldset(self):
         """
@@ -315,6 +342,7 @@ class BoundField(RenderableFieldMixin):
         return self.field.widget.use_fieldset
 
 
+# [TODO] BoundWidget
 @html_safe
 class BoundWidget:
     """

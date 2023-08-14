@@ -3,12 +3,14 @@ from inspect import getfullargspec
 from django.template.library import InclusionNode, parse_bits
 
 
+# [TODO] InclusionAdminNode
 class InclusionAdminNode(InclusionNode):
     """
     Template tag that allows its template to be overridden per model, per app,
     or globally.
     """
 
+    # [TODO] InclusionAdminNode > __init__
     def __init__(self, parser, token, func, template_name, takes_context=True):
         self.template_name = template_name
         params, varargs, varkw, defaults, kwonly, kwonly_defaults, _ = getfullargspec(
@@ -29,6 +31,7 @@ class InclusionAdminNode(InclusionNode):
         )
         super().__init__(func, takes_context, args, kwargs, filename=None)
 
+    # [TODO] InclusionAdminNode > render
     def render(self, context):
         opts = context["opts"]
         app_label = opts.app_label.lower()

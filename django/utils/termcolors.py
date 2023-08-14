@@ -16,6 +16,7 @@ opt_dict = {
 }
 
 
+# [TODO] colorize
 def colorize(text="", opts=(), **kwargs):
     """
     Return your text, enclosed in ANSI graphics codes.
@@ -61,6 +62,7 @@ def colorize(text="", opts=(), **kwargs):
     return "%s%s" % (("\x1b[%sm" % ";".join(code_list)), text or "")
 
 
+# [TODO] make_style
 def make_style(opts=(), **kwargs):
     """
     Return a function with default parameters for colorize()
@@ -140,6 +142,7 @@ PALETTES = {
 DEFAULT_PALETTE = DARK_PALETTE
 
 
+# [TODO] parse_color_setting
 def parse_color_setting(config_string):
     """Parse a DJANGO_COLORS environment variable to produce the system palette
 

@@ -5,6 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils import translation
 
 
+# [TODO] Sitemap
 class Sitemap:
     # This limit is defined by Google. See the index documentation at
     # https://www.sitemaps.org/protocol.html#index.
@@ -26,6 +27,7 @@ class Sitemap:
     # Add an alternate/hreflang link with value 'x-default'.
     x_default = False
 
+    # [TODO] Sitemap > _get
     def _get(self, name, item, default=None):
         try:
             attr = getattr(self, name)
@@ -39,15 +41,18 @@ class Sitemap:
             return attr(item)
         return attr
 
+    # [TODO] Sitemap > get_languages_for_item
     def get_languages_for_item(self, item):
         """Languages for which this item is displayed."""
         return self._languages()
 
+    # [TODO] Sitemap > _languages
     def _languages(self):
         if self.languages is not None:
             return self.languages
         return [lang_code for lang_code, _ in settings.LANGUAGES]
 
+    # [TODO] Sitemap > _items
     def _items(self):
         if self.i18n:
             # Create (item, lang_code) tuples for all items and languages.
@@ -60,6 +65,7 @@ class Sitemap:
             return items
         return self.items()
 
+    # [TODO] Sitemap > _location
     def _location(self, item, force_lang_code=None):
         if self.i18n:
             obj, lang_code = item
@@ -68,20 +74,25 @@ class Sitemap:
                 return self._get("location", item)
         return self._get("location", item)
 
+    # [TODO] Sitemap > paginator
     @property
     def paginator(self):
         return paginator.Paginator(self._items(), self.limit)
 
+    # [TODO] Sitemap > items
     def items(self):
         return []
 
+    # [TODO] Sitemap > location
     def location(self, item):
         return item.get_absolute_url()
 
+    # [TODO] Sitemap > get_protocol
     def get_protocol(self, protocol=None):
         # Determine protocol
         return self.protocol or protocol or "https"
 
+    # [TODO] Sitemap > get_domain
     def get_domain(self, site=None):
         # Determine domain
         if site is None:
@@ -98,11 +109,13 @@ class Sitemap:
                 )
         return site.domain
 
+    # [TODO] Sitemap > get_urls
     def get_urls(self, page=1, site=None, protocol=None):
         protocol = self.get_protocol(protocol)
         domain = self.get_domain(site)
         return self._urls(page, protocol, domain)
 
+    # [TODO] Sitemap > get_latest_lastmod
     def get_latest_lastmod(self):
         if not hasattr(self, "lastmod"):
             return None
@@ -114,6 +127,7 @@ class Sitemap:
         else:
             return self.lastmod
 
+    # [TODO] Sitemap > _urls
     def _urls(self, page, protocol, domain):
         urls = []
         latest_lastmod = None
@@ -170,10 +184,12 @@ class Sitemap:
         return urls
 
 
+# [TODO] GenericSitemap
 class GenericSitemap(Sitemap):
     priority = None
     changefreq = None
 
+    # [TODO] GenericSitemap > __init__
     def __init__(self, info_dict, priority=None, changefreq=None, protocol=None):
         self.queryset = info_dict["queryset"]
         self.date_field = info_dict.get("date_field")
@@ -181,15 +197,18 @@ class GenericSitemap(Sitemap):
         self.changefreq = self.changefreq or changefreq
         self.protocol = self.protocol or protocol
 
+    # [TODO] GenericSitemap > items
     def items(self):
         # Make sure to return a clone; we don't want premature evaluation.
         return self.queryset.filter()
 
+    # [TODO] GenericSitemap > lastmod
     def lastmod(self, item):
         if self.date_field is not None:
             return getattr(item, self.date_field)
         return None
 
+    # [TODO] GenericSitemap > get_latest_lastmod
     def get_latest_lastmod(self):
         if self.date_field is not None:
             return (

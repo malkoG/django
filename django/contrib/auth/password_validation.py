@@ -17,11 +17,13 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 
+# [TODO] get_default_password_validators
 @functools.cache
 def get_default_password_validators():
     return get_password_validators(settings.AUTH_PASSWORD_VALIDATORS)
 
 
+# [TODO] get_password_validators
 def get_password_validators(validator_config):
     validators = []
     for validator in validator_config:
@@ -38,6 +40,7 @@ def get_password_validators(validator_config):
     return validators
 
 
+# [TODO] validate_password
 def validate_password(password, user=None, password_validators=None):
     """
     Validate that the password meets all validator requirements.
@@ -57,6 +60,7 @@ def validate_password(password, user=None, password_validators=None):
         raise ValidationError(errors)
 
 
+# [TODO] password_changed
 def password_changed(password, user=None, password_validators=None):
     """
     Inform all validators that have implemented a password_changed() method
@@ -69,6 +73,7 @@ def password_changed(password, user=None, password_validators=None):
         password_changed(password, user)
 
 
+# [TODO] password_validators_help_texts
 def password_validators_help_texts(password_validators=None):
     """
     Return a list of all help texts of all configured validators.
@@ -81,6 +86,7 @@ def password_validators_help_texts(password_validators=None):
     return help_texts
 
 
+# [TODO] _password_validators_help_text_html
 def _password_validators_help_text_html(password_validators=None):
     """
     Return an HTML string with all help texts of all configured validators
@@ -96,14 +102,17 @@ def _password_validators_help_text_html(password_validators=None):
 password_validators_help_text_html = lazy(_password_validators_help_text_html, str)
 
 
+# [TODO] MinimumLengthValidator
 class MinimumLengthValidator:
     """
     Validate that the password is of a minimum length.
     """
 
+    # [TODO] MinimumLengthValidator > __init__
     def __init__(self, min_length=8):
         self.min_length = min_length
 
+    # [TODO] MinimumLengthValidator > validate
     def validate(self, password, user=None):
         if len(password) < self.min_length:
             raise ValidationError(
@@ -118,6 +127,7 @@ class MinimumLengthValidator:
                 params={"min_length": self.min_length},
             )
 
+    # [TODO] MinimumLengthValidator > get_help_text
     def get_help_text(self):
         return ngettext(
             "Your password must contain at least %(min_length)d character.",
@@ -126,6 +136,7 @@ class MinimumLengthValidator:
         ) % {"min_length": self.min_length}
 
 
+# [TODO] exceeds_maximum_length_ratio
 def exceeds_maximum_length_ratio(password, max_similarity, value):
     """
     Test that value is within a reasonable range of password.
@@ -156,6 +167,7 @@ def exceeds_maximum_length_ratio(password, max_similarity, value):
     return pwd_len >= 10 * value_len and value_len < length_bound_similarity
 
 
+# [TODO] UserAttributeSimilarityValidator
 class UserAttributeSimilarityValidator:
     """
     Validate that the password is sufficiently different from the user's
@@ -170,12 +182,14 @@ class UserAttributeSimilarityValidator:
 
     DEFAULT_USER_ATTRIBUTES = ("username", "first_name", "last_name", "email")
 
+    # [TODO] UserAttributeSimilarityValidator > __init__
     def __init__(self, user_attributes=DEFAULT_USER_ATTRIBUTES, max_similarity=0.7):
         self.user_attributes = user_attributes
         if max_similarity < 0.1:
             raise ValueError("max_similarity must be at least 0.1")
         self.max_similarity = max_similarity
 
+    # [TODO] UserAttributeSimilarityValidator > validate
     def validate(self, password, user=None):
         if not user:
             return
@@ -208,12 +222,14 @@ class UserAttributeSimilarityValidator:
                         params={"verbose_name": verbose_name},
                     )
 
+    # [TODO] UserAttributeSimilarityValidator > get_help_text
     def get_help_text(self):
         return _(
             "Your password can’t be too similar to your other personal information."
         )
 
 
+# [TODO] CommonPasswordValidator
 class CommonPasswordValidator:
     """
     Validate that the password is not a common password.
@@ -225,10 +241,12 @@ class CommonPasswordValidator:
     The password list must be lowercased to match the comparison in validate().
     """
 
+    # [TODO] CommonPasswordValidator > DEFAULT_PASSWORD_LIST_PATH
     @cached_property
     def DEFAULT_PASSWORD_LIST_PATH(self):
         return Path(__file__).resolve().parent / "common-passwords.txt.gz"
 
+    # [TODO] CommonPasswordValidator > __init__
     def __init__(self, password_list_path=DEFAULT_PASSWORD_LIST_PATH):
         if password_list_path is CommonPasswordValidator.DEFAULT_PASSWORD_LIST_PATH:
             password_list_path = self.DEFAULT_PASSWORD_LIST_PATH
@@ -239,6 +257,7 @@ class CommonPasswordValidator:
             with open(password_list_path) as f:
                 self.passwords = {x.strip() for x in f}
 
+    # [TODO] CommonPasswordValidator > validate
     def validate(self, password, user=None):
         if password.lower().strip() in self.passwords:
             raise ValidationError(
@@ -246,15 +265,18 @@ class CommonPasswordValidator:
                 code="password_too_common",
             )
 
+    # [TODO] CommonPasswordValidator > get_help_text
     def get_help_text(self):
         return _("Your password can’t be a commonly used password.")
 
 
+# [TODO] NumericPasswordValidator
 class NumericPasswordValidator:
     """
     Validate that the password is not entirely numeric.
     """
 
+    # [TODO] NumericPasswordValidator > validate
     def validate(self, password, user=None):
         if password.isdigit():
             raise ValidationError(
@@ -262,5 +284,6 @@ class NumericPasswordValidator:
                 code="password_entirely_numeric",
             )
 
+    # [TODO] NumericPasswordValidator > get_help_text
     def get_help_text(self):
         return _("Your password can’t be entirely numeric.")

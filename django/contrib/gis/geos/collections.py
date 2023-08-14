@@ -10,9 +10,11 @@ from django.contrib.gis.geos.point import Point
 from django.contrib.gis.geos.polygon import Polygon
 
 
+# [TODO] GeometryCollection
 class GeometryCollection(GEOSGeometry):
     _typeid = 7
 
+    # [TODO] GeometryCollection > __init__
     def __init__(self, *args, **kwargs):
         "Initialize a Geometry Collection from a sequence of Geometry objects."
         # Checking the arguments
@@ -34,16 +36,19 @@ class GeometryCollection(GEOSGeometry):
         collection = self._create_collection(len(init_geoms), init_geoms)
         super().__init__(collection, **kwargs)
 
+    # [TODO] GeometryCollection > __iter__
     def __iter__(self):
         "Iterate over each Geometry in the Collection."
         for i in range(len(self)):
             yield self[i]
 
+    # [TODO] GeometryCollection > __len__
     def __len__(self):
         "Return the number of geometries in this Collection."
         return self.num_geom
 
     # ### Methods for compatibility with ListMixin ###
+    # [TODO] GeometryCollection > _create_collection
     def _create_collection(self, length, items):
         # Creating the geometry pointer array.
         geoms = (GEOM_PTR * length)(
@@ -56,9 +61,11 @@ class GeometryCollection(GEOSGeometry):
         )
         return capi.create_collection(self._typeid, geoms, length)
 
+    # [TODO] GeometryCollection > _get_single_internal
     def _get_single_internal(self, index):
         return capi.get_geomn(self.ptr, index)
 
+    # [TODO] GeometryCollection > _get_single_external
     def _get_single_external(self, index):
         "Return the Geometry from this Collection at the given index (0-based)."
         # Checking the index and returning the corresponding GEOS geometry.
@@ -66,6 +73,7 @@ class GeometryCollection(GEOSGeometry):
             capi.geom_clone(self._get_single_internal(index)), srid=self.srid
         )
 
+    # [TODO] GeometryCollection > _set_list
     def _set_list(self, length, items):
         "Create a new collection, and destroy the contents of the previous pointer."
         prev_ptr = self.ptr
@@ -78,11 +86,13 @@ class GeometryCollection(GEOSGeometry):
     _set_single = GEOSGeometry._set_single_rebuild
     _assign_extended_slice = GEOSGeometry._assign_extended_slice_rebuild
 
+    # [TODO] GeometryCollection > kml
     @property
     def kml(self):
         "Return the KML for this Geometry Collection."
         return "<MultiGeometry>%s</MultiGeometry>" % "".join(g.kml for g in self)
 
+    # [TODO] GeometryCollection > tuple
     @property
     def tuple(self):
         "Return a tuple of all the coordinates in this Geometry Collection"
@@ -92,16 +102,19 @@ class GeometryCollection(GEOSGeometry):
 
 
 # MultiPoint, MultiLineString, and MultiPolygon class definitions.
+# [TODO] MultiPoint
 class MultiPoint(GeometryCollection):
     _allowed = Point
     _typeid = 4
 
 
+# [TODO] MultiLineString
 class MultiLineString(LinearGeometryMixin, GeometryCollection):
     _allowed = (LineString, LinearRing)
     _typeid = 5
 
 
+# [TODO] MultiPolygon
 class MultiPolygon(GeometryCollection):
     _allowed = Polygon
     _typeid = 6

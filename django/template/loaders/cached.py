@@ -11,20 +11,25 @@ from django.template.backends.django import copy_exception
 from .base import Loader as BaseLoader
 
 
+# [TODO] Loader
 class Loader(BaseLoader):
+    # [TODO] Loader > __init__
     def __init__(self, engine, loaders):
         self.get_template_cache = {}
         self.loaders = engine.get_template_loaders(loaders)
         super().__init__(engine)
 
+    # [TODO] Loader > get_dirs
     def get_dirs(self):
         for loader in self.loaders:
             if hasattr(loader, "get_dirs"):
                 yield from loader.get_dirs()
 
+    # [TODO] Loader > get_contents
     def get_contents(self, origin):
         return origin.loader.get_contents(origin)
 
+    # [TODO] Loader > get_template
     def get_template(self, template_name, skip=None):
         """
         Perform the caching that gives this loader its name. Often many of the
@@ -65,10 +70,12 @@ class Loader(BaseLoader):
 
         return template
 
+    # [TODO] Loader > get_template_sources
     def get_template_sources(self, template_name):
         for loader in self.loaders:
             yield from loader.get_template_sources(template_name)
 
+    # [TODO] Loader > cache_key
     def cache_key(self, template_name, skip=None):
         """
         Generate a cache key for the template name and skip.
@@ -92,9 +99,11 @@ class Loader(BaseLoader):
 
         return "-".join(s for s in (str(template_name), skip_prefix) if s)
 
+    # [TODO] Loader > generate_hash
     def generate_hash(self, values):
         return hashlib.sha1("|".join(values).encode()).hexdigest()
 
+    # [TODO] Loader > reset
     def reset(self):
         "Empty the template cache."
         self.get_template_cache.clear()

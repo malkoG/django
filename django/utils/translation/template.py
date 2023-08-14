@@ -11,6 +11,7 @@ TRANSLATOR_COMMENT_MARK = "Translators"
 dot_re = _lazy_re_compile(r"\S")
 
 
+# [TODO] blankout
 def blankout(src, char):
     """
     Change every non-whitespace character to the given char.
@@ -36,6 +37,7 @@ plural_re = _lazy_re_compile(r"""^\s*plural$""")
 constant_re = _lazy_re_compile(r"""_\(((?:".*?")|(?:'.*?'))\)""")
 
 
+# [TODO] templatize
 def templatize(src, origin=None):
     """
     Turn a Django template into something that is understood by xgettext. It

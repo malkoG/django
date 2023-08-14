@@ -10,6 +10,7 @@ from django.core.management.color import no_style
 from django.utils.functional import cached_property
 
 
+# [TODO] Command
 class Command(BaseCommand):
     """
     Copies or symlinks static files from different locations to the
@@ -19,6 +20,7 @@ class Command(BaseCommand):
     help = "Collect static files in a single location."
     requires_system_checks = [Tags.staticfiles]
 
+    # [TODO] Command > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.copied_files = []
@@ -28,6 +30,7 @@ class Command(BaseCommand):
         self.storage = staticfiles_storage
         self.style = no_style()
 
+    # [TODO] Command > local
     @cached_property
     def local(self):
         try:
@@ -36,6 +39,7 @@ class Command(BaseCommand):
             return False
         return True
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "--noinput",
@@ -89,6 +93,7 @@ class Command(BaseCommand):
             ),
         )
 
+    # [TODO] Command > set_options
     def set_options(self, **options):
         """
         Set instance variables based on an options dict
@@ -104,6 +109,7 @@ class Command(BaseCommand):
         self.ignore_patterns = list({os.path.normpath(p) for p in ignore_patterns})
         self.post_process = options["post_process"]
 
+    # [TODO] Command > collect
     def collect(self):
         """
         Perform the bulk of the work of collectstatic.
@@ -167,6 +173,7 @@ class Command(BaseCommand):
             "post_processed": self.post_processed_files,
         }
 
+    # [TODO] Command > handle
     def handle(self, **options):
         self.set_options(**options)
         message = ["\n"]
@@ -234,6 +241,7 @@ class Command(BaseCommand):
                 ),
             }
 
+    # [TODO] Command > log
     def log(self, msg, level=2):
         """
         Small log helper
@@ -241,9 +249,11 @@ class Command(BaseCommand):
         if self.verbosity >= level:
             self.stdout.write(msg)
 
+    # [TODO] Command > is_local_storage
     def is_local_storage(self):
         return isinstance(self.storage, FileSystemStorage)
 
+    # [TODO] Command > clear_dir
     def clear_dir(self, path):
         """
         Delete the given relative path using the destination storage backend.
@@ -271,6 +281,7 @@ class Command(BaseCommand):
         for d in dirs:
             self.clear_dir(os.path.join(path, d))
 
+    # [TODO] Command > delete_file
     def delete_file(self, path, prefixed_path, source_storage):
         """
         Check if the target file should be deleted if it already exists.
@@ -322,6 +333,7 @@ class Command(BaseCommand):
                 self.storage.delete(prefixed_path)
         return True
 
+    # [TODO] Command > link_file
     def link_file(self, path, prefixed_path, source_storage):
         """
         Attempt to link ``path``
@@ -357,6 +369,7 @@ class Command(BaseCommand):
         if prefixed_path not in self.symlinked_files:
             self.symlinked_files.append(prefixed_path)
 
+    # [TODO] Command > copy_file
     def copy_file(self, path, prefixed_path, source_storage):
         """
         Attempt to copy ``path`` with storage

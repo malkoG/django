@@ -5,11 +5,13 @@ from django.core.serializers.base import SerializerDoesNotExist
 from django.core.serializers.json import Serializer as JSONSerializer
 
 
+# [TODO] Serializer
 class Serializer(JSONSerializer):
     """
     Convert a queryset to GeoJSON, http://geojson.org/
     """
 
+    # [TODO] Serializer > _init_options
     def _init_options(self):
         super()._init_options()
         self.geometry_field = self.json_kwargs.pop("geometry_field", None)
@@ -22,6 +24,7 @@ class Serializer(JSONSerializer):
         ):
             self.selected_fields = [*self.selected_fields, self.geometry_field]
 
+    # [TODO] Serializer > start_serialization
     def start_serialization(self):
         self._init_options()
         self._cts = {}  # cache of CoordTransform's
@@ -31,9 +34,11 @@ class Serializer(JSONSerializer):
             ' "features": [' % self.srid
         )
 
+    # [TODO] Serializer > end_serialization
     def end_serialization(self):
         self.stream.write("]}")
 
+    # [TODO] Serializer > start_object
     def start_object(self, obj):
         super().start_object(obj)
         self._geometry = None
@@ -44,6 +49,7 @@ class Serializer(JSONSerializer):
                     self.geometry_field = field.name
                     break
 
+    # [TODO] Serializer > get_dump_object
     def get_dump_object(self, obj):
         data = {
             "type": "Feature",
@@ -69,6 +75,7 @@ class Serializer(JSONSerializer):
             data["geometry"] = None
         return data
 
+    # [TODO] Serializer > handle_field
     def handle_field(self, obj, field):
         if field.name == self.geometry_field:
             self._geometry = field.value_from_object(obj)
@@ -76,6 +83,8 @@ class Serializer(JSONSerializer):
             super().handle_field(obj, field)
 
 
+# [TODO] Deserializer
 class Deserializer:
+    # [TODO] Deserializer > __init__
     def __init__(self, *args, **kwargs):
         raise SerializerDoesNotExist("geojson is a serialization-only serializer")

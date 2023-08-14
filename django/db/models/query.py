@@ -42,7 +42,9 @@ MAX_GET_RESULTS = 21
 REPR_OUTPUT_SIZE = 20
 
 
+# [TODO] BaseIterable
 class BaseIterable:
+    # [TODO] BaseIterable > __init__
     def __init__(
         self, queryset, chunked_fetch=False, chunk_size=GET_ITERATOR_CHUNK_SIZE
     ):
@@ -50,6 +52,7 @@ class BaseIterable:
         self.chunked_fetch = chunked_fetch
         self.chunk_size = chunk_size
 
+    # [TODO] BaseIterable > _async_generator
     async def _async_generator(self):
         # Generators don't actually start running until the first time you call
         # next() on them, so make the generator object in the async thread and
@@ -74,13 +77,16 @@ class BaseIterable:
     # over the sync barrier for each chunk. Custom __aiter__() methods should
     # be added to each Iterable subclass, but that needs some work in the
     # Compiler first.
+    # [TODO] BaseIterable > __aiter__
     def __aiter__(self):
         return self._async_generator()
 
 
+# [TODO] ModelIterable
 class ModelIterable(BaseIterable):
     """Iterable that yields a model instance for each row."""
 
+    # [TODO] ModelIterable > __iter__
     def __iter__(self):
         queryset = self.queryset
         db = queryset.db
@@ -143,11 +149,13 @@ class ModelIterable(BaseIterable):
             yield obj
 
 
+# [TODO] RawModelIterable
 class RawModelIterable(BaseIterable):
     """
     Iterable that yields a model instance for each row from a raw queryset.
     """
 
+    # [TODO] RawModelIterable > __iter__
     def __iter__(self):
         # Cache some things for performance reasons outside the loop.
         db = self.queryset.db
@@ -187,11 +195,13 @@ class RawModelIterable(BaseIterable):
                 query.cursor.close()
 
 
+# [TODO] ValuesIterable
 class ValuesIterable(BaseIterable):
     """
     Iterable returned by QuerySet.values() that yields a dict for each row.
     """
 
+    # [TODO] ValuesIterable > __iter__
     def __iter__(self):
         queryset = self.queryset
         query = queryset.query
@@ -210,12 +220,14 @@ class ValuesIterable(BaseIterable):
             yield {names[i]: row[i] for i in indexes}
 
 
+# [TODO] ValuesListIterable
 class ValuesListIterable(BaseIterable):
     """
     Iterable returned by QuerySet.values_list(flat=False) that yields a tuple
     for each row.
     """
 
+    # [TODO] ValuesListIterable > __iter__
     def __iter__(self):
         queryset = self.queryset
         query = queryset.query
@@ -249,12 +261,14 @@ class ValuesListIterable(BaseIterable):
         )
 
 
+# [TODO] NamedValuesListIterable
 class NamedValuesListIterable(ValuesListIterable):
     """
     Iterable returned by QuerySet.values_list(named=True) that yields a
     namedtuple for each row.
     """
 
+    # [TODO] NamedValuesListIterable > __iter__
     def __iter__(self):
         queryset = self.queryset
         if queryset._fields:
@@ -272,12 +286,14 @@ class NamedValuesListIterable(ValuesListIterable):
             yield new(tuple_class, row)
 
 
+# [TODO] FlatValuesListIterable
 class FlatValuesListIterable(BaseIterable):
     """
     Iterable returned by QuerySet.values_list(flat=True) that yields single
     values.
     """
 
+    # [TODO] FlatValuesListIterable > __iter__
     def __iter__(self):
         queryset = self.queryset
         compiler = queryset.query.get_compiler(queryset.db)
@@ -287,9 +303,11 @@ class FlatValuesListIterable(BaseIterable):
             yield row[0]
 
 
+# [TODO] QuerySet
 class QuerySet(AltersData):
     """Represent a lazy database lookup for a set of objects."""
 
+    # [TODO] QuerySet > __init__
     def __init__(self, model=None, query=None, using=None, hints=None):
         self.model = model
         self._db = using
@@ -306,6 +324,7 @@ class QuerySet(AltersData):
         self._defer_next_filter = False
         self._deferred_filter = None
 
+    # [TODO] QuerySet > query
     @property
     def query(self):
         if self._deferred_filter:
@@ -314,12 +333,14 @@ class QuerySet(AltersData):
             self._deferred_filter = None
         return self._query
 
+    # [TODO] QuerySet > query
     @query.setter
     def query(self, value):
         if value.values_select:
             self._iterable_class = ValuesIterable
         self._query = value
 
+    # [TODO] QuerySet > as_manager
     def as_manager(cls):
         # Address the circular dependency between `Queryset` and `Manager`.
         from django.db.models.manager import Manager
@@ -335,6 +356,7 @@ class QuerySet(AltersData):
     # PYTHON MAGIC METHODS #
     ########################
 
+    # [TODO] QuerySet > __deepcopy__
     def __deepcopy__(self, memo):
         """Don't populate the QuerySet's cache."""
         obj = self.__class__()
@@ -345,11 +367,13 @@ class QuerySet(AltersData):
                 obj.__dict__[k] = copy.deepcopy(v, memo)
         return obj
 
+    # [TODO] QuerySet > __getstate__
     def __getstate__(self):
         # Force the cache to be fully populated.
         self._fetch_all()
         return {**self.__dict__, DJANGO_VERSION_PICKLE_KEY: django.__version__}
 
+    # [TODO] QuerySet > __setstate__
     def __setstate__(self, state):
         pickled_version = state.get(DJANGO_VERSION_PICKLE_KEY)
         if pickled_version:
@@ -369,16 +393,19 @@ class QuerySet(AltersData):
             )
         self.__dict__.update(state)
 
+    # [TODO] QuerySet > __repr__
     def __repr__(self):
         data = list(self[: REPR_OUTPUT_SIZE + 1])
         if len(data) > REPR_OUTPUT_SIZE:
             data[-1] = "...(remaining elements truncated)..."
         return "<%s %r>" % (self.__class__.__name__, data)
 
+    # [TODO] QuerySet > __len__
     def __len__(self):
         self._fetch_all()
         return len(self._result_cache)
 
+    # [TODO] QuerySet > __iter__
     def __iter__(self):
         """
         The queryset iterator protocol uses three nested iterators in the
@@ -397,6 +424,7 @@ class QuerySet(AltersData):
         self._fetch_all()
         return iter(self._result_cache)
 
+    # [TODO] QuerySet > __aiter__
     def __aiter__(self):
         # Remember, __aiter__ itself is synchronous, it's the thing it returns
         # that is async!
@@ -407,10 +435,12 @@ class QuerySet(AltersData):
 
         return generator()
 
+    # [TODO] QuerySet > __bool__
     def __bool__(self):
         self._fetch_all()
         return bool(self._result_cache)
 
+    # [TODO] QuerySet > __getitem__
     def __getitem__(self, k):
         """Retrieve an item or slice from the set of results."""
         if not isinstance(k, (int, slice)):
@@ -448,9 +478,11 @@ class QuerySet(AltersData):
         qs._fetch_all()
         return qs._result_cache[0]
 
+    # [TODO] QuerySet > __class_getitem__
     def __class_getitem__(cls, *args, **kwargs):
         return cls
 
+    # [TODO] QuerySet > __and__
     def __and__(self, other):
         self._check_operator_queryset(other, "&")
         self._merge_sanity_check(other)
@@ -463,6 +495,7 @@ class QuerySet(AltersData):
         combined.query.combine(other.query, sql.AND)
         return combined
 
+    # [TODO] QuerySet > __or__
     def __or__(self, other):
         self._check_operator_queryset(other, "|")
         self._merge_sanity_check(other)
@@ -482,6 +515,7 @@ class QuerySet(AltersData):
         combined.query.combine(other.query, sql.OR)
         return combined
 
+    # [TODO] QuerySet > __xor__
     def __xor__(self, other):
         self._check_operator_queryset(other, "^")
         self._merge_sanity_check(other)
@@ -505,6 +539,7 @@ class QuerySet(AltersData):
     # METHODS THAT DO DATABASE QUERIES #
     ####################################
 
+    # [TODO] QuerySet > _iterator
     def _iterator(self, use_chunked_fetch, chunk_size):
         iterable = self._iterable_class(
             self,
@@ -520,6 +555,7 @@ class QuerySet(AltersData):
             prefetch_related_objects(results, *self._prefetch_related_lookups)
             yield from results
 
+    # [TODO] QuerySet > iterator
     def iterator(self, chunk_size=None):
         """
         An iterator over the results from applying this QuerySet to the
@@ -539,6 +575,7 @@ class QuerySet(AltersData):
         )
         return self._iterator(use_chunked_fetch, chunk_size)
 
+    # [TODO] QuerySet > aiterator
     async def aiterator(self, chunk_size=2000):
         """
         An asynchronous iterator over the results from applying this QuerySet
@@ -575,6 +612,7 @@ class QuerySet(AltersData):
             async for item in iterable:
                 yield item
 
+    # [TODO] QuerySet > aggregate
     def aggregate(self, *args, **kwargs):
         """
         Return a dictionary containing the calculations (aggregation)
@@ -600,9 +638,11 @@ class QuerySet(AltersData):
 
         return self.query.chain().get_aggregation(self.db, kwargs)
 
+    # [TODO] QuerySet > aaggregate
     async def aaggregate(self, *args, **kwargs):
         return await sync_to_async(self.aggregate)(*args, **kwargs)
 
+    # [TODO] QuerySet > count
     def count(self):
         """
         Perform a SELECT COUNT() and return the number of records as an
@@ -616,9 +656,11 @@ class QuerySet(AltersData):
 
         return self.query.get_count(using=self.db)
 
+    # [TODO] QuerySet > acount
     async def acount(self):
         return await sync_to_async(self.count)()
 
+    # [TODO] QuerySet > get
     def get(self, *args, **kwargs):
         """
         Perform the query and return a single object matching the given
@@ -654,9 +696,11 @@ class QuerySet(AltersData):
             )
         )
 
+    # [TODO] QuerySet > aget
     async def aget(self, *args, **kwargs):
         return await sync_to_async(self.get)(*args, **kwargs)
 
+    # [TODO] QuerySet > create
     def create(self, **kwargs):
         """
         Create a new object with the given kwargs, saving it to the database
@@ -676,9 +720,11 @@ class QuerySet(AltersData):
         obj.save(force_insert=True, using=self.db)
         return obj
 
+    # [TODO] QuerySet > acreate
     async def acreate(self, **kwargs):
         return await sync_to_async(self.create)(**kwargs)
 
+    # [TODO] QuerySet > _prepare_for_bulk_create
     def _prepare_for_bulk_create(self, objs):
         from django.db.models.expressions import DatabaseDefault
 
@@ -695,6 +741,7 @@ class QuerySet(AltersData):
 
             obj._prepare_related_fields_for_save(operation_name="bulk_create")
 
+    # [TODO] QuerySet > _check_bulk_create_options
     def _check_bulk_create_options(
         self, ignore_conflicts, update_conflicts, update_fields, unique_fields
     ):
@@ -749,6 +796,7 @@ class QuerySet(AltersData):
             return OnConflict.UPDATE
         return None
 
+    # [TODO] QuerySet > bulk_create
     def bulk_create(
         self,
         objs,
@@ -849,6 +897,7 @@ class QuerySet(AltersData):
 
         return objs
 
+    # [TODO] QuerySet > abulk_create
     async def abulk_create(
         self,
         objs,
@@ -867,6 +916,7 @@ class QuerySet(AltersData):
             unique_fields=unique_fields,
         )
 
+    # [TODO] QuerySet > bulk_update
     def bulk_update(self, objs, fields, batch_size=None):
         """
         Update the given fields in each of the given objects in the database.
@@ -921,6 +971,7 @@ class QuerySet(AltersData):
 
     bulk_update.alters_data = True
 
+    # [TODO] QuerySet > abulk_update
     async def abulk_update(self, objs, fields, batch_size=None):
         return await sync_to_async(self.bulk_update)(
             objs=objs,
@@ -930,6 +981,7 @@ class QuerySet(AltersData):
 
     abulk_update.alters_data = True
 
+    # [TODO] QuerySet > get_or_create
     def get_or_create(self, defaults=None, **kwargs):
         """
         Look up an object with the given kwargs, creating one if necessary.
@@ -955,12 +1007,14 @@ class QuerySet(AltersData):
                     pass
                 raise
 
+    # [TODO] QuerySet > aget_or_create
     async def aget_or_create(self, defaults=None, **kwargs):
         return await sync_to_async(self.get_or_create)(
             defaults=defaults,
             **kwargs,
         )
 
+    # [TODO] QuerySet > update_or_create
     def update_or_create(self, defaults=None, create_defaults=None, **kwargs):
         """
         Look up an object with the given kwargs, updating one with defaults
@@ -1006,6 +1060,7 @@ class QuerySet(AltersData):
                 obj.save(using=self.db)
         return obj, False
 
+    # [TODO] QuerySet > aupdate_or_create
     async def aupdate_or_create(self, defaults=None, create_defaults=None, **kwargs):
         return await sync_to_async(self.update_or_create)(
             defaults=defaults,
@@ -1013,6 +1068,7 @@ class QuerySet(AltersData):
             **kwargs,
         )
 
+    # [TODO] QuerySet > _extract_model_params
     def _extract_model_params(self, defaults, **kwargs):
         """
         Prepare `params` for creating a model instance based on the given
@@ -1040,6 +1096,7 @@ class QuerySet(AltersData):
             )
         return params
 
+    # [TODO] QuerySet > _earliest
     def _earliest(self, *fields):
         """
         Return the earliest object according to fields (if given) or by the
@@ -1062,14 +1119,17 @@ class QuerySet(AltersData):
         obj.query.add_ordering(*order_by)
         return obj.get()
 
+    # [TODO] QuerySet > earliest
     def earliest(self, *fields):
         if self.query.is_sliced:
             raise TypeError("Cannot change a query once a slice has been taken.")
         return self._earliest(*fields)
 
+    # [TODO] QuerySet > aearliest
     async def aearliest(self, *fields):
         return await sync_to_async(self.earliest)(*fields)
 
+    # [TODO] QuerySet > latest
     def latest(self, *fields):
         """
         Return the latest object according to fields (if given) or by the
@@ -1079,9 +1139,11 @@ class QuerySet(AltersData):
             raise TypeError("Cannot change a query once a slice has been taken.")
         return self.reverse()._earliest(*fields)
 
+    # [TODO] QuerySet > alatest
     async def alatest(self, *fields):
         return await sync_to_async(self.latest)(*fields)
 
+    # [TODO] QuerySet > first
     def first(self):
         """Return the first object of a query or None if no match is found."""
         if self.ordered:
@@ -1092,9 +1154,11 @@ class QuerySet(AltersData):
         for obj in queryset[:1]:
             return obj
 
+    # [TODO] QuerySet > afirst
     async def afirst(self):
         return await sync_to_async(self.first)()
 
+    # [TODO] QuerySet > last
     def last(self):
         """Return the last object of a query or None if no match is found."""
         if self.ordered:
@@ -1105,9 +1169,11 @@ class QuerySet(AltersData):
         for obj in queryset[:1]:
             return obj
 
+    # [TODO] QuerySet > alast
     async def alast(self):
         return await sync_to_async(self.last)()
 
+    # [TODO] QuerySet > in_bulk
     def in_bulk(self, id_list=None, *, field_name="pk"):
         """
         Return a dictionary mapping each of the given IDs to the object with
@@ -1150,12 +1216,14 @@ class QuerySet(AltersData):
             qs = self._chain()
         return {getattr(obj, field_name): obj for obj in qs}
 
+    # [TODO] QuerySet > ain_bulk
     async def ain_bulk(self, id_list=None, *, field_name="pk"):
         return await sync_to_async(self.in_bulk)(
             id_list=id_list,
             field_name=field_name,
         )
 
+    # [TODO] QuerySet > delete
     def delete(self):
         """Delete the records in the current QuerySet."""
         self._not_support_combined_queries("delete")
@@ -1189,12 +1257,14 @@ class QuerySet(AltersData):
     delete.alters_data = True
     delete.queryset_only = True
 
+    # [TODO] QuerySet > adelete
     async def adelete(self):
         return await sync_to_async(self.delete)()
 
     adelete.alters_data = True
     adelete.queryset_only = True
 
+    # [TODO] QuerySet > _raw_delete
     def _raw_delete(self, using):
         """
         Delete objects found from the given queryset in single direct SQL
@@ -1210,6 +1280,7 @@ class QuerySet(AltersData):
 
     _raw_delete.alters_data = True
 
+    # [TODO] QuerySet > update
     def update(self, **kwargs):
         """
         Update all elements in the current QuerySet, setting all the given
@@ -1251,11 +1322,13 @@ class QuerySet(AltersData):
 
     update.alters_data = True
 
+    # [TODO] QuerySet > aupdate
     async def aupdate(self, **kwargs):
         return await sync_to_async(self.update)(**kwargs)
 
     aupdate.alters_data = True
 
+    # [TODO] QuerySet > _update
     def _update(self, values):
         """
         A version of update() that accepts field objects instead of field names.
@@ -1275,6 +1348,7 @@ class QuerySet(AltersData):
     _update.alters_data = True
     _update.queryset_only = False
 
+    # [TODO] QuerySet > exists
     def exists(self):
         """
         Return True if the QuerySet would have any results, False otherwise.
@@ -1283,9 +1357,11 @@ class QuerySet(AltersData):
             return self.query.has_results(using=self.db)
         return bool(self._result_cache)
 
+    # [TODO] QuerySet > aexists
     async def aexists(self):
         return await sync_to_async(self.exists)()
 
+    # [TODO] QuerySet > contains
     def contains(self, obj):
         """
         Return True if the QuerySet contains the provided obj,
@@ -1307,14 +1383,17 @@ class QuerySet(AltersData):
             return obj in self._result_cache
         return self.filter(pk=obj.pk).exists()
 
+    # [TODO] QuerySet > acontains
     async def acontains(self, obj):
         return await sync_to_async(self.contains)(obj=obj)
 
+    # [TODO] QuerySet > _prefetch_related_objects
     def _prefetch_related_objects(self):
         # This method can only be called once the result cache has been filled.
         prefetch_related_objects(self._result_cache, *self._prefetch_related_lookups)
         self._prefetch_done = True
 
+    # [TODO] QuerySet > explain
     def explain(self, *, format=None, **options):
         """
         Runs an EXPLAIN on the SQL query this QuerySet would perform, and
@@ -1322,6 +1401,7 @@ class QuerySet(AltersData):
         """
         return self.query.explain(using=self.db, format=format, **options)
 
+    # [TODO] QuerySet > aexplain
     async def aexplain(self, *, format=None, **options):
         return await sync_to_async(self.explain)(format=format, **options)
 
@@ -1329,6 +1409,7 @@ class QuerySet(AltersData):
     # PUBLIC METHODS THAT RETURN A QUERYSET SUBCLASS #
     ##################################################
 
+    # [TODO] QuerySet > raw
     def raw(self, raw_query, params=(), translations=None, using=None):
         if using is None:
             using = self.db
@@ -1342,6 +1423,7 @@ class QuerySet(AltersData):
         qs._prefetch_related_lookups = self._prefetch_related_lookups[:]
         return qs
 
+    # [TODO] QuerySet > _values
     def _values(self, *fields, **expressions):
         clone = self._chain()
         if expressions:
@@ -1350,12 +1432,14 @@ class QuerySet(AltersData):
         clone.query.set_values(fields)
         return clone
 
+    # [TODO] QuerySet > values
     def values(self, *fields, **expressions):
         fields += tuple(expressions)
         clone = self._values(*fields, **expressions)
         clone._iterable_class = ValuesIterable
         return clone
 
+    # [TODO] QuerySet > values_list
     def values_list(self, *fields, flat=False, named=False):
         if flat and named:
             raise TypeError("'flat' and 'named' can't be used together.")
@@ -1394,6 +1478,7 @@ class QuerySet(AltersData):
         )
         return clone
 
+    # [TODO] QuerySet > dates
     def dates(self, field_name, kind, order="ASC"):
         """
         Return a list of date objects representing all available dates for
@@ -1414,6 +1499,7 @@ class QuerySet(AltersData):
             .order_by(("-" if order == "DESC" else "") + "datefield")
         )
 
+    # [TODO] QuerySet > datetimes
     def datetimes(self, field_name, kind, order="ASC", tzinfo=None):
         """
         Return a list of datetime objects representing all available
@@ -1447,6 +1533,7 @@ class QuerySet(AltersData):
             .order_by(("-" if order == "DESC" else "") + "datetimefield")
         )
 
+    # [TODO] QuerySet > none
     def none(self):
         """Return an empty QuerySet."""
         clone = self._chain()
@@ -1457,6 +1544,7 @@ class QuerySet(AltersData):
     # PUBLIC METHODS THAT ALTER ATTRIBUTES AND RETURN A NEW QUERYSET #
     ##################################################################
 
+    # [TODO] QuerySet > all
     def all(self):
         """
         Return a new QuerySet that is a copy of the current one. This allows a
@@ -1464,6 +1552,7 @@ class QuerySet(AltersData):
         """
         return self._chain()
 
+    # [TODO] QuerySet > filter
     def filter(self, *args, **kwargs):
         """
         Return a new QuerySet instance with the args ANDed to the existing
@@ -1472,6 +1561,7 @@ class QuerySet(AltersData):
         self._not_support_combined_queries("filter")
         return self._filter_or_exclude(False, args, kwargs)
 
+    # [TODO] QuerySet > exclude
     def exclude(self, *args, **kwargs):
         """
         Return a new QuerySet instance with NOT (args) ANDed to the existing
@@ -1480,6 +1570,7 @@ class QuerySet(AltersData):
         self._not_support_combined_queries("exclude")
         return self._filter_or_exclude(True, args, kwargs)
 
+    # [TODO] QuerySet > _filter_or_exclude
     def _filter_or_exclude(self, negate, args, kwargs):
         if (args or kwargs) and self.query.is_sliced:
             raise TypeError("Cannot filter a query once a slice has been taken.")
@@ -1491,12 +1582,14 @@ class QuerySet(AltersData):
             clone._filter_or_exclude_inplace(negate, args, kwargs)
         return clone
 
+    # [TODO] QuerySet > _filter_or_exclude_inplace
     def _filter_or_exclude_inplace(self, negate, args, kwargs):
         if negate:
             self._query.add_q(~Q(*args, **kwargs))
         else:
             self._query.add_q(Q(*args, **kwargs))
 
+    # [TODO] QuerySet > complex_filter
     def complex_filter(self, filter_obj):
         """
         Return a new QuerySet instance with filter_obj added to the filters.
@@ -1514,6 +1607,7 @@ class QuerySet(AltersData):
         else:
             return self._filter_or_exclude(False, args=(), kwargs=filter_obj)
 
+    # [TODO] QuerySet > _combinator_query
     def _combinator_query(self, combinator, *other_qs, all=False):
         # Clone the query to inherit the select list and everything
         clone = self._chain()
@@ -1527,6 +1621,7 @@ class QuerySet(AltersData):
         clone.query.combinator_all = all
         return clone
 
+    # [TODO] QuerySet > union
     def union(self, *other_qs, all=False):
         # If the query is an EmptyQuerySet, combine all nonempty querysets.
         if isinstance(self, EmptyQuerySet):
@@ -1538,6 +1633,7 @@ class QuerySet(AltersData):
             return qs[0]._combinator_query("union", *qs[1:], all=all)
         return self._combinator_query("union", *other_qs, all=all)
 
+    # [TODO] QuerySet > intersection
     def intersection(self, *other_qs):
         # If any query is an EmptyQuerySet, return it.
         if isinstance(self, EmptyQuerySet):
@@ -1547,12 +1643,14 @@ class QuerySet(AltersData):
                 return other
         return self._combinator_query("intersection", *other_qs)
 
+    # [TODO] QuerySet > difference
     def difference(self, *other_qs):
         # If the query is an EmptyQuerySet, return it.
         if isinstance(self, EmptyQuerySet):
             return self
         return self._combinator_query("difference", *other_qs)
 
+    # [TODO] QuerySet > select_for_update
     def select_for_update(self, nowait=False, skip_locked=False, of=(), no_key=False):
         """
         Return a new QuerySet instance that will select objects with a
@@ -1569,6 +1667,7 @@ class QuerySet(AltersData):
         obj.query.select_for_no_key_update = no_key
         return obj
 
+    # [TODO] QuerySet > select_related
     def select_related(self, *fields):
         """
         Return a new QuerySet instance that will select related objects.
@@ -1593,6 +1692,7 @@ class QuerySet(AltersData):
             obj.query.select_related = True
         return obj
 
+    # [TODO] QuerySet > prefetch_related
     def prefetch_related(self, *lookups):
         """
         Return a new QuerySet instance that will prefetch the specified
@@ -1618,6 +1718,7 @@ class QuerySet(AltersData):
             clone._prefetch_related_lookups = clone._prefetch_related_lookups + lookups
         return clone
 
+    # [TODO] QuerySet > annotate
     def annotate(self, *args, **kwargs):
         """
         Return a query set in which the returned objects have been annotated
@@ -1626,6 +1727,7 @@ class QuerySet(AltersData):
         self._not_support_combined_queries("annotate")
         return self._annotate(args, kwargs, select=True)
 
+    # [TODO] QuerySet > alias
     def alias(self, *args, **kwargs):
         """
         Return a query set with added aliases for extra data or aggregations.
@@ -1633,6 +1735,7 @@ class QuerySet(AltersData):
         self._not_support_combined_queries("alias")
         return self._annotate(args, kwargs, select=False)
 
+    # [TODO] QuerySet > _annotate
     def _annotate(self, args, kwargs, select=True):
         self._validate_values_are_expressions(
             args + tuple(kwargs.values()), method_name="annotate"
@@ -1687,6 +1790,7 @@ class QuerySet(AltersData):
 
         return clone
 
+    # [TODO] QuerySet > order_by
     def order_by(self, *field_names):
         """Return a new QuerySet instance with the ordering changed."""
         if self.query.is_sliced:
@@ -1696,6 +1800,7 @@ class QuerySet(AltersData):
         obj.query.add_ordering(*field_names)
         return obj
 
+    # [TODO] QuerySet > distinct
     def distinct(self, *field_names):
         """
         Return a new QuerySet instance that will select only distinct results.
@@ -1709,6 +1814,7 @@ class QuerySet(AltersData):
         obj.query.add_distinct_fields(*field_names)
         return obj
 
+    # [TODO] QuerySet > extra
     def extra(
         self,
         select=None,
@@ -1726,6 +1832,7 @@ class QuerySet(AltersData):
         clone.query.add_extra(select, select_params, where, params, tables, order_by)
         return clone
 
+    # [TODO] QuerySet > reverse
     def reverse(self):
         """Reverse the ordering of the QuerySet."""
         if self.query.is_sliced:
@@ -1734,6 +1841,7 @@ class QuerySet(AltersData):
         clone.query.standard_ordering = not clone.query.standard_ordering
         return clone
 
+    # [TODO] QuerySet > defer
     def defer(self, *fields):
         """
         Defer the loading of data for certain fields until they are accessed.
@@ -1751,6 +1859,7 @@ class QuerySet(AltersData):
             clone.query.add_deferred_loading(fields)
         return clone
 
+    # [TODO] QuerySet > only
     def only(self, *fields):
         """
         Essentially, the opposite of defer(). Only the fields passed into this
@@ -1772,6 +1881,7 @@ class QuerySet(AltersData):
         clone.query.add_immediate_loading(fields)
         return clone
 
+    # [TODO] QuerySet > using
     def using(self, alias):
         """Select which database this QuerySet should execute against."""
         clone = self._chain()
@@ -1782,6 +1892,7 @@ class QuerySet(AltersData):
     # PUBLIC INTROSPECTION ATTRIBUTES #
     ###################################
 
+    # [TODO] QuerySet > ordered
     @property
     def ordered(self):
         """
@@ -1803,6 +1914,7 @@ class QuerySet(AltersData):
         else:
             return False
 
+    # [TODO] QuerySet > db
     @property
     def db(self):
         """Return the database used if this query is executed now."""
@@ -1814,6 +1926,7 @@ class QuerySet(AltersData):
     # PRIVATE METHODS #
     ###################
 
+    # [TODO] QuerySet > _insert
     def _insert(
         self,
         objs,
@@ -1844,6 +1957,7 @@ class QuerySet(AltersData):
     _insert.alters_data = True
     _insert.queryset_only = False
 
+    # [TODO] QuerySet > _batched_insert
     def _batched_insert(
         self,
         objs,
@@ -1888,6 +2002,7 @@ class QuerySet(AltersData):
                 )
         return inserted_rows
 
+    # [TODO] QuerySet > _chain
     def _chain(self):
         """
         Return a copy of the current QuerySet that's ready for another
@@ -1899,6 +2014,7 @@ class QuerySet(AltersData):
             obj._sticky_filter = False
         return obj
 
+    # [TODO] QuerySet > _clone
     def _clone(self):
         """
         Return a copy of the current QuerySet. A lightweight alternative
@@ -1918,12 +2034,14 @@ class QuerySet(AltersData):
         c._fields = self._fields
         return c
 
+    # [TODO] QuerySet > _fetch_all
     def _fetch_all(self):
         if self._result_cache is None:
             self._result_cache = list(self._iterable_class(self))
         if self._prefetch_related_lookups and not self._prefetch_done:
             self._prefetch_related_objects()
 
+    # [TODO] QuerySet > _next_is_sticky
     def _next_is_sticky(self):
         """
         Indicate that the next filter call and the one following that should
@@ -1938,6 +2056,7 @@ class QuerySet(AltersData):
         self._sticky_filter = True
         return self
 
+    # [TODO] QuerySet > _merge_sanity_check
     def _merge_sanity_check(self, other):
         """Check that two QuerySet classes may be merged."""
         if self._fields is not None and (
@@ -1950,6 +2069,7 @@ class QuerySet(AltersData):
                 % self.__class__.__name__
             )
 
+    # [TODO] QuerySet > _merge_known_related_objects
     def _merge_known_related_objects(self, other):
         """
         Keep track of all known related objects from either QuerySet instance.
@@ -1957,6 +2077,7 @@ class QuerySet(AltersData):
         for field, objects in other._known_related_objects.items():
             self._known_related_objects.setdefault(field, {}).update(objects)
 
+    # [TODO] QuerySet > resolve_expression
     def resolve_expression(self, *args, **kwargs):
         if self._fields and len(self._fields) > 1:
             # values() queryset can only be used as nested queries
@@ -1968,6 +2089,7 @@ class QuerySet(AltersData):
 
     resolve_expression.queryset_only = True
 
+    # [TODO] QuerySet > _add_hints
     def _add_hints(self, **hints):
         """
         Update hinting information for use by routers. Add new key/values or
@@ -1975,6 +2097,7 @@ class QuerySet(AltersData):
         """
         self._hints.update(hints)
 
+    # [TODO] QuerySet > _has_filters
     def _has_filters(self):
         """
         Check if this QuerySet has any filtering going on. This isn't
@@ -1983,6 +2106,7 @@ class QuerySet(AltersData):
         """
         return self.query.has_filters()
 
+    # [TODO] QuerySet > _validate_values_are_expressions
     @staticmethod
     def _validate_values_are_expressions(values, method_name):
         invalid_args = sorted(
@@ -1997,6 +2121,7 @@ class QuerySet(AltersData):
                 )
             )
 
+    # [TODO] QuerySet > _not_support_combined_queries
     def _not_support_combined_queries(self, operation_name):
         if self.query.combinator:
             raise NotSupportedError(
@@ -2004,10 +2129,12 @@ class QuerySet(AltersData):
                 % (operation_name, self.query.combinator)
             )
 
+    # [TODO] QuerySet > _check_operator_queryset
     def _check_operator_queryset(self, other, operator_):
         if self.query.combinator or other.query.combinator:
             raise TypeError(f"Cannot use {operator_} operator with combined queryset.")
 
+    # [TODO] QuerySet > _check_ordering_first_last_queryset_aggregation
     def _check_ordering_first_last_queryset_aggregation(self, method):
         if isinstance(self.query.group_by, tuple) and not any(
             col.output_field is self.model._meta.pk for col in self.query.group_by
@@ -2018,27 +2145,33 @@ class QuerySet(AltersData):
             )
 
 
+# [TODO] InstanceCheckMeta
 class InstanceCheckMeta(type):
+    # [TODO] InstanceCheckMeta > __instancecheck__
     def __instancecheck__(self, instance):
         return isinstance(instance, QuerySet) and instance.query.is_empty()
 
 
+# [TODO] EmptyQuerySet
 class EmptyQuerySet(metaclass=InstanceCheckMeta):
     """
     Marker class to checking if a queryset is empty by .none():
         isinstance(qs.none(), EmptyQuerySet) -> True
     """
 
+    # [TODO] EmptyQuerySet > __init__
     def __init__(self, *args, **kwargs):
         raise TypeError("EmptyQuerySet can't be instantiated")
 
 
+# [TODO] RawQuerySet
 class RawQuerySet:
     """
     Provide an iterator which converts the results of raw SQL queries into
     annotated model instances.
     """
 
+    # [TODO] RawQuerySet > __init__
     def __init__(
         self,
         raw_query,
@@ -2060,6 +2193,7 @@ class RawQuerySet:
         self._prefetch_related_lookups = ()
         self._prefetch_done = False
 
+    # [TODO] RawQuerySet > resolve_model_init_order
     def resolve_model_init_order(self):
         """Resolve the init field names and value positions."""
         converter = connections[self.db].introspection.identifier_converter
@@ -2077,6 +2211,7 @@ class RawQuerySet:
         model_init_names = [f.attname for f in model_init_fields]
         return model_init_names, model_init_order, annotation_fields
 
+    # [TODO] RawQuerySet > prefetch_related
     def prefetch_related(self, *lookups):
         """Same as QuerySet.prefetch_related()"""
         clone = self._clone()
@@ -2086,10 +2221,12 @@ class RawQuerySet:
             clone._prefetch_related_lookups = clone._prefetch_related_lookups + lookups
         return clone
 
+    # [TODO] RawQuerySet > _prefetch_related_objects
     def _prefetch_related_objects(self):
         prefetch_related_objects(self._result_cache, *self._prefetch_related_lookups)
         self._prefetch_done = True
 
+    # [TODO] RawQuerySet > _clone
     def _clone(self):
         """Same as QuerySet._clone()"""
         c = self.__class__(
@@ -2104,24 +2241,29 @@ class RawQuerySet:
         c._prefetch_related_lookups = self._prefetch_related_lookups[:]
         return c
 
+    # [TODO] RawQuerySet > _fetch_all
     def _fetch_all(self):
         if self._result_cache is None:
             self._result_cache = list(self.iterator())
         if self._prefetch_related_lookups and not self._prefetch_done:
             self._prefetch_related_objects()
 
+    # [TODO] RawQuerySet > __len__
     def __len__(self):
         self._fetch_all()
         return len(self._result_cache)
 
+    # [TODO] RawQuerySet > __bool__
     def __bool__(self):
         self._fetch_all()
         return bool(self._result_cache)
 
+    # [TODO] RawQuerySet > __iter__
     def __iter__(self):
         self._fetch_all()
         return iter(self._result_cache)
 
+    # [TODO] RawQuerySet > __aiter__
     def __aiter__(self):
         # Remember, __aiter__ itself is synchronous, it's the thing it returns
         # that is async!
@@ -2132,20 +2274,25 @@ class RawQuerySet:
 
         return generator()
 
+    # [TODO] RawQuerySet > iterator
     def iterator(self):
         yield from RawModelIterable(self)
 
+    # [TODO] RawQuerySet > __repr__
     def __repr__(self):
         return "<%s: %s>" % (self.__class__.__name__, self.query)
 
+    # [TODO] RawQuerySet > __getitem__
     def __getitem__(self, k):
         return list(self)[k]
 
+    # [TODO] RawQuerySet > db
     @property
     def db(self):
         """Return the database used if this query is executed now."""
         return self._db or router.db_for_read(self.model, **self._hints)
 
+    # [TODO] RawQuerySet > using
     def using(self, alias):
         """Select the database this RawQuerySet should execute against."""
         return RawQuerySet(
@@ -2157,6 +2304,7 @@ class RawQuerySet:
             using=alias,
         )
 
+    # [TODO] RawQuerySet > columns
     @cached_property
     def columns(self):
         """
@@ -2175,6 +2323,7 @@ class RawQuerySet:
                 columns[index] = model_name
         return columns
 
+    # [TODO] RawQuerySet > model_fields
     @cached_property
     def model_fields(self):
         """A dict mapping column names to model field names."""
@@ -2186,7 +2335,9 @@ class RawQuerySet:
         return model_fields
 
 
+# [TODO] Prefetch
 class Prefetch:
+    # [TODO] Prefetch > __init__
     def __init__(self, lookup, queryset=None, to_attr=None):
         # `prefetch_through` is the path we traverse to perform the prefetch.
         self.prefetch_through = lookup
@@ -2210,6 +2361,7 @@ class Prefetch:
         self.queryset = queryset
         self.to_attr = to_attr
 
+    # [TODO] Prefetch > __getstate__
     def __getstate__(self):
         obj_dict = self.__dict__.copy()
         if self.queryset is not None:
@@ -2220,33 +2372,40 @@ class Prefetch:
             obj_dict["queryset"] = queryset
         return obj_dict
 
+    # [TODO] Prefetch > add_prefix
     def add_prefix(self, prefix):
         self.prefetch_through = prefix + LOOKUP_SEP + self.prefetch_through
         self.prefetch_to = prefix + LOOKUP_SEP + self.prefetch_to
 
+    # [TODO] Prefetch > get_current_prefetch_to
     def get_current_prefetch_to(self, level):
         return LOOKUP_SEP.join(self.prefetch_to.split(LOOKUP_SEP)[: level + 1])
 
+    # [TODO] Prefetch > get_current_to_attr
     def get_current_to_attr(self, level):
         parts = self.prefetch_to.split(LOOKUP_SEP)
         to_attr = parts[level]
         as_attr = self.to_attr and level == len(parts) - 1
         return to_attr, as_attr
 
+    # [TODO] Prefetch > get_current_queryset
     def get_current_queryset(self, level):
         if self.get_current_prefetch_to(level) == self.prefetch_to:
             return self.queryset
         return None
 
+    # [TODO] Prefetch > __eq__
     def __eq__(self, other):
         if not isinstance(other, Prefetch):
             return NotImplemented
         return self.prefetch_to == other.prefetch_to
 
+    # [TODO] Prefetch > __hash__
     def __hash__(self):
         return hash((self.__class__, self.prefetch_to))
 
 
+# [TODO] normalize_prefetch_lookups
 def normalize_prefetch_lookups(lookups, prefix=None):
     """Normalize lookups into Prefetch objects."""
     ret = []
@@ -2259,6 +2418,7 @@ def normalize_prefetch_lookups(lookups, prefix=None):
     return ret
 
 
+# [TODO] prefetch_related_objects
 def prefetch_related_objects(model_instances, *related_lookups):
     """
     Populate prefetched object caches for a list of model instances based on
@@ -2413,6 +2573,7 @@ def prefetch_related_objects(model_instances, *related_lookups):
                 obj_list = new_obj_list
 
 
+# [TODO] aprefetch_related_objects
 async def aprefetch_related_objects(model_instances, *related_lookups):
     """See prefetch_related_objects()."""
     return await sync_to_async(prefetch_related_objects)(
@@ -2420,6 +2581,7 @@ async def aprefetch_related_objects(model_instances, *related_lookups):
     )
 
 
+# [TODO] get_prefetcher
 def get_prefetcher(instance, through_attr, to_attr):
     """
     For the attribute 'through_attr' on the given instance, find
@@ -2479,6 +2641,7 @@ def get_prefetcher(instance, through_attr, to_attr):
     return prefetcher, rel_obj_descriptor, attr_found, is_fetched
 
 
+# [TODO] prefetch_one_level
 def prefetch_one_level(instances, prefetcher, lookup, level):
     """
     Helper function for prefetch_related_objects().
@@ -2585,6 +2748,7 @@ def prefetch_one_level(instances, prefetcher, lookup, level):
     return all_related_objects, additional_lookups
 
 
+# [TODO] RelatedPopulator
 class RelatedPopulator:
     """
     RelatedPopulator is used for select_related() object instantiation.
@@ -2601,6 +2765,7 @@ class RelatedPopulator:
     model instance.
     """
 
+    # [TODO] RelatedPopulator > __init__
     def __init__(self, klass_info, select, db):
         self.db = db
         # Pre-compute needed attributes. The attributes are:
@@ -2655,6 +2820,7 @@ class RelatedPopulator:
         self.local_setter = klass_info["local_setter"]
         self.remote_setter = klass_info["remote_setter"]
 
+    # [TODO] RelatedPopulator > populate
     def populate(self, row, from_obj):
         if self.reorder_for_init:
             obj_data = self.reorder_for_init(row)
@@ -2671,6 +2837,7 @@ class RelatedPopulator:
             self.remote_setter(obj, from_obj)
 
 
+# [TODO] get_related_populators
 def get_related_populators(klass_info, select, db):
     iterators = []
     related_klass_infos = klass_info.get("related_klass_infos", [])

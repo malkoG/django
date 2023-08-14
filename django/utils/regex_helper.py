@@ -26,18 +26,22 @@ ESCAPE_MAPPINGS = {
 }
 
 
+# [TODO] Choice
 class Choice(list):
     """Represent multiple possibilities at this point in a pattern string."""
 
 
+# [TODO] Group
 class Group(list):
     """Represent a capturing group in the pattern string."""
 
 
+# [TODO] NonCapture
 class NonCapture(list):
     """Represent a non-capturing group in the pattern string."""
 
 
+# [TODO] normalize
 def normalize(pattern):
     r"""
     Given a reg-exp pattern, normalize it to an iterable of forms that
@@ -192,6 +196,7 @@ def normalize(pattern):
     return list(zip(*flatten_result(result)))
 
 
+# [TODO] next_char
 def next_char(input_iter):
     r"""
     An iterator that yields the next character from "pattern_iter", respecting
@@ -213,6 +218,7 @@ def next_char(input_iter):
         yield representative, True
 
 
+# [TODO] walk_to_end
 def walk_to_end(ch, input_iter):
     """
     The iterator is currently inside a capturing group. Walk to the close of
@@ -234,6 +240,7 @@ def walk_to_end(ch, input_iter):
             nesting -= 1
 
 
+# [TODO] get_quantifier
 def get_quantifier(ch, input_iter):
     """
     Parse a quantifier from the input, where "ch" is the first character in the
@@ -271,6 +278,7 @@ def get_quantifier(ch, input_iter):
     return int(values[0]), ch
 
 
+# [TODO] contains
 def contains(source, inst):
     """
     Return True if the "source" contains an instance of "inst". False,
@@ -285,6 +293,7 @@ def contains(source, inst):
     return False
 
 
+# [TODO] flatten_result
 def flatten_result(source):
     """
     Turn the given source sequence into a list of reg-exp possibilities and
@@ -339,6 +348,7 @@ def flatten_result(source):
     return result, result_args
 
 
+# [TODO] _lazy_re_compile
 def _lazy_re_compile(regex, flags=0):
     """Lazily compile a regex with flags."""
 

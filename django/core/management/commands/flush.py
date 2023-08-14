@@ -7,6 +7,7 @@ from django.core.management.sql import emit_post_migrate_signal, sql_flush
 from django.db import DEFAULT_DB_ALIAS, connections
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = (
         "Removes ALL DATA from the database, including data added during "
@@ -14,6 +15,7 @@ class Command(BaseCommand):
     )
     stealth_options = ("reset_sequences", "allow_cascade", "inhibit_post_migrate")
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "--noinput",
@@ -28,6 +30,7 @@ class Command(BaseCommand):
             help='Nominates a database to flush. Defaults to the "default" database.',
         )
 
+    # [TODO] Command > handle
     def handle(self, **options):
         database = options["database"]
         connection = connections[database]

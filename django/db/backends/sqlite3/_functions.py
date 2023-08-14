@@ -36,6 +36,7 @@ from django.utils import timezone
 from django.utils.duration import duration_microseconds
 
 
+# [TODO] register
 def register(connection):
     create_deterministic_function = functools.partial(
         connection.create_function,
@@ -102,6 +103,7 @@ def register(connection):
         create_deterministic_function("TAN", 1, _sqlite_tan)
 
 
+# [TODO] _sqlite_datetime_parse
 def _sqlite_datetime_parse(dt, tzname=None, conn_tzname=None):
     if dt is None:
         return None
@@ -121,6 +123,7 @@ def _sqlite_datetime_parse(dt, tzname=None, conn_tzname=None):
     return dt
 
 
+# [TODO] _sqlite_date_trunc
 def _sqlite_date_trunc(lookup_type, dt, tzname, conn_tzname):
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
@@ -140,6 +143,7 @@ def _sqlite_date_trunc(lookup_type, dt, tzname, conn_tzname):
     raise ValueError(f"Unsupported lookup type: {lookup_type!r}")
 
 
+# [TODO] _sqlite_time_trunc
 def _sqlite_time_trunc(lookup_type, dt, tzname, conn_tzname):
     if dt is None:
         return None
@@ -160,6 +164,7 @@ def _sqlite_time_trunc(lookup_type, dt, tzname, conn_tzname):
     raise ValueError(f"Unsupported lookup type: {lookup_type!r}")
 
 
+# [TODO] _sqlite_datetime_cast_date
 def _sqlite_datetime_cast_date(dt, tzname, conn_tzname):
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
@@ -167,6 +172,7 @@ def _sqlite_datetime_cast_date(dt, tzname, conn_tzname):
     return dt.date().isoformat()
 
 
+# [TODO] _sqlite_datetime_cast_time
 def _sqlite_datetime_cast_time(dt, tzname, conn_tzname):
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
@@ -174,6 +180,7 @@ def _sqlite_datetime_cast_time(dt, tzname, conn_tzname):
     return dt.time().isoformat()
 
 
+# [TODO] _sqlite_datetime_extract
 def _sqlite_datetime_extract(lookup_type, dt, tzname=None, conn_tzname=None):
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
@@ -192,6 +199,7 @@ def _sqlite_datetime_extract(lookup_type, dt, tzname=None, conn_tzname=None):
         return getattr(dt, lookup_type)
 
 
+# [TODO] _sqlite_datetime_trunc
 def _sqlite_datetime_trunc(lookup_type, dt, tzname, conn_tzname):
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
@@ -223,6 +231,7 @@ def _sqlite_datetime_trunc(lookup_type, dt, tzname, conn_tzname):
     raise ValueError(f"Unsupported lookup type: {lookup_type!r}")
 
 
+# [TODO] _sqlite_time_extract
 def _sqlite_time_extract(lookup_type, dt):
     if dt is None:
         return None
@@ -233,6 +242,7 @@ def _sqlite_time_extract(lookup_type, dt):
     return getattr(dt, lookup_type)
 
 
+# [TODO] _sqlite_prepare_dtdelta_param
 def _sqlite_prepare_dtdelta_param(conn, param):
     if conn in ["+", "-"]:
         if isinstance(param, int):
@@ -242,6 +252,7 @@ def _sqlite_prepare_dtdelta_param(conn, param):
     return param
 
 
+# [TODO] _sqlite_format_dtdelta
 def _sqlite_format_dtdelta(connector, lhs, rhs):
     """
     LHS and RHS can be either:
@@ -270,6 +281,7 @@ def _sqlite_format_dtdelta(connector, lhs, rhs):
     return out
 
 
+# [TODO] _sqlite_time_diff
 def _sqlite_time_diff(lhs, rhs):
     if lhs is None or rhs is None:
         return None
@@ -287,6 +299,7 @@ def _sqlite_time_diff(lhs, rhs):
     )
 
 
+# [TODO] _sqlite_timestamp_diff
 def _sqlite_timestamp_diff(lhs, rhs):
     if lhs is None or rhs is None:
         return None
@@ -295,6 +308,7 @@ def _sqlite_timestamp_diff(lhs, rhs):
     return duration_microseconds(left - right)
 
 
+# [TODO] _sqlite_regexp
 def _sqlite_regexp(pattern, string):
     if pattern is None or string is None:
         return None
@@ -303,78 +317,91 @@ def _sqlite_regexp(pattern, string):
     return bool(re_search(pattern, string))
 
 
+# [TODO] _sqlite_acos
 def _sqlite_acos(x):
     if x is None:
         return None
     return acos(x)
 
 
+# [TODO] _sqlite_asin
 def _sqlite_asin(x):
     if x is None:
         return None
     return asin(x)
 
 
+# [TODO] _sqlite_atan
 def _sqlite_atan(x):
     if x is None:
         return None
     return atan(x)
 
 
+# [TODO] _sqlite_atan2
 def _sqlite_atan2(y, x):
     if y is None or x is None:
         return None
     return atan2(y, x)
 
 
+# [TODO] _sqlite_bitxor
 def _sqlite_bitxor(x, y):
     if x is None or y is None:
         return None
     return x ^ y
 
 
+# [TODO] _sqlite_ceiling
 def _sqlite_ceiling(x):
     if x is None:
         return None
     return ceil(x)
 
 
+# [TODO] _sqlite_cos
 def _sqlite_cos(x):
     if x is None:
         return None
     return cos(x)
 
 
+# [TODO] _sqlite_cot
 def _sqlite_cot(x):
     if x is None:
         return None
     return 1 / tan(x)
 
 
+# [TODO] _sqlite_degrees
 def _sqlite_degrees(x):
     if x is None:
         return None
     return degrees(x)
 
 
+# [TODO] _sqlite_exp
 def _sqlite_exp(x):
     if x is None:
         return None
     return exp(x)
 
 
+# [TODO] _sqlite_floor
 def _sqlite_floor(x):
     if x is None:
         return None
     return floor(x)
 
 
+# [TODO] _sqlite_ln
 def _sqlite_ln(x):
     if x is None:
         return None
     return log(x)
 
 
+# [TODO] _sqlite_log
 def _sqlite_log(base, x):
     if base is None or x is None:
         return None
@@ -382,6 +409,7 @@ def _sqlite_log(base, x):
     return log(x, base)
 
 
+# [TODO] _sqlite_lpad
 def _sqlite_lpad(text, length, fill_text):
     if text is None or length is None or fill_text is None:
         return None
@@ -391,121 +419,143 @@ def _sqlite_lpad(text, length, fill_text):
     return (fill_text * length)[:delta] + text
 
 
+# [TODO] _sqlite_md5
 def _sqlite_md5(text):
     if text is None:
         return None
     return md5(text.encode()).hexdigest()
 
 
+# [TODO] _sqlite_mod
 def _sqlite_mod(x, y):
     if x is None or y is None:
         return None
     return fmod(x, y)
 
 
+# [TODO] _sqlite_pi
 def _sqlite_pi():
     return pi
 
 
+# [TODO] _sqlite_power
 def _sqlite_power(x, y):
     if x is None or y is None:
         return None
     return x**y
 
 
+# [TODO] _sqlite_radians
 def _sqlite_radians(x):
     if x is None:
         return None
     return radians(x)
 
 
+# [TODO] _sqlite_repeat
 def _sqlite_repeat(text, count):
     if text is None or count is None:
         return None
     return text * count
 
 
+# [TODO] _sqlite_reverse
 def _sqlite_reverse(text):
     if text is None:
         return None
     return text[::-1]
 
 
+# [TODO] _sqlite_rpad
 def _sqlite_rpad(text, length, fill_text):
     if text is None or length is None or fill_text is None:
         return None
     return (text + fill_text * length)[:length]
 
 
+# [TODO] _sqlite_sha1
 def _sqlite_sha1(text):
     if text is None:
         return None
     return sha1(text.encode()).hexdigest()
 
 
+# [TODO] _sqlite_sha224
 def _sqlite_sha224(text):
     if text is None:
         return None
     return sha224(text.encode()).hexdigest()
 
 
+# [TODO] _sqlite_sha256
 def _sqlite_sha256(text):
     if text is None:
         return None
     return sha256(text.encode()).hexdigest()
 
 
+# [TODO] _sqlite_sha384
 def _sqlite_sha384(text):
     if text is None:
         return None
     return sha384(text.encode()).hexdigest()
 
 
+# [TODO] _sqlite_sha512
 def _sqlite_sha512(text):
     if text is None:
         return None
     return sha512(text.encode()).hexdigest()
 
 
+# [TODO] _sqlite_sign
 def _sqlite_sign(x):
     if x is None:
         return None
     return (x > 0) - (x < 0)
 
 
+# [TODO] _sqlite_sin
 def _sqlite_sin(x):
     if x is None:
         return None
     return sin(x)
 
 
+# [TODO] _sqlite_sqrt
 def _sqlite_sqrt(x):
     if x is None:
         return None
     return sqrt(x)
 
 
+# [TODO] _sqlite_tan
 def _sqlite_tan(x):
     if x is None:
         return None
     return tan(x)
 
 
+# [TODO] ListAggregate
 class ListAggregate(list):
     step = list.append
 
 
+# [TODO] StdDevPop
 class StdDevPop(ListAggregate):
     finalize = statistics.pstdev
 
 
+# [TODO] StdDevSamp
 class StdDevSamp(ListAggregate):
     finalize = statistics.stdev
 
 
+# [TODO] VarPop
 class VarPop(ListAggregate):
     finalize = statistics.pvariance
 
 
+# [TODO] VarSamp
 class VarSamp(ListAggregate):
     finalize = statistics.variance

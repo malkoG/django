@@ -7,6 +7,7 @@ from django.utils.cache import patch_vary_headers
 from django.utils.deprecation import MiddlewareMixin
 
 
+# [TODO] LocaleMiddleware
 class LocaleMiddleware(MiddlewareMixin):
     """
     Parse a request and decide what translation object to install in the
@@ -16,6 +17,7 @@ class LocaleMiddleware(MiddlewareMixin):
 
     response_redirect_class = HttpResponseRedirect
 
+    # [TODO] LocaleMiddleware > process_request
     def process_request(self, request):
         urlconf = getattr(request, "urlconf", settings.ROOT_URLCONF)
         (
@@ -35,6 +37,7 @@ class LocaleMiddleware(MiddlewareMixin):
         translation.activate(language)
         request.LANGUAGE_CODE = translation.get_language()
 
+    # [TODO] LocaleMiddleware > process_response
     def process_response(self, request, response):
         language = translation.get_language()
         language_from_path = translation.get_language_from_path(request.path_info)

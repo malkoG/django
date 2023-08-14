@@ -18,6 +18,7 @@ from django.utils.version import get_version_tuple
 logger = logging.getLogger("django.contrib.gis")
 
 
+# [TODO] load_geos
 def load_geos():
     # Custom library path set?
     try:
@@ -76,6 +77,7 @@ def load_geos():
 NOTICEFUNC = CFUNCTYPE(None, c_char_p, c_char_p)
 
 
+# [TODO] notice_h
 def notice_h(fmt, lst):
     fmt, lst = fmt.decode(), lst.decode()
     try:
@@ -90,6 +92,7 @@ notice_h = NOTICEFUNC(notice_h)
 ERRORFUNC = CFUNCTYPE(None, c_char_p, c_char_p)
 
 
+# [TODO] error_h
 def error_h(fmt, lst):
     fmt, lst = fmt.decode(), lst.decode()
     try:
@@ -105,18 +108,22 @@ error_h = ERRORFUNC(error_h)
 
 
 # Opaque GEOS geometry structures, used for GEOM_PTR and CS_PTR
+# [TODO] GEOSGeom_t
 class GEOSGeom_t(Structure):
     pass
 
 
+# [TODO] GEOSPrepGeom_t
 class GEOSPrepGeom_t(Structure):
     pass
 
 
+# [TODO] GEOSCoordSeq_t
 class GEOSCoordSeq_t(Structure):
     pass
 
 
+# [TODO] GEOSContextHandle_t
 class GEOSContextHandle_t(Structure):
     pass
 
@@ -131,6 +138,7 @@ CONTEXT_PTR = POINTER(GEOSContextHandle_t)
 lgeos = SimpleLazyObject(load_geos)
 
 
+# [TODO] GEOSFuncFactory
 class GEOSFuncFactory:
     """
     Lazy loading of GEOS functions.
@@ -140,6 +148,7 @@ class GEOSFuncFactory:
     restype = None
     errcheck = None
 
+    # [TODO] GEOSFuncFactory > __init__
     def __init__(self, func_name, *, restype=None, errcheck=None, argtypes=None):
         self.func_name = func_name
         if restype is not None:
@@ -149,9 +158,11 @@ class GEOSFuncFactory:
         if argtypes is not None:
             self.argtypes = argtypes
 
+    # [TODO] GEOSFuncFactory > __call__
     def __call__(self, *args):
         return self.func(*args)
 
+    # [TODO] GEOSFuncFactory > func
     @cached_property
     def func(self):
         from django.contrib.gis.geos.prototypes.threadsafe import GEOSFunc
@@ -164,11 +175,13 @@ class GEOSFuncFactory:
         return func
 
 
+# [TODO] geos_version
 def geos_version():
     """Return the string version of the GEOS library."""
     return lgeos.GEOSversion()
 
 
+# [TODO] geos_version_tuple
 def geos_version_tuple():
     """Return the GEOS version as a tuple (major, minor, subminor)."""
     return get_version_tuple(geos_version().decode())

@@ -5,12 +5,14 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils.inspect import get_func_args
 
 
+# [TODO] LayerOptionAction
 class LayerOptionAction(argparse.Action):
     """
     Custom argparse action for the `ogrinspect` `layer_key` keyword option
     which may be an integer or a string.
     """
 
+    # [TODO] LayerOptionAction > __call__
     def __call__(self, parser, namespace, value, option_string=None):
         try:
             setattr(namespace, self.dest, int(value))
@@ -18,6 +20,7 @@ class LayerOptionAction(argparse.Action):
             setattr(namespace, self.dest, value)
 
 
+# [TODO] ListOptionAction
 class ListOptionAction(argparse.Action):
     """
     Custom argparse action for `ogrinspect` keywords that require
@@ -25,6 +28,7 @@ class ListOptionAction(argparse.Action):
     value will be a boolean instead.
     """
 
+    # [TODO] ListOptionAction > __call__
     def __call__(self, parser, namespace, value, option_string=None):
         if value.lower() == "true":
             setattr(namespace, self.dest, True)
@@ -32,6 +36,7 @@ class ListOptionAction(argparse.Action):
             setattr(namespace, self.dest, value.split(","))
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = (
         "Inspects the given OGR-compatible data source (e.g., a shapefile) and "
@@ -41,6 +46,7 @@ class Command(BaseCommand):
 
     requires_system_checks = []
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument("data_source", help="Path to the data source.")
         parser.add_argument("model_name", help="Name of the model to create.")
@@ -108,6 +114,7 @@ class Command(BaseCommand):
             help="Generate mapping dictionary for use with `LayerMapping`.",
         )
 
+    # [TODO] Command > handle
     def handle(self, *args, **options):
         data_source, model_name = options.pop("data_source"), options.pop("model_name")
 

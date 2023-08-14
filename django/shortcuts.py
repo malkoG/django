@@ -14,6 +14,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.functional import Promise
 
 
+# [TODO] render
 def render(
     request, template_name, context=None, content_type=None, status=None, using=None
 ):
@@ -25,6 +26,7 @@ def render(
     return HttpResponse(content, content_type, status)
 
 
+# [TODO] redirect
 def redirect(to, *args, permanent=False, **kwargs):
     """
     Return an HttpResponseRedirect to the appropriate URL for the arguments
@@ -48,6 +50,7 @@ def redirect(to, *args, permanent=False, **kwargs):
     return redirect_class(resolve_url(to, *args, **kwargs))
 
 
+# [TODO] _get_queryset
 def _get_queryset(klass):
     """
     Return a QuerySet or a Manager.
@@ -61,6 +64,7 @@ def _get_queryset(klass):
     return klass
 
 
+# [TODO] get_object_or_404
 def get_object_or_404(klass, *args, **kwargs):
     """
     Use get() to return an object, or raise an Http404 exception if the object
@@ -89,6 +93,7 @@ def get_object_or_404(klass, *args, **kwargs):
         )
 
 
+# [TODO] aget_object_or_404
 async def aget_object_or_404(klass, *args, **kwargs):
     """See get_object_or_404()."""
     queryset = _get_queryset(klass)
@@ -106,6 +111,7 @@ async def aget_object_or_404(klass, *args, **kwargs):
         raise Http404(f"No {queryset.model._meta.object_name} matches the given query.")
 
 
+# [TODO] get_list_or_404
 def get_list_or_404(klass, *args, **kwargs):
     """
     Use filter() to return a list of objects, or raise an Http404 exception if
@@ -131,6 +137,7 @@ def get_list_or_404(klass, *args, **kwargs):
     return obj_list
 
 
+# [TODO] aget_list_or_404
 async def aget_list_or_404(klass, *args, **kwargs):
     """See get_list_or_404()."""
     queryset = _get_queryset(klass)
@@ -148,6 +155,7 @@ async def aget_list_or_404(klass, *args, **kwargs):
     return obj_list
 
 
+# [TODO] resolve_url
 def resolve_url(to, *args, **kwargs):
     """
     Return a URL appropriate for the arguments passed.

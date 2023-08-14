@@ -26,6 +26,7 @@ from django.core.management.color import color_style
 from django.utils import autoreload
 
 
+# [TODO] find_commands
 def find_commands(management_dir):
     """
     Given a path to a management directory, return a list of all the command
@@ -39,6 +40,7 @@ def find_commands(management_dir):
     ]
 
 
+# [TODO] load_command_class
 def load_command_class(app_name, name):
     """
     Given a command name and an application name, return the Command
@@ -49,6 +51,7 @@ def load_command_class(app_name, name):
     return module.Command()
 
 
+# [TODO] get_commands
 @functools.cache
 def get_commands():
     """
@@ -80,6 +83,7 @@ def get_commands():
     return commands
 
 
+# [TODO] call_command
 def call_command(command_name, *args, **options):
     """
     Call the given command, with the given options and args/kwargs.
@@ -194,11 +198,13 @@ def call_command(command_name, *args, **options):
     return command.execute(*args, **defaults)
 
 
+# [TODO] ManagementUtility
 class ManagementUtility:
     """
     Encapsulate the logic of the django-admin and manage.py utilities.
     """
 
+    # [TODO] ManagementUtility > __init__
     def __init__(self, argv=None):
         self.argv = argv or sys.argv[:]
         self.prog_name = os.path.basename(self.argv[0])
@@ -206,6 +212,7 @@ class ManagementUtility:
             self.prog_name = "python -m django"
         self.settings_exception = None
 
+    # [TODO] ManagementUtility > main_help_text
     def main_help_text(self, commands_only=False):
         """Return the script's main help text, as a string."""
         if commands_only:
@@ -243,6 +250,7 @@ class ManagementUtility:
 
         return "\n".join(usage)
 
+    # [TODO] ManagementUtility > fetch_command
     def fetch_command(self, subcommand):
         """
         Try to fetch the given subcommand, printing a message with the
@@ -275,6 +283,7 @@ class ManagementUtility:
             klass = load_command_class(app_name, subcommand)
         return klass
 
+    # [TODO] ManagementUtility > autocomplete
     def autocomplete(self):
         """
         Output completion suggestions for BASH.
@@ -350,6 +359,7 @@ class ManagementUtility:
         # For more details see #25420.
         sys.exit(0)
 
+    # [TODO] ManagementUtility > execute
     def execute(self):
         """
         Given the command-line arguments, figure out which subcommand is being
@@ -436,6 +446,7 @@ class ManagementUtility:
             self.fetch_command(subcommand).run_from_argv(self.argv)
 
 
+# [TODO] execute_from_command_line
 def execute_from_command_line(argv=None):
     """Run a ManagementUtility."""
     utility = ManagementUtility(argv)

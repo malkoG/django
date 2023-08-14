@@ -11,6 +11,7 @@ register = Library()
 
 # HACK: datetime instances cannot be assigned new attributes. Define a subclass
 # in order to define new attributes in do_timezone().
+# [TODO] datetimeobject
 class datetimeobject(datetime):
     pass
 
@@ -18,6 +19,7 @@ class datetimeobject(datetime):
 # Template filters
 
 
+# [TODO] localtime
 @register.filter
 def localtime(value):
     """
@@ -28,6 +30,7 @@ def localtime(value):
     return do_timezone(value, timezone.get_current_timezone())
 
 
+# [TODO] utc
 @register.filter
 def utc(value):
     """
@@ -36,6 +39,7 @@ def utc(value):
     return do_timezone(value, datetime_timezone.utc)
 
 
+# [TODO] do_timezone
 @register.filter("timezone")
 def do_timezone(value, arg):
     """
@@ -89,15 +93,18 @@ def do_timezone(value, arg):
 # Template tags
 
 
+# [TODO] LocalTimeNode
 class LocalTimeNode(Node):
     """
     Template node class used by ``localtime_tag``.
     """
 
+    # [TODO] LocalTimeNode > __init__
     def __init__(self, nodelist, use_tz):
         self.nodelist = nodelist
         self.use_tz = use_tz
 
+    # [TODO] LocalTimeNode > render
     def render(self, context):
         old_setting = context.use_tz
         context.use_tz = self.use_tz
@@ -106,34 +113,41 @@ class LocalTimeNode(Node):
         return output
 
 
+# [TODO] TimezoneNode
 class TimezoneNode(Node):
     """
     Template node class used by ``timezone_tag``.
     """
 
+    # [TODO] TimezoneNode > __init__
     def __init__(self, nodelist, tz):
         self.nodelist = nodelist
         self.tz = tz
 
+    # [TODO] TimezoneNode > render
     def render(self, context):
         with timezone.override(self.tz.resolve(context)):
             output = self.nodelist.render(context)
         return output
 
 
+# [TODO] GetCurrentTimezoneNode
 class GetCurrentTimezoneNode(Node):
     """
     Template node class used by ``get_current_timezone_tag``.
     """
 
+    # [TODO] GetCurrentTimezoneNode > __init__
     def __init__(self, variable):
         self.variable = variable
 
+    # [TODO] GetCurrentTimezoneNode > render
     def render(self, context):
         context[self.variable] = timezone.get_current_timezone_name()
         return ""
 
 
+# [TODO] localtime_tag
 @register.tag("localtime")
 def localtime_tag(parser, token):
     """
@@ -156,6 +170,7 @@ def localtime_tag(parser, token):
     return LocalTimeNode(nodelist, use_tz)
 
 
+# [TODO] timezone_tag
 @register.tag("timezone")
 def timezone_tag(parser, token):
     """
@@ -180,6 +195,7 @@ def timezone_tag(parser, token):
     return TimezoneNode(nodelist, tz)
 
 
+# [TODO] get_current_timezone_tag
 @register.tag("get_current_timezone")
 def get_current_timezone_tag(parser, token):
     """

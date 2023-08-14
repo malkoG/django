@@ -17,6 +17,7 @@ OR = "OR"
 XOR = "XOR"
 
 
+# [TODO] WhereNode
 class WhereNode(tree.Node):
     """
     An SQL WHERE clause.
@@ -36,6 +37,7 @@ class WhereNode(tree.Node):
     resolved = False
     conditional = True
 
+    # [TODO] WhereNode > split_having_qualify
     def split_having_qualify(self, negated=False, must_group_by=False):
         """
         Return three possibly None nodes: one for those parts of self that
@@ -112,6 +114,7 @@ class WhereNode(tree.Node):
         )
         return where_node, having_node, qualify_node
 
+    # [TODO] WhereNode > as_sql
     def as_sql(self, compiler, connection):
         """
         Return the SQL version of the where clause and the value to be
@@ -186,19 +189,23 @@ class WhereNode(tree.Node):
             sql_string = "(%s)" % sql_string
         return sql_string, result_params
 
+    # [TODO] WhereNode > get_group_by_cols
     def get_group_by_cols(self):
         cols = []
         for child in self.children:
             cols.extend(child.get_group_by_cols())
         return cols
 
+    # [TODO] WhereNode > get_source_expressions
     def get_source_expressions(self):
         return self.children[:]
 
+    # [TODO] WhereNode > set_source_expressions
     def set_source_expressions(self, children):
         assert len(children) == len(self.children)
         self.children = children
 
+    # [TODO] WhereNode > relabel_aliases
     def relabel_aliases(self, change_map):
         """
         Relabel the alias values of any children. 'change_map' is a dictionary
@@ -211,6 +218,7 @@ class WhereNode(tree.Node):
             elif hasattr(child, "relabeled_clone"):
                 self.children[pos] = child.relabeled_clone(change_map)
 
+    # [TODO] WhereNode > clone
     def clone(self):
         clone = self.create(connector=self.connector, negated=self.negated)
         for child in self.children:
@@ -219,11 +227,13 @@ class WhereNode(tree.Node):
             clone.children.append(child)
         return clone
 
+    # [TODO] WhereNode > relabeled_clone
     def relabeled_clone(self, change_map):
         clone = self.clone()
         clone.relabel_aliases(change_map)
         return clone
 
+    # [TODO] WhereNode > replace_expressions
     def replace_expressions(self, replacements):
         if replacement := replacements.get(self):
             return replacement
@@ -232,42 +242,50 @@ class WhereNode(tree.Node):
             clone.children.append(child.replace_expressions(replacements))
         return clone
 
+    # [TODO] WhereNode > get_refs
     def get_refs(self):
         refs = set()
         for child in self.children:
             refs |= child.get_refs()
         return refs
 
+    # [TODO] WhereNode > _contains_aggregate
     @classmethod
     def _contains_aggregate(cls, obj):
         if isinstance(obj, tree.Node):
             return any(cls._contains_aggregate(c) for c in obj.children)
         return obj.contains_aggregate
 
+    # [TODO] WhereNode > contains_aggregate
     @cached_property
     def contains_aggregate(self):
         return self._contains_aggregate(self)
 
+    # [TODO] WhereNode > _contains_over_clause
     @classmethod
     def _contains_over_clause(cls, obj):
         if isinstance(obj, tree.Node):
             return any(cls._contains_over_clause(c) for c in obj.children)
         return obj.contains_over_clause
 
+    # [TODO] WhereNode > contains_over_clause
     @cached_property
     def contains_over_clause(self):
         return self._contains_over_clause(self)
 
+    # [TODO] WhereNode > is_summary
     @property
     def is_summary(self):
         return any(child.is_summary for child in self.children)
 
+    # [TODO] WhereNode > _resolve_leaf
     @staticmethod
     def _resolve_leaf(expr, query, *args, **kwargs):
         if hasattr(expr, "resolve_expression"):
             expr = expr.resolve_expression(query, *args, **kwargs)
         return expr
 
+    # [TODO] WhereNode > _resolve_node
     @classmethod
     def _resolve_node(cls, node, query, *args, **kwargs):
         if hasattr(node, "children"):
@@ -278,22 +296,26 @@ class WhereNode(tree.Node):
         if hasattr(node, "rhs"):
             node.rhs = cls._resolve_leaf(node.rhs, query, *args, **kwargs)
 
+    # [TODO] WhereNode > resolve_expression
     def resolve_expression(self, *args, **kwargs):
         clone = self.clone()
         clone._resolve_node(clone, *args, **kwargs)
         clone.resolved = True
         return clone
 
+    # [TODO] WhereNode > output_field
     @cached_property
     def output_field(self):
         from django.db.models import BooleanField
 
         return BooleanField()
 
+    # [TODO] WhereNode > _output_field_or_none
     @property
     def _output_field_or_none(self):
         return self.output_field
 
+    # [TODO] WhereNode > select_format
     def select_format(self, compiler, sql, params):
         # Wrap filters with a CASE WHEN expression if a database backend
         # (e.g. Oracle) doesn't support boolean expression in SELECT or GROUP
@@ -302,12 +324,15 @@ class WhereNode(tree.Node):
             sql = f"CASE WHEN {sql} THEN 1 ELSE 0 END"
         return sql, params
 
+    # [TODO] WhereNode > get_db_converters
     def get_db_converters(self, connection):
         return self.output_field.get_db_converters(connection)
 
+    # [TODO] WhereNode > get_lookup
     def get_lookup(self, lookup):
         return self.output_field.get_lookup(lookup)
 
+    # [TODO] WhereNode > leaves
     def leaves(self):
         for child in self.children:
             if isinstance(child, WhereNode):
@@ -316,36 +341,43 @@ class WhereNode(tree.Node):
                 yield child
 
 
+# [TODO] NothingNode
 class NothingNode:
     """A node that matches nothing."""
 
     contains_aggregate = False
     contains_over_clause = False
 
+    # [TODO] NothingNode > as_sql
     def as_sql(self, compiler=None, connection=None):
         raise EmptyResultSet
 
 
+# [TODO] ExtraWhere
 class ExtraWhere:
     # The contents are a black box - assume no aggregates or windows are used.
     contains_aggregate = False
     contains_over_clause = False
 
+    # [TODO] ExtraWhere > __init__
     def __init__(self, sqls, params):
         self.sqls = sqls
         self.params = params
 
+    # [TODO] ExtraWhere > as_sql
     def as_sql(self, compiler=None, connection=None):
         sqls = ["(%s)" % sql for sql in self.sqls]
         return " AND ".join(sqls), list(self.params or ())
 
 
+# [TODO] SubqueryConstraint
 class SubqueryConstraint:
     # Even if aggregates or windows would be used in a subquery,
     # the outer query isn't interested about those.
     contains_aggregate = False
     contains_over_clause = False
 
+    # [TODO] SubqueryConstraint > __init__
     def __init__(self, alias, columns, targets, query_object):
         self.alias = alias
         self.columns = columns
@@ -353,6 +385,7 @@ class SubqueryConstraint:
         query_object.clear_ordering(clear_default=True)
         self.query_object = query_object
 
+    # [TODO] SubqueryConstraint > as_sql
     def as_sql(self, compiler, connection):
         query = self.query_object
         query.set_values(self.targets)

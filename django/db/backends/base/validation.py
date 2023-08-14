@@ -1,12 +1,16 @@
+# [TODO] BaseDatabaseValidation
 class BaseDatabaseValidation:
     """Encapsulate backend-specific validation."""
 
+    # [TODO] BaseDatabaseValidation > __init__
     def __init__(self, connection):
         self.connection = connection
 
+    # [TODO] BaseDatabaseValidation > check
     def check(self, **kwargs):
         return []
 
+    # [TODO] BaseDatabaseValidation > check_field
     def check_field(self, field, **kwargs):
         errors = []
         # Backends may implement a check_field_type() method.

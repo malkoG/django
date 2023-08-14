@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] AdminAuthenticationForm
 class AdminAuthenticationForm(AuthenticationForm):
     """
     A custom authentication form used in the admin app.
@@ -17,6 +18,7 @@ class AdminAuthenticationForm(AuthenticationForm):
     }
     required_css_class = "required"
 
+    # [TODO] AdminAuthenticationForm > confirm_login_allowed
     def confirm_login_allowed(self, user):
         super().confirm_login_allowed(user)
         if not user.is_staff:
@@ -27,5 +29,6 @@ class AdminAuthenticationForm(AuthenticationForm):
             )
 
 
+# [TODO] AdminPasswordChangeForm
 class AdminPasswordChangeForm(PasswordChangeForm):
     required_css_class = "required"

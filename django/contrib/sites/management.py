@@ -8,6 +8,7 @@ from django.core.management.color import no_style
 from django.db import DEFAULT_DB_ALIAS, connections, router
 
 
+# [TODO] create_default_site
 def create_default_site(
     app_config,
     verbosity=2,

@@ -1,6 +1,7 @@
 from django.contrib import messages
 
 
+# [TODO] SuccessMessageMixin
 class SuccessMessageMixin:
     """
     Add a success message on successful form submission.
@@ -8,6 +9,7 @@ class SuccessMessageMixin:
 
     success_message = ""
 
+    # [TODO] SuccessMessageMixin > form_valid
     def form_valid(self, form):
         response = super().form_valid(form)
         success_message = self.get_success_message(form.cleaned_data)
@@ -15,5 +17,6 @@ class SuccessMessageMixin:
             messages.success(self.request, success_message)
         return response
 
+    # [TODO] SuccessMessageMixin > get_success_message
     def get_success_message(self, cleaned_data):
         return self.success_message % cleaned_data

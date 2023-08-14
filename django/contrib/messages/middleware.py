@@ -3,14 +3,17 @@ from django.contrib.messages.storage import default_storage
 from django.utils.deprecation import MiddlewareMixin
 
 
+# [TODO] MessageMiddleware
 class MessageMiddleware(MiddlewareMixin):
     """
     Middleware that handles temporary messages.
     """
 
+    # [TODO] MessageMiddleware > process_request
     def process_request(self, request):
         request._messages = default_storage(request)
 
+    # [TODO] MessageMiddleware > process_response
     def process_response(self, request, response):
         """
         Update the storage backend (i.e., save the messages).

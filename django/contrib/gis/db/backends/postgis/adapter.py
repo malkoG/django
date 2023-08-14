@@ -6,7 +6,9 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.db.backends.postgresql.psycopg_any import sql
 
 
+# [TODO] PostGISAdapter
 class PostGISAdapter:
+    # [TODO] PostGISAdapter > __init__
     def __init__(self, obj, geography=False):
         """
         Initialize on the spatial object.
@@ -23,6 +25,7 @@ class PostGISAdapter:
         self.srid = obj.srid
         self.geography = geography
 
+    # [TODO] PostGISAdapter > __conform__
     def __conform__(self, proto):
         """Does the given protocol conform to what Psycopg2 expects?"""
         from psycopg2.extensions import ISQLQuote
@@ -34,19 +37,24 @@ class PostGISAdapter:
                 "Error implementing psycopg2 protocol. Is psycopg2 installed?"
             )
 
+    # [TODO] PostGISAdapter > __eq__
     def __eq__(self, other):
         return isinstance(other, PostGISAdapter) and self.ewkb == other.ewkb
 
+    # [TODO] PostGISAdapter > __hash__
     def __hash__(self):
         return hash(self.ewkb)
 
+    # [TODO] PostGISAdapter > __str__
     def __str__(self):
         return self.getquoted().decode()
 
+    # [TODO] PostGISAdapter > _fix_polygon
     @classmethod
     def _fix_polygon(cls, poly):
         return poly
 
+    # [TODO] PostGISAdapter > getquoted
     def getquoted(self):
         """
         Return a properly quoted string for use in PostgreSQL/PostGIS.

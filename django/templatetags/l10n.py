@@ -4,6 +4,7 @@ from django.utils import formats
 register = Library()
 
 
+# [TODO] localize
 @register.filter(is_safe=False)
 def localize(value):
     """
@@ -12,6 +13,7 @@ def localize(value):
     return str(formats.localize(value, use_l10n=True))
 
 
+# [TODO] unlocalize
 @register.filter(is_safe=False)
 def unlocalize(value):
     """
@@ -20,14 +22,18 @@ def unlocalize(value):
     return str(formats.localize(value, use_l10n=False))
 
 
+# [TODO] LocalizeNode
 class LocalizeNode(Node):
+    # [TODO] LocalizeNode > __init__
     def __init__(self, nodelist, use_l10n):
         self.nodelist = nodelist
         self.use_l10n = use_l10n
 
+    # [TODO] LocalizeNode > __repr__
     def __repr__(self):
         return "<%s>" % self.__class__.__name__
 
+    # [TODO] LocalizeNode > render
     def render(self, context):
         old_setting = context.use_l10n
         context.use_l10n = self.use_l10n
@@ -36,6 +42,7 @@ class LocalizeNode(Node):
         return output
 
 
+# [TODO] localize_tag
 @register.tag("localize")
 def localize_tag(parser, token):
     """

@@ -3,6 +3,7 @@ from django.contrib.sites.models import _simple_domain_name_validator
 from django.db import migrations, models
 
 
+# [TODO] Migration
 class Migration(migrations.Migration):
     dependencies = []
 

@@ -23,10 +23,13 @@ except ImportError:
     from yaml import SafeDumper, SafeLoader
 
 
+# [TODO] DjangoSafeDumper
 class DjangoSafeDumper(SafeDumper):
+    # [TODO] DjangoSafeDumper > represent_decimal
     def represent_decimal(self, data):
         return self.represent_scalar("tag:yaml.org,2002:str", str(data))
 
+    # [TODO] DjangoSafeDumper > represent_ordered_dict
     def represent_ordered_dict(self, data):
         return self.represent_mapping("tag:yaml.org,2002:map", data.items())
 
@@ -40,11 +43,13 @@ DjangoSafeDumper.add_representer(
 DjangoSafeDumper.add_representer(dict, DjangoSafeDumper.represent_ordered_dict)
 
 
+# [TODO] Serializer
 class Serializer(PythonSerializer):
     """Convert a queryset to YAML."""
 
     internal_use_only = False
 
+    # [TODO] Serializer > handle_field
     def handle_field(self, obj, field):
         # A nasty special case: base YAML doesn't support serialization of time
         # types (as opposed to dates or datetimes, which it does support). Since
@@ -57,15 +62,18 @@ class Serializer(PythonSerializer):
         else:
             super().handle_field(obj, field)
 
+    # [TODO] Serializer > end_serialization
     def end_serialization(self):
         self.options.setdefault("allow_unicode", True)
         yaml.dump(self.objects, self.stream, Dumper=DjangoSafeDumper, **self.options)
 
+    # [TODO] Serializer > getvalue
     def getvalue(self):
         # Grandparent super
         return super(PythonSerializer, self).getvalue()
 
 
+# [TODO] Deserializer
 def Deserializer(stream_or_string, **options):
     """Deserialize a stream or string of YAML data."""
     if isinstance(stream_or_string, bytes):

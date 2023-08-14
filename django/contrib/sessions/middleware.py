@@ -9,16 +9,20 @@ from django.utils.deprecation import MiddlewareMixin
 from django.utils.http import http_date
 
 
+# [TODO] SessionMiddleware
 class SessionMiddleware(MiddlewareMixin):
+    # [TODO] SessionMiddleware > __init__
     def __init__(self, get_response):
         super().__init__(get_response)
         engine = import_module(settings.SESSION_ENGINE)
         self.SessionStore = engine.SessionStore
 
+    # [TODO] SessionMiddleware > process_request
     def process_request(self, request):
         session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
         request.session = self.SessionStore(session_key)
 
+    # [TODO] SessionMiddleware > process_response
     def process_response(self, request, response):
         """
         If request.session was modified, or if the configuration is to save the

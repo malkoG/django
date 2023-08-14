@@ -15,6 +15,7 @@ from django.contrib.gis.gdal.field import (
 )
 
 
+# [TODO] mapping
 def mapping(data_source, geom_name="geom", layer_key=0, multi_geom=False):
     """
     Given a DataSource, generate a dictionary that may be used
@@ -55,6 +56,7 @@ def mapping(data_source, geom_name="geom", layer_key=0, multi_geom=False):
     return _mapping
 
 
+# [TODO] ogrinspect
 def ogrinspect(*args, **kwargs):
     """
     Given a data source (either a string or a DataSource object) and a string
@@ -126,6 +128,7 @@ def ogrinspect(*args, **kwargs):
     return "\n".join(_ogrinspect(*args, **kwargs))
 
 
+# [TODO] _ogrinspect
 def _ogrinspect(
     data_source,
     model_name,

@@ -9,12 +9,14 @@ from django.db import (
 )
 
 
+# [TODO] TransactionManagementError
 class TransactionManagementError(ProgrammingError):
     """Transaction management is used improperly."""
 
     pass
 
 
+# [TODO] get_connection
 def get_connection(using=None):
     """
     Get a database connection by name, or the default database connection
@@ -25,26 +27,31 @@ def get_connection(using=None):
     return connections[using]
 
 
+# [TODO] get_autocommit
 def get_autocommit(using=None):
     """Get the autocommit status of the connection."""
     return get_connection(using).get_autocommit()
 
 
+# [TODO] set_autocommit
 def set_autocommit(autocommit, using=None):
     """Set the autocommit status of the connection."""
     return get_connection(using).set_autocommit(autocommit)
 
 
+# [TODO] commit
 def commit(using=None):
     """Commit a transaction."""
     get_connection(using).commit()
 
 
+# [TODO] rollback
 def rollback(using=None):
     """Roll back a transaction."""
     get_connection(using).rollback()
 
 
+# [TODO] savepoint
 def savepoint(using=None):
     """
     Create a savepoint (if supported and required by the backend) inside the
@@ -54,6 +61,7 @@ def savepoint(using=None):
     return get_connection(using).savepoint()
 
 
+# [TODO] savepoint_rollback
 def savepoint_rollback(sid, using=None):
     """
     Roll back the most recent savepoint (if one exists). Do nothing if
@@ -62,6 +70,7 @@ def savepoint_rollback(sid, using=None):
     get_connection(using).savepoint_rollback(sid)
 
 
+# [TODO] savepoint_commit
 def savepoint_commit(sid, using=None):
     """
     Commit the most recent savepoint (if one exists). Do nothing if
@@ -70,6 +79,7 @@ def savepoint_commit(sid, using=None):
     get_connection(using).savepoint_commit(sid)
 
 
+# [TODO] clean_savepoints
 def clean_savepoints(using=None):
     """
     Reset the counter used to generate unique savepoint ids in this thread.
@@ -77,11 +87,13 @@ def clean_savepoints(using=None):
     get_connection(using).clean_savepoints()
 
 
+# [TODO] get_rollback
 def get_rollback(using=None):
     """Get the "needs rollback" flag -- for *advanced use* only."""
     return get_connection(using).get_rollback()
 
 
+# [TODO] set_rollback
 def set_rollback(rollback, using=None):
     """
     Set or unset the "needs rollback" flag -- for *advanced use* only.
@@ -97,6 +109,7 @@ def set_rollback(rollback, using=None):
     return get_connection(using).set_rollback(rollback)
 
 
+# [TODO] mark_for_rollback_on_error
 @contextmanager
 def mark_for_rollback_on_error(using=None):
     """
@@ -126,6 +139,7 @@ def mark_for_rollback_on_error(using=None):
         raise
 
 
+# [TODO] on_commit
 def on_commit(func, using=None, robust=False):
     """
     Register `func` to be called when the current transaction is committed.
@@ -139,6 +153,7 @@ def on_commit(func, using=None, robust=False):
 #################################
 
 
+# [TODO] Atomic
 class Atomic(ContextDecorator):
     """
     Guarantee the atomic execution of a given block.
@@ -173,12 +188,14 @@ class Atomic(ContextDecorator):
     This is a private API.
     """
 
+    # [TODO] Atomic > __init__
     def __init__(self, using, savepoint, durable):
         self.using = using
         self.savepoint = savepoint
         self.durable = durable
         self._from_testcase = False
 
+    # [TODO] Atomic > __enter__
     def __enter__(self):
         connection = get_connection(self.using)
 
@@ -221,6 +238,7 @@ class Atomic(ContextDecorator):
         if connection.in_atomic_block:
             connection.atomic_blocks.append(self)
 
+    # [TODO] Atomic > __exit__
     def __exit__(self, exc_type, exc_value, traceback):
         connection = get_connection(self.using)
 
@@ -313,6 +331,7 @@ class Atomic(ContextDecorator):
                     connection.in_atomic_block = False
 
 
+# [TODO] atomic
 def atomic(using=None, savepoint=True, durable=False):
     # Bare decorator: @atomic -- although the first argument is called
     # `using`, it's actually the function being decorated.
@@ -323,6 +342,7 @@ def atomic(using=None, savepoint=True, durable=False):
         return Atomic(using, savepoint, durable)
 
 
+# [TODO] _non_atomic_requests
 def _non_atomic_requests(view, using):
     try:
         view._non_atomic_requests.add(using)
@@ -331,6 +351,7 @@ def _non_atomic_requests(view, using):
     return view
 
 
+# [TODO] non_atomic_requests
 def non_atomic_requests(using=None):
     if callable(using):
         return _non_atomic_requests(using, DEFAULT_DB_ALIAS)

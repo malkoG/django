@@ -57,6 +57,7 @@ DEFAULT_NAMES = (
 )
 
 
+# [TODO] normalize_together
 def normalize_together(option_together):
     """
     option_together can be either a tuple of tuples, or a single
@@ -79,10 +80,12 @@ def normalize_together(option_together):
         return option_together
 
 
+# [TODO] make_immutable_fields_list
 def make_immutable_fields_list(name, data):
     return ImmutableList(data, warning=IMMUTABLE_WARNING % name)
 
 
+# [TODO] Options
 class Options:
     FORWARD_PROPERTIES = {
         "fields",
@@ -101,6 +104,7 @@ class Options:
 
     default_apps = apps
 
+    # [TODO] Options > __init__
     def __init__(self, meta, app_label=None):
         self._get_fields_cache = {}
         self.local_fields = []
@@ -159,19 +163,23 @@ class Options:
 
         self.default_related_name = None
 
+    # [TODO] Options > label
     @property
     def label(self):
         return "%s.%s" % (self.app_label, self.object_name)
 
+    # [TODO] Options > label_lower
     @property
     def label_lower(self):
         return "%s.%s" % (self.app_label, self.model_name)
 
+    # [TODO] Options > app_config
     @property
     def app_config(self):
         # Don't go through get_app_config to avoid triggering imports.
         return self.apps.app_configs.get(self.app_label)
 
+    # [TODO] Options > contribute_to_class
     def contribute_to_class(self, cls, name):
         from django.db import connection
         from django.db.backends.utils import truncate_name
@@ -243,6 +251,7 @@ class Options:
                 self.db_table, connection.ops.max_name_length()
             )
 
+    # [TODO] Options > _format_names_with_class
     def _format_names_with_class(self, cls, objs):
         """App label/class name interpolation for object names."""
         new_objs = []
@@ -255,6 +264,7 @@ class Options:
             new_objs.append(obj)
         return new_objs
 
+    # [TODO] Options > _get_default_pk_class
     def _get_default_pk_class(self):
         pk_class_path = getattr(
             self.app_config,
@@ -286,6 +296,7 @@ class Options:
             )
         return pk_class
 
+    # [TODO] Options > _prepare
     def _prepare(self, model):
         if self.order_with_respect_to:
             # The app registry will not be ready at this point, so we cannot
@@ -330,10 +341,12 @@ class Options:
                 auto = pk_class(verbose_name="ID", primary_key=True, auto_created=True)
                 model.add_to_class("id", auto)
 
+    # [TODO] Options > add_manager
     def add_manager(self, manager):
         self.local_managers.append(manager)
         self._expire_cache()
 
+    # [TODO] Options > add_field
     def add_field(self, field, private=False):
         # Insert the given field in the order in which it was created, using
         # the "creation_counter" attribute of the field.
@@ -368,11 +381,13 @@ class Options:
         else:
             self._expire_cache(reverse=False)
 
+    # [TODO] Options > setup_pk
     def setup_pk(self, field):
         if not self.pk and field.primary_key:
             self.pk = field
             field.serialize = False
 
+    # [TODO] Options > setup_proxy
     def setup_proxy(self, target):
         """
         Do the internal setup so that the current model is a proxy for
@@ -382,12 +397,15 @@ class Options:
         self.proxy_for_model = target
         self.db_table = target._meta.db_table
 
+    # [TODO] Options > __repr__
     def __repr__(self):
         return "<Options for %s>" % self.object_name
 
+    # [TODO] Options > __str__
     def __str__(self):
         return self.label_lower
 
+    # [TODO] Options > can_migrate
     def can_migrate(self, connection):
         """
         Return True if the model can/should be migrated on the `connection`.
@@ -406,12 +424,14 @@ class Options:
             )
         return True
 
+    # [TODO] Options > verbose_name_raw
     @property
     def verbose_name_raw(self):
         """Return the untranslated verbose name."""
         with override(None):
             return str(self.verbose_name)
 
+    # [TODO] Options > swapped
     @property
     def swapped(self):
         """
@@ -440,6 +460,7 @@ class Options:
                     return swapped_for
         return None
 
+    # [TODO] Options > managers
     @cached_property
     def managers(self):
         managers = []
@@ -460,10 +481,12 @@ class Options:
             (m[2] for m in sorted(managers)),
         )
 
+    # [TODO] Options > managers_map
     @cached_property
     def managers_map(self):
         return {manager.name: manager for manager in self.managers}
 
+    # [TODO] Options > base_manager
     @cached_property
     def base_manager(self):
         base_manager_name = self.base_manager_name
@@ -493,6 +516,7 @@ class Options:
         manager.auto_created = True
         return manager
 
+    # [TODO] Options > default_manager
     @cached_property
     def default_manager(self):
         default_manager_name = self.default_manager_name
@@ -518,6 +542,7 @@ class Options:
         if self.managers:
             return self.managers[0]
 
+    # [TODO] Options > fields
     @cached_property
     def fields(self):
         """
@@ -560,6 +585,7 @@ class Options:
             ),
         )
 
+    # [TODO] Options > concrete_fields
     @cached_property
     def concrete_fields(self):
         """
@@ -573,6 +599,7 @@ class Options:
             "concrete_fields", (f for f in self.fields if f.concrete)
         )
 
+    # [TODO] Options > local_concrete_fields
     @cached_property
     def local_concrete_fields(self):
         """
@@ -586,6 +613,7 @@ class Options:
             "local_concrete_fields", (f for f in self.local_fields if f.concrete)
         )
 
+    # [TODO] Options > many_to_many
     @cached_property
     def many_to_many(self):
         """
@@ -604,6 +632,7 @@ class Options:
             ),
         )
 
+    # [TODO] Options > related_objects
     @cached_property
     def related_objects(self):
         """
@@ -627,6 +656,7 @@ class Options:
             ),
         )
 
+    # [TODO] Options > _forward_fields_map
     @cached_property
     def _forward_fields_map(self):
         res = {}
@@ -642,6 +672,7 @@ class Options:
                 pass
         return res
 
+    # [TODO] Options > fields_map
     @cached_property
     def fields_map(self):
         res = {}
@@ -657,6 +688,7 @@ class Options:
                 pass
         return res
 
+    # [TODO] Options > get_field
     def get_field(self, field_name):
         """
         Return a field instance given the name of a forward or reverse field.
@@ -684,6 +716,7 @@ class Options:
                 "%s has no field named '%s'" % (self.object_name, field_name)
             )
 
+    # [TODO] Options > get_base_chain
     def get_base_chain(self, model):
         """
         Return a list of parent classes leading to `model` (ordered from
@@ -701,6 +734,7 @@ class Options:
                 return res
         return []
 
+    # [TODO] Options > get_parent_list
     def get_parent_list(self):
         """
         Return all the ancestors of this model as a list ordered by MRO.
@@ -712,6 +746,7 @@ class Options:
                 result.add(ancestor)
         return list(result)
 
+    # [TODO] Options > get_ancestor_link
     def get_ancestor_link(self, ancestor):
         """
         Return the field on the current model which points to the given
@@ -732,6 +767,7 @@ class Options:
                 # links
                 return self.parents[parent] or parent_link
 
+    # [TODO] Options > get_path_to_parent
     def get_path_to_parent(self, parent):
         """
         Return a list of PathInfos containing the path from the current
@@ -764,6 +800,7 @@ class Options:
                 )
         return path
 
+    # [TODO] Options > get_path_from_parent
     def get_path_from_parent(self, parent):
         """
         Return a list of PathInfos containing the path from the parent
@@ -786,6 +823,7 @@ class Options:
             path.extend(link.reverse_path_infos)
         return path
 
+    # [TODO] Options > _populate_directed_relation_graph
     def _populate_directed_relation_graph(self):
         """
         This method is used by each model to find its reverse objects. As this
@@ -826,10 +864,12 @@ class Options:
         # against that with default for get().
         return self.__dict__.get("_relation_tree", EMPTY_RELATION_TREE)
 
+    # [TODO] Options > _relation_tree
     @cached_property
     def _relation_tree(self):
         return self._populate_directed_relation_graph()
 
+    # [TODO] Options > _expire_cache
     def _expire_cache(self, forward=True, reverse=True):
         # This method is usually called by apps.cache_clear(), when the
         # registry is finalized, or when a new field is added.
@@ -843,6 +883,7 @@ class Options:
                     delattr(self, cache_key)
         self._get_fields_cache = {}
 
+    # [TODO] Options > get_fields
     def get_fields(self, include_parents=True, include_hidden=False):
         """
         Return a list of fields associated to the model. By default, include
@@ -859,6 +900,7 @@ class Options:
             include_parents=include_parents, include_hidden=include_hidden
         )
 
+    # [TODO] Options > _get_fields
     def _get_fields(
         self,
         forward=True,
@@ -954,6 +996,7 @@ class Options:
         self._get_fields_cache[cache_key] = fields
         return fields
 
+    # [TODO] Options > total_unique_constraints
     @cached_property
     def total_unique_constraints(self):
         """
@@ -970,6 +1013,7 @@ class Options:
             )
         ]
 
+    # [TODO] Options > _property_names
     @cached_property
     def _property_names(self):
         """Return a set of the names of the properties defined on the model."""
@@ -980,6 +1024,7 @@ class Options:
                 names.append(name)
         return frozenset(names)
 
+    # [TODO] Options > _non_pk_concrete_field_names
     @cached_property
     def _non_pk_concrete_field_names(self):
         """
@@ -993,6 +1038,7 @@ class Options:
                     names.append(field.attname)
         return frozenset(names)
 
+    # [TODO] Options > _reverse_one_to_one_field_names
     @cached_property
     def _reverse_one_to_one_field_names(self):
         """
@@ -1003,6 +1049,7 @@ class Options:
             field.name for field in self.related_objects if field.one_to_one
         )
 
+    # [TODO] Options > db_returning_fields
     @cached_property
     def db_returning_fields(self):
         """

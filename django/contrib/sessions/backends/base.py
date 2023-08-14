@@ -13,6 +13,7 @@ from django.utils.module_loading import import_string
 VALID_KEY_CHARS = string.ascii_lowercase + string.digits
 
 
+# [TODO] CreateError
 class CreateError(Exception):
     """
     Used internally as a consistent exception type to catch from save (see the
@@ -22,6 +23,7 @@ class CreateError(Exception):
     pass
 
 
+# [TODO] UpdateError
 class UpdateError(Exception):
     """
     Occurs if Django tries to update a session that was deleted.
@@ -30,6 +32,7 @@ class UpdateError(Exception):
     pass
 
 
+# [TODO] SessionBase
 class SessionBase:
     """
     Base class for all Session classes.
@@ -40,38 +43,47 @@ class SessionBase:
 
     __not_given = object()
 
+    # [TODO] SessionBase > __init__
     def __init__(self, session_key=None):
         self._session_key = session_key
         self.accessed = False
         self.modified = False
         self.serializer = import_string(settings.SESSION_SERIALIZER)
 
+    # [TODO] SessionBase > __contains__
     def __contains__(self, key):
         return key in self._session
 
+    # [TODO] SessionBase > __getitem__
     def __getitem__(self, key):
         return self._session[key]
 
+    # [TODO] SessionBase > __setitem__
     def __setitem__(self, key, value):
         self._session[key] = value
         self.modified = True
 
+    # [TODO] SessionBase > __delitem__
     def __delitem__(self, key):
         del self._session[key]
         self.modified = True
 
+    # [TODO] SessionBase > key_salt
     @property
     def key_salt(self):
         return "django.contrib.sessions." + self.__class__.__qualname__
 
+    # [TODO] SessionBase > get
     def get(self, key, default=None):
         return self._session.get(key, default)
 
+    # [TODO] SessionBase > pop
     def pop(self, key, default=__not_given):
         self.modified = self.modified or key in self._session
         args = () if default is self.__not_given else (default,)
         return self._session.pop(key, *args)
 
+    # [TODO] SessionBase > setdefault
     def setdefault(self, key, value):
         if key in self._session:
             return self._session[key]
@@ -80,15 +92,19 @@ class SessionBase:
             self._session[key] = value
             return value
 
+    # [TODO] SessionBase > set_test_cookie
     def set_test_cookie(self):
         self[self.TEST_COOKIE_NAME] = self.TEST_COOKIE_VALUE
 
+    # [TODO] SessionBase > test_cookie_worked
     def test_cookie_worked(self):
         return self.get(self.TEST_COOKIE_NAME) == self.TEST_COOKIE_VALUE
 
+    # [TODO] SessionBase > delete_test_cookie
     def delete_test_cookie(self):
         del self[self.TEST_COOKIE_NAME]
 
+    # [TODO] SessionBase > encode
     def encode(self, session_dict):
         "Return the given session dictionary serialized and encoded as a string."
         return signing.dumps(
@@ -98,6 +114,7 @@ class SessionBase:
             compress=True,
         )
 
+    # [TODO] SessionBase > decode
     def decode(self, session_data):
         try:
             return signing.loads(
@@ -112,22 +129,28 @@ class SessionBase:
             pass
         return {}
 
+    # [TODO] SessionBase > update
     def update(self, dict_):
         self._session.update(dict_)
         self.modified = True
 
+    # [TODO] SessionBase > has_key
     def has_key(self, key):
         return key in self._session
 
+    # [TODO] SessionBase > keys
     def keys(self):
         return self._session.keys()
 
+    # [TODO] SessionBase > values
     def values(self):
         return self._session.values()
 
+    # [TODO] SessionBase > items
     def items(self):
         return self._session.items()
 
+    # [TODO] SessionBase > clear
     def clear(self):
         # To avoid unnecessary persistent storage accesses, we set up the
         # internals directly (loading data wastes time, since we are going to
@@ -136,6 +159,7 @@ class SessionBase:
         self.accessed = True
         self.modified = True
 
+    # [TODO] SessionBase > is_empty
     def is_empty(self):
         "Return True when there is no session_key and the session is empty."
         try:
@@ -143,6 +167,7 @@ class SessionBase:
         except AttributeError:
             return True
 
+    # [TODO] SessionBase > _get_new_session_key
     def _get_new_session_key(self):
         "Return session key that isn't being used."
         while True:
@@ -150,11 +175,13 @@ class SessionBase:
             if not self.exists(session_key):
                 return session_key
 
+    # [TODO] SessionBase > _get_or_create_session_key
     def _get_or_create_session_key(self):
         if self._session_key is None:
             self._session_key = self._get_new_session_key()
         return self._session_key
 
+    # [TODO] SessionBase > _validate_session_key
     def _validate_session_key(self, key):
         """
         Key must be truthy and at least 8 characters long. 8 characters is an
@@ -162,9 +189,11 @@ class SessionBase:
         """
         return key and len(key) >= 8
 
+    # [TODO] SessionBase > _get_session_key
     def _get_session_key(self):
         return self.__session_key
 
+    # [TODO] SessionBase > _set_session_key
     def _set_session_key(self, value):
         """
         Validate session key on assignment. Invalid values will set to None.
@@ -177,6 +206,7 @@ class SessionBase:
     session_key = property(_get_session_key)
     _session_key = property(_get_session_key, _set_session_key)
 
+    # [TODO] SessionBase > _get_session
     def _get_session(self, no_load=False):
         """
         Lazily load session from storage (unless "no_load" is True, when only
@@ -194,9 +224,11 @@ class SessionBase:
 
     _session = property(_get_session)
 
+    # [TODO] SessionBase > get_session_cookie_age
     def get_session_cookie_age(self):
         return settings.SESSION_COOKIE_AGE
 
+    # [TODO] SessionBase > get_expiry_age
     def get_expiry_age(self, **kwargs):
         """Get the number of seconds until the session expires.
 
@@ -224,6 +256,7 @@ class SessionBase:
         delta = expiry - modification
         return delta.days * 86400 + delta.seconds
 
+    # [TODO] SessionBase > get_expiry_date
     def get_expiry_date(self, **kwargs):
         """Get session the expiry date (as a datetime object).
 
@@ -247,6 +280,7 @@ class SessionBase:
         expiry = expiry or self.get_session_cookie_age()
         return modification + timedelta(seconds=expiry)
 
+    # [TODO] SessionBase > set_expiry
     def set_expiry(self, value):
         """
         Set a custom expiration for the session. ``value`` can be an integer,
@@ -275,6 +309,7 @@ class SessionBase:
             value = value.isoformat()
         self["_session_expiry"] = value
 
+    # [TODO] SessionBase > get_expire_at_browser_close
     def get_expire_at_browser_close(self):
         """
         Return ``True`` if the session is set to expire when the browser
@@ -286,6 +321,7 @@ class SessionBase:
             return settings.SESSION_EXPIRE_AT_BROWSER_CLOSE
         return expiry == 0
 
+    # [TODO] SessionBase > flush
     def flush(self):
         """
         Remove the current session data from the database and regenerate the
@@ -295,6 +331,7 @@ class SessionBase:
         self.delete()
         self._session_key = None
 
+    # [TODO] SessionBase > cycle_key
     def cycle_key(self):
         """
         Create a new session key, while retaining the current session data.
@@ -308,6 +345,7 @@ class SessionBase:
 
     # Methods that child classes must implement.
 
+    # [TODO] SessionBase > exists
     def exists(self, session_key):
         """
         Return True if the given session_key already exists.
@@ -316,6 +354,7 @@ class SessionBase:
             "subclasses of SessionBase must provide an exists() method"
         )
 
+    # [TODO] SessionBase > create
     def create(self):
         """
         Create a new session instance. Guaranteed to create a new object with
@@ -326,6 +365,7 @@ class SessionBase:
             "subclasses of SessionBase must provide a create() method"
         )
 
+    # [TODO] SessionBase > save
     def save(self, must_create=False):
         """
         Save the session data. If 'must_create' is True, create a new session
@@ -336,6 +376,7 @@ class SessionBase:
             "subclasses of SessionBase must provide a save() method"
         )
 
+    # [TODO] SessionBase > delete
     def delete(self, session_key=None):
         """
         Delete the session data under this key. If the key is None, use the
@@ -345,6 +386,7 @@ class SessionBase:
             "subclasses of SessionBase must provide a delete() method"
         )
 
+    # [TODO] SessionBase > load
     def load(self):
         """
         Load the session data and return a dictionary.
@@ -353,6 +395,7 @@ class SessionBase:
             "subclasses of SessionBase must provide a load() method"
         )
 
+    # [TODO] SessionBase > clear_expired
     @classmethod
     def clear_expired(cls):
         """

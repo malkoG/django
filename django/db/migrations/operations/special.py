@@ -3,6 +3,7 @@ from django.db import router
 from .base import Operation
 
 
+# [TODO] SeparateDatabaseAndState
 class SeparateDatabaseAndState(Operation):
     """
     Take two lists of operations - ones that will be used for the database,
@@ -13,10 +14,12 @@ class SeparateDatabaseAndState(Operation):
 
     serialization_expand_args = ["database_operations", "state_operations"]
 
+    # [TODO] SeparateDatabaseAndState > __init__
     def __init__(self, database_operations=None, state_operations=None):
         self.database_operations = database_operations or []
         self.state_operations = state_operations or []
 
+    # [TODO] SeparateDatabaseAndState > deconstruct
     def deconstruct(self):
         kwargs = {}
         if self.database_operations:
@@ -25,10 +28,12 @@ class SeparateDatabaseAndState(Operation):
             kwargs["state_operations"] = self.state_operations
         return (self.__class__.__qualname__, [], kwargs)
 
+    # [TODO] SeparateDatabaseAndState > state_forwards
     def state_forwards(self, app_label, state):
         for state_operation in self.state_operations:
             state_operation.state_forwards(app_label, state)
 
+    # [TODO] SeparateDatabaseAndState > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         # We calculate state separately in here since our state functions aren't useful
         for database_operation in self.database_operations:
@@ -39,6 +44,7 @@ class SeparateDatabaseAndState(Operation):
             )
             from_state = to_state
 
+    # [TODO] SeparateDatabaseAndState > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         # We calculate state separately in here since our state functions aren't useful
         to_states = {}
@@ -56,10 +62,12 @@ class SeparateDatabaseAndState(Operation):
                 app_label, schema_editor, from_state, to_state
             )
 
+    # [TODO] SeparateDatabaseAndState > describe
     def describe(self):
         return "Custom state/database change combination"
 
 
+# [TODO] RunSQL
 class RunSQL(Operation):
     """
     Run some raw SQL. A reverse SQL statement may be provided.
@@ -70,6 +78,7 @@ class RunSQL(Operation):
 
     noop = ""
 
+    # [TODO] RunSQL > __init__
     def __init__(
         self, sql, reverse_sql=None, state_operations=None, hints=None, elidable=False
     ):
@@ -79,6 +88,7 @@ class RunSQL(Operation):
         self.hints = hints or {}
         self.elidable = elidable
 
+    # [TODO] RunSQL > deconstruct
     def deconstruct(self):
         kwargs = {
             "sql": self.sql,
@@ -91,20 +101,24 @@ class RunSQL(Operation):
             kwargs["hints"] = self.hints
         return (self.__class__.__qualname__, [], kwargs)
 
+    # [TODO] RunSQL > reversible
     @property
     def reversible(self):
         return self.reverse_sql is not None
 
+    # [TODO] RunSQL > state_forwards
     def state_forwards(self, app_label, state):
         for state_operation in self.state_operations:
             state_operation.state_forwards(app_label, state)
 
+    # [TODO] RunSQL > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         if router.allow_migrate(
             schema_editor.connection.alias, app_label, **self.hints
         ):
             self._run_sql(schema_editor, self.sql)
 
+    # [TODO] RunSQL > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         if self.reverse_sql is None:
             raise NotImplementedError("You cannot reverse this operation")
@@ -113,9 +127,11 @@ class RunSQL(Operation):
         ):
             self._run_sql(schema_editor, self.reverse_sql)
 
+    # [TODO] RunSQL > describe
     def describe(self):
         return "Raw SQL operation"
 
+    # [TODO] RunSQL > _run_sql
     def _run_sql(self, schema_editor, sqls):
         if isinstance(sqls, (list, tuple)):
             for sql in sqls:
@@ -133,6 +149,7 @@ class RunSQL(Operation):
                 schema_editor.execute(statement, params=None)
 
 
+# [TODO] RunPython
 class RunPython(Operation):
     """
     Run Python code in a context suitable for doing versioned ORM operations.
@@ -140,6 +157,7 @@ class RunPython(Operation):
 
     reduces_to_sql = False
 
+    # [TODO] RunPython > __init__
     def __init__(
         self, code, reverse_code=None, atomic=None, hints=None, elidable=False
     ):
@@ -158,6 +176,7 @@ class RunPython(Operation):
         self.hints = hints or {}
         self.elidable = elidable
 
+    # [TODO] RunPython > deconstruct
     def deconstruct(self):
         kwargs = {
             "code": self.code,
@@ -170,15 +189,18 @@ class RunPython(Operation):
             kwargs["hints"] = self.hints
         return (self.__class__.__qualname__, [], kwargs)
 
+    # [TODO] RunPython > reversible
     @property
     def reversible(self):
         return self.reverse_code is not None
 
+    # [TODO] RunPython > state_forwards
     def state_forwards(self, app_label, state):
         # RunPython objects have no state effect. To add some, combine this
         # with SeparateDatabaseAndState.
         pass
 
+    # [TODO] RunPython > database_forwards
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         # RunPython has access to all models. Ensure that all models are
         # reloaded in case any are delayed.
@@ -192,6 +214,7 @@ class RunPython(Operation):
             # use direct imports, so we go with a documentation approach instead.
             self.code(from_state.apps, schema_editor)
 
+    # [TODO] RunPython > database_backwards
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         if self.reverse_code is None:
             raise NotImplementedError("You cannot reverse this operation")
@@ -200,9 +223,11 @@ class RunPython(Operation):
         ):
             self.reverse_code(from_state.apps, schema_editor)
 
+    # [TODO] RunPython > describe
     def describe(self):
         return "Raw Python operation"
 
+    # [TODO] RunPython > noop
     @staticmethod
     def noop(apps, schema_editor):
         return None

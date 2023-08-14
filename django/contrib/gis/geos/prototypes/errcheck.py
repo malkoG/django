@@ -12,11 +12,13 @@ free = GEOSFuncFactory("GEOSFree")
 free.argtypes = [c_void_p]
 
 
+# [TODO] last_arg_byref
 def last_arg_byref(args):
     "Return the last C argument's value by reference."
     return args[-1]._obj.value
 
 
+# [TODO] check_dbl
 def check_dbl(result, func, cargs):
     "Check the status code and returns the double value passed in by reference."
     # Checking the status code
@@ -26,6 +28,7 @@ def check_dbl(result, func, cargs):
     return last_arg_byref(cargs)
 
 
+# [TODO] check_geom
 def check_geom(result, func, cargs):
     "Error checking on routines that return Geometries."
     if not result:
@@ -36,6 +39,7 @@ def check_geom(result, func, cargs):
     return result
 
 
+# [TODO] check_minus_one
 def check_minus_one(result, func, cargs):
     "Error checking on routines that should not return -1."
     if result == -1:
@@ -46,6 +50,7 @@ def check_minus_one(result, func, cargs):
         return result
 
 
+# [TODO] check_predicate
 def check_predicate(result, func, cargs):
     "Error checking for unary/binary predicate functions."
     if result == 1:
@@ -58,6 +63,7 @@ def check_predicate(result, func, cargs):
         )
 
 
+# [TODO] check_sized_string
 def check_sized_string(result, func, cargs):
     """
     Error checking for routines that return explicitly sized strings.
@@ -77,6 +83,7 @@ def check_sized_string(result, func, cargs):
     return s
 
 
+# [TODO] check_string
 def check_string(result, func, cargs):
     """
     Error checking for routines that return strings.

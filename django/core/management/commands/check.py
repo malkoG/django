@@ -4,11 +4,13 @@ from django.core.checks.registry import registry
 from django.core.management.base import BaseCommand, CommandError
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = "Checks the entire Django project for potential problems."
 
     requires_system_checks = []
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument("args", metavar="app_label", nargs="*")
         parser.add_argument(
@@ -44,6 +46,7 @@ class Command(BaseCommand):
             help="Run database related checks against these aliases.",
         )
 
+    # [TODO] Command > handle
     def handle(self, *app_labels, **options):
         include_deployment_checks = options["deploy"]
         if options["list_tags"]:

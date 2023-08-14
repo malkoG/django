@@ -29,6 +29,7 @@ except ImportError:
     raise ImproperlyConfigured("Error loading psycopg2 or psycopg module")
 
 
+# [TODO] psycopg_version
 def psycopg_version():
     version = Database.__version__.split(" ", 1)[0]
     return get_version_tuple(version)
@@ -80,12 +81,14 @@ from .operations import DatabaseOperations  # NOQA isort:skip
 from .schema import DatabaseSchemaEditor  # NOQA isort:skip
 
 
+# [TODO] _get_varchar_column
 def _get_varchar_column(data):
     if data["max_length"] is None:
         return "varchar"
     return "varchar(%(max_length)s)" % data
 
 
+# [TODO] DatabaseWrapper
 class DatabaseWrapper(BaseDatabaseWrapper):
     vendor = "postgresql"
     display_name = "PostgreSQL"
@@ -180,6 +183,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     # PostgreSQL backend-specific attributes.
     _named_cursor_idx = 0
 
+    # [TODO] DatabaseWrapper > get_database_version
     def get_database_version(self):
         """
         Return a tuple of the database's version.
@@ -187,6 +191,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         """
         return divmod(self.pg_version, 10000)
 
+    # [TODO] DatabaseWrapper > get_connection_params
     def get_connection_params(self):
         settings_dict = self.settings_dict
         # None may be used to connect to the default 'postgres' db
@@ -249,6 +254,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             )
         return conn_params
 
+    # [TODO] DatabaseWrapper > get_new_connection
     @async_unsafe
     def get_new_connection(self, conn_params):
         # self.isolation_level must be set:
@@ -284,6 +290,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             )
         return connection
 
+    # [TODO] DatabaseWrapper > ensure_timezone
     def ensure_timezone(self):
         if self.connection is None:
             return False
@@ -295,6 +302,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             return True
         return False
 
+    # [TODO] DatabaseWrapper > ensure_role
     def ensure_role(self):
         if self.connection is None:
             return False
@@ -305,6 +313,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             return True
         return False
 
+    # [TODO] DatabaseWrapper > init_connection_state
     def init_connection_state(self):
         super().init_connection_state()
 
@@ -318,6 +327,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         if (commit_role or commit_tz) and not self.get_autocommit():
             self.connection.commit()
 
+    # [TODO] DatabaseWrapper > create_cursor
     @async_unsafe
     def create_cursor(self, name=None):
         if name:
@@ -339,9 +349,11 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             cursor.tzinfo_factory = self.tzinfo_factory if settings.USE_TZ else None
         return cursor
 
+    # [TODO] DatabaseWrapper > tzinfo_factory
     def tzinfo_factory(self, offset):
         return self.timezone
 
+    # [TODO] DatabaseWrapper > chunked_cursor
     @async_unsafe
     def chunked_cursor(self):
         self._named_cursor_idx += 1
@@ -370,10 +382,12 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             )
         )
 
+    # [TODO] DatabaseWrapper > _set_autocommit
     def _set_autocommit(self, autocommit):
         with self.wrap_database_errors:
             self.connection.autocommit = autocommit
 
+    # [TODO] DatabaseWrapper > check_constraints
     def check_constraints(self, table_names=None):
         """
         Check constraints by setting them to immediate. Return them to deferred
@@ -383,6 +397,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             cursor.execute("SET CONSTRAINTS ALL IMMEDIATE")
             cursor.execute("SET CONSTRAINTS ALL DEFERRED")
 
+    # [TODO] DatabaseWrapper > is_usable
     def is_usable(self):
         try:
             # Use a psycopg cursor directly, bypassing Django's utilities.
@@ -393,6 +408,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         else:
             return True
 
+    # [TODO] DatabaseWrapper > _nodb_cursor
     @contextmanager
     def _nodb_cursor(self):
         cursor = None
@@ -431,11 +447,13 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             else:
                 raise
 
+    # [TODO] DatabaseWrapper > pg_version
     @cached_property
     def pg_version(self):
         with self.temporary_connection():
             return self.connection.info.server_version
 
+    # [TODO] DatabaseWrapper > make_debug_cursor
     def make_debug_cursor(self, cursor):
         return CursorDebugWrapper(cursor, self)
 

@@ -5,6 +5,7 @@ from asgiref.sync import iscoroutinefunction
 from django.utils.cache import patch_vary_headers
 
 
+# [TODO] vary_on_headers
 def vary_on_headers(*headers):
     """
     A view decorator that adds the specified headers to the Vary header of the

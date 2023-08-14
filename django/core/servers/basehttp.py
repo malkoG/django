@@ -25,6 +25,7 @@ __all__ = ("WSGIServer", "WSGIRequestHandler")
 logger = logging.getLogger("django.server")
 
 
+# [TODO] get_internal_wsgi_application
 def get_internal_wsgi_application():
     """
     Load and return the WSGI application as configured by the user in
@@ -53,6 +54,7 @@ def get_internal_wsgi_application():
         ) from err
 
 
+# [TODO] is_broken_pipe_error
 def is_broken_pipe_error():
     exc_type, _, _ = sys.exc_info()
     return issubclass(
@@ -65,17 +67,20 @@ def is_broken_pipe_error():
     )
 
 
+# [TODO] WSGIServer
 class WSGIServer(simple_server.WSGIServer):
     """BaseHTTPServer that implements the Python WSGI protocol"""
 
     request_queue_size = 10
 
+    # [TODO] WSGIServer > __init__
     def __init__(self, *args, ipv6=False, allow_reuse_address=True, **kwargs):
         if ipv6:
             self.address_family = socket.AF_INET6
         self.allow_reuse_address = allow_reuse_address
         super().__init__(*args, **kwargs)
 
+    # [TODO] WSGIServer > handle_error
     def handle_error(self, request, client_address):
         if is_broken_pipe_error():
             logger.info("- Broken pipe from %s", client_address)
@@ -83,17 +88,20 @@ class WSGIServer(simple_server.WSGIServer):
             super().handle_error(request, client_address)
 
 
+# [TODO] ThreadedWSGIServer
 class ThreadedWSGIServer(socketserver.ThreadingMixIn, WSGIServer):
     """A threaded version of the WSGIServer"""
 
     daemon_threads = True
 
+    # [TODO] ThreadedWSGIServer > __init__
     def __init__(self, *args, connections_override=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.connections_override = connections_override
 
     # socketserver.ThreadingMixIn.process_request() passes this method as
     # the target to a new Thread object.
+    # [TODO] ThreadedWSGIServer > process_request_thread
     def process_request_thread(self, request, client_address):
         if self.connections_override:
             # Override this thread's database connections with the ones
@@ -102,18 +110,22 @@ class ThreadedWSGIServer(socketserver.ThreadingMixIn, WSGIServer):
                 connections[alias] = conn
         super().process_request_thread(request, client_address)
 
+    # [TODO] ThreadedWSGIServer > _close_connections
     def _close_connections(self):
         # Used for mocking in tests.
         connections.close_all()
 
+    # [TODO] ThreadedWSGIServer > close_request
     def close_request(self, request):
         self._close_connections()
         super().close_request(request)
 
 
+# [TODO] ServerHandler
 class ServerHandler(simple_server.ServerHandler):
     http_version = "1.1"
 
+    # [TODO] ServerHandler > __init__
     def __init__(self, stdin, stdout, stderr, environ, **kwargs):
         """
         Use a LimitedStream so that unread request data will be ignored at
@@ -129,6 +141,7 @@ class ServerHandler(simple_server.ServerHandler):
             LimitedStream(stdin, content_length), stdout, stderr, environ, **kwargs
         )
 
+    # [TODO] ServerHandler > cleanup_headers
     def cleanup_headers(self):
         super().cleanup_headers()
         if (
@@ -152,10 +165,12 @@ class ServerHandler(simple_server.ServerHandler):
         if self.headers.get("Connection") == "close":
             self.request_handler.close_connection = True
 
+    # [TODO] ServerHandler > close
     def close(self):
         self.get_stdin().read()
         super().close()
 
+    # [TODO] ServerHandler > finish_response
     def finish_response(self):
         if self.environ["REQUEST_METHOD"] == "HEAD":
             try:
@@ -173,13 +188,16 @@ class ServerHandler(simple_server.ServerHandler):
             super().finish_response()
 
 
+# [TODO] WSGIRequestHandler
 class WSGIRequestHandler(simple_server.WSGIRequestHandler):
     protocol_version = "HTTP/1.1"
 
+    # [TODO] WSGIRequestHandler > address_string
     def address_string(self):
         # Short-circuit parent method to not call socket.getfqdn
         return self.client_address[0]
 
+    # [TODO] WSGIRequestHandler > log_message
     def log_message(self, format, *args):
         extra = {
             "request": self.request,
@@ -211,6 +229,7 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
 
         level(format, *args, extra=extra)
 
+    # [TODO] WSGIRequestHandler > get_environ
     def get_environ(self):
         # Strip all headers with underscores in the name before constructing
         # the WSGI environ. This prevents header-spoofing based on ambiguity
@@ -222,6 +241,7 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
 
         return super().get_environ()
 
+    # [TODO] WSGIRequestHandler > handle
     def handle(self):
         self.close_connection = True
         self.handle_one_request()
@@ -232,6 +252,7 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
         except (AttributeError, OSError):
             pass
 
+    # [TODO] WSGIRequestHandler > handle_one_request
     def handle_one_request(self):
         """Copy of WSGIRequestHandler.handle() but with different ServerHandler"""
         self.raw_requestline = self.rfile.readline(65537)
@@ -252,6 +273,7 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
         handler.run(self.server.get_app())
 
 
+# [TODO] run
 def run(
     addr,
     port,

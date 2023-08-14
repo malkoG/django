@@ -1,6 +1,7 @@
 from django.contrib.gis.geos.geometry import GEOSGeometry, hex_regex, wkt_regex
 
 
+# [TODO] fromfile
 def fromfile(file_h):
     """
     Given a string file name, returns a GEOSGeometry. The file may contain WKB,
@@ -28,6 +29,7 @@ def fromfile(file_h):
     return GEOSGeometry(memoryview(buf))
 
 
+# [TODO] fromstr
 def fromstr(string, **kwargs):
     "Given a string value, return a GEOSGeometry object."
     return GEOSGeometry(string, **kwargs)

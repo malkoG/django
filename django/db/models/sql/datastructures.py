@@ -9,6 +9,7 @@ from django.db.models.sql.constants import INNER, LOUTER
 from django.utils.deprecation import RemovedInDjango60Warning
 
 
+# [TODO] MultiJoin
 class MultiJoin(Exception):
     """
     Used by join construction code to indicate the point at which a
@@ -16,16 +17,19 @@ class MultiJoin(Exception):
     exceptionally).
     """
 
+    # [TODO] MultiJoin > __init__
     def __init__(self, names_pos, path_with_names):
         self.level = names_pos
         # The path travelled, this includes the path to the multijoin.
         self.names_with_path = path_with_names
 
 
+# [TODO] Empty
 class Empty:
     pass
 
 
+# [TODO] Join
 class Join:
     """
     Used by sql.Query and sql.SQLCompiler to generate JOIN clauses into the
@@ -45,6 +49,7 @@ class Join:
         - relabeled_clone()
     """
 
+    # [TODO] Join > __init__
     def __init__(
         self,
         table_name,
@@ -84,6 +89,7 @@ class Join:
         self.nullable = nullable
         self.filtered_relation = filtered_relation
 
+    # [TODO] Join > as_sql
     def as_sql(self, compiler, connection):
         """
         Generate the full
@@ -150,6 +156,7 @@ class Join:
         )
         return sql, params
 
+    # [TODO] Join > relabeled_clone
     def relabeled_clone(self, change_map):
         new_parent_alias = change_map.get(self.parent_alias, self.parent_alias)
         new_table_alias = change_map.get(self.table_alias, self.table_alias)
@@ -167,6 +174,7 @@ class Join:
             filtered_relation=filtered_relation,
         )
 
+    # [TODO] Join > identity
     @property
     def identity(self):
         return (
@@ -177,25 +185,30 @@ class Join:
             self.filtered_relation,
         )
 
+    # [TODO] Join > __eq__
     def __eq__(self, other):
         if not isinstance(other, Join):
             return NotImplemented
         return self.identity == other.identity
 
+    # [TODO] Join > __hash__
     def __hash__(self):
         return hash(self.identity)
 
+    # [TODO] Join > demote
     def demote(self):
         new = self.relabeled_clone({})
         new.join_type = INNER
         return new
 
+    # [TODO] Join > promote
     def promote(self):
         new = self.relabeled_clone({})
         new.join_type = LOUTER
         return new
 
 
+# [TODO] BaseTable
 class BaseTable:
     """
     The BaseTable class is used for base table references in FROM clause. For
@@ -208,10 +221,12 @@ class BaseTable:
     parent_alias = None
     filtered_relation = None
 
+    # [TODO] BaseTable > __init__
     def __init__(self, table_name, alias):
         self.table_name = table_name
         self.table_alias = alias
 
+    # [TODO] BaseTable > as_sql
     def as_sql(self, compiler, connection):
         alias_str = (
             "" if self.table_alias == self.table_name else (" %s" % self.table_alias)
@@ -219,19 +234,23 @@ class BaseTable:
         base_sql = compiler.quote_name_unless_alias(self.table_name)
         return base_sql + alias_str, []
 
+    # [TODO] BaseTable > relabeled_clone
     def relabeled_clone(self, change_map):
         return self.__class__(
             self.table_name, change_map.get(self.table_alias, self.table_alias)
         )
 
+    # [TODO] BaseTable > identity
     @property
     def identity(self):
         return self.__class__, self.table_name, self.table_alias
 
+    # [TODO] BaseTable > __eq__
     def __eq__(self, other):
         if not isinstance(other, BaseTable):
             return NotImplemented
         return self.identity == other.identity
 
+    # [TODO] BaseTable > __hash__
     def __hash__(self):
         return hash(self.identity)

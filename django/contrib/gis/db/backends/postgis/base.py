@@ -88,6 +88,7 @@ if is_psycopg3:
         return PostGISTextDumper, PostGISBinaryDumper
 
 
+# [TODO] DatabaseWrapper
 class DatabaseWrapper(PsycopgDatabaseWrapper):
     SchemaEditorClass = PostGISSchemaEditor
     features_class = DatabaseFeatures
@@ -100,6 +101,7 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
         "raster": {},
     }
 
+    # [TODO] DatabaseWrapper > __init__
     def __init__(self, *args, **kwargs):
         if kwargs.get("alias", "") == NO_DB_ALIAS:
             # Don't initialize PostGIS-specific stuff for non-db connections.
@@ -109,6 +111,7 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
 
         super().__init__(*args, **kwargs)
 
+    # [TODO] DatabaseWrapper > prepare_database
     def prepare_database(self):
         super().prepare_database()
         # Check that postgis extension is installed.
@@ -122,6 +125,7 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
                 # connection.
                 self.register_geometry_adapters(self.connection, True)
 
+    # [TODO] DatabaseWrapper > get_new_connection
     def get_new_connection(self, conn_params):
         connection = super().get_new_connection(conn_params)
         if is_psycopg3:

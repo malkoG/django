@@ -25,6 +25,7 @@ csrf_protect_m = method_decorator(csrf_protect)
 sensitive_post_parameters_m = method_decorator(sensitive_post_parameters())
 
 
+# [TODO] GroupAdmin
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
     search_fields = ("name",)
@@ -40,6 +41,7 @@ class GroupAdmin(admin.ModelAdmin):
         return super().formfield_for_manytomany(db_field, request=request, **kwargs)
 
 
+# [TODO] UserAdmin
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     add_form_template = "admin/auth/user/add_form.html"

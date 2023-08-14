@@ -8,6 +8,7 @@ from django.utils.functional import cached_property
 from .base import Database
 
 
+# [TODO] DatabaseFeatures
 class DatabaseFeatures(BaseDatabaseFeatures):
     minimum_database_version = (3, 27)
     test_db_allows_multiple_connections = False
@@ -60,6 +61,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
     insert_test_table_with_defaults = 'INSERT INTO {} ("null") VALUES (1)'
     supports_default_keyword_in_insert = False
 
+    # [TODO] DatabaseFeatures > django_test_skips
     @cached_property
     def django_test_skips(self):
         skips = {
@@ -120,6 +122,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
             )
         return skips
 
+    # [TODO] DatabaseFeatures > introspected_field_types
     @cached_property
     def introspected_field_types(self):
         return {
@@ -130,6 +133,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
             "SmallAutoField": "AutoField",
         }
 
+    # [TODO] DatabaseFeatures > supports_json_field
     @cached_property
     def supports_json_field(self):
         with self.connection.cursor() as cursor:
@@ -143,6 +147,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
     can_introspect_json_field = property(operator.attrgetter("supports_json_field"))
     has_json_object_function = property(operator.attrgetter("supports_json_field"))
 
+    # [TODO] DatabaseFeatures > can_return_columns_from_insert
     @cached_property
     def can_return_columns_from_insert(self):
         return Database.sqlite_version_info >= (3, 35)

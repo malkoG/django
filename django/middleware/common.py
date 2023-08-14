@@ -10,6 +10,7 @@ from django.utils.deprecation import MiddlewareMixin
 from django.utils.http import escape_leading_slashes
 
 
+# [TODO] CommonMiddleware
 class CommonMiddleware(MiddlewareMixin):
     """
     "Common" middleware for taking care of some basic operations:
@@ -31,6 +32,7 @@ class CommonMiddleware(MiddlewareMixin):
 
     response_redirect_class = HttpResponsePermanentRedirect
 
+    # [TODO] CommonMiddleware > process_request
     def process_request(self, request):
         """
         Check for denied User-Agents and rewrite the URL based on
@@ -59,6 +61,7 @@ class CommonMiddleware(MiddlewareMixin):
 
             return self.response_redirect_class(f"{request.scheme}://www.{host}{path}")
 
+    # [TODO] CommonMiddleware > should_redirect_with_slash
     def should_redirect_with_slash(self, request):
         """
         Return True if settings.APPEND_SLASH is True and appending a slash to
@@ -73,6 +76,7 @@ class CommonMiddleware(MiddlewareMixin):
                     return getattr(view, "should_append_slash", True)
         return False
 
+    # [TODO] CommonMiddleware > get_full_path_with_slash
     def get_full_path_with_slash(self, request):
         """
         Return the full path of the request with a trailing slash appended.
@@ -97,6 +101,7 @@ class CommonMiddleware(MiddlewareMixin):
             )
         return new_path
 
+    # [TODO] CommonMiddleware > process_response
     def process_response(self, request, response):
         """
         When the status code of the response is 404, it may redirect to a path
@@ -115,7 +120,9 @@ class CommonMiddleware(MiddlewareMixin):
         return response
 
 
+# [TODO] BrokenLinkEmailsMiddleware
 class BrokenLinkEmailsMiddleware(MiddlewareMixin):
+    # [TODO] BrokenLinkEmailsMiddleware > process_response
     def process_response(self, request, response):
         """Send broken link emails for relevant 404 NOT FOUND responses."""
         if response.status_code == 404 and not settings.DEBUG:
@@ -142,6 +149,7 @@ class BrokenLinkEmailsMiddleware(MiddlewareMixin):
                 )
         return response
 
+    # [TODO] BrokenLinkEmailsMiddleware > is_internal_request
     def is_internal_request(self, domain, referer):
         """
         Return True if the referring URL is the same domain as the current
@@ -150,6 +158,7 @@ class BrokenLinkEmailsMiddleware(MiddlewareMixin):
         # Different subdomains are treated as different domains.
         return bool(re.match("^https?://%s/" % re.escape(domain), referer))
 
+    # [TODO] BrokenLinkEmailsMiddleware > is_ignorable_request
     def is_ignorable_request(self, request, uri, domain, referer):
         """
         Return True if the given request *shouldn't* notify the site managers

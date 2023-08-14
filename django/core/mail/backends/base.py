@@ -1,6 +1,7 @@
 """Base email backend class."""
 
 
+# [TODO] BaseEmailBackend
 class BaseEmailBackend:
     """
     Base class for email backend implementations.
@@ -15,9 +16,11 @@ class BaseEmailBackend:
            pass
     """
 
+    # [TODO] BaseEmailBackend > __init__
     def __init__(self, fail_silently=False, **kwargs):
         self.fail_silently = fail_silently
 
+    # [TODO] BaseEmailBackend > open
     def open(self):
         """
         Open a network connection.
@@ -37,10 +40,12 @@ class BaseEmailBackend:
         """
         pass
 
+    # [TODO] BaseEmailBackend > close
     def close(self):
         """Close a network connection."""
         pass
 
+    # [TODO] BaseEmailBackend > __enter__
     def __enter__(self):
         try:
             self.open()
@@ -49,9 +54,11 @@ class BaseEmailBackend:
             raise
         return self
 
+    # [TODO] BaseEmailBackend > __exit__
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
+    # [TODO] BaseEmailBackend > send_messages
     def send_messages(self, email_messages):
         """
         Send one or more EmailMessage objects and return the number of email

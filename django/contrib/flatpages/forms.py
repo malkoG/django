@@ -6,6 +6,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] FlatpageForm
 class FlatpageForm(forms.ModelForm):
     url = forms.RegexField(
         label=_("URL"),
@@ -23,10 +24,12 @@ class FlatpageForm(forms.ModelForm):
         },
     )
 
+    # [TODO] FlatpageForm > Meta
     class Meta:
         model = FlatPage
         fields = "__all__"
 
+    # [TODO] FlatpageForm > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self._trailing_slash_required():
@@ -34,12 +37,14 @@ class FlatpageForm(forms.ModelForm):
                 "Example: “/about/contact”. Make sure to have a leading slash."
             )
 
+    # [TODO] FlatpageForm > _trailing_slash_required
     def _trailing_slash_required(self):
         return (
             settings.APPEND_SLASH
             and "django.middleware.common.CommonMiddleware" in settings.MIDDLEWARE
         )
 
+    # [TODO] FlatpageForm > clean_url
     def clean_url(self):
         url = self.cleaned_data["url"]
         if not url.startswith("/"):
@@ -54,6 +59,7 @@ class FlatpageForm(forms.ModelForm):
             )
         return url
 
+    # [TODO] FlatpageForm > clean
     def clean(self):
         url = self.cleaned_data.get("url")
         sites = self.cleaned_data.get("sites")

@@ -23,9 +23,11 @@ from django.db.migrations.utils import get_migration_name_timestamp
 from django.db.migrations.writer import MigrationWriter
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = "Creates new migration(s) for apps."
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "args",
@@ -94,13 +96,16 @@ class Command(BaseCommand):
             ),
         )
 
+    # [TODO] Command > log_output
     @property
     def log_output(self):
         return self.stderr if self.scriptable else self.stdout
 
+    # [TODO] Command > log
     def log(self, msg):
         self.log_output.write(msg)
 
+    # [TODO] Command > handle
     @no_translations
     def handle(self, *app_labels, **options):
         self.written_files = []
@@ -258,6 +263,7 @@ class Command(BaseCommand):
             else:
                 self.write_migration_files(changes)
 
+    # [TODO] Command > write_to_last_migration_files
     def write_to_last_migration_files(self, changes):
         loader = MigrationLoader(connections[DEFAULT_DB_ALIAS])
         new_changes = {}
@@ -329,6 +335,7 @@ class Command(BaseCommand):
 
         self.write_migration_files(new_changes, update_previous_migration_paths)
 
+    # [TODO] Command > write_migration_files
     def write_migration_files(self, changes, update_previous_migration_paths=None):
         """
         Take a changes dict and write them out as migration files.
@@ -391,6 +398,7 @@ class Command(BaseCommand):
                     self.log(writer.as_string())
         run_formatters(self.written_files)
 
+    # [TODO] Command > get_relative_path
     @staticmethod
     def get_relative_path(path):
         try:
@@ -401,6 +409,7 @@ class Command(BaseCommand):
             migration_string = path
         return migration_string
 
+    # [TODO] Command > handle_merge
     def handle_merge(self, loader, conflicts):
         """
         Handles merging together conflicted migrations interactively,

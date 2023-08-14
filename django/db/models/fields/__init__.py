@@ -67,10 +67,12 @@ __all__ = [
 ]
 
 
+# [TODO] Empty
 class Empty:
     pass
 
 
+# [TODO] NOT_PROVIDED
 class NOT_PROVIDED:
     pass
 
@@ -80,6 +82,7 @@ class NOT_PROVIDED:
 BLANK_CHOICE_DASH = [("", "---------")]
 
 
+# [TODO] _load_field
 def _load_field(app_label, model_name, field_name):
     return apps.get_model(app_label, model_name)._meta.get_field(field_name)
 
@@ -100,16 +103,19 @@ def _load_field(app_label, model_name, field_name):
 #     getattr(obj, opts.pk.attname)
 
 
+# [TODO] _empty
 def _empty(of_cls):
     new = Empty()
     new.__class__ = of_cls
     return new
 
 
+# [TODO] return_None
 def return_None():
     return None
 
 
+# [TODO] Field
 @total_ordering
 class Field(RegisterLookupMixin):
     """Base class for all field types"""
@@ -1145,6 +1151,7 @@ class Field(RegisterLookupMixin):
         return getattr(obj, self.attname)
 
 
+# [TODO] BooleanField
 class BooleanField(Field):
     empty_strings_allowed = False
     default_error_messages = {
@@ -1153,9 +1160,11 @@ class BooleanField(Field):
     }
     description = _("Boolean (Either True or False)")
 
+    # [TODO] BooleanField > get_internal_type
     def get_internal_type(self):
         return "BooleanField"
 
+    # [TODO] BooleanField > to_python
     def to_python(self, value):
         if self.null and value in self.empty_values:
             return None
@@ -1172,12 +1181,14 @@ class BooleanField(Field):
             params={"value": value},
         )
 
+    # [TODO] BooleanField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         if value is None:
             return None
         return self.to_python(value)
 
+    # [TODO] BooleanField > formfield
     def formfield(self, **kwargs):
         if self.choices is not None:
             include_blank = not (self.has_default() or "initial" in kwargs)
@@ -1191,13 +1202,16 @@ class BooleanField(Field):
         return super().formfield(**{**defaults, **kwargs})
 
 
+# [TODO] CharField
 class CharField(Field):
+    # [TODO] CharField > __init__
     def __init__(self, *args, db_collation=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.db_collation = db_collation
         if self.max_length is not None:
             self.validators.append(validators.MaxLengthValidator(self.max_length))
 
+    # [TODO] CharField > description
     @property
     def description(self):
         if self.max_length is not None:
@@ -1205,6 +1219,7 @@ class CharField(Field):
         else:
             return _("String (unlimited)")
 
+    # [TODO] CharField > check
     def check(self, **kwargs):
         databases = kwargs.get("databases") or []
         return [
@@ -1213,6 +1228,7 @@ class CharField(Field):
             *self._check_max_length_attribute(**kwargs),
         ]
 
+    # [TODO] CharField > _check_max_length_attribute
     def _check_max_length_attribute(self, **kwargs):
         if self.max_length is None:
             if (
@@ -1243,6 +1259,7 @@ class CharField(Field):
         else:
             return []
 
+    # [TODO] CharField > _check_db_collation
     def _check_db_collation(self, databases):
         errors = []
         for db in databases:
@@ -1265,28 +1282,34 @@ class CharField(Field):
                 )
         return errors
 
+    # [TODO] CharField > cast_db_type
     def cast_db_type(self, connection):
         if self.max_length is None:
             return connection.ops.cast_char_field_without_max_length
         return super().cast_db_type(connection)
 
+    # [TODO] CharField > db_parameters
     def db_parameters(self, connection):
         db_params = super().db_parameters(connection)
         db_params["collation"] = self.db_collation
         return db_params
 
+    # [TODO] CharField > get_internal_type
     def get_internal_type(self):
         return "CharField"
 
+    # [TODO] CharField > to_python
     def to_python(self, value):
         if isinstance(value, str) or value is None:
             return value
         return str(value)
 
+    # [TODO] CharField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         return self.to_python(value)
 
+    # [TODO] CharField > formfield
     def formfield(self, **kwargs):
         # Passing max_length to forms.CharField means that the value's length
         # will be validated twice. This is considered acceptable since we want
@@ -1298,6 +1321,7 @@ class CharField(Field):
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
+    # [TODO] CharField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if self.db_collation:
@@ -1305,6 +1329,7 @@ class CharField(Field):
         return name, path, args, kwargs
 
 
+# [TODO] CommaSeparatedIntegerField
 class CommaSeparatedIntegerField(CharField):
     default_validators = [validators.validate_comma_separated_integer_list]
     description = _("Comma-separated integers")
@@ -1321,17 +1346,21 @@ class CommaSeparatedIntegerField(CharField):
     }
 
 
+# [TODO] _to_naive
 def _to_naive(value):
     if timezone.is_aware(value):
         value = timezone.make_naive(value, datetime.timezone.utc)
     return value
 
 
+# [TODO] _get_naive_now
 def _get_naive_now():
     return _to_naive(timezone.now())
 
 
+# [TODO] DateTimeCheckMixin
 class DateTimeCheckMixin:
+    # [TODO] DateTimeCheckMixin > check
     def check(self, **kwargs):
         return [
             *super().check(**kwargs),
@@ -1339,6 +1368,7 @@ class DateTimeCheckMixin:
             *self._check_fix_default_value(),
         ]
 
+    # [TODO] DateTimeCheckMixin > _check_mutually_exclusive_options
     def _check_mutually_exclusive_options(self):
         # auto_now, auto_now_add, and default are mutually exclusive
         # options. The use of more than one of these options together
@@ -1364,11 +1394,13 @@ class DateTimeCheckMixin:
         else:
             return []
 
+    # [TODO] DateTimeCheckMixin > _check_fix_default_value
     def _check_fix_default_value(self):
         return []
 
     # Concrete subclasses use this in their implementations of
     # _check_fix_default_value().
+    # [TODO] DateTimeCheckMixin > _check_if_value_fixed
     def _check_if_value_fixed(self, value, now=None):
         """
         Check if the given value appears to have been provided as a "fixed"
@@ -1404,6 +1436,7 @@ class DateTimeCheckMixin:
         return []
 
 
+# [TODO] DateField
 class DateField(DateTimeCheckMixin, Field):
     empty_strings_allowed = False
     default_error_messages = {
@@ -1418,6 +1451,7 @@ class DateField(DateTimeCheckMixin, Field):
     }
     description = _("Date (without time)")
 
+    # [TODO] DateField > __init__
     def __init__(
         self, verbose_name=None, name=None, auto_now=False, auto_now_add=False, **kwargs
     ):
@@ -1427,6 +1461,7 @@ class DateField(DateTimeCheckMixin, Field):
             kwargs["blank"] = True
         super().__init__(verbose_name, name, **kwargs)
 
+    # [TODO] DateField > _check_fix_default_value
     def _check_fix_default_value(self):
         """
         Warn that using an actual date or datetime value is probably wrong;
@@ -1446,6 +1481,7 @@ class DateField(DateTimeCheckMixin, Field):
         # At this point, value is a date object.
         return self._check_if_value_fixed(value)
 
+    # [TODO] DateField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if self.auto_now:
@@ -1457,9 +1493,11 @@ class DateField(DateTimeCheckMixin, Field):
             del kwargs["blank"]
         return name, path, args, kwargs
 
+    # [TODO] DateField > get_internal_type
     def get_internal_type(self):
         return "DateField"
 
+    # [TODO] DateField > to_python
     def to_python(self, value):
         if value is None:
             return value
@@ -1490,6 +1528,7 @@ class DateField(DateTimeCheckMixin, Field):
             params={"value": value},
         )
 
+    # [TODO] DateField > pre_save
     def pre_save(self, model_instance, add):
         if self.auto_now or (self.auto_now_add and add):
             value = datetime.date.today()
@@ -1498,6 +1537,7 @@ class DateField(DateTimeCheckMixin, Field):
         else:
             return super().pre_save(model_instance, add)
 
+    # [TODO] DateField > contribute_to_class
     def contribute_to_class(self, cls, name, **kwargs):
         super().contribute_to_class(cls, name, **kwargs)
         if not self.null:
@@ -1516,20 +1556,24 @@ class DateField(DateTimeCheckMixin, Field):
                 ),
             )
 
+    # [TODO] DateField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         return self.to_python(value)
 
+    # [TODO] DateField > get_db_prep_value
     def get_db_prep_value(self, value, connection, prepared=False):
         # Casts dates into the format expected by the backend
         if not prepared:
             value = self.get_prep_value(value)
         return connection.ops.adapt_datefield_value(value)
 
+    # [TODO] DateField > value_to_string
     def value_to_string(self, obj):
         val = self.value_from_object(obj)
         return "" if val is None else val.isoformat()
 
+    # [TODO] DateField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -1539,6 +1583,7 @@ class DateField(DateTimeCheckMixin, Field):
         )
 
 
+# [TODO] DateTimeField
 class DateTimeField(DateField):
     empty_strings_allowed = False
     default_error_messages = {
@@ -1560,6 +1605,7 @@ class DateTimeField(DateField):
 
     # __init__ is inherited from DateField
 
+    # [TODO] DateTimeField > _check_fix_default_value
     def _check_fix_default_value(self):
         """
         Warn that using an actual date or datetime value is probably wrong;
@@ -1574,9 +1620,11 @@ class DateTimeField(DateField):
         # No explicit date / datetime value -- no checks necessary.
         return []
 
+    # [TODO] DateTimeField > get_internal_type
     def get_internal_type(self):
         return "DateTimeField"
 
+    # [TODO] DateTimeField > to_python
     def to_python(self, value):
         if value is None:
             return value
@@ -1627,6 +1675,7 @@ class DateTimeField(DateField):
             params={"value": value},
         )
 
+    # [TODO] DateTimeField > pre_save
     def pre_save(self, model_instance, add):
         if self.auto_now or (self.auto_now_add and add):
             value = timezone.now()
@@ -1638,6 +1687,7 @@ class DateTimeField(DateField):
     # contribute_to_class is inherited from DateField, it registers
     # get_next_by_FOO and get_prev_by_FOO
 
+    # [TODO] DateTimeField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         value = self.to_python(value)
@@ -1658,16 +1708,19 @@ class DateTimeField(DateField):
             value = timezone.make_aware(value, default_timezone)
         return value
 
+    # [TODO] DateTimeField > get_db_prep_value
     def get_db_prep_value(self, value, connection, prepared=False):
         # Casts datetimes into the format expected by the backend
         if not prepared:
             value = self.get_prep_value(value)
         return connection.ops.adapt_datetimefield_value(value)
 
+    # [TODO] DateTimeField > value_to_string
     def value_to_string(self, obj):
         val = self.value_from_object(obj)
         return "" if val is None else val.isoformat()
 
+    # [TODO] DateTimeField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -1677,6 +1730,7 @@ class DateTimeField(DateField):
         )
 
 
+# [TODO] DecimalField
 class DecimalField(Field):
     empty_strings_allowed = False
     default_error_messages = {
@@ -1684,6 +1738,7 @@ class DecimalField(Field):
     }
     description = _("Decimal number")
 
+    # [TODO] DecimalField > __init__
     def __init__(
         self,
         verbose_name=None,
@@ -1695,6 +1750,7 @@ class DecimalField(Field):
         self.max_digits, self.decimal_places = max_digits, decimal_places
         super().__init__(verbose_name, name, **kwargs)
 
+    # [TODO] DecimalField > check
     def check(self, **kwargs):
         errors = super().check(**kwargs)
 
@@ -1708,6 +1764,7 @@ class DecimalField(Field):
             errors.extend(digits_errors)
         return errors
 
+    # [TODO] DecimalField > _check_decimal_places
     def _check_decimal_places(self):
         try:
             decimal_places = int(self.decimal_places)
@@ -1732,6 +1789,7 @@ class DecimalField(Field):
         else:
             return []
 
+    # [TODO] DecimalField > _check_max_digits
     def _check_max_digits(self):
         try:
             max_digits = int(self.max_digits)
@@ -1756,6 +1814,7 @@ class DecimalField(Field):
         else:
             return []
 
+    # [TODO] DecimalField > _check_decimal_places_and_max_digits
     def _check_decimal_places_and_max_digits(self, **kwargs):
         if int(self.decimal_places) > int(self.max_digits):
             return [
@@ -1767,16 +1826,19 @@ class DecimalField(Field):
             ]
         return []
 
+    # [TODO] DecimalField > validators
     @cached_property
     def validators(self):
         return super().validators + [
             validators.DecimalValidator(self.max_digits, self.decimal_places)
         ]
 
+    # [TODO] DecimalField > context
     @cached_property
     def context(self):
         return decimal.Context(prec=self.max_digits)
 
+    # [TODO] DecimalField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if self.max_digits is not None:
@@ -1785,9 +1847,11 @@ class DecimalField(Field):
             kwargs["decimal_places"] = self.decimal_places
         return name, path, args, kwargs
 
+    # [TODO] DecimalField > get_internal_type
     def get_internal_type(self):
         return "DecimalField"
 
+    # [TODO] DecimalField > to_python
     def to_python(self, value):
         if value is None:
             return value
@@ -1810,6 +1874,7 @@ class DecimalField(Field):
             )
         return decimal_value
 
+    # [TODO] DecimalField > get_db_prep_save
     def get_db_prep_save(self, value, connection):
         if hasattr(value, "as_sql"):
             return value
@@ -1817,10 +1882,12 @@ class DecimalField(Field):
             self.to_python(value), self.max_digits, self.decimal_places
         )
 
+    # [TODO] DecimalField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         return self.to_python(value)
 
+    # [TODO] DecimalField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -1832,6 +1899,7 @@ class DecimalField(Field):
         )
 
 
+# [TODO] DurationField
 class DurationField(Field):
     """
     Store timedelta objects.
@@ -1849,9 +1917,11 @@ class DurationField(Field):
     }
     description = _("Duration")
 
+    # [TODO] DurationField > get_internal_type
     def get_internal_type(self):
         return "DurationField"
 
+    # [TODO] DurationField > to_python
     def to_python(self, value):
         if value is None:
             return value
@@ -1871,6 +1941,7 @@ class DurationField(Field):
             params={"value": value},
         )
 
+    # [TODO] DurationField > get_db_prep_value
     def get_db_prep_value(self, value, connection, prepared=False):
         if connection.features.has_native_duration_field:
             return value
@@ -1878,16 +1949,19 @@ class DurationField(Field):
             return None
         return duration_microseconds(value)
 
+    # [TODO] DurationField > get_db_converters
     def get_db_converters(self, connection):
         converters = []
         if not connection.features.has_native_duration_field:
             converters.append(connection.ops.convert_durationfield_value)
         return converters + super().get_db_converters(connection)
 
+    # [TODO] DurationField > value_to_string
     def value_to_string(self, obj):
         val = self.value_from_object(obj)
         return "" if val is None else duration_string(val)
 
+    # [TODO] DurationField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -1897,21 +1971,25 @@ class DurationField(Field):
         )
 
 
+# [TODO] EmailField
 class EmailField(CharField):
     default_validators = [validators.validate_email]
     description = _("Email address")
 
+    # [TODO] EmailField > __init__
     def __init__(self, *args, **kwargs):
         # max_length=254 to be compliant with RFCs 3696 and 5321
         kwargs.setdefault("max_length", 254)
         super().__init__(*args, **kwargs)
 
+    # [TODO] EmailField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         # We do not exclude max_length if it matches default as we want to change
         # the default in future.
         return name, path, args, kwargs
 
+    # [TODO] EmailField > formfield
     def formfield(self, **kwargs):
         # As with CharField, this will cause email validation to be performed
         # twice.
@@ -1923,9 +2001,11 @@ class EmailField(CharField):
         )
 
 
+# [TODO] FilePathField
 class FilePathField(Field):
     description = _("File path")
 
+    # [TODO] FilePathField > __init__
     def __init__(
         self,
         verbose_name=None,
@@ -1942,12 +2022,14 @@ class FilePathField(Field):
         kwargs.setdefault("max_length", 100)
         super().__init__(verbose_name, name, **kwargs)
 
+    # [TODO] FilePathField > check
     def check(self, **kwargs):
         return [
             *super().check(**kwargs),
             *self._check_allowing_files_or_folders(**kwargs),
         ]
 
+    # [TODO] FilePathField > _check_allowing_files_or_folders
     def _check_allowing_files_or_folders(self, **kwargs):
         if not self.allow_files and not self.allow_folders:
             return [
@@ -1960,6 +2042,7 @@ class FilePathField(Field):
             ]
         return []
 
+    # [TODO] FilePathField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if self.path != "":
@@ -1976,12 +2059,14 @@ class FilePathField(Field):
             del kwargs["max_length"]
         return name, path, args, kwargs
 
+    # [TODO] FilePathField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         if value is None:
             return None
         return str(value)
 
+    # [TODO] FilePathField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -1995,10 +2080,12 @@ class FilePathField(Field):
             }
         )
 
+    # [TODO] FilePathField > get_internal_type
     def get_internal_type(self):
         return "FilePathField"
 
 
+# [TODO] FloatField
 class FloatField(Field):
     empty_strings_allowed = False
     default_error_messages = {
@@ -2006,6 +2093,7 @@ class FloatField(Field):
     }
     description = _("Floating point number")
 
+    # [TODO] FloatField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         if value is None:
@@ -2017,9 +2105,11 @@ class FloatField(Field):
                 "Field '%s' expected a number but got %r." % (self.name, value),
             ) from e
 
+    # [TODO] FloatField > get_internal_type
     def get_internal_type(self):
         return "FloatField"
 
+    # [TODO] FloatField > to_python
     def to_python(self, value):
         if value is None:
             return value
@@ -2032,6 +2122,7 @@ class FloatField(Field):
                 params={"value": value},
             )
 
+    # [TODO] FloatField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -2041,6 +2132,7 @@ class FloatField(Field):
         )
 
 
+# [TODO] IntegerField
 class IntegerField(Field):
     empty_strings_allowed = False
     default_error_messages = {
@@ -2048,12 +2140,14 @@ class IntegerField(Field):
     }
     description = _("Integer")
 
+    # [TODO] IntegerField > check
     def check(self, **kwargs):
         return [
             *super().check(**kwargs),
             *self._check_max_length_warning(),
         ]
 
+    # [TODO] IntegerField > _check_max_length_warning
     def _check_max_length_warning(self):
         if self.max_length is not None:
             return [
@@ -2067,6 +2161,7 @@ class IntegerField(Field):
             ]
         return []
 
+    # [TODO] IntegerField > validators
     @cached_property
     def validators(self):
         # These validators can't be added at field initialization time since
@@ -2102,6 +2197,7 @@ class IntegerField(Field):
             validators_.append(validators.MaxValueValidator(max_value))
         return validators_
 
+    # [TODO] IntegerField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         if value is None:
@@ -2113,13 +2209,16 @@ class IntegerField(Field):
                 "Field '%s' expected a number but got %r." % (self.name, value),
             ) from e
 
+    # [TODO] IntegerField > get_db_prep_value
     def get_db_prep_value(self, value, connection, prepared=False):
         value = super().get_db_prep_value(value, connection, prepared)
         return connection.ops.adapt_integerfield_value(value, self.get_internal_type())
 
+    # [TODO] IntegerField > get_internal_type
     def get_internal_type(self):
         return "IntegerField"
 
+    # [TODO] IntegerField > to_python
     def to_python(self, value):
         if value is None:
             return value
@@ -2132,6 +2231,7 @@ class IntegerField(Field):
                 params={"value": value},
             )
 
+    # [TODO] IntegerField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -2141,13 +2241,16 @@ class IntegerField(Field):
         )
 
 
+# [TODO] BigIntegerField
 class BigIntegerField(IntegerField):
     description = _("Big (8 byte) integer")
     MAX_BIGINT = 9223372036854775807
 
+    # [TODO] BigIntegerField > get_internal_type
     def get_internal_type(self):
         return "BigIntegerField"
 
+    # [TODO] BigIntegerField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -2158,13 +2261,16 @@ class BigIntegerField(IntegerField):
         )
 
 
+# [TODO] SmallIntegerField
 class SmallIntegerField(IntegerField):
     description = _("Small integer")
 
+    # [TODO] SmallIntegerField > get_internal_type
     def get_internal_type(self):
         return "SmallIntegerField"
 
 
+# [TODO] IPAddressField
 class IPAddressField(Field):
     empty_strings_allowed = False
     description = _("IPv4 address")
@@ -2177,30 +2283,36 @@ class IPAddressField(Field):
         "id": "fields.E900",
     }
 
+    # [TODO] IPAddressField > __init__
     def __init__(self, *args, **kwargs):
         kwargs["max_length"] = 15
         super().__init__(*args, **kwargs)
 
+    # [TODO] IPAddressField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         del kwargs["max_length"]
         return name, path, args, kwargs
 
+    # [TODO] IPAddressField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         if value is None:
             return None
         return str(value)
 
+    # [TODO] IPAddressField > get_internal_type
     def get_internal_type(self):
         return "IPAddressField"
 
 
+# [TODO] GenericIPAddressField
 class GenericIPAddressField(Field):
     empty_strings_allowed = False
     description = _("IP address")
     default_error_messages = {}
 
+    # [TODO] GenericIPAddressField > __init__
     def __init__(
         self,
         verbose_name=None,
@@ -2220,12 +2332,14 @@ class GenericIPAddressField(Field):
         kwargs["max_length"] = 39
         super().__init__(verbose_name, name, *args, **kwargs)
 
+    # [TODO] GenericIPAddressField > check
     def check(self, **kwargs):
         return [
             *super().check(**kwargs),
             *self._check_blank_and_null_values(**kwargs),
         ]
 
+    # [TODO] GenericIPAddressField > _check_blank_and_null_values
     def _check_blank_and_null_values(self, **kwargs):
         if not getattr(self, "null", False) and getattr(self, "blank", False):
             return [
@@ -2238,6 +2352,7 @@ class GenericIPAddressField(Field):
             ]
         return []
 
+    # [TODO] GenericIPAddressField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if self.unpack_ipv4 is not False:
@@ -2248,9 +2363,11 @@ class GenericIPAddressField(Field):
             del kwargs["max_length"]
         return name, path, args, kwargs
 
+    # [TODO] GenericIPAddressField > get_internal_type
     def get_internal_type(self):
         return "GenericIPAddressField"
 
+    # [TODO] GenericIPAddressField > to_python
     def to_python(self, value):
         if value is None:
             return None
@@ -2263,11 +2380,13 @@ class GenericIPAddressField(Field):
             )
         return value
 
+    # [TODO] GenericIPAddressField > get_db_prep_value
     def get_db_prep_value(self, value, connection, prepared=False):
         if not prepared:
             value = self.get_prep_value(value)
         return connection.ops.adapt_ipaddressfield_value(value)
 
+    # [TODO] GenericIPAddressField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         if value is None:
@@ -2279,6 +2398,7 @@ class GenericIPAddressField(Field):
                 pass
         return str(value)
 
+    # [TODO] GenericIPAddressField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -2289,6 +2409,7 @@ class GenericIPAddressField(Field):
         )
 
 
+# [TODO] NullBooleanField
 class NullBooleanField(BooleanField):
     default_error_messages = {
         "invalid": _("“%(value)s” value must be either None, True or False."),
@@ -2304,11 +2425,13 @@ class NullBooleanField(BooleanField):
         "id": "fields.E903",
     }
 
+    # [TODO] NullBooleanField > __init__
     def __init__(self, *args, **kwargs):
         kwargs["null"] = True
         kwargs["blank"] = True
         super().__init__(*args, **kwargs)
 
+    # [TODO] NullBooleanField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         del kwargs["null"]
@@ -2316,7 +2439,9 @@ class NullBooleanField(BooleanField):
         return name, path, args, kwargs
 
 
+# [TODO] PositiveIntegerRelDbTypeMixin
 class PositiveIntegerRelDbTypeMixin:
+    # [TODO] PositiveIntegerRelDbTypeMixin > __init_subclass__
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         if not hasattr(cls, "integer_field_class"):
@@ -2329,6 +2454,7 @@ class PositiveIntegerRelDbTypeMixin:
                 None,
             )
 
+    # [TODO] PositiveIntegerRelDbTypeMixin > rel_db_type
     def rel_db_type(self, connection):
         """
         Return the data type that a related field pointing to this field should
@@ -2344,12 +2470,15 @@ class PositiveIntegerRelDbTypeMixin:
             return self.integer_field_class().db_type(connection=connection)
 
 
+# [TODO] PositiveBigIntegerField
 class PositiveBigIntegerField(PositiveIntegerRelDbTypeMixin, BigIntegerField):
     description = _("Positive big integer")
 
+    # [TODO] PositiveBigIntegerField > get_internal_type
     def get_internal_type(self):
         return "PositiveBigIntegerField"
 
+    # [TODO] PositiveBigIntegerField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -2359,12 +2488,15 @@ class PositiveBigIntegerField(PositiveIntegerRelDbTypeMixin, BigIntegerField):
         )
 
 
+# [TODO] PositiveIntegerField
 class PositiveIntegerField(PositiveIntegerRelDbTypeMixin, IntegerField):
     description = _("Positive integer")
 
+    # [TODO] PositiveIntegerField > get_internal_type
     def get_internal_type(self):
         return "PositiveIntegerField"
 
+    # [TODO] PositiveIntegerField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -2374,12 +2506,15 @@ class PositiveIntegerField(PositiveIntegerRelDbTypeMixin, IntegerField):
         )
 
 
+# [TODO] PositiveSmallIntegerField
 class PositiveSmallIntegerField(PositiveIntegerRelDbTypeMixin, SmallIntegerField):
     description = _("Positive small integer")
 
+    # [TODO] PositiveSmallIntegerField > get_internal_type
     def get_internal_type(self):
         return "PositiveSmallIntegerField"
 
+    # [TODO] PositiveSmallIntegerField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -2389,10 +2524,12 @@ class PositiveSmallIntegerField(PositiveIntegerRelDbTypeMixin, SmallIntegerField
         )
 
 
+# [TODO] SlugField
 class SlugField(CharField):
     default_validators = [validators.validate_slug]
     description = _("Slug (up to %(max_length)s)")
 
+    # [TODO] SlugField > __init__
     def __init__(
         self, *args, max_length=50, db_index=True, allow_unicode=False, **kwargs
     ):
@@ -2401,6 +2538,7 @@ class SlugField(CharField):
             self.default_validators = [validators.validate_unicode_slug]
         super().__init__(*args, max_length=max_length, db_index=db_index, **kwargs)
 
+    # [TODO] SlugField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if kwargs.get("max_length") == 50:
@@ -2413,9 +2551,11 @@ class SlugField(CharField):
             kwargs["allow_unicode"] = self.allow_unicode
         return name, path, args, kwargs
 
+    # [TODO] SlugField > get_internal_type
     def get_internal_type(self):
         return "SlugField"
 
+    # [TODO] SlugField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -2426,13 +2566,16 @@ class SlugField(CharField):
         )
 
 
+# [TODO] TextField
 class TextField(Field):
     description = _("Text")
 
+    # [TODO] TextField > __init__
     def __init__(self, *args, db_collation=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.db_collation = db_collation
 
+    # [TODO] TextField > check
     def check(self, **kwargs):
         databases = kwargs.get("databases") or []
         return [
@@ -2440,6 +2583,7 @@ class TextField(Field):
             *self._check_db_collation(databases),
         ]
 
+    # [TODO] TextField > _check_db_collation
     def _check_db_collation(self, databases):
         errors = []
         for db in databases:
@@ -2462,23 +2606,28 @@ class TextField(Field):
                 )
         return errors
 
+    # [TODO] TextField > db_parameters
     def db_parameters(self, connection):
         db_params = super().db_parameters(connection)
         db_params["collation"] = self.db_collation
         return db_params
 
+    # [TODO] TextField > get_internal_type
     def get_internal_type(self):
         return "TextField"
 
+    # [TODO] TextField > to_python
     def to_python(self, value):
         if isinstance(value, str) or value is None:
             return value
         return str(value)
 
+    # [TODO] TextField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         return self.to_python(value)
 
+    # [TODO] TextField > formfield
     def formfield(self, **kwargs):
         # Passing max_length to forms.CharField means that the value's length
         # will be validated twice. This is considered acceptable since we want
@@ -2491,6 +2640,7 @@ class TextField(Field):
             }
         )
 
+    # [TODO] TextField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if self.db_collation:
@@ -2498,6 +2648,7 @@ class TextField(Field):
         return name, path, args, kwargs
 
 
+# [TODO] TimeField
 class TimeField(DateTimeCheckMixin, Field):
     empty_strings_allowed = False
     default_error_messages = {
@@ -2512,6 +2663,7 @@ class TimeField(DateTimeCheckMixin, Field):
     }
     description = _("Time")
 
+    # [TODO] TimeField > __init__
     def __init__(
         self, verbose_name=None, name=None, auto_now=False, auto_now_add=False, **kwargs
     ):
@@ -2521,6 +2673,7 @@ class TimeField(DateTimeCheckMixin, Field):
             kwargs["blank"] = True
         super().__init__(verbose_name, name, **kwargs)
 
+    # [TODO] TimeField > _check_fix_default_value
     def _check_fix_default_value(self):
         """
         Warn that using an actual date or datetime value is probably wrong;
@@ -2543,6 +2696,7 @@ class TimeField(DateTimeCheckMixin, Field):
         # At this point, value is a datetime object.
         return self._check_if_value_fixed(value, now=now)
 
+    # [TODO] TimeField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if self.auto_now is not False:
@@ -2554,9 +2708,11 @@ class TimeField(DateTimeCheckMixin, Field):
             del kwargs["editable"]
         return name, path, args, kwargs
 
+    # [TODO] TimeField > get_internal_type
     def get_internal_type(self):
         return "TimeField"
 
+    # [TODO] TimeField > to_python
     def to_python(self, value):
         if value is None:
             return None
@@ -2585,6 +2741,7 @@ class TimeField(DateTimeCheckMixin, Field):
             params={"value": value},
         )
 
+    # [TODO] TimeField > pre_save
     def pre_save(self, model_instance, add):
         if self.auto_now or (self.auto_now_add and add):
             value = datetime.datetime.now().time()
@@ -2593,20 +2750,24 @@ class TimeField(DateTimeCheckMixin, Field):
         else:
             return super().pre_save(model_instance, add)
 
+    # [TODO] TimeField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         return self.to_python(value)
 
+    # [TODO] TimeField > get_db_prep_value
     def get_db_prep_value(self, value, connection, prepared=False):
         # Casts times into the format expected by the backend
         if not prepared:
             value = self.get_prep_value(value)
         return connection.ops.adapt_timefield_value(value)
 
+    # [TODO] TimeField > value_to_string
     def value_to_string(self, obj):
         val = self.value_from_object(obj)
         return "" if val is None else val.isoformat()
 
+    # [TODO] TimeField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -2616,20 +2777,24 @@ class TimeField(DateTimeCheckMixin, Field):
         )
 
 
+# [TODO] URLField
 class URLField(CharField):
     default_validators = [validators.URLValidator()]
     description = _("URL")
 
+    # [TODO] URLField > __init__
     def __init__(self, verbose_name=None, name=None, **kwargs):
         kwargs.setdefault("max_length", 200)
         super().__init__(verbose_name, name, **kwargs)
 
+    # [TODO] URLField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if kwargs.get("max_length") == 200:
             del kwargs["max_length"]
         return name, path, args, kwargs
 
+    # [TODO] URLField > formfield
     def formfield(self, **kwargs):
         # As with CharField, this will cause URL validation to be performed
         # twice.
@@ -2641,19 +2806,23 @@ class URLField(CharField):
         )
 
 
+# [TODO] BinaryField
 class BinaryField(Field):
     description = _("Raw binary data")
     empty_values = [None, b""]
 
+    # [TODO] BinaryField > __init__
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("editable", False)
         super().__init__(*args, **kwargs)
         if self.max_length is not None:
             self.validators.append(validators.MaxLengthValidator(self.max_length))
 
+    # [TODO] BinaryField > check
     def check(self, **kwargs):
         return [*super().check(**kwargs), *self._check_str_default_value()]
 
+    # [TODO] BinaryField > _check_str_default_value
     def _check_str_default_value(self):
         if self.has_default() and isinstance(self.default, str):
             return [
@@ -2666,6 +2835,7 @@ class BinaryField(Field):
             ]
         return []
 
+    # [TODO] BinaryField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         if self.editable:
@@ -2674,12 +2844,15 @@ class BinaryField(Field):
             del kwargs["editable"]
         return name, path, args, kwargs
 
+    # [TODO] BinaryField > get_internal_type
     def get_internal_type(self):
         return "BinaryField"
 
+    # [TODO] BinaryField > get_placeholder
     def get_placeholder(self, value, compiler, connection):
         return connection.ops.binary_placeholder_sql(value)
 
+    # [TODO] BinaryField > get_default
     def get_default(self):
         if self.has_default() and not callable(self.default):
             return self.default
@@ -2688,16 +2861,19 @@ class BinaryField(Field):
             return b""
         return default
 
+    # [TODO] BinaryField > get_db_prep_value
     def get_db_prep_value(self, value, connection, prepared=False):
         value = super().get_db_prep_value(value, connection, prepared)
         if value is not None:
             return connection.Database.Binary(value)
         return value
 
+    # [TODO] BinaryField > value_to_string
     def value_to_string(self, obj):
         """Binary data is serialized as base64"""
         return b64encode(self.value_from_object(obj)).decode("ascii")
 
+    # [TODO] BinaryField > to_python
     def to_python(self, value):
         # If it's a string, it should be base64-encoded data
         if isinstance(value, str):
@@ -2705,6 +2881,7 @@ class BinaryField(Field):
         return value
 
 
+# [TODO] UUIDField
 class UUIDField(Field):
     default_error_messages = {
         "invalid": _("“%(value)s” is not a valid UUID."),
@@ -2712,22 +2889,27 @@ class UUIDField(Field):
     description = _("Universally unique identifier")
     empty_strings_allowed = False
 
+    # [TODO] UUIDField > __init__
     def __init__(self, verbose_name=None, **kwargs):
         kwargs["max_length"] = 32
         super().__init__(verbose_name, **kwargs)
 
+    # [TODO] UUIDField > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         del kwargs["max_length"]
         return name, path, args, kwargs
 
+    # [TODO] UUIDField > get_internal_type
     def get_internal_type(self):
         return "UUIDField"
 
+    # [TODO] UUIDField > get_prep_value
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         return self.to_python(value)
 
+    # [TODO] UUIDField > get_db_prep_value
     def get_db_prep_value(self, value, connection, prepared=False):
         if value is None:
             return None
@@ -2738,6 +2920,7 @@ class UUIDField(Field):
             return value
         return value.hex
 
+    # [TODO] UUIDField > to_python
     def to_python(self, value):
         if value is not None and not isinstance(value, uuid.UUID):
             input_form = "int" if isinstance(value, int) else "hex"
@@ -2751,6 +2934,7 @@ class UUIDField(Field):
                 )
         return value
 
+    # [TODO] UUIDField > formfield
     def formfield(self, **kwargs):
         return super().formfield(
             **{
@@ -2760,19 +2944,23 @@ class UUIDField(Field):
         )
 
 
+# [TODO] AutoFieldMixin
 class AutoFieldMixin:
     db_returning = True
 
+    # [TODO] AutoFieldMixin > __init__
     def __init__(self, *args, **kwargs):
         kwargs["blank"] = True
         super().__init__(*args, **kwargs)
 
+    # [TODO] AutoFieldMixin > check
     def check(self, **kwargs):
         return [
             *super().check(**kwargs),
             *self._check_primary_key(),
         ]
 
+    # [TODO] AutoFieldMixin > _check_primary_key
     def _check_primary_key(self):
         if not self.primary_key:
             return [
@@ -2785,21 +2973,25 @@ class AutoFieldMixin:
         else:
             return []
 
+    # [TODO] AutoFieldMixin > deconstruct
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         del kwargs["blank"]
         kwargs["primary_key"] = True
         return name, path, args, kwargs
 
+    # [TODO] AutoFieldMixin > validate
     def validate(self, value, model_instance):
         pass
 
+    # [TODO] AutoFieldMixin > get_db_prep_value
     def get_db_prep_value(self, value, connection, prepared=False):
         if not prepared:
             value = self.get_prep_value(value)
             value = connection.ops.validate_autopk_value(value)
         return value
 
+    # [TODO] AutoFieldMixin > contribute_to_class
     def contribute_to_class(self, cls, name, **kwargs):
         if cls._meta.auto_field:
             raise ValueError(
@@ -2809,10 +3001,12 @@ class AutoFieldMixin:
         super().contribute_to_class(cls, name, **kwargs)
         cls._meta.auto_field = self
 
+    # [TODO] AutoFieldMixin > formfield
     def formfield(self, **kwargs):
         return None
 
 
+# [TODO] AutoFieldMeta
 class AutoFieldMeta(type):
     """
     Metaclass to maintain backward inheritance compatibility for AutoField.
@@ -2830,40 +3024,52 @@ class AutoFieldMeta(type):
     for detecting automatically-generated fields.
     """
 
+    # [TODO] AutoFieldMeta > _subclasses
     @property
     def _subclasses(self):
         return (BigAutoField, SmallAutoField)
 
+    # [TODO] AutoFieldMeta > __instancecheck__
     def __instancecheck__(self, instance):
         return isinstance(instance, self._subclasses) or super().__instancecheck__(
             instance
         )
 
+    # [TODO] AutoFieldMeta > __subclasscheck__
     def __subclasscheck__(self, subclass):
         return issubclass(subclass, self._subclasses) or super().__subclasscheck__(
             subclass
         )
 
 
+# [TODO] AutoField
 class AutoField(AutoFieldMixin, IntegerField, metaclass=AutoFieldMeta):
+    # [TODO] AutoField > get_internal_type
     def get_internal_type(self):
         return "AutoField"
 
+    # [TODO] AutoField > rel_db_type
     def rel_db_type(self, connection):
         return IntegerField().db_type(connection=connection)
 
 
+# [TODO] BigAutoField
 class BigAutoField(AutoFieldMixin, BigIntegerField):
+    # [TODO] BigAutoField > get_internal_type
     def get_internal_type(self):
         return "BigAutoField"
 
+    # [TODO] BigAutoField > rel_db_type
     def rel_db_type(self, connection):
         return BigIntegerField().db_type(connection=connection)
 
 
+# [TODO] SmallAutoField
 class SmallAutoField(AutoFieldMixin, SmallIntegerField):
+    # [TODO] SmallAutoField > get_internal_type
     def get_internal_type(self):
         return "SmallAutoField"
 
+    # [TODO] SmallAutoField > rel_db_type
     def rel_db_type(self, connection):
         return SmallIntegerField().db_type(connection=connection)

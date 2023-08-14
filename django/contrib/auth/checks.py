@@ -8,6 +8,7 @@ from django.core import checks
 from .management import _get_builtin_permissions
 
 
+# [TODO] check_user_model
 def check_user_model(app_configs=None, **kwargs):
     if app_configs is None:
         cls = apps.get_model(settings.AUTH_USER_MODEL)
@@ -104,6 +105,7 @@ def check_user_model(app_configs=None, **kwargs):
     return errors
 
 
+# [TODO] check_models_permissions
 def check_models_permissions(app_configs=None, **kwargs):
     if app_configs is None:
         models = apps.get_models()

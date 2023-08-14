@@ -5,12 +5,14 @@ from django.http import Http404, JsonResponse
 from django.views.generic.list import BaseListView
 
 
+# [TODO] AutocompleteJsonView
 class AutocompleteJsonView(BaseListView):
     """Handle AutocompleteWidget's AJAX requests for data."""
 
     paginate_by = 20
     admin_site = None
 
+    # [TODO] AutocompleteJsonView > get
     def get(self, request, *args, **kwargs):
         """
         Return a JsonResponse with search results as defined in
@@ -42,6 +44,7 @@ class AutocompleteJsonView(BaseListView):
             }
         )
 
+    # [TODO] AutocompleteJsonView > serialize_result
     def serialize_result(self, obj, to_field_name):
         """
         Convert the provided model object to a dictionary that is added to the
@@ -49,10 +52,12 @@ class AutocompleteJsonView(BaseListView):
         """
         return {"id": str(getattr(obj, to_field_name)), "text": str(obj)}
 
+    # [TODO] AutocompleteJsonView > get_paginator
     def get_paginator(self, *args, **kwargs):
         """Use the ModelAdmin's paginator."""
         return self.model_admin.get_paginator(self.request, *args, **kwargs)
 
+    # [TODO] AutocompleteJsonView > get_queryset
     def get_queryset(self):
         """Return queryset based on ModelAdmin.get_search_results()."""
         qs = self.model_admin.get_queryset(self.request)
@@ -64,6 +69,7 @@ class AutocompleteJsonView(BaseListView):
             qs = qs.distinct()
         return qs
 
+    # [TODO] AutocompleteJsonView > process_request
     def process_request(self, request):
         """
         Validate request integrity, extract and return request parameters.
@@ -118,6 +124,7 @@ class AutocompleteJsonView(BaseListView):
 
         return term, model_admin, source_field, to_field_name
 
+    # [TODO] AutocompleteJsonView > has_perm
     def has_perm(self, request, obj=None):
         """Check if user has permission to access the related model."""
         return self.model_admin.has_view_permission(request, obj=obj)

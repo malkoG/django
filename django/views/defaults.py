@@ -31,6 +31,7 @@ ERROR_PAGE_TEMPLATE = """
 # {% csrf_token %}.
 
 
+# [TODO] page_not_found
 @requires_csrf_token
 def page_not_found(request, exception, template_name=ERROR_404_TEMPLATE_NAME):
     """
@@ -79,6 +80,7 @@ def page_not_found(request, exception, template_name=ERROR_404_TEMPLATE_NAME):
     return HttpResponseNotFound(body)
 
 
+# [TODO] server_error
 @requires_csrf_token
 def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
     """
@@ -99,6 +101,7 @@ def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
     return HttpResponseServerError(template.render())
 
 
+# [TODO] bad_request
 @requires_csrf_token
 def bad_request(request, exception, template_name=ERROR_400_TEMPLATE_NAME):
     """
@@ -121,6 +124,7 @@ def bad_request(request, exception, template_name=ERROR_400_TEMPLATE_NAME):
     return HttpResponseBadRequest(template.render())
 
 
+# [TODO] permission_denied
 @requires_csrf_token
 def permission_denied(request, exception, template_name=ERROR_403_TEMPLATE_NAME):
     """

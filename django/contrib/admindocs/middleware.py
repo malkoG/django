@@ -6,11 +6,13 @@ from django.utils.deprecation import MiddlewareMixin
 from .utils import get_view_name
 
 
+# [TODO] XViewMiddleware
 class XViewMiddleware(MiddlewareMixin):
     """
     Add an X-View header to internal HEAD requests.
     """
 
+    # [TODO] XViewMiddleware > process_view
     def process_view(self, request, view_func, view_args, view_kwargs):
         """
         If the request method is HEAD and either the IP is internal or the

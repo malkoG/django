@@ -3,6 +3,7 @@ from django.apps import apps
 from .requests import RequestSite
 
 
+# [TODO] get_current_site
 def get_current_site(request):
     """
     Check if contrib.sites is installed and return either the current

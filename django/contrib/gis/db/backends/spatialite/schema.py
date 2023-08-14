@@ -2,6 +2,7 @@ from django.db import DatabaseError
 from django.db.backends.sqlite3.schema import DatabaseSchemaEditor
 
 
+# [TODO] SpatialiteSchemaEditor
 class SpatialiteSchemaEditor(DatabaseSchemaEditor):
     sql_add_geometry_column = (
         "SELECT AddGeometryColumn(%(table)s, %(column)s, %(srid)s, "
@@ -29,13 +30,16 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         "geometry_columns_statistics",
     ]
 
+    # [TODO] SpatialiteSchemaEditor > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.geometry_sql = []
 
+    # [TODO] SpatialiteSchemaEditor > geo_quote_name
     def geo_quote_name(self, name):
         return self.connection.ops.geo_quote_name(name)
 
+    # [TODO] SpatialiteSchemaEditor > column_sql
     def column_sql(self, model, field, include_default=False):
         from django.contrib.gis.db.models import GeometryField
 
@@ -65,6 +69,7 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
             )
         return None, None
 
+    # [TODO] SpatialiteSchemaEditor > remove_geometry_metadata
     def remove_geometry_metadata(self, model, field):
         self.execute(
             self.sql_remove_geometry_metadata
@@ -81,6 +86,7 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
             }
         )
 
+    # [TODO] SpatialiteSchemaEditor > create_model
     def create_model(self, model):
         super().create_model(model)
         # Create geometry columns
@@ -88,6 +94,7 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
             self.execute(sql)
         self.geometry_sql = []
 
+    # [TODO] SpatialiteSchemaEditor > delete_model
     def delete_model(self, model, **kwargs):
         from django.contrib.gis.db.models import GeometryField
 
@@ -109,6 +116,7 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
                 pass
         super().delete_model(model, **kwargs)
 
+    # [TODO] SpatialiteSchemaEditor > add_field
     def add_field(self, model, field):
         from django.contrib.gis.db.models import GeometryField
 
@@ -121,6 +129,7 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         else:
             super().add_field(model, field)
 
+    # [TODO] SpatialiteSchemaEditor > remove_field
     def remove_field(self, model, field):
         from django.contrib.gis.db.models import GeometryField
 
@@ -134,6 +143,7 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         else:
             super().remove_field(model, field)
 
+    # [TODO] SpatialiteSchemaEditor > alter_db_table
     def alter_db_table(self, model, old_db_table, new_db_table):
         from django.contrib.gis.db.models import GeometryField
 

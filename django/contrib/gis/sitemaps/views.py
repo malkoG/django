@@ -7,6 +7,7 @@ from django.db import DEFAULT_DB_ALIAS, connections
 from django.http import Http404
 
 
+# [TODO] kml
 def kml(request, label, model, field_name=None, compress=False, using=DEFAULT_DB_ALIAS):
     """
     This view generates KML for the given app label, model, and field name.
@@ -58,6 +59,7 @@ def kml(request, label, model, field_name=None, compress=False, using=DEFAULT_DB
     return render("gis/kml/placemarks.kml", {"places": placemarks})
 
 
+# [TODO] kmz
 def kmz(request, label, model, field_name=None, using=DEFAULT_DB_ALIAS):
     """
     Return KMZ for the given app label, model, and field name.

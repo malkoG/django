@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
 
 
+# [TODO] Command
 class Command(BaseCommand):
     help = (
         "Runs the command-line client for specified database, or the "
@@ -12,6 +13,7 @@ class Command(BaseCommand):
 
     requires_system_checks = []
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         parser.add_argument(
             "--database",
@@ -24,6 +26,7 @@ class Command(BaseCommand):
         parameters = parser.add_argument_group("parameters", prefix_chars="--")
         parameters.add_argument("parameters", nargs="*")
 
+    # [TODO] Command > handle
     def handle(self, **options):
         connection = connections[options["database"]]
         try:

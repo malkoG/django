@@ -18,6 +18,7 @@ __all__ = (
 )
 
 
+# [TODO] UploadedFile
 class UploadedFile(File):
     """
     An abstract uploaded file (``TemporaryUploadedFile`` and
@@ -27,6 +28,7 @@ class UploadedFile(File):
     represents some file data that the user submitted with a form.
     """
 
+    # [TODO] UploadedFile > __init__
     def __init__(
         self,
         file=None,
@@ -42,12 +44,15 @@ class UploadedFile(File):
         self.charset = charset
         self.content_type_extra = content_type_extra
 
+    # [TODO] UploadedFile > __repr__
     def __repr__(self):
         return "<%s: %s (%s)>" % (self.__class__.__name__, self.name, self.content_type)
 
+    # [TODO] UploadedFile > _get_name
     def _get_name(self):
         return self._name
 
+    # [TODO] UploadedFile > _set_name
     def _set_name(self, name):
         # Sanitize the file name so that it can't be dangerous.
         if name is not None:
@@ -67,11 +72,13 @@ class UploadedFile(File):
     name = property(_get_name, _set_name)
 
 
+# [TODO] TemporaryUploadedFile
 class TemporaryUploadedFile(UploadedFile):
     """
     A file uploaded to a temporary location (i.e. stream-to-disk).
     """
 
+    # [TODO] TemporaryUploadedFile > __init__
     def __init__(self, name, content_type, size, charset, content_type_extra=None):
         _, ext = os.path.splitext(name)
         file = tempfile.NamedTemporaryFile(
@@ -79,10 +86,12 @@ class TemporaryUploadedFile(UploadedFile):
         )
         super().__init__(file, name, content_type, size, charset, content_type_extra)
 
+    # [TODO] TemporaryUploadedFile > temporary_file_path
     def temporary_file_path(self):
         """Return the full path of this file."""
         return self.file.name
 
+    # [TODO] TemporaryUploadedFile > close
     def close(self):
         try:
             return self.file.close()
@@ -93,11 +102,13 @@ class TemporaryUploadedFile(UploadedFile):
             pass
 
 
+# [TODO] InMemoryUploadedFile
 class InMemoryUploadedFile(UploadedFile):
     """
     A file uploaded into memory (i.e. stream-to-memory).
     """
 
+    # [TODO] InMemoryUploadedFile > __init__
     def __init__(
         self,
         file,
@@ -111,30 +122,36 @@ class InMemoryUploadedFile(UploadedFile):
         super().__init__(file, name, content_type, size, charset, content_type_extra)
         self.field_name = field_name
 
+    # [TODO] InMemoryUploadedFile > open
     def open(self, mode=None):
         self.file.seek(0)
         return self
 
+    # [TODO] InMemoryUploadedFile > chunks
     def chunks(self, chunk_size=None):
         self.file.seek(0)
         yield self.read()
 
+    # [TODO] InMemoryUploadedFile > multiple_chunks
     def multiple_chunks(self, chunk_size=None):
         # Since it's in memory, we'll never have multiple chunks.
         return False
 
 
+# [TODO] SimpleUploadedFile
 class SimpleUploadedFile(InMemoryUploadedFile):
     """
     A simple representation of a file, which just has content, size, and a name.
     """
 
+    # [TODO] SimpleUploadedFile > __init__
     def __init__(self, name, content, content_type="text/plain"):
         content = content or b""
         super().__init__(
             BytesIO(content), None, name, content_type, len(content), None, None
         )
 
+    # [TODO] SimpleUploadedFile > from_dict
     @classmethod
     def from_dict(cls, file_dict):
         """

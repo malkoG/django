@@ -20,6 +20,7 @@ __all__ = [
 ]
 
 
+# [TODO] UploadFileException
 class UploadFileException(Exception):
     """
     Any error having to do with uploading files.
@@ -28,11 +29,13 @@ class UploadFileException(Exception):
     pass
 
 
+# [TODO] StopUpload
 class StopUpload(UploadFileException):
     """
     This exception is raised when an upload must abort.
     """
 
+    # [TODO] StopUpload > __init__
     def __init__(self, connection_reset=False):
         """
         If ``connection_reset`` is ``True``, Django knows will halt the upload
@@ -41,6 +44,7 @@ class StopUpload(UploadFileException):
         """
         self.connection_reset = connection_reset
 
+    # [TODO] StopUpload > __str__
     def __str__(self):
         if self.connection_reset:
             return "StopUpload: Halt current upload."
@@ -48,6 +52,7 @@ class StopUpload(UploadFileException):
             return "StopUpload: Consume request data, then halt."
 
 
+# [TODO] SkipFile
 class SkipFile(UploadFileException):
     """
     This exception is raised by an upload handler that wants to skip a given file.
@@ -56,6 +61,7 @@ class SkipFile(UploadFileException):
     pass
 
 
+# [TODO] StopFutureHandlers
 class StopFutureHandlers(UploadFileException):
     """
     Upload handlers that have handled a file and do not want future handlers to
@@ -65,6 +71,7 @@ class StopFutureHandlers(UploadFileException):
     pass
 
 
+# [TODO] FileUploadHandler
 class FileUploadHandler:
     """
     Base class for streaming upload handlers.
@@ -72,6 +79,7 @@ class FileUploadHandler:
 
     chunk_size = 64 * 2**10  # : The default chunk size is 64 KB.
 
+    # [TODO] FileUploadHandler > __init__
     def __init__(self, request=None):
         self.file_name = None
         self.content_type = None
@@ -80,6 +88,7 @@ class FileUploadHandler:
         self.content_type_extra = None
         self.request = request
 
+    # [TODO] FileUploadHandler > handle_raw_input
     def handle_raw_input(
         self, input_data, META, content_length, boundary, encoding=None
     ):
@@ -100,6 +109,7 @@ class FileUploadHandler:
         """
         pass
 
+    # [TODO] FileUploadHandler > new_file
     def new_file(
         self,
         field_name,
@@ -122,6 +132,7 @@ class FileUploadHandler:
         self.charset = charset
         self.content_type_extra = content_type_extra
 
+    # [TODO] FileUploadHandler > receive_data_chunk
     def receive_data_chunk(self, raw_data, start):
         """
         Receive data from the streamed upload parser. ``start`` is the position
@@ -131,6 +142,7 @@ class FileUploadHandler:
             "subclasses of FileUploadHandler must provide a receive_data_chunk() method"
         )
 
+    # [TODO] FileUploadHandler > file_complete
     def file_complete(self, file_size):
         """
         Signal that a file has completed. File size corresponds to the actual
@@ -142,6 +154,7 @@ class FileUploadHandler:
             "subclasses of FileUploadHandler must provide a file_complete() method"
         )
 
+    # [TODO] FileUploadHandler > upload_complete
     def upload_complete(self):
         """
         Signal that the upload is complete. Subclasses should perform cleanup
@@ -149,6 +162,7 @@ class FileUploadHandler:
         """
         pass
 
+    # [TODO] FileUploadHandler > upload_interrupted
     def upload_interrupted(self):
         """
         Signal that the upload was interrupted. Subclasses should perform
@@ -157,11 +171,13 @@ class FileUploadHandler:
         pass
 
 
+# [TODO] TemporaryFileUploadHandler
 class TemporaryFileUploadHandler(FileUploadHandler):
     """
     Upload handler that streams data into a temporary file.
     """
 
+    # [TODO] TemporaryFileUploadHandler > new_file
     def new_file(self, *args, **kwargs):
         """
         Create the file object to append to as data is coming in.
@@ -171,14 +187,17 @@ class TemporaryFileUploadHandler(FileUploadHandler):
             self.file_name, self.content_type, 0, self.charset, self.content_type_extra
         )
 
+    # [TODO] TemporaryFileUploadHandler > receive_data_chunk
     def receive_data_chunk(self, raw_data, start):
         self.file.write(raw_data)
 
+    # [TODO] TemporaryFileUploadHandler > file_complete
     def file_complete(self, file_size):
         self.file.seek(0)
         self.file.size = file_size
         return self.file
 
+    # [TODO] TemporaryFileUploadHandler > upload_interrupted
     def upload_interrupted(self):
         if hasattr(self, "file"):
             temp_location = self.file.temporary_file_path()
@@ -189,11 +208,13 @@ class TemporaryFileUploadHandler(FileUploadHandler):
                 pass
 
 
+# [TODO] MemoryFileUploadHandler
 class MemoryFileUploadHandler(FileUploadHandler):
     """
     File upload handler to stream uploads into memory (used for small files).
     """
 
+    # [TODO] MemoryFileUploadHandler > handle_raw_input
     def handle_raw_input(
         self, input_data, META, content_length, boundary, encoding=None
     ):
@@ -205,12 +226,14 @@ class MemoryFileUploadHandler(FileUploadHandler):
         # If the post is too large, we cannot use the Memory handler.
         self.activated = content_length <= settings.FILE_UPLOAD_MAX_MEMORY_SIZE
 
+    # [TODO] MemoryFileUploadHandler > new_file
     def new_file(self, *args, **kwargs):
         super().new_file(*args, **kwargs)
         if self.activated:
             self.file = BytesIO()
             raise StopFutureHandlers()
 
+    # [TODO] MemoryFileUploadHandler > receive_data_chunk
     def receive_data_chunk(self, raw_data, start):
         """Add the data to the BytesIO file."""
         if self.activated:
@@ -218,6 +241,7 @@ class MemoryFileUploadHandler(FileUploadHandler):
         else:
             return raw_data
 
+    # [TODO] MemoryFileUploadHandler > file_complete
     def file_complete(self, file_size):
         """Return a file object if this handler is activated."""
         if not self.activated:
@@ -235,6 +259,7 @@ class MemoryFileUploadHandler(FileUploadHandler):
         )
 
 
+# [TODO] load_handler
 def load_handler(path, *args, **kwargs):
     """
     Given a path to a handler, return an instance of that handler.

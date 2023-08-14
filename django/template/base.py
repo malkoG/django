@@ -91,6 +91,7 @@ tag_re = re.compile(r"({%.*?%}|{{.*?}}|{#.*?#})")
 logger = logging.getLogger("django.template")
 
 
+# [TODO] TokenType
 class TokenType(Enum):
     TEXT = 0
     VAR = 1
@@ -98,27 +99,35 @@ class TokenType(Enum):
     COMMENT = 3
 
 
+# [TODO] VariableDoesNotExist
 class VariableDoesNotExist(Exception):
+    # [TODO] VariableDoesNotExist > __init__
     def __init__(self, msg, params=()):
         self.msg = msg
         self.params = params
 
+    # [TODO] VariableDoesNotExist > __str__
     def __str__(self):
         return self.msg % self.params
 
 
+# [TODO] Origin
 class Origin:
+    # [TODO] Origin > __init__
     def __init__(self, name, template_name=None, loader=None):
         self.name = name
         self.template_name = template_name
         self.loader = loader
 
+    # [TODO] Origin > __str__
     def __str__(self):
         return self.name
 
+    # [TODO] Origin > __repr__
     def __repr__(self):
         return "<%s name=%r>" % (self.__class__.__qualname__, self.name)
 
+    # [TODO] Origin > __eq__
     def __eq__(self, other):
         return (
             isinstance(other, Origin)
@@ -126,6 +135,7 @@ class Origin:
             and self.loader == other.loader
         )
 
+    # [TODO] Origin > loader_name
     @property
     def loader_name(self):
         if self.loader:
@@ -135,7 +145,9 @@ class Origin:
             )
 
 
+# [TODO] Template
 class Template:
+    # [TODO] Template > __init__
     def __init__(self, template_string, origin=None, name=None, engine=None):
         # If Template is instantiated directly rather than from an Engine and
         # exactly one Django template engine is configured, use that engine.
@@ -153,15 +165,18 @@ class Template:
         self.source = str(template_string)  # May be lazy.
         self.nodelist = self.compile_nodelist()
 
+    # [TODO] Template > __repr__
     def __repr__(self):
         return '<%s template_string="%s...">' % (
             self.__class__.__qualname__,
             self.source[:20].replace("\n", ""),
         )
 
+    # [TODO] Template > _render
     def _render(self, context):
         return self.nodelist.render(context)
 
+    # [TODO] Template > render
     def render(self, context):
         "Display stage -- can be called many times"
         with context.render_context.push_state(self):
@@ -172,6 +187,7 @@ class Template:
             else:
                 return self._render(context)
 
+    # [TODO] Template > compile_nodelist
     def compile_nodelist(self):
         """
         Parse and compile the template source into a nodelist. If debug
@@ -199,6 +215,7 @@ class Template:
                 e.template_debug = self.get_exception_info(e, e.token)
             raise
 
+    # [TODO] Template > get_exception_info
     def get_exception_info(self, exception, token):
         """
         Return a dictionary containing contextual line information of where
@@ -278,6 +295,7 @@ class Template:
         }
 
 
+# [TODO] linebreak_iter
 def linebreak_iter(template_source):
     yield 0
     p = template_source.find("\n")
@@ -287,7 +305,9 @@ def linebreak_iter(template_source):
     yield len(template_source) + 1
 
 
+# [TODO] Token
 class Token:
+    # [TODO] Token > __init__
     def __init__(self, token_type, contents, position=None, lineno=None):
         """
         A token representing a string from the template.
@@ -312,6 +332,7 @@ class Token:
         self.lineno = lineno
         self.position = position
 
+    # [TODO] Token > __repr__
     def __repr__(self):
         token_name = self.token_type.name.capitalize()
         return '<%s token: "%s...">' % (
@@ -319,6 +340,7 @@ class Token:
             self.contents[:20].replace("\n", ""),
         )
 
+    # [TODO] Token > split_contents
     def split_contents(self):
         split = []
         bits = smart_split(self.contents)
@@ -335,11 +357,14 @@ class Token:
         return split
 
 
+# [TODO] Lexer
 class Lexer:
+    # [TODO] Lexer > __init__
     def __init__(self, template_string):
         self.template_string = template_string
         self.verbatim = False
 
+    # [TODO] Lexer > __repr__
     def __repr__(self):
         return '<%s template_string="%s...", verbatim=%s>' % (
             self.__class__.__qualname__,
@@ -347,6 +372,7 @@ class Lexer:
             self.verbatim,
         )
 
+    # [TODO] Lexer > tokenize
     def tokenize(self):
         """
         Return a list of tokens from a given template_string.
@@ -361,6 +387,7 @@ class Lexer:
             in_tag = not in_tag
         return result
 
+    # [TODO] Lexer > create_token
     def create_token(self, token_string, position, lineno, in_tag):
         """
         Convert the given token string into a new Token object and return it.
@@ -396,7 +423,9 @@ class Lexer:
         return Token(TokenType.TEXT, token_string, position, lineno)
 
 
+# [TODO] DebugLexer
 class DebugLexer(Lexer):
+    # [TODO] DebugLexer > _tag_re_split_positions
     def _tag_re_split_positions(self):
         last = 0
         for match in tag_re.finditer(self.template_string):
@@ -407,10 +436,12 @@ class DebugLexer(Lexer):
         yield last, len(self.template_string)
 
     # This parallels the use of tag_re.split() in Lexer.tokenize().
+    # [TODO] DebugLexer > _tag_re_split
     def _tag_re_split(self):
         for position in self._tag_re_split_positions():
             yield self.template_string[slice(*position)], position
 
+    # [TODO] DebugLexer > tokenize
     def tokenize(self):
         """
         Split a template string into tokens and annotates each token with its
@@ -430,7 +461,9 @@ class DebugLexer(Lexer):
         return result
 
 
+# [TODO] Parser
 class Parser:
+    # [TODO] Parser > __init__
     def __init__(self, tokens, libraries=None, builtins=None, origin=None):
         # Reverse the tokens so delete_first_token(), prepend_token(), and
         # next_token() can operate at the end of the list in constant time.
@@ -449,9 +482,11 @@ class Parser:
             self.add_library(builtin)
         self.origin = origin
 
+    # [TODO] Parser > __repr__
     def __repr__(self):
         return "<%s tokens=%r>" % (self.__class__.__qualname__, self.tokens)
 
+    # [TODO] Parser > parse
     def parse(self, parse_until=None):
         """
         Iterate through the parser tokens and compiles each one into a node.
@@ -515,6 +550,7 @@ class Parser:
             self.unclosed_block_tag(parse_until)
         return nodelist
 
+    # [TODO] Parser > skip_past
     def skip_past(self, endtag):
         while self.tokens:
             token = self.next_token()
@@ -522,6 +558,7 @@ class Parser:
                 return
         self.unclosed_block_tag([endtag])
 
+    # [TODO] Parser > extend_nodelist
     def extend_nodelist(self, nodelist, node, token):
         # Check that non-text nodes don't appear before an extends tag.
         if node.must_be_first and nodelist.contains_nontext:
@@ -537,6 +574,7 @@ class Parser:
         node.origin = self.origin
         nodelist.append(node)
 
+    # [TODO] Parser > error
     def error(self, token, e):
         """
         Return an exception annotated with the originating token. Since the
@@ -550,6 +588,7 @@ class Parser:
             e.token = token
         return e
 
+    # [TODO] Parser > invalid_block_tag
     def invalid_block_tag(self, token, command, parse_until=None):
         if parse_until:
             raise self.error(
@@ -568,6 +607,7 @@ class Parser:
             "or load this tag?" % (token.lineno, command),
         )
 
+    # [TODO] Parser > unclosed_block_tag
     def unclosed_block_tag(self, parse_until):
         command, token = self.command_stack.pop()
         msg = "Unclosed tag on line %d: '%s'. Looking for one of: %s." % (
@@ -577,25 +617,31 @@ class Parser:
         )
         raise self.error(token, msg)
 
+    # [TODO] Parser > next_token
     def next_token(self):
         return self.tokens.pop()
 
+    # [TODO] Parser > prepend_token
     def prepend_token(self, token):
         self.tokens.append(token)
 
+    # [TODO] Parser > delete_first_token
     def delete_first_token(self):
         del self.tokens[-1]
 
+    # [TODO] Parser > add_library
     def add_library(self, lib):
         self.tags.update(lib.tags)
         self.filters.update(lib.filters)
 
+    # [TODO] Parser > compile_filter
     def compile_filter(self, token):
         """
         Convenient wrapper for FilterExpression
         """
         return FilterExpression(token, self)
 
+    # [TODO] Parser > find_filter
     def find_filter(self, filter_name):
         if filter_name in self.filters:
             return self.filters[filter_name]
@@ -641,6 +687,7 @@ filter_raw_string = r"""
 filter_re = _lazy_re_compile(filter_raw_string, re.VERBOSE)
 
 
+# [TODO] FilterExpression
 class FilterExpression:
     """
     Parse a variable token and its optional filters (all as a single string),
@@ -658,6 +705,7 @@ class FilterExpression:
 
     __slots__ = ("token", "filters", "var", "is_var")
 
+    # [TODO] FilterExpression > __init__
     def __init__(self, token, parser):
         self.token = token
         matches = filter_re.finditer(token)
@@ -704,6 +752,7 @@ class FilterExpression:
         self.var = var_obj
         self.is_var = isinstance(var_obj, Variable)
 
+    # [TODO] FilterExpression > resolve
     def resolve(self, context, ignore_failures=False):
         if self.is_var:
             try:
@@ -741,6 +790,7 @@ class FilterExpression:
                 obj = new_obj
         return obj
 
+    # [TODO] FilterExpression > args_check
     def args_check(name, func, provided):
         provided = list(provided)
         # First argument, filter input, is implied.
@@ -761,13 +811,16 @@ class FilterExpression:
 
     args_check = staticmethod(args_check)
 
+    # [TODO] FilterExpression > __str__
     def __str__(self):
         return self.token
 
+    # [TODO] FilterExpression > __repr__
     def __repr__(self):
         return "<%s %r>" % (self.__class__.__qualname__, self.token)
 
 
+# [TODO] Variable
 class Variable:
     """
     A template variable, resolvable against a given context. The variable may
@@ -789,6 +842,7 @@ class Variable:
 
     __slots__ = ("var", "literal", "lookups", "translate", "message_context")
 
+    # [TODO] Variable > __init__
     def __init__(self, var):
         self.var = var
         self.literal = None
@@ -835,6 +889,7 @@ class Variable:
                     )
                 self.lookups = tuple(var.split(VARIABLE_ATTRIBUTE_SEPARATOR))
 
+    # [TODO] Variable > resolve
     def resolve(self, context):
         """Resolve this variable against a given context."""
         if self.lookups is not None:
@@ -853,12 +908,15 @@ class Variable:
                 return gettext_lazy(msgid)
         return value
 
+    # [TODO] Variable > __repr__
     def __repr__(self):
         return "<%s: %r>" % (self.__class__.__name__, self.var)
 
+    # [TODO] Variable > __str__
     def __str__(self):
         return self.var
 
+    # [TODO] Variable > _resolve_lookup
     def _resolve_lookup(self, context):
         """
         Perform resolution of a real variable (i.e. not a literal) against the
@@ -937,6 +995,7 @@ class Variable:
         return current
 
 
+# [TODO] Node
 class Node:
     # Set this to True for nodes that must be first in the template (although
     # they can be preceded by text nodes.
@@ -944,12 +1003,14 @@ class Node:
     child_nodelists = ("nodelist",)
     token = None
 
+    # [TODO] Node > render
     def render(self, context):
         """
         Return the node rendered as a string.
         """
         pass
 
+    # [TODO] Node > render_annotated
     def render_annotated(self, context):
         """
         Render the node. If debug is True and an exception occurs during
@@ -976,6 +1037,7 @@ class Node:
                     )
             raise
 
+    # [TODO] Node > get_nodes_by_type
     def get_nodes_by_type(self, nodetype):
         """
         Return a list of all nodes (within this node and its nodelist)
@@ -991,14 +1053,17 @@ class Node:
         return nodes
 
 
+# [TODO] NodeList
 class NodeList(list):
     # Set to True the first time a non-TextNode is inserted by
     # extend_nodelist().
     contains_nontext = False
 
+    # [TODO] NodeList > render
     def render(self, context):
         return SafeString("".join([node.render_annotated(context) for node in self]))
 
+    # [TODO] NodeList > get_nodes_by_type
     def get_nodes_by_type(self, nodetype):
         "Return a list of all nodes of the given type"
         nodes = []
@@ -1007,18 +1072,23 @@ class NodeList(list):
         return nodes
 
 
+# [TODO] TextNode
 class TextNode(Node):
     child_nodelists = ()
 
+    # [TODO] TextNode > __init__
     def __init__(self, s):
         self.s = s
 
+    # [TODO] TextNode > __repr__
     def __repr__(self):
         return "<%s: %r>" % (self.__class__.__name__, self.s[:25])
 
+    # [TODO] TextNode > render
     def render(self, context):
         return self.s
 
+    # [TODO] TextNode > render_annotated
     def render_annotated(self, context):
         """
         Return the given value.
@@ -1029,6 +1099,7 @@ class TextNode(Node):
         return self.s
 
 
+# [TODO] render_value_in_context
 def render_value_in_context(value, context):
     """
     Convert any value to a string to become part of a rendered template. This
@@ -1045,15 +1116,19 @@ def render_value_in_context(value, context):
         return str(value)
 
 
+# [TODO] VariableNode
 class VariableNode(Node):
     child_nodelists = ()
 
+    # [TODO] VariableNode > __init__
     def __init__(self, filter_expression):
         self.filter_expression = filter_expression
 
+    # [TODO] VariableNode > __repr__
     def __repr__(self):
         return "<Variable Node: %s>" % self.filter_expression
 
+    # [TODO] VariableNode > render
     def render(self, context):
         try:
             output = self.filter_expression.resolve(context)
@@ -1069,6 +1144,7 @@ class VariableNode(Node):
 kwarg_re = _lazy_re_compile(r"(?:(\w+)=)?(.+)")
 
 
+# [TODO] token_kwargs
 def token_kwargs(bits, parser, support_legacy=False):
     """
     Parse token keyword arguments and return a dictionary of the arguments

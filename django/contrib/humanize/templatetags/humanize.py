@@ -20,6 +20,7 @@ from django.utils.translation import (
 register = template.Library()
 
 
+# [TODO] ordinal
 @register.filter(is_safe=True)
 def ordinal(value):
     """
@@ -61,6 +62,7 @@ def ordinal(value):
     return mark_safe(value)
 
 
+# [TODO] intcomma
 @register.filter(is_safe=True)
 def intcomma(value, use_l10n=True):
     """
@@ -115,6 +117,7 @@ intword_converters = (
 )
 
 
+# [TODO] intword
 @register.filter(is_safe=False)
 def intword(value):
     """
@@ -142,6 +145,7 @@ def intword(value):
     return value
 
 
+# [TODO] apnumber
 @register.filter(is_safe=True)
 def apnumber(value):
     """
@@ -169,6 +173,7 @@ def apnumber(value):
 
 # Perform the comparison in the default time zone when USE_TZ = True
 # (unless a specific time zone has been applied with the |timezone filter).
+# [TODO] naturalday
 @register.filter(expects_localtime=True)
 def naturalday(value, arg=None):
     """
@@ -195,6 +200,7 @@ def naturalday(value, arg=None):
 
 # This filter doesn't require expects_localtime=True because it deals properly
 # with both naive and aware datetimes. Therefore avoid the cost of conversion.
+# [TODO] naturaltime
 @register.filter
 def naturaltime(value):
     """
@@ -204,6 +210,7 @@ def naturaltime(value):
     return NaturalTimeFormatter.string_for(value)
 
 
+# [TODO] NaturalTimeFormatter
 class NaturalTimeFormatter:
     time_strings = {
         # Translators: delta will contain a string like '2 months' or '1 month, 2 weeks'
@@ -278,6 +285,7 @@ class NaturalTimeFormatter:
         ),
     }
 
+    # [TODO] NaturalTimeFormatter > string_for
     @classmethod
     def string_for(cls, value):
         if not isinstance(value, date):  # datetime is a subclass of date

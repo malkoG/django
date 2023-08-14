@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.checks import Error
 
 
+# [TODO] check_site_id
 def check_site_id(app_configs, **kwargs):
     if hasattr(settings, "SITE_ID") and not isinstance(
         settings.SITE_ID, (NoneType, int)

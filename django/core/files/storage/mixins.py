@@ -1,4 +1,6 @@
+# [TODO] StorageSettingsMixin
 class StorageSettingsMixin:
+    # [TODO] StorageSettingsMixin > _clear_cached_properties
     def _clear_cached_properties(self, setting, **kwargs):
         """Reset setting based property values."""
         if setting == "MEDIA_ROOT":
@@ -11,5 +13,6 @@ class StorageSettingsMixin:
         elif setting == "FILE_UPLOAD_DIRECTORY_PERMISSIONS":
             self.__dict__.pop("directory_permissions_mode", None)
 
+    # [TODO] StorageSettingsMixin > _value_or_setting
     def _value_or_setting(self, value, setting):
         return setting if value is None else value

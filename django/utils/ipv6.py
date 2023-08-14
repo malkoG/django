@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] clean_ipv6_address
 def clean_ipv6_address(
     ip_str, unpack_ipv4=False, error_message=_("This is not a valid IPv6 address.")
 ):
@@ -36,6 +37,7 @@ def clean_ipv6_address(
     return str(addr)
 
 
+# [TODO] is_valid_ipv6_address
 def is_valid_ipv6_address(ip_str):
     """
     Return whether or not the `ip_str` string is a valid IPv6 address.

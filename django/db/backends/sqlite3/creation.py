@@ -9,19 +9,23 @@ from django.db import NotSupportedError
 from django.db.backends.base.creation import BaseDatabaseCreation
 
 
+# [TODO] DatabaseCreation
 class DatabaseCreation(BaseDatabaseCreation):
+    # [TODO] DatabaseCreation > is_in_memory_db
     @staticmethod
     def is_in_memory_db(database_name):
         return not isinstance(database_name, Path) and (
             database_name == ":memory:" or "mode=memory" in database_name
         )
 
+    # [TODO] DatabaseCreation > _get_test_db_name
     def _get_test_db_name(self):
         test_database_name = self.connection.settings_dict["TEST"]["NAME"] or ":memory:"
         if test_database_name == ":memory:":
             return "file:memorydb_%s?mode=memory&cache=shared" % self.connection.alias
         return test_database_name
 
+    # [TODO] DatabaseCreation > _create_test_db
     def _create_test_db(self, verbosity, autoclobber, keepdb=False):
         test_database_name = self._get_test_db_name()
 
@@ -51,6 +55,7 @@ class DatabaseCreation(BaseDatabaseCreation):
                     sys.exit(1)
         return test_database_name
 
+    # [TODO] DatabaseCreation > get_test_db_clone_settings
     def get_test_db_clone_settings(self, suffix):
         orig_settings_dict = self.connection.settings_dict
         source_database_name = orig_settings_dict["NAME"]
@@ -71,6 +76,7 @@ class DatabaseCreation(BaseDatabaseCreation):
             f"Cloning with start method {start_method!r} is not supported."
         )
 
+    # [TODO] DatabaseCreation > _clone_test_db
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
         source_database_name = self.connection.settings_dict["NAME"]
         target_database_name = self.get_test_db_clone_settings(suffix)["NAME"]
@@ -106,11 +112,13 @@ class DatabaseCreation(BaseDatabaseCreation):
             self.connection.connection.backup(ondisk_db)
             ondisk_db.close()
 
+    # [TODO] DatabaseCreation > _destroy_test_db
     def _destroy_test_db(self, test_database_name, verbosity):
         if test_database_name and not self.is_in_memory_db(test_database_name):
             # Remove the SQLite database file
             os.remove(test_database_name)
 
+    # [TODO] DatabaseCreation > test_db_signature
     def test_db_signature(self):
         """
         Return a tuple that uniquely identifies a test database.
@@ -127,6 +135,7 @@ class DatabaseCreation(BaseDatabaseCreation):
             sig.append(test_database_name)
         return tuple(sig)
 
+    # [TODO] DatabaseCreation > setup_worker_connection
     def setup_worker_connection(self, _worker_id):
         settings_dict = self.get_test_db_clone_settings(_worker_id)
         # connection.settings_dict must be updated in place for changes to be

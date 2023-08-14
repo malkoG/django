@@ -5,6 +5,7 @@ from django.contrib.gis.db.backends.base.models import SpatialRefSysMixin
 from django.db import models
 
 
+# [TODO] PostGISGeometryColumns
 class PostGISGeometryColumns(models.Model):
     """
     The 'geometry_columns' view from PostGIS. See the PostGIS
@@ -19,11 +20,13 @@ class PostGISGeometryColumns(models.Model):
     srid = models.IntegerField(primary_key=True)
     type = models.CharField(max_length=30)
 
+    # [TODO] PostGISGeometryColumns > Meta
     class Meta:
         app_label = "gis"
         db_table = "geometry_columns"
         managed = False
 
+    # [TODO] PostGISGeometryColumns > __str__
     def __str__(self):
         return "%s.%s - %dD %s field (SRID: %d)" % (
             self.f_table_name,
@@ -33,6 +36,7 @@ class PostGISGeometryColumns(models.Model):
             self.srid,
         )
 
+    # [TODO] PostGISGeometryColumns > table_name_col
     @classmethod
     def table_name_col(cls):
         """
@@ -41,6 +45,7 @@ class PostGISGeometryColumns(models.Model):
         """
         return "f_table_name"
 
+    # [TODO] PostGISGeometryColumns > geom_col_name
     @classmethod
     def geom_col_name(cls):
         """
@@ -50,6 +55,7 @@ class PostGISGeometryColumns(models.Model):
         return "f_geometry_column"
 
 
+# [TODO] PostGISSpatialRefSys
 class PostGISSpatialRefSys(models.Model, SpatialRefSysMixin):
     """
     The 'spatial_ref_sys' table from PostGIS. See the PostGIS
@@ -62,11 +68,13 @@ class PostGISSpatialRefSys(models.Model, SpatialRefSysMixin):
     srtext = models.CharField(max_length=2048)
     proj4text = models.CharField(max_length=2048)
 
+    # [TODO] PostGISSpatialRefSys > Meta
     class Meta:
         app_label = "gis"
         db_table = "spatial_ref_sys"
         managed = False
 
+    # [TODO] PostGISSpatialRefSys > wkt
     @property
     def wkt(self):
         return self.srtext

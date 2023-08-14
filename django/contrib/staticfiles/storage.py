@@ -13,6 +13,7 @@ from django.core.files.storage import FileSystemStorage, storages
 from django.utils.functional import LazyObject
 
 
+# [TODO] StaticFilesStorage
 class StaticFilesStorage(FileSystemStorage):
     """
     Standard file system storage for static files.
@@ -21,6 +22,7 @@ class StaticFilesStorage(FileSystemStorage):
     ``STATIC_ROOT`` and ``STATIC_URL``.
     """
 
+    # [TODO] StaticFilesStorage > __init__
     def __init__(self, location=None, base_url=None, *args, **kwargs):
         if location is None:
             location = settings.STATIC_ROOT
@@ -34,6 +36,7 @@ class StaticFilesStorage(FileSystemStorage):
             self.base_location = None
             self.location = None
 
+    # [TODO] StaticFilesStorage > path
     def path(self, name):
         if not self.location:
             raise ImproperlyConfigured(
@@ -44,6 +47,7 @@ class StaticFilesStorage(FileSystemStorage):
         return super().path(name)
 
 
+# [TODO] HashedFilesMixin
 class HashedFilesMixin:
     default_template = """url("%(url)s")"""
     max_post_process_passes = 5
@@ -105,6 +109,7 @@ class HashedFilesMixin:
     )
     keep_intermediate_files = True
 
+    # [TODO] HashedFilesMixin > __init__
     def __init__(self, *args, **kwargs):
         if self.support_js_module_import_aggregation:
             self.patterns += (self._js_module_import_aggregation_patterns,)
@@ -120,6 +125,7 @@ class HashedFilesMixin:
                 compiled = re.compile(pattern, re.IGNORECASE)
                 self._patterns.setdefault(extension, []).append((compiled, template))
 
+    # [TODO] HashedFilesMixin > file_hash
     def file_hash(self, name, content=None):
         """
         Return a hash of the file with the given name and optional content.
@@ -131,6 +137,7 @@ class HashedFilesMixin:
             hasher.update(chunk)
         return hasher.hexdigest()[:12]
 
+    # [TODO] HashedFilesMixin > hashed_name
     def hashed_name(self, name, content=None, filename=None):
         # `filename` is the name of file to hash if `content` isn't given.
         # `name` is the base name to construct the new hashed filename from.
@@ -165,6 +172,7 @@ class HashedFilesMixin:
             unparsed_name[2] += "?"
         return urlunsplit(unparsed_name)
 
+    # [TODO] HashedFilesMixin > _url
     def _url(self, hashed_name_func, name, force=False, hashed_files=None):
         """
         Return the non-hashed URL in DEBUG mode.
@@ -196,12 +204,14 @@ class HashedFilesMixin:
 
         return unquote(final_url)
 
+    # [TODO] HashedFilesMixin > url
     def url(self, name, force=False):
         """
         Return the non-hashed URL in DEBUG mode.
         """
         return self._url(self.stored_name, name, force)
 
+    # [TODO] HashedFilesMixin > url_converter
     def url_converter(self, name, hashed_files, template=None):
         """
         Return the custom URL converter for the given file name.
@@ -267,6 +277,7 @@ class HashedFilesMixin:
 
         return converter
 
+    # [TODO] HashedFilesMixin > post_process
     def post_process(self, paths, dry_run=False, **options):
         """
         Post process the given dictionary of files (called from collectstatic).
@@ -330,6 +341,7 @@ class HashedFilesMixin:
         # Yield adjustable files with final, hashed name.
         yield from processed_adjustable_paths.values()
 
+    # [TODO] HashedFilesMixin > _post_process
     def _post_process(self, paths, adjustable_paths, hashed_files):
         # Sort the files by directory level
         def path_level(name):
@@ -407,12 +419,15 @@ class HashedFilesMixin:
 
                 yield name, hashed_name, processed, substitutions
 
+    # [TODO] HashedFilesMixin > clean_name
     def clean_name(self, name):
         return name.replace("\\", "/")
 
+    # [TODO] HashedFilesMixin > hash_key
     def hash_key(self, name):
         return name
 
+    # [TODO] HashedFilesMixin > _stored_name
     def _stored_name(self, name, hashed_files):
         # Normalize the path to avoid multiple names for the same file like
         # ../foo/bar.css and ../foo/../foo/bar.css which normalize to the same
@@ -425,6 +440,7 @@ class HashedFilesMixin:
             cache_name = self.clean_name(self.hashed_name(name))
         return cache_name
 
+    # [TODO] HashedFilesMixin > stored_name
     def stored_name(self, name):
         cleaned_name = self.clean_name(name)
         hash_key = self.hash_key(cleaned_name)
@@ -449,12 +465,14 @@ class HashedFilesMixin:
         raise ValueError("The name '%s' could not be hashed with %r." % (name, self))
 
 
+# [TODO] ManifestFilesMixin
 class ManifestFilesMixin(HashedFilesMixin):
     manifest_version = "1.1"  # the manifest format standard
     manifest_name = "staticfiles.json"
     manifest_strict = True
     keep_intermediate_files = False
 
+    # [TODO] ManifestFilesMixin > __init__
     def __init__(self, *args, manifest_storage=None, **kwargs):
         super().__init__(*args, **kwargs)
         if manifest_storage is None:
@@ -462,6 +480,7 @@ class ManifestFilesMixin(HashedFilesMixin):
         self.manifest_storage = manifest_storage
         self.hashed_files, self.manifest_hash = self.load_manifest()
 
+    # [TODO] ManifestFilesMixin > read_manifest
     def read_manifest(self):
         try:
             with self.manifest_storage.open(self.manifest_name) as manifest:
@@ -469,6 +488,7 @@ class ManifestFilesMixin(HashedFilesMixin):
         except FileNotFoundError:
             return None
 
+    # [TODO] ManifestFilesMixin > load_manifest
     def load_manifest(self):
         content = self.read_manifest()
         if content is None:
@@ -486,12 +506,14 @@ class ManifestFilesMixin(HashedFilesMixin):
             % (self.manifest_name, self.manifest_version)
         )
 
+    # [TODO] ManifestFilesMixin > post_process
     def post_process(self, *args, **kwargs):
         self.hashed_files = {}
         yield from super().post_process(*args, **kwargs)
         if not kwargs.get("dry_run"):
             self.save_manifest()
 
+    # [TODO] ManifestFilesMixin > save_manifest
     def save_manifest(self):
         self.manifest_hash = self.file_hash(
             None, ContentFile(json.dumps(sorted(self.hashed_files.items())).encode())
@@ -506,6 +528,7 @@ class ManifestFilesMixin(HashedFilesMixin):
         contents = json.dumps(payload).encode()
         self.manifest_storage._save(self.manifest_name, ContentFile(contents))
 
+    # [TODO] ManifestFilesMixin > stored_name
     def stored_name(self, name):
         parsed_name = urlsplit(unquote(name))
         clean_name = parsed_name.path.strip()
@@ -526,6 +549,7 @@ class ManifestFilesMixin(HashedFilesMixin):
         return urlunsplit(unparsed_name)
 
 
+# [TODO] ManifestStaticFilesStorage
 class ManifestStaticFilesStorage(ManifestFilesMixin, StaticFilesStorage):
     """
     A static file system storage backend which also saves
@@ -535,7 +559,9 @@ class ManifestStaticFilesStorage(ManifestFilesMixin, StaticFilesStorage):
     pass
 
 
+# [TODO] ConfiguredStorage
 class ConfiguredStorage(LazyObject):
+    # [TODO] ConfiguredStorage > _setup
     def _setup(self):
         self._wrapped = storages[STATICFILES_STORAGE_ALIAS]
 

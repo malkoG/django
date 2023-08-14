@@ -12,6 +12,7 @@ from django.utils.version import get_docs_version
 from .loader import MigrationLoader
 
 
+# [TODO] MigrationQuestioner
 class MigrationQuestioner:
     """
     Give the autodetector responses to questions it might have.
@@ -19,11 +20,13 @@ class MigrationQuestioner:
     interactive subclass is what the command-line arguments will use.
     """
 
+    # [TODO] MigrationQuestioner > __init__
     def __init__(self, defaults=None, specified_apps=None, dry_run=None):
         self.defaults = defaults or {}
         self.specified_apps = specified_apps or set()
         self.dry_run = dry_run
 
+    # [TODO] MigrationQuestioner > ask_initial
     def ask_initial(self, app_label):
         """Should we create an initial migration for the app?"""
         # If it was specified on the command line, definitely true
@@ -54,40 +57,49 @@ class MigrationQuestioner:
                 filenames = os.listdir(list(migrations_module.__path__)[0])
             return not any(x.endswith(".py") for x in filenames if x != "__init__.py")
 
+    # [TODO] MigrationQuestioner > ask_not_null_addition
     def ask_not_null_addition(self, field_name, model_name):
         """Adding a NOT NULL field to a model."""
         # None means quit
         return None
 
+    # [TODO] MigrationQuestioner > ask_not_null_alteration
     def ask_not_null_alteration(self, field_name, model_name):
         """Changing a NULL field to NOT NULL."""
         # None means quit
         return None
 
+    # [TODO] MigrationQuestioner > ask_rename
     def ask_rename(self, model_name, old_name, new_name, field_instance):
         """Was this field really renamed?"""
         return self.defaults.get("ask_rename", False)
 
+    # [TODO] MigrationQuestioner > ask_rename_model
     def ask_rename_model(self, old_model_state, new_model_state):
         """Was this model really renamed?"""
         return self.defaults.get("ask_rename_model", False)
 
+    # [TODO] MigrationQuestioner > ask_merge
     def ask_merge(self, app_label):
         """Should these migrations really be merged?"""
         return self.defaults.get("ask_merge", False)
 
+    # [TODO] MigrationQuestioner > ask_auto_now_add_addition
     def ask_auto_now_add_addition(self, field_name, model_name):
         """Adding an auto_now_add field to a model."""
         # None means quit
         return None
 
+    # [TODO] MigrationQuestioner > ask_unique_callable_default_addition
     def ask_unique_callable_default_addition(self, field_name, model_name):
         """Adding a unique field with a callable default."""
         # None means continue.
         return None
 
 
+# [TODO] InteractiveMigrationQuestioner
 class InteractiveMigrationQuestioner(MigrationQuestioner):
+    # [TODO] InteractiveMigrationQuestioner > __init__
     def __init__(
         self, defaults=None, specified_apps=None, dry_run=None, prompt_output=None
     ):
@@ -96,6 +108,7 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         )
         self.prompt_output = prompt_output or OutputWrapper(sys.stdout)
 
+    # [TODO] InteractiveMigrationQuestioner > _boolean_input
     def _boolean_input(self, question, default=None):
         self.prompt_output.write(f"{question} ", ending="")
         result = input()
@@ -106,6 +119,7 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
             result = input()
         return result[0].lower() == "y"
 
+    # [TODO] InteractiveMigrationQuestioner > _choice_input
     def _choice_input(self, question, choices):
         self.prompt_output.write(f"{question}")
         for i, choice in enumerate(choices):
@@ -123,6 +137,7 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
             self.prompt_output.write("Please select a valid option: ", ending="")
             result = input()
 
+    # [TODO] InteractiveMigrationQuestioner > _ask_default
     def _ask_default(self, default=""):
         """
         Prompt for a default value.
@@ -163,6 +178,7 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
                 except (SyntaxError, NameError) as e:
                     self.prompt_output.write("Invalid input: %s" % e)
 
+    # [TODO] InteractiveMigrationQuestioner > ask_not_null_addition
     def ask_not_null_addition(self, field_name, model_name):
         """Adding a NOT NULL field to a model."""
         if not self.dry_run:
@@ -186,6 +202,7 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
                 return self._ask_default()
         return None
 
+    # [TODO] InteractiveMigrationQuestioner > ask_not_null_alteration
     def ask_not_null_alteration(self, field_name, model_name):
         """Changing a NULL field to NOT NULL."""
         if not self.dry_run:
@@ -214,6 +231,7 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
                 return self._ask_default()
         return None
 
+    # [TODO] InteractiveMigrationQuestioner > ask_rename
     def ask_rename(self, model_name, old_name, new_name, field_instance):
         """Was this field really renamed?"""
         msg = "Was %s.%s renamed to %s.%s (a %s)? [y/N]"
@@ -229,6 +247,7 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
             False,
         )
 
+    # [TODO] InteractiveMigrationQuestioner > ask_rename_model
     def ask_rename_model(self, old_model_state, new_model_state):
         """Was this model really renamed?"""
         msg = "Was the model %s.%s renamed to %s? [y/N]"
@@ -238,6 +257,7 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
             False,
         )
 
+    # [TODO] InteractiveMigrationQuestioner > ask_merge
     def ask_merge(self, app_label):
         return self._boolean_input(
             "\nMerging will only work if the operations printed above do not conflict\n"
@@ -246,6 +266,7 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
             False,
         )
 
+    # [TODO] InteractiveMigrationQuestioner > ask_auto_now_add_addition
     def ask_auto_now_add_addition(self, field_name, model_name):
         """Adding an auto_now_add field to a model."""
         if not self.dry_run:
@@ -266,6 +287,7 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
                 return self._ask_default(default="timezone.now")
         return None
 
+    # [TODO] InteractiveMigrationQuestioner > ask_unique_callable_default_addition
     def ask_unique_callable_default_addition(self, field_name, model_name):
         """Adding a unique field with a callable default."""
         if not self.dry_run:
@@ -288,7 +310,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         return None
 
 
+# [TODO] NonInteractiveMigrationQuestioner
 class NonInteractiveMigrationQuestioner(MigrationQuestioner):
+    # [TODO] NonInteractiveMigrationQuestioner > __init__
     def __init__(
         self,
         defaults=None,
@@ -305,6 +329,7 @@ class NonInteractiveMigrationQuestioner(MigrationQuestioner):
             dry_run=dry_run,
         )
 
+    # [TODO] NonInteractiveMigrationQuestioner > log_lack_of_migration
     def log_lack_of_migration(self, field_name, model_name, reason):
         if self.verbosity > 0:
             self.log(
@@ -312,6 +337,7 @@ class NonInteractiveMigrationQuestioner(MigrationQuestioner):
                 f"{reason}."
             )
 
+    # [TODO] NonInteractiveMigrationQuestioner > ask_not_null_addition
     def ask_not_null_addition(self, field_name, model_name):
         # We can't ask the user, so act like the user aborted.
         self.log_lack_of_migration(
@@ -322,6 +348,7 @@ class NonInteractiveMigrationQuestioner(MigrationQuestioner):
         )
         sys.exit(3)
 
+    # [TODO] NonInteractiveMigrationQuestioner > ask_not_null_alteration
     def ask_not_null_alteration(self, field_name, model_name):
         # We can't ask the user, so set as not provided.
         self.log(
@@ -330,6 +357,7 @@ class NonInteractiveMigrationQuestioner(MigrationQuestioner):
         )
         return NOT_PROVIDED
 
+    # [TODO] NonInteractiveMigrationQuestioner > ask_auto_now_add_addition
     def ask_auto_now_add_addition(self, field_name, model_name):
         # We can't ask the user, so act like the user aborted.
         self.log_lack_of_migration(

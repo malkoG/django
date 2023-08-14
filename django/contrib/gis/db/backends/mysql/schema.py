@@ -7,14 +7,17 @@ from django.db.backends.mysql.schema import DatabaseSchemaEditor
 logger = logging.getLogger("django.contrib.gis")
 
 
+# [TODO] MySQLGISSchemaEditor
 class MySQLGISSchemaEditor(DatabaseSchemaEditor):
     sql_add_spatial_index = "CREATE SPATIAL INDEX %(index)s ON %(table)s(%(column)s)"
     sql_drop_spatial_index = "DROP INDEX %(index)s ON %(table)s"
 
+    # [TODO] MySQLGISSchemaEditor > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.geometry_sql = []
 
+    # [TODO] MySQLGISSchemaEditor > skip_default
     def skip_default(self, field):
         # Geometry fields are stored as BLOB/TEXT, for which MySQL < 8.0.13
         # doesn't support defaults.
@@ -25,11 +28,13 @@ class MySQLGISSchemaEditor(DatabaseSchemaEditor):
             return True
         return super().skip_default(field)
 
+    # [TODO] MySQLGISSchemaEditor > quote_value
     def quote_value(self, value):
         if isinstance(value, self.connection.ops.Adapter):
             return super().quote_value(str(value))
         return super().quote_value(value)
 
+    # [TODO] MySQLGISSchemaEditor > column_sql
     def column_sql(self, model, field, include_default=False):
         column_sql = super().column_sql(model, field, include_default)
         # MySQL doesn't support spatial indexes on NULL columns
@@ -46,14 +51,17 @@ class MySQLGISSchemaEditor(DatabaseSchemaEditor):
             )
         return column_sql
 
+    # [TODO] MySQLGISSchemaEditor > create_model
     def create_model(self, model):
         super().create_model(model)
         self.create_spatial_indexes()
 
+    # [TODO] MySQLGISSchemaEditor > add_field
     def add_field(self, model, field):
         super().add_field(model, field)
         self.create_spatial_indexes()
 
+    # [TODO] MySQLGISSchemaEditor > remove_field
     def remove_field(self, model, field):
         if isinstance(field, GeometryField) and field.spatial_index:
             qn = self.connection.ops.quote_name
@@ -72,9 +80,11 @@ class MySQLGISSchemaEditor(DatabaseSchemaEditor):
 
         super().remove_field(model, field)
 
+    # [TODO] MySQLGISSchemaEditor > _create_spatial_index_name
     def _create_spatial_index_name(self, model, field):
         return "%s_%s_id" % (model._meta.db_table, field.column)
 
+    # [TODO] MySQLGISSchemaEditor > create_spatial_indexes
     def create_spatial_indexes(self):
         for sql in self.geometry_sql:
             try:

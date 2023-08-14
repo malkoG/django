@@ -1,6 +1,7 @@
 from django.contrib.gis.gdal.error import GDALException
 
 
+# [TODO] OGRGeomType
 class OGRGeomType:
     "Encapsulate OGR Geometry Types."
 
@@ -30,6 +31,7 @@ class OGRGeomType:
     # Reverse type dictionary, keyed by lowercase of the name.
     _str_types = {v.lower(): k for k, v in _types.items()}
 
+    # [TODO] OGRGeomType > __init__
     def __init__(self, type_input):
         "Figure out the correct OGR Type based upon the input."
         if isinstance(type_input, OGRGeomType):
@@ -51,10 +53,12 @@ class OGRGeomType:
         # Setting the OGR geometry type number.
         self.num = num
 
+    # [TODO] OGRGeomType > __str__
     def __str__(self):
         "Return the value of the name property."
         return self.name
 
+    # [TODO] OGRGeomType > __eq__
     def __eq__(self, other):
         """
         Do an equivalence test on the OGR type with the given
@@ -69,11 +73,13 @@ class OGRGeomType:
         else:
             return False
 
+    # [TODO] OGRGeomType > name
     @property
     def name(self):
         "Return a short-hand string form of the OGR Geometry type."
         return self._types[self.num]
 
+    # [TODO] OGRGeomType > django
     @property
     def django(self):
         "Return the Django GeometryField for this OGR Type."
@@ -86,6 +92,7 @@ class OGRGeomType:
             s = "Point"
         return s + "Field"
 
+    # [TODO] OGRGeomType > to_multi
     def to_multi(self):
         """
         Transform Point, LineString, Polygon, and their 25D equivalents

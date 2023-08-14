@@ -26,6 +26,7 @@ E004 = Error(
 )
 
 
+# [TODO] check_setting_language_code
 @register(Tags.translation)
 def check_setting_language_code(app_configs, **kwargs):
     """Error if LANGUAGE_CODE setting is invalid."""
@@ -35,6 +36,7 @@ def check_setting_language_code(app_configs, **kwargs):
     return []
 
 
+# [TODO] check_setting_languages
 @register(Tags.translation)
 def check_setting_languages(app_configs, **kwargs):
     """Error if LANGUAGES setting is invalid."""
@@ -45,6 +47,7 @@ def check_setting_languages(app_configs, **kwargs):
     ]
 
 
+# [TODO] check_setting_languages_bidi
 @register(Tags.translation)
 def check_setting_languages_bidi(app_configs, **kwargs):
     """Error if LANGUAGES_BIDI setting is invalid."""
@@ -55,6 +58,7 @@ def check_setting_languages_bidi(app_configs, **kwargs):
     ]
 
 
+# [TODO] check_language_settings_consistent
 @register(Tags.translation)
 def check_language_settings_consistent(app_configs, **kwargs):
     """Error if language settings are not consistent with each other."""

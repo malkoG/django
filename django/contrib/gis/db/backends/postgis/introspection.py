@@ -2,6 +2,7 @@ from django.contrib.gis.gdal import OGRGeomType
 from django.db.backends.postgresql.introspection import DatabaseIntrospection
 
 
+# [TODO] PostGISIntrospection
 class PostGISIntrospection(DatabaseIntrospection):
     postgis_oid_lookup = {}  # Populated when introspection is performed.
 
@@ -13,6 +14,7 @@ class PostGISIntrospection(DatabaseIntrospection):
         "raster_overviews",
     ]
 
+    # [TODO] PostGISIntrospection > get_field_type
     def get_field_type(self, data_type, description):
         if not self.postgis_oid_lookup:
             # Query PostgreSQL's pg_type table to determine the OID integers
@@ -32,6 +34,7 @@ class PostGISIntrospection(DatabaseIntrospection):
             )
         return super().get_field_type(data_type, description)
 
+    # [TODO] PostGISIntrospection > get_geometry_type
     def get_geometry_type(self, table_name, description):
         """
         The geometry type OID used by PostGIS does not indicate the particular

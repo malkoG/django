@@ -1,10 +1,12 @@
 from django.contrib.sessions.base_session import AbstractBaseSession, BaseSessionManager
 
 
+# [TODO] SessionManager
 class SessionManager(BaseSessionManager):
     use_in_migrations = True
 
 
+# [TODO] Session
 class Session(AbstractBaseSession):
     """
     Django provides full support for anonymous sessions. The session
@@ -25,11 +27,13 @@ class Session(AbstractBaseSession):
 
     objects = SessionManager()
 
+    # [TODO] Session > get_session_store_class
     @classmethod
     def get_session_store_class(cls):
         from django.contrib.sessions.backends.db import SessionStore
 
         return SessionStore
 
+    # [TODO] Session > Meta
     class Meta(AbstractBaseSession.Meta):
         db_table = "django_session"

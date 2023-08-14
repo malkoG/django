@@ -5,6 +5,7 @@ from django.core.exceptions import ViewDoesNotExist
 from django.utils.module_loading import module_has_submodule
 
 
+# [TODO] get_callable
 @functools.cache
 def get_callable(lookup_view):
     """
@@ -56,6 +57,7 @@ def get_callable(lookup_view):
             return view_func
 
 
+# [TODO] get_mod_func
 def get_mod_func(callback):
     # Convert 'django.views.news.stories.story_detail' to
     # ['django.views.news.stories', 'story_detail']

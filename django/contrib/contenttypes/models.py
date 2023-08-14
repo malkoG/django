@@ -6,15 +6,18 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] ContentTypeManager
 class ContentTypeManager(models.Manager):
     use_in_migrations = True
 
+    # [TODO] ContentTypeManager > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Cache shared by all the get_for_* methods to speed up
         # ContentType retrieval.
         self._cache = {}
 
+    # [TODO] ContentTypeManager > get_by_natural_key
     def get_by_natural_key(self, app_label, model):
         try:
             ct = self._cache[self.db][(app_label, model)]
@@ -23,15 +26,18 @@ class ContentTypeManager(models.Manager):
             self._add_to_cache(self.db, ct)
         return ct
 
+    # [TODO] ContentTypeManager > _get_opts
     def _get_opts(self, model, for_concrete_model):
         if for_concrete_model:
             model = model._meta.concrete_model
         return model._meta
 
+    # [TODO] ContentTypeManager > _get_from_cache
     def _get_from_cache(self, opts):
         key = (opts.app_label, opts.model_name)
         return self._cache[self.db][key]
 
+    # [TODO] ContentTypeManager > get_for_model
     def get_for_model(self, model, for_concrete_model=True):
         """
         Return the ContentType object for a given model, creating the
@@ -60,6 +66,7 @@ class ContentTypeManager(models.Manager):
         self._add_to_cache(self.db, ct)
         return ct
 
+    # [TODO] ContentTypeManager > get_for_models
     def get_for_models(self, *models, for_concrete_models=True):
         """
         Given *models, return a dictionary mapping {model: content_type}.
@@ -106,6 +113,7 @@ class ContentTypeManager(models.Manager):
                 results[model] = ct
         return results
 
+    # [TODO] ContentTypeManager > get_for_id
     def get_for_id(self, id):
         """
         Lookup a ContentType by ID. Use the same shared cache as get_for_model
@@ -120,12 +128,14 @@ class ContentTypeManager(models.Manager):
             self._add_to_cache(self.db, ct)
         return ct
 
+    # [TODO] ContentTypeManager > clear_cache
     def clear_cache(self):
         """
         Clear out the content-type cache.
         """
         self._cache.clear()
 
+    # [TODO] ContentTypeManager > _add_to_cache
     def _add_to_cache(self, using, ct):
         """Insert a ContentType into the cache."""
         # Note it's possible for ContentType objects to be stale; model_class()
@@ -136,20 +146,24 @@ class ContentTypeManager(models.Manager):
         self._cache.setdefault(using, {})[ct.id] = ct
 
 
+# [TODO] ContentType
 class ContentType(models.Model):
     app_label = models.CharField(max_length=100)
     model = models.CharField(_("python model class name"), max_length=100)
     objects = ContentTypeManager()
 
+    # [TODO] ContentType > Meta
     class Meta:
         verbose_name = _("content type")
         verbose_name_plural = _("content types")
         db_table = "django_content_type"
         unique_together = [["app_label", "model"]]
 
+    # [TODO] ContentType > __str__
     def __str__(self):
         return self.app_labeled_name
 
+    # [TODO] ContentType > name
     @property
     def name(self):
         model = self.model_class()
@@ -157,6 +171,7 @@ class ContentType(models.Model):
             return self.model
         return str(model._meta.verbose_name)
 
+    # [TODO] ContentType > app_labeled_name
     @property
     def app_labeled_name(self):
         model = self.model_class()
@@ -167,6 +182,7 @@ class ContentType(models.Model):
             model._meta.verbose_name,
         )
 
+    # [TODO] ContentType > model_class
     def model_class(self):
         """Return the model class for this type of content."""
         try:
@@ -174,6 +190,7 @@ class ContentType(models.Model):
         except LookupError:
             return None
 
+    # [TODO] ContentType > get_object_for_this_type
     def get_object_for_this_type(self, **kwargs):
         """
         Return an object of this type for the keyword arguments given.
@@ -183,11 +200,13 @@ class ContentType(models.Model):
         """
         return self.model_class()._base_manager.using(self._state.db).get(**kwargs)
 
+    # [TODO] ContentType > get_all_objects_for_this_type
     def get_all_objects_for_this_type(self, **kwargs):
         """
         Return all objects of this type for the keyword arguments given.
         """
         return self.model_class()._base_manager.using(self._state.db).filter(**kwargs)
 
+    # [TODO] ContentType > natural_key
     def natural_key(self):
         return (self.app_label, self.model)

@@ -25,10 +25,12 @@ from django.utils.regex_helper import _lazy_re_compile
 __all__ = ("MultiPartParser", "MultiPartParserError", "InputStreamExhausted")
 
 
+# [TODO] MultiPartParserError
 class MultiPartParserError(Exception):
     pass
 
 
+# [TODO] InputStreamExhausted
 class InputStreamExhausted(Exception):
     """
     No more reads are allowed from this device.
@@ -43,6 +45,7 @@ FIELD = "field"
 FIELD_TYPES = frozenset([FIELD, RAW])
 
 
+# [TODO] MultiPartParser
 class MultiPartParser:
     """
     An RFC 7578 multipart/form-data parser.
@@ -53,6 +56,7 @@ class MultiPartParser:
 
     boundary_re = _lazy_re_compile(r"[ -~]{0,200}[!-~]")
 
+    # [TODO] MultiPartParser > __init__
     def __init__(self, META, input_data, upload_handlers, encoding=None):
         """
         Initialize the MultiPartParser object.
@@ -112,6 +116,7 @@ class MultiPartParser:
         self._content_length = content_length
         self._upload_handlers = upload_handlers
 
+    # [TODO] MultiPartParser > parse
     def parse(self):
         # Call the actual parse routine and close all open files in case of
         # errors. This is needed because if exceptions are thrown the
@@ -128,6 +133,7 @@ class MultiPartParser:
                         fileobj.close()
             raise
 
+    # [TODO] MultiPartParser > _parse
     def _parse(self):
         """
         Parse the POST data and break it into a FILES MultiValueDict and a POST
@@ -362,6 +368,7 @@ class MultiPartParser:
         self._post._mutable = False
         return self._post, self._files
 
+    # [TODO] MultiPartParser > handle_file_complete
     def handle_file_complete(self, old_field_name, counters):
         """
         Handle all the signaling that takes place when a file is complete.
@@ -376,6 +383,7 @@ class MultiPartParser:
                 )
                 break
 
+    # [TODO] MultiPartParser > sanitize_file_name
     def sanitize_file_name(self, file_name):
         """
         Sanitize the filename of an upload.
@@ -401,6 +409,7 @@ class MultiPartParser:
 
     IE_sanitize = sanitize_file_name
 
+    # [TODO] MultiPartParser > _close_files
     def _close_files(self):
         # Free up all file handles.
         # FIXME: this currently assumes that upload handlers store the file as 'file'
@@ -411,6 +420,7 @@ class MultiPartParser:
                 handler.file.close()
 
 
+# [TODO] LazyStream
 class LazyStream:
     """
     The LazyStream wrapper allows one to get and "unget" bytes from a stream.
@@ -420,6 +430,7 @@ class LazyStream:
     variable in case you need to "unget" some bytes.
     """
 
+    # [TODO] LazyStream > __init__
     def __init__(self, producer, length=None):
         """
         Every LazyStream must have a producer when instantiated.
@@ -435,9 +446,11 @@ class LazyStream:
         self._remaining = length
         self._unget_history = []
 
+    # [TODO] LazyStream > tell
     def tell(self):
         return self.position
 
+    # [TODO] LazyStream > read
     def read(self, size=None):
         def parts():
             remaining = self._remaining if size is None else size
@@ -464,6 +477,7 @@ class LazyStream:
 
         return b"".join(parts())
 
+    # [TODO] LazyStream > __next__
     def __next__(self):
         """
         Used when the exact number of bytes to read is unimportant.
@@ -480,6 +494,7 @@ class LazyStream:
         self.position += len(output)
         return output
 
+    # [TODO] LazyStream > close
     def close(self):
         """
         Used to invalidate/disable this lazy stream.
@@ -489,9 +504,11 @@ class LazyStream:
         """
         self._producer = []
 
+    # [TODO] LazyStream > __iter__
     def __iter__(self):
         return self
 
+    # [TODO] LazyStream > unget
     def unget(self, bytes):
         """
         Place bytes back onto the front of the lazy stream.
@@ -505,6 +522,7 @@ class LazyStream:
         self.position -= len(bytes)
         self._leftover = bytes + self._leftover
 
+    # [TODO] LazyStream > _update_unget_history
     def _update_unget_history(self, num_bytes):
         """
         Update the unget history as a sanity check to see if we've pushed
@@ -530,16 +548,19 @@ class LazyStream:
             )
 
 
+# [TODO] ChunkIter
 class ChunkIter:
     """
     An iterable that will yield chunks of data. Given a file-like object as the
     constructor, yield chunks of read operations from that object.
     """
 
+    # [TODO] ChunkIter > __init__
     def __init__(self, flo, chunk_size=64 * 1024):
         self.flo = flo
         self.chunk_size = chunk_size
 
+    # [TODO] ChunkIter > __next__
     def __next__(self):
         try:
             data = self.flo.read(self.chunk_size)
@@ -550,22 +571,27 @@ class ChunkIter:
         else:
             raise StopIteration()
 
+    # [TODO] ChunkIter > __iter__
     def __iter__(self):
         return self
 
 
+# [TODO] InterBoundaryIter
 class InterBoundaryIter:
     """
     A Producer that will iterate over boundaries.
     """
 
+    # [TODO] InterBoundaryIter > __init__
     def __init__(self, stream, boundary):
         self._stream = stream
         self._boundary = boundary
 
+    # [TODO] InterBoundaryIter > __iter__
     def __iter__(self):
         return self
 
+    # [TODO] InterBoundaryIter > __next__
     def __next__(self):
         try:
             return LazyStream(BoundaryIter(self._stream, self._boundary))
@@ -573,6 +599,7 @@ class InterBoundaryIter:
             raise StopIteration()
 
 
+# [TODO] BoundaryIter
 class BoundaryIter:
     """
     A Producer that is sensitive to boundaries.
@@ -585,6 +612,7 @@ class BoundaryIter:
     StopIteration exception.
     """
 
+    # [TODO] BoundaryIter > __init__
     def __init__(self, stream, boundary):
         self._stream = stream
         self._boundary = boundary
@@ -600,9 +628,11 @@ class BoundaryIter:
             raise InputStreamExhausted()
         self._stream.unget(unused_char)
 
+    # [TODO] BoundaryIter > __iter__
     def __iter__(self):
         return self
 
+    # [TODO] BoundaryIter > __next__
     def __next__(self):
         if self._done:
             raise StopIteration()
@@ -644,6 +674,7 @@ class BoundaryIter:
                 stream.unget(chunk[-rollback:])
                 return chunk[:-rollback]
 
+    # [TODO] BoundaryIter > _find_boundary
     def _find_boundary(self, data):
         """
         Find a multipart boundary in data.
@@ -669,6 +700,7 @@ class BoundaryIter:
             return end, next
 
 
+# [TODO] exhaust
 def exhaust(stream_or_iterable):
     """Exhaust an iterator or stream."""
     try:
@@ -678,6 +710,7 @@ def exhaust(stream_or_iterable):
     collections.deque(iterator, maxlen=0)  # consume iterator quickly.
 
 
+# [TODO] parse_boundary_stream
 def parse_boundary_stream(stream, max_header_size):
     """
     Parse one and exactly one stream that encapsulates a boundary.
@@ -731,11 +764,14 @@ def parse_boundary_stream(stream, max_header_size):
     return (TYPE, outdict, stream)
 
 
+# [TODO] Parser
 class Parser:
+    # [TODO] Parser > __init__
     def __init__(self, stream, boundary):
         self._stream = stream
         self._separator = b"--" + boundary
 
+    # [TODO] Parser > __iter__
     def __iter__(self):
         boundarystream = InterBoundaryIter(self._stream, self._separator)
         for sub_stream in boundarystream:

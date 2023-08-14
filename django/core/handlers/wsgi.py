@@ -12,6 +12,7 @@ from django.utils.regex_helper import _lazy_re_compile
 _slashes_re = _lazy_re_compile(rb"/+")
 
 
+# [TODO] LimitedStream
 class LimitedStream(IOBase):
     """
     Wrap another stream to disallow reading it past a number of bytes.
@@ -20,12 +21,14 @@ class LimitedStream(IOBase):
     See https://github.com/pallets/werkzeug/blob/dbf78f67/src/werkzeug/wsgi.py#L828
     """
 
+    # [TODO] LimitedStream > __init__
     def __init__(self, stream, limit):
         self._read = stream.read
         self._readline = stream.readline
         self._pos = 0
         self.limit = limit
 
+    # [TODO] LimitedStream > read
     def read(self, size=-1, /):
         _pos = self._pos
         limit = self.limit
@@ -39,6 +42,7 @@ class LimitedStream(IOBase):
         self._pos += len(data)
         return data
 
+    # [TODO] LimitedStream > readline
     def readline(self, size=-1, /):
         _pos = self._pos
         limit = self.limit
@@ -53,7 +57,9 @@ class LimitedStream(IOBase):
         return line
 
 
+# [TODO] WSGIRequest
 class WSGIRequest(HttpRequest):
+    # [TODO] WSGIRequest > __init__
     def __init__(self, environ):
         script_name = get_script_name(environ)
         # If PATH_INFO is empty (e.g. accessing the SCRIPT_NAME URL without a
@@ -79,28 +85,34 @@ class WSGIRequest(HttpRequest):
         self._read_started = False
         self.resolver_match = None
 
+    # [TODO] WSGIRequest > _get_scheme
     def _get_scheme(self):
         return self.environ.get("wsgi.url_scheme")
 
+    # [TODO] WSGIRequest > GET
     @cached_property
     def GET(self):
         # The WSGI spec says 'QUERY_STRING' may be absent.
         raw_query_string = get_bytes_from_wsgi(self.environ, "QUERY_STRING", "")
         return QueryDict(raw_query_string, encoding=self._encoding)
 
+    # [TODO] WSGIRequest > _get_post
     def _get_post(self):
         if not hasattr(self, "_post"):
             self._load_post_and_files()
         return self._post
 
+    # [TODO] WSGIRequest > _set_post
     def _set_post(self, post):
         self._post = post
 
+    # [TODO] WSGIRequest > COOKIES
     @cached_property
     def COOKIES(self):
         raw_cookie = get_str_from_wsgi(self.environ, "HTTP_COOKIE", "")
         return parse_cookie(raw_cookie)
 
+    # [TODO] WSGIRequest > FILES
     @property
     def FILES(self):
         if not hasattr(self, "_files"):
@@ -110,13 +122,16 @@ class WSGIRequest(HttpRequest):
     POST = property(_get_post, _set_post)
 
 
+# [TODO] WSGIHandler
 class WSGIHandler(base.BaseHandler):
     request_class = WSGIRequest
 
+    # [TODO] WSGIHandler > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.load_middleware()
 
+    # [TODO] WSGIHandler > __call__
     def __call__(self, environ, start_response):
         set_script_prefix(get_script_name(environ))
         signals.request_started.send(sender=self.__class__, environ=environ)
@@ -144,6 +159,7 @@ class WSGIHandler(base.BaseHandler):
         return response
 
 
+# [TODO] get_path_info
 def get_path_info(environ):
     """Return the HTTP request's PATH_INFO as a string."""
     path_info = get_bytes_from_wsgi(environ, "PATH_INFO", "/")
@@ -151,6 +167,7 @@ def get_path_info(environ):
     return repercent_broken_unicode(path_info).decode()
 
 
+# [TODO] get_script_name
 def get_script_name(environ):
     """
     Return the equivalent of the HTTP request's SCRIPT_NAME environment
@@ -184,6 +201,7 @@ def get_script_name(environ):
     return script_name.decode()
 
 
+# [TODO] get_bytes_from_wsgi
 def get_bytes_from_wsgi(environ, key, default):
     """
     Get a value from the WSGI environ dictionary as bytes.
@@ -197,6 +215,7 @@ def get_bytes_from_wsgi(environ, key, default):
     return value.encode("iso-8859-1")
 
 
+# [TODO] get_str_from_wsgi
 def get_str_from_wsgi(environ, key, default):
     """
     Get a value from the WSGI environ dictionary as str.

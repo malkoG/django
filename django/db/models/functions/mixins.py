@@ -4,7 +4,9 @@ from django.db.models.fields import DecimalField, FloatField, IntegerField
 from django.db.models.functions import Cast
 
 
+# [TODO] FixDecimalInputMixin
 class FixDecimalInputMixin:
+    # [TODO] FixDecimalInputMixin > as_postgresql
     def as_postgresql(self, compiler, connection, **extra_context):
         # Cast FloatField to DecimalField as PostgreSQL doesn't support the
         # following function signatures:
@@ -23,13 +25,16 @@ class FixDecimalInputMixin:
         return clone.as_sql(compiler, connection, **extra_context)
 
 
+# [TODO] FixDurationInputMixin
 class FixDurationInputMixin:
+    # [TODO] FixDurationInputMixin > as_mysql
     def as_mysql(self, compiler, connection, **extra_context):
         sql, params = super().as_sql(compiler, connection, **extra_context)
         if self.output_field.get_internal_type() == "DurationField":
             sql = "CAST(%s AS SIGNED)" % sql
         return sql, params
 
+    # [TODO] FixDurationInputMixin > as_oracle
     def as_oracle(self, compiler, connection, **extra_context):
         if self.output_field.get_internal_type() == "DurationField":
             expression = self.get_source_expressions()[0]
@@ -47,7 +52,9 @@ class FixDurationInputMixin:
         return super().as_sql(compiler, connection, **extra_context)
 
 
+# [TODO] NumericOutputFieldMixin
 class NumericOutputFieldMixin:
+    # [TODO] NumericOutputFieldMixin > _resolve_output_field
     def _resolve_output_field(self):
         source_fields = self.get_source_fields()
         if any(isinstance(s, DecimalField) for s in source_fields):

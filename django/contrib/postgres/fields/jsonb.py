@@ -3,6 +3,7 @@ from django.db.models import JSONField as BuiltinJSONField
 __all__ = ["JSONField"]
 
 
+# [TODO] JSONField
 class JSONField(BuiltinJSONField):
     system_check_removed_details = {
         "msg": (

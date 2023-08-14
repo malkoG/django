@@ -55,6 +55,7 @@ from django.utils.cache import (
 from django.utils.deprecation import MiddlewareMixin
 
 
+# [TODO] UpdateCacheMiddleware
 class UpdateCacheMiddleware(MiddlewareMixin):
     """
     Response-phase cache middleware that updates the cache if the response is
@@ -65,6 +66,7 @@ class UpdateCacheMiddleware(MiddlewareMixin):
     so that it'll get called last during the response phase.
     """
 
+    # [TODO] UpdateCacheMiddleware > __init__
     def __init__(self, get_response):
         super().__init__(get_response)
         self.cache_timeout = settings.CACHE_MIDDLEWARE_SECONDS
@@ -72,13 +74,16 @@ class UpdateCacheMiddleware(MiddlewareMixin):
         self.key_prefix = settings.CACHE_MIDDLEWARE_KEY_PREFIX
         self.cache_alias = settings.CACHE_MIDDLEWARE_ALIAS
 
+    # [TODO] UpdateCacheMiddleware > cache
     @property
     def cache(self):
         return caches[self.cache_alias]
 
+    # [TODO] UpdateCacheMiddleware > _should_update_cache
     def _should_update_cache(self, request, response):
         return hasattr(request, "_cache_update_cache") and request._cache_update_cache
 
+    # [TODO] UpdateCacheMiddleware > process_response
     def process_response(self, request, response):
         """Set the cache, if needed."""
         if not self._should_update_cache(request, response):
@@ -127,6 +132,7 @@ class UpdateCacheMiddleware(MiddlewareMixin):
         return response
 
 
+# [TODO] FetchFromCacheMiddleware
 class FetchFromCacheMiddleware(MiddlewareMixin):
     """
     Request-phase cache middleware that fetches a page from the cache.
@@ -136,15 +142,18 @@ class FetchFromCacheMiddleware(MiddlewareMixin):
     so that it'll get called last during the request phase.
     """
 
+    # [TODO] FetchFromCacheMiddleware > __init__
     def __init__(self, get_response):
         super().__init__(get_response)
         self.key_prefix = settings.CACHE_MIDDLEWARE_KEY_PREFIX
         self.cache_alias = settings.CACHE_MIDDLEWARE_ALIAS
 
+    # [TODO] FetchFromCacheMiddleware > cache
     @property
     def cache(self):
         return caches[self.cache_alias]
 
+    # [TODO] FetchFromCacheMiddleware > process_request
     def process_request(self, request):
         """
         Check whether the page is already cached and return the cached
@@ -176,6 +185,7 @@ class FetchFromCacheMiddleware(MiddlewareMixin):
         return response
 
 
+# [TODO] CacheMiddleware
 class CacheMiddleware(UpdateCacheMiddleware, FetchFromCacheMiddleware):
     """
     Cache middleware that provides basic behavior for many simple sites.
@@ -184,6 +194,7 @@ class CacheMiddleware(UpdateCacheMiddleware, FetchFromCacheMiddleware):
     using the decorator-from-middleware utility.
     """
 
+    # [TODO] CacheMiddleware > __init__
     def __init__(self, get_response, cache_timeout=None, page_timeout=None, **kwargs):
         super().__init__(get_response)
         # We need to differentiate between "provided, but using default value",

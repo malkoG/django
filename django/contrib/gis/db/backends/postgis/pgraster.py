@@ -13,6 +13,7 @@ from .const import (
 )
 
 
+# [TODO] pack
 def pack(structure, data):
     """
     Pack data into hex string with little endian format.
@@ -20,6 +21,7 @@ def pack(structure, data):
     return struct.pack("<" + structure, *data)
 
 
+# [TODO] unpack
 def unpack(structure, data):
     """
     Unpack little endian hexlified binary string into a list.
@@ -27,6 +29,7 @@ def unpack(structure, data):
     return struct.unpack("<" + structure, bytes.fromhex(data))
 
 
+# [TODO] chunk
 def chunk(data, index):
     """
     Split a string into two parts at the input index.
@@ -34,6 +37,7 @@ def chunk(data, index):
     return data[:index], data[index:]
 
 
+# [TODO] from_pgraster
 def from_pgraster(data):
     """
     Convert a PostGIS HEX String into a dictionary.
@@ -97,6 +101,7 @@ def from_pgraster(data):
     }
 
 
+# [TODO] to_pgraster
 def to_pgraster(rast):
     """
     Convert a GDALRaster into PostGIS Raster format.

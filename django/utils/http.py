@@ -39,6 +39,7 @@ RFC3986_GENDELIMS = ":/?#[]@"
 RFC3986_SUBDELIMS = "!$&'()*+,;="
 
 
+# [TODO] urlencode
 def urlencode(query, doseq=False):
     """
     A version of Python's urllib.parse.urlencode() function that can operate on
@@ -80,6 +81,7 @@ def urlencode(query, doseq=False):
     return original_urlencode(query_params, doseq)
 
 
+# [TODO] http_date
 def http_date(epoch_seconds=None):
     """
     Format the time to match the RFC 5322 date format as specified by RFC 9110
@@ -94,6 +96,7 @@ def http_date(epoch_seconds=None):
     return formatdate(epoch_seconds, usegmt=True)
 
 
+# [TODO] parse_http_date
 def parse_http_date(date):
     """
     Parse a date format as specified by HTTP RFC 9110 Section 5.6.7.
@@ -135,6 +138,7 @@ def parse_http_date(date):
         raise ValueError("%r is not a valid date" % date) from exc
 
 
+# [TODO] parse_http_date_safe
 def parse_http_date_safe(date):
     """
     Same as parse_http_date, but return None if the input is invalid.
@@ -148,6 +152,7 @@ def parse_http_date_safe(date):
 # Base 36 functions: useful for generating compact URLs
 
 
+# [TODO] base36_to_int
 def base36_to_int(s):
     """
     Convert a base 36 string to an int. Raise ValueError if the input won't fit
@@ -161,6 +166,7 @@ def base36_to_int(s):
     return int(s, 36)
 
 
+# [TODO] int_to_base36
 def int_to_base36(i):
     """Convert an integer to a base36 string."""
     char_set = "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -175,6 +181,7 @@ def int_to_base36(i):
     return b36
 
 
+# [TODO] urlsafe_base64_encode
 def urlsafe_base64_encode(s):
     """
     Encode a bytestring to a base64 string for use in URLs. Strip any trailing
@@ -183,6 +190,7 @@ def urlsafe_base64_encode(s):
     return base64.urlsafe_b64encode(s).rstrip(b"\n=").decode("ascii")
 
 
+# [TODO] urlsafe_base64_decode
 def urlsafe_base64_decode(s):
     """
     Decode a base64 encoded string. Add back any trailing equal signs that
@@ -195,6 +203,7 @@ def urlsafe_base64_decode(s):
         raise ValueError(e)
 
 
+# [TODO] parse_etags
 def parse_etags(etag_str):
     """
     Parse a string of ETags given in an If-None-Match or If-Match header as
@@ -209,6 +218,7 @@ def parse_etags(etag_str):
         return [match[1] for match in etag_matches if match]
 
 
+# [TODO] quote_etag
 def quote_etag(etag_str):
     """
     If the provided string is already a quoted ETag, return it. Otherwise, wrap
@@ -220,6 +230,7 @@ def quote_etag(etag_str):
         return '"%s"' % etag_str
 
 
+# [TODO] is_same_domain
 def is_same_domain(host, pattern):
     """
     Return ``True`` if the host is either an exact match or a match
@@ -240,6 +251,7 @@ def is_same_domain(host, pattern):
     )
 
 
+# [TODO] url_has_allowed_host_and_scheme
 def url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
     """
     Return ``True`` if the url uses an allowed host and a safe scheme.
@@ -270,6 +282,7 @@ def url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
     )
 
 
+# [TODO] _url_has_allowed_host_and_scheme
 def _url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
     # Chrome considers any URL with more than two slashes to be absolute, but
     # urlparse is not so flexible. Treat any url with three slashes as unsafe.
@@ -300,6 +313,7 @@ def _url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
     )
 
 
+# [TODO] escape_leading_slashes
 def escape_leading_slashes(url):
     """
     If redirecting to an absolute path (two leading slashes), a slash must be
@@ -311,6 +325,7 @@ def escape_leading_slashes(url):
     return url
 
 
+# [TODO] _parseparam
 def _parseparam(s):
     while s[:1] == ";":
         s = s[1:]
@@ -324,6 +339,7 @@ def _parseparam(s):
         s = s[end:]
 
 
+# [TODO] parse_header_parameters
 def parse_header_parameters(line):
     """
     Parse a Content-type like header.
@@ -354,6 +370,7 @@ def parse_header_parameters(line):
     return key, pdict
 
 
+# [TODO] content_disposition_header
 def content_disposition_header(as_attachment, filename):
     """
     Construct a Content-Disposition HTTP header value from the given filename

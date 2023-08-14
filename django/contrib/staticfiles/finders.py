@@ -15,17 +15,20 @@ from django.utils.module_loading import import_string
 searched_locations = []
 
 
+# [TODO] BaseFinder
 class BaseFinder:
     """
     A base file finder to be used for custom staticfiles finder classes.
     """
 
+    # [TODO] BaseFinder > check
     def check(self, **kwargs):
         raise NotImplementedError(
             "subclasses may provide a check() method to verify the finder is "
             "configured correctly."
         )
 
+    # [TODO] BaseFinder > find
     def find(self, path, all=False):
         """
         Given a relative file path, find an absolute file path.
@@ -37,6 +40,7 @@ class BaseFinder:
             "subclasses of BaseFinder must provide a find() method"
         )
 
+    # [TODO] BaseFinder > list
     def list(self, ignore_patterns):
         """
         Given an optional list of paths to ignore, return a two item iterable
@@ -47,12 +51,14 @@ class BaseFinder:
         )
 
 
+# [TODO] FileSystemFinder
 class FileSystemFinder(BaseFinder):
     """
     A static files finder that uses the ``STATICFILES_DIRS`` setting
     to locate files.
     """
 
+    # [TODO] FileSystemFinder > __init__
     def __init__(self, app_names=None, *args, **kwargs):
         # List of locations with static files
         self.locations = []
@@ -71,6 +77,7 @@ class FileSystemFinder(BaseFinder):
             self.storages[root] = filesystem_storage
         super().__init__(*args, **kwargs)
 
+    # [TODO] FileSystemFinder > check
     def check(self, **kwargs):
         errors = []
         if not isinstance(settings.STATICFILES_DIRS, (list, tuple)):
@@ -113,6 +120,7 @@ class FileSystemFinder(BaseFinder):
                 )
         return errors
 
+    # [TODO] FileSystemFinder > find
     def find(self, path, all=False):
         """
         Look for files in the extra locations as defined in STATICFILES_DIRS.
@@ -128,6 +136,7 @@ class FileSystemFinder(BaseFinder):
                 matches.append(matched_path)
         return matches
 
+    # [TODO] FileSystemFinder > find_location
     def find_location(self, root, path, prefix=None):
         """
         Find a requested static file in a location and return the found
@@ -142,6 +151,7 @@ class FileSystemFinder(BaseFinder):
         if os.path.exists(path):
             return path
 
+    # [TODO] FileSystemFinder > list
     def list(self, ignore_patterns):
         """
         List all files in all locations.
@@ -154,6 +164,7 @@ class FileSystemFinder(BaseFinder):
                     yield path, storage
 
 
+# [TODO] AppDirectoriesFinder
 class AppDirectoriesFinder(BaseFinder):
     """
     A static files finder that looks in the directory of each app as
@@ -163,6 +174,7 @@ class AppDirectoriesFinder(BaseFinder):
     storage_class = FileSystemStorage
     source_dir = "static"
 
+    # [TODO] AppDirectoriesFinder > __init__
     def __init__(self, app_names=None, *args, **kwargs):
         # The list of apps that are handled
         self.apps = []
@@ -182,6 +194,7 @@ class AppDirectoriesFinder(BaseFinder):
                     self.apps.append(app_config.name)
         super().__init__(*args, **kwargs)
 
+    # [TODO] AppDirectoriesFinder > list
     def list(self, ignore_patterns):
         """
         List all files in all app storages.
@@ -191,6 +204,7 @@ class AppDirectoriesFinder(BaseFinder):
                 for path in utils.get_files(storage, ignore_patterns):
                     yield path, storage
 
+    # [TODO] AppDirectoriesFinder > find
     def find(self, path, all=False):
         """
         Look for files in the app directories.
@@ -207,6 +221,7 @@ class AppDirectoriesFinder(BaseFinder):
                 matches.append(match)
         return matches
 
+    # [TODO] AppDirectoriesFinder > find_in_app
     def find_in_app(self, app, path):
         """
         Find a requested static file in an app's static locations.
@@ -219,6 +234,7 @@ class AppDirectoriesFinder(BaseFinder):
                 return matched_path
 
 
+# [TODO] BaseStorageFinder
 class BaseStorageFinder(BaseFinder):
     """
     A base static files finder to be used to extended
@@ -227,6 +243,7 @@ class BaseStorageFinder(BaseFinder):
 
     storage = None
 
+    # [TODO] BaseStorageFinder > __init__
     def __init__(self, storage=None, *args, **kwargs):
         if storage is not None:
             self.storage = storage
@@ -241,6 +258,7 @@ class BaseStorageFinder(BaseFinder):
             self.storage = self.storage()
         super().__init__(*args, **kwargs)
 
+    # [TODO] BaseStorageFinder > find
     def find(self, path, all=False):
         """
         Look for files in the default file storage, if it's local.
@@ -259,6 +277,7 @@ class BaseStorageFinder(BaseFinder):
                 return match
         return []
 
+    # [TODO] BaseStorageFinder > list
     def list(self, ignore_patterns):
         """
         List all files of the storage.
@@ -267,6 +286,7 @@ class BaseStorageFinder(BaseFinder):
             yield path, self.storage
 
 
+# [TODO] DefaultStorageFinder
 class DefaultStorageFinder(BaseStorageFinder):
     """
     A static files finder that uses the default storage backend.
@@ -274,6 +294,7 @@ class DefaultStorageFinder(BaseStorageFinder):
 
     storage = default_storage
 
+    # [TODO] DefaultStorageFinder > __init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         base_location = getattr(self.storage, "base_location", empty)
@@ -285,6 +306,7 @@ class DefaultStorageFinder(BaseStorageFinder):
             )
 
 
+# [TODO] find
 def find(path, all=False):
     """
     Find a static file with the given path using all enabled finders.
@@ -307,11 +329,13 @@ def find(path, all=False):
     return [] if all else None
 
 
+# [TODO] get_finders
 def get_finders():
     for finder_path in settings.STATICFILES_FINDERS:
         yield get_finder(finder_path)
 
 
+# [TODO] get_finder
 @functools.cache
 def get_finder(import_path):
     """

@@ -5,14 +5,17 @@ from django.db.backends.sqlite3.features import (
 from django.utils.functional import cached_property
 
 
+# [TODO] DatabaseFeatures
 class DatabaseFeatures(BaseSpatialFeatures, SQLiteDatabaseFeatures):
     can_alter_geometry_field = False  # Not implemented
     supports_3d_storage = True
 
+    # [TODO] DatabaseFeatures > supports_area_geodetic
     @cached_property
     def supports_area_geodetic(self):
         return bool(self.connection.ops.geom_lib_version())
 
+    # [TODO] DatabaseFeatures > django_test_skips
     @cached_property
     def django_test_skips(self):
         skips = super().django_test_skips

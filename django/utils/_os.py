@@ -6,6 +6,7 @@ from pathlib import Path
 from django.core.exceptions import SuspiciousFileOperation
 
 
+# [TODO] safe_join
 def safe_join(base, *paths):
     """
     Join one or more path components to the base path component intelligently.
@@ -35,6 +36,7 @@ def safe_join(base, *paths):
     return final_path
 
 
+# [TODO] symlinks_supported
 def symlinks_supported():
     """
     Return whether or not creating symlinks are supported in the host platform
@@ -53,6 +55,7 @@ def symlinks_supported():
         return supported
 
 
+# [TODO] to_path
 def to_path(value):
     """Convert value to a pathlib.Path instance, if not already a Path."""
     if isinstance(value, Path):

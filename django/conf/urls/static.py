@@ -7,6 +7,7 @@ from django.urls import re_path
 from django.views.static import serve
 
 
+# [TODO] static
 def static(prefix, view=serve, **kwargs):
     """
     Return a URL pattern for serving files in debug mode.

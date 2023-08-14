@@ -3,6 +3,7 @@ import re
 from django.contrib.gis.db import models
 
 
+# [TODO] BaseSpatialFeatures
 class BaseSpatialFeatures:
     gis_enabled = True
 
@@ -58,51 +59,63 @@ class BaseSpatialFeatures:
     # for empty results?
     empty_intersection_returns_none = True
 
+    # [TODO] BaseSpatialFeatures > supports_bbcontains_lookup
     @property
     def supports_bbcontains_lookup(self):
         return "bbcontains" in self.connection.ops.gis_operators
 
+    # [TODO] BaseSpatialFeatures > supports_contained_lookup
     @property
     def supports_contained_lookup(self):
         return "contained" in self.connection.ops.gis_operators
 
+    # [TODO] BaseSpatialFeatures > supports_crosses_lookup
     @property
     def supports_crosses_lookup(self):
         return "crosses" in self.connection.ops.gis_operators
 
+    # [TODO] BaseSpatialFeatures > supports_distances_lookups
     @property
     def supports_distances_lookups(self):
         return self.has_Distance_function
 
+    # [TODO] BaseSpatialFeatures > supports_dwithin_lookup
     @property
     def supports_dwithin_lookup(self):
         return "dwithin" in self.connection.ops.gis_operators
 
+    # [TODO] BaseSpatialFeatures > supports_relate_lookup
     @property
     def supports_relate_lookup(self):
         return "relate" in self.connection.ops.gis_operators
 
+    # [TODO] BaseSpatialFeatures > supports_isvalid_lookup
     @property
     def supports_isvalid_lookup(self):
         return self.has_IsValid_function
 
     # Is the aggregate supported by the database?
+    # [TODO] BaseSpatialFeatures > supports_collect_aggr
     @property
     def supports_collect_aggr(self):
         return models.Collect not in self.connection.ops.disallowed_aggregates
 
+    # [TODO] BaseSpatialFeatures > supports_extent_aggr
     @property
     def supports_extent_aggr(self):
         return models.Extent not in self.connection.ops.disallowed_aggregates
 
+    # [TODO] BaseSpatialFeatures > supports_make_line_aggr
     @property
     def supports_make_line_aggr(self):
         return models.MakeLine not in self.connection.ops.disallowed_aggregates
 
+    # [TODO] BaseSpatialFeatures > supports_union_aggr
     @property
     def supports_union_aggr(self):
         return models.Union not in self.connection.ops.disallowed_aggregates
 
+    # [TODO] BaseSpatialFeatures > __getattr__
     def __getattr__(self, name):
         m = re.match(r"has_(\w*)_function$", name)
         if m:

@@ -5,6 +5,7 @@ from django.db.backends.base.base import NO_DB_ALIAS
 from django.db.backends.postgresql.psycopg_any import is_psycopg3
 
 
+# [TODO] get_type_oids
 def get_type_oids(connection_alias, type_name):
     with connections[connection_alias].cursor() as cursor:
         cursor.execute(
@@ -18,12 +19,14 @@ def get_type_oids(connection_alias, type_name):
         return tuple(oids), tuple(array_oids)
 
 
+# [TODO] get_hstore_oids
 @functools.lru_cache
 def get_hstore_oids(connection_alias):
     """Return hstore and hstore array OIDs."""
     return get_type_oids(connection_alias, "hstore")
 
 
+# [TODO] get_citext_oids
 @functools.lru_cache
 def get_citext_oids(connection_alias):
     """Return citext and citext array OIDs."""

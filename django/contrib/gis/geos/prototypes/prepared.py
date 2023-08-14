@@ -9,6 +9,7 @@ prepared_destroy = GEOSFuncFactory("GEOSPreparedGeom_destroy", argtypes=[PREPGEO
 
 
 # Prepared geometry binary predicate support.
+# [TODO] PreparedPredicate
 class PreparedPredicate(GEOSFuncFactory):
     argtypes = [PREPGEOM_PTR, GEOM_PTR]
     restype = c_byte

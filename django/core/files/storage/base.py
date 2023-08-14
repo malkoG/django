@@ -8,6 +8,7 @@ from django.utils.crypto import get_random_string
 from django.utils.text import get_valid_filename
 
 
+# [TODO] Storage
 class Storage:
     """
     A base storage class, providing some default behaviors that all other
@@ -17,10 +18,12 @@ class Storage:
     # The following methods represent a public interface to private methods.
     # These shouldn't be overridden by subclasses unless absolutely necessary.
 
+    # [TODO] Storage > open
     def open(self, name, mode="rb"):
         """Retrieve the specified file from storage."""
         return self._open(name, mode)
 
+    # [TODO] Storage > save
     def save(self, name, content, max_length=None):
         """
         Save new content to the file specified by name. The content should be
@@ -42,6 +45,7 @@ class Storage:
 
     # These methods are part of the public API, with default implementations.
 
+    # [TODO] Storage > get_valid_name
     def get_valid_name(self, name):
         """
         Return a filename, based on the provided filename, that's suitable for
@@ -49,6 +53,7 @@ class Storage:
         """
         return get_valid_filename(name)
 
+    # [TODO] Storage > get_alternative_name
     def get_alternative_name(self, file_root, file_ext):
         """
         Return an alternative filename, by adding an underscore and a random 7
@@ -57,6 +62,7 @@ class Storage:
         """
         return "%s_%s%s" % (file_root, get_random_string(7), file_ext)
 
+    # [TODO] Storage > get_available_name
     def get_available_name(self, name, max_length=None):
         """
         Return a filename that's free on the target storage system and
@@ -98,6 +104,7 @@ class Storage:
                 )
         return name
 
+    # [TODO] Storage > generate_filename
     def generate_filename(self, filename):
         """
         Validate the filename by calling get_valid_name() and return a filename
@@ -112,6 +119,7 @@ class Storage:
             )
         return os.path.normpath(os.path.join(dirname, self.get_valid_name(filename)))
 
+    # [TODO] Storage > path
     def path(self, name):
         """
         Return a local filesystem path where the file can be retrieved using
@@ -123,6 +131,7 @@ class Storage:
     # The following methods form the public API for storage systems, but with
     # no default implementations. Subclasses must implement *all* of these.
 
+    # [TODO] Storage > delete
     def delete(self, name):
         """
         Delete the specified file from the storage system.
@@ -131,6 +140,7 @@ class Storage:
             "subclasses of Storage must provide a delete() method"
         )
 
+    # [TODO] Storage > exists
     def exists(self, name):
         """
         Return True if a file referenced by the given name already exists in the
@@ -140,6 +150,7 @@ class Storage:
             "subclasses of Storage must provide an exists() method"
         )
 
+    # [TODO] Storage > listdir
     def listdir(self, path):
         """
         List the contents of the specified path. Return a 2-tuple of lists:
@@ -149,12 +160,14 @@ class Storage:
             "subclasses of Storage must provide a listdir() method"
         )
 
+    # [TODO] Storage > size
     def size(self, name):
         """
         Return the total size, in bytes, of the file specified by name.
         """
         raise NotImplementedError("subclasses of Storage must provide a size() method")
 
+    # [TODO] Storage > url
     def url(self, name):
         """
         Return an absolute URL where the file's contents can be accessed
@@ -162,6 +175,7 @@ class Storage:
         """
         raise NotImplementedError("subclasses of Storage must provide a url() method")
 
+    # [TODO] Storage > get_accessed_time
     def get_accessed_time(self, name):
         """
         Return the last accessed time (as a datetime) of the file specified by
@@ -171,6 +185,7 @@ class Storage:
             "subclasses of Storage must provide a get_accessed_time() method"
         )
 
+    # [TODO] Storage > get_created_time
     def get_created_time(self, name):
         """
         Return the creation time (as a datetime) of the file specified by name.
@@ -180,6 +195,7 @@ class Storage:
             "subclasses of Storage must provide a get_created_time() method"
         )
 
+    # [TODO] Storage > get_modified_time
     def get_modified_time(self, name):
         """
         Return the last modified time (as a datetime) of the file specified by

@@ -3,9 +3,11 @@ from django.contrib.gis.geos import GeometryCollection, Polygon
 from django.db.backends.oracle.oracledb_any import oracledb
 
 
+# [TODO] OracleSpatialAdapter
 class OracleSpatialAdapter(WKTAdapter):
     input_size = oracledb.CLOB
 
+    # [TODO] OracleSpatialAdapter > __init__
     def __init__(self, geom):
         """
         Oracle requires that polygon rings are in proper orientation. This
@@ -26,6 +28,7 @@ class OracleSpatialAdapter(WKTAdapter):
         self.wkt = geom.wkt
         self.srid = geom.srid
 
+    # [TODO] OracleSpatialAdapter > _polygon_must_be_fixed
     @staticmethod
     def _polygon_must_be_fixed(poly):
         return not poly.empty and (
@@ -33,6 +36,7 @@ class OracleSpatialAdapter(WKTAdapter):
             or any(x.is_counterclockwise for x in poly)
         )
 
+    # [TODO] OracleSpatialAdapter > _fix_polygon
     @classmethod
     def _fix_polygon(cls, poly, clone=True):
         """Fix single polygon orientation as described in __init__()."""
@@ -48,6 +52,7 @@ class OracleSpatialAdapter(WKTAdapter):
 
         return poly
 
+    # [TODO] OracleSpatialAdapter > _fix_geometry_collection
     @classmethod
     def _fix_geometry_collection(cls, coll):
         """

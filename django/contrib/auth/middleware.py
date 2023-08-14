@@ -8,19 +8,23 @@ from django.utils.deprecation import MiddlewareMixin
 from django.utils.functional import SimpleLazyObject
 
 
+# [TODO] get_user
 def get_user(request):
     if not hasattr(request, "_cached_user"):
         request._cached_user = auth.get_user(request)
     return request._cached_user
 
 
+# [TODO] auser
 async def auser(request):
     if not hasattr(request, "_acached_user"):
         request._acached_user = await auth.aget_user(request)
     return request._acached_user
 
 
+# [TODO] AuthenticationMiddleware
 class AuthenticationMiddleware(MiddlewareMixin):
+    # [TODO] AuthenticationMiddleware > process_request
     def process_request(self, request):
         if not hasattr(request, "session"):
             raise ImproperlyConfigured(
@@ -34,6 +38,7 @@ class AuthenticationMiddleware(MiddlewareMixin):
         request.auser = partial(auser, request)
 
 
+# [TODO] RemoteUserMiddleware
 class RemoteUserMiddleware(MiddlewareMixin):
     """
     Middleware for utilizing web-server-provided authentication.
@@ -54,6 +59,7 @@ class RemoteUserMiddleware(MiddlewareMixin):
     header = "REMOTE_USER"
     force_logout_if_no_header = True
 
+    # [TODO] RemoteUserMiddleware > process_request
     def process_request(self, request):
         # AuthenticationMiddleware is required so that request.user exists.
         if not hasattr(request, "user"):
@@ -93,6 +99,7 @@ class RemoteUserMiddleware(MiddlewareMixin):
             request.user = user
             auth.login(request, user)
 
+    # [TODO] RemoteUserMiddleware > clean_username
     def clean_username(self, username, request):
         """
         Allow the backend to clean the username, if the backend defines a
@@ -106,6 +113,7 @@ class RemoteUserMiddleware(MiddlewareMixin):
             pass
         return username
 
+    # [TODO] RemoteUserMiddleware > _remove_invalid_user
     def _remove_invalid_user(self, request):
         """
         Remove the current authenticated user in the request which is invalid
@@ -123,6 +131,7 @@ class RemoteUserMiddleware(MiddlewareMixin):
                 auth.logout(request)
 
 
+# [TODO] PersistentRemoteUserMiddleware
 class PersistentRemoteUserMiddleware(RemoteUserMiddleware):
     """
     Middleware for web-server provided authentication on logon pages.

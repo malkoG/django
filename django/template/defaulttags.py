@@ -40,13 +40,16 @@ from .smartif import IfParser, Literal
 register = Library()
 
 
+# [TODO] AutoEscapeControlNode
 class AutoEscapeControlNode(Node):
     """Implement the actions of the autoescape tag."""
 
+    # [TODO] AutoEscapeControlNode > __init__
     def __init__(self, setting, nodelist):
         self.setting = setting
         self.nodelist = nodelist
 
+    # [TODO] AutoEscapeControlNode > render
     def render(self, context):
         old_setting = context.autoescape
         context.autoescape = self.setting
@@ -58,16 +61,20 @@ class AutoEscapeControlNode(Node):
             return output
 
 
+# [TODO] CommentNode
 class CommentNode(Node):
     child_nodelists = ()
 
+    # [TODO] CommentNode > render
     def render(self, context):
         return ""
 
 
+# [TODO] CsrfTokenNode
 class CsrfTokenNode(Node):
     child_nodelists = ()
 
+    # [TODO] CsrfTokenNode > render
     def render(self, context):
         csrf_token = context.get("csrf_token")
         if csrf_token:
@@ -90,12 +97,15 @@ class CsrfTokenNode(Node):
             return ""
 
 
+# [TODO] CycleNode
 class CycleNode(Node):
+    # [TODO] CycleNode > __init__
     def __init__(self, cyclevars, variable_name=None, silent=False):
         self.cyclevars = cyclevars
         self.variable_name = variable_name
         self.silent = silent
 
+    # [TODO] CycleNode > render
     def render(self, context):
         if self not in context.render_context:
             # First time the node is rendered in template
@@ -108,6 +118,7 @@ class CycleNode(Node):
             return ""
         return render_value_in_context(value, context)
 
+    # [TODO] CycleNode > reset
     def reset(self, context):
         """
         Reset the cycle iteration back to the beginning.
@@ -115,7 +126,9 @@ class CycleNode(Node):
         context.render_context[self] = itertools_cycle(self.cyclevars)
 
 
+# [TODO] DebugNode
 class DebugNode(Node):
+    # [TODO] DebugNode > render
     def render(self, context):
         if not settings.DEBUG:
             return ""
@@ -128,11 +141,14 @@ class DebugNode(Node):
         return "".join(output)
 
 
+# [TODO] FilterNode
 class FilterNode(Node):
+    # [TODO] FilterNode > __init__
     def __init__(self, filter_expr, nodelist):
         self.filter_expr = filter_expr
         self.nodelist = nodelist
 
+    # [TODO] FilterNode > render
     def render(self, context):
         output = self.nodelist.render(context)
         # Apply filters.
@@ -140,11 +156,14 @@ class FilterNode(Node):
             return self.filter_expr.resolve(context)
 
 
+# [TODO] FirstOfNode
 class FirstOfNode(Node):
+    # [TODO] FirstOfNode > __init__
     def __init__(self, variables, asvar=None):
         self.vars = variables
         self.asvar = asvar
 
+    # [TODO] FirstOfNode > render
     def render(self, context):
         first = ""
         for var in self.vars:
@@ -158,9 +177,11 @@ class FirstOfNode(Node):
         return first
 
 
+# [TODO] ForNode
 class ForNode(Node):
     child_nodelists = ("nodelist_loop", "nodelist_empty")
 
+    # [TODO] ForNode > __init__
     def __init__(
         self, loopvars, sequence, is_reversed, nodelist_loop, nodelist_empty=None
     ):
@@ -173,6 +194,7 @@ class ForNode(Node):
         else:
             self.nodelist_empty = nodelist_empty
 
+    # [TODO] ForNode > __repr__
     def __repr__(self):
         reversed_text = " reversed" if self.is_reversed else ""
         return "<%s: for %s in %s, tail_len: %d%s>" % (
@@ -183,6 +205,7 @@ class ForNode(Node):
             reversed_text,
         )
 
+    # [TODO] ForNode > render
     def render(self, context):
         if "forloop" in context:
             parentloop = context["forloop"]
@@ -248,14 +271,17 @@ class ForNode(Node):
         return mark_safe("".join(nodelist))
 
 
+# [TODO] IfChangedNode
 class IfChangedNode(Node):
     child_nodelists = ("nodelist_true", "nodelist_false")
 
+    # [TODO] IfChangedNode > __init__
     def __init__(self, nodelist_true, nodelist_false, *varlist):
         self.nodelist_true = nodelist_true
         self.nodelist_false = nodelist_false
         self._varlist = varlist
 
+    # [TODO] IfChangedNode > render
     def render(self, context):
         # Init state storage
         state_frame = self._get_context_stack_frame(context)
@@ -281,6 +307,7 @@ class IfChangedNode(Node):
             return self.nodelist_false.render(context)
         return ""
 
+    # [TODO] IfChangedNode > _get_context_stack_frame
     def _get_context_stack_frame(self, context):
         # The Context object behaves like a stack where each template tag can
         # create a new scope. Find the place where to store the state to detect
@@ -296,21 +323,27 @@ class IfChangedNode(Node):
             return context.render_context
 
 
+# [TODO] IfNode
 class IfNode(Node):
+    # [TODO] IfNode > __init__
     def __init__(self, conditions_nodelists):
         self.conditions_nodelists = conditions_nodelists
 
+    # [TODO] IfNode > __repr__
     def __repr__(self):
         return "<%s>" % self.__class__.__name__
 
+    # [TODO] IfNode > __iter__
     def __iter__(self):
         for _, nodelist in self.conditions_nodelists:
             yield from nodelist
 
+    # [TODO] IfNode > nodelist
     @property
     def nodelist(self):
         return NodeList(self)
 
+    # [TODO] IfNode > render
     def render(self, context):
         for condition, nodelist in self.conditions_nodelists:
             if condition is not None:  # if / elif clause
@@ -327,12 +360,15 @@ class IfNode(Node):
         return ""
 
 
+# [TODO] LoremNode
 class LoremNode(Node):
+    # [TODO] LoremNode > __init__
     def __init__(self, count, method, common):
         self.count = count
         self.method = method
         self.common = common
 
+    # [TODO] LoremNode > render
     def render(self, context):
         try:
             count = int(self.count.resolve(context))
@@ -350,18 +386,22 @@ class LoremNode(Node):
 GroupedResult = namedtuple("GroupedResult", ["grouper", "list"])
 
 
+# [TODO] RegroupNode
 class RegroupNode(Node):
+    # [TODO] RegroupNode > __init__
     def __init__(self, target, expression, var_name):
         self.target = target
         self.expression = expression
         self.var_name = var_name
 
+    # [TODO] RegroupNode > resolve_expression
     def resolve_expression(self, obj, context):
         # This method is called for each object in self.target. See regroup()
         # for the reason why we temporarily put the object in the context.
         context[self.var_name] = obj
         return self.expression.resolve(context, ignore_failures=True)
 
+    # [TODO] RegroupNode > render
     def render(self, context):
         obj_list = self.target.resolve(context, ignore_failures=True)
         if obj_list is None:
@@ -379,18 +419,23 @@ class RegroupNode(Node):
         return ""
 
 
+# [TODO] LoadNode
 class LoadNode(Node):
     child_nodelists = ()
 
+    # [TODO] LoadNode > render
     def render(self, context):
         return ""
 
 
+# [TODO] NowNode
 class NowNode(Node):
+    # [TODO] NowNode > __init__
     def __init__(self, format_string, asvar=None):
         self.format_string = format_string
         self.asvar = asvar
 
+    # [TODO] NowNode > render
     def render(self, context):
         tzinfo = timezone.get_current_timezone() if settings.USE_TZ else None
         formatted = date(datetime.now(tz=tzinfo), self.format_string)
@@ -402,25 +447,32 @@ class NowNode(Node):
             return formatted
 
 
+# [TODO] ResetCycleNode
 class ResetCycleNode(Node):
+    # [TODO] ResetCycleNode > __init__
     def __init__(self, node):
         self.node = node
 
+    # [TODO] ResetCycleNode > render
     def render(self, context):
         self.node.reset(context)
         return ""
 
 
+# [TODO] SpacelessNode
 class SpacelessNode(Node):
+    # [TODO] SpacelessNode > __init__
     def __init__(self, nodelist):
         self.nodelist = nodelist
 
+    # [TODO] SpacelessNode > render
     def render(self, context):
         from django.utils.html import strip_spaces_between_tags
 
         return strip_spaces_between_tags(self.nodelist.render(context).strip())
 
 
+# [TODO] TemplateTagNode
 class TemplateTagNode(Node):
     mapping = {
         "openblock": BLOCK_TAG_START,
@@ -433,22 +485,27 @@ class TemplateTagNode(Node):
         "closecomment": COMMENT_TAG_END,
     }
 
+    # [TODO] TemplateTagNode > __init__
     def __init__(self, tagtype):
         self.tagtype = tagtype
 
+    # [TODO] TemplateTagNode > render
     def render(self, context):
         return self.mapping.get(self.tagtype, "")
 
 
+# [TODO] URLNode
 class URLNode(Node):
     child_nodelists = ()
 
+    # [TODO] URLNode > __init__
     def __init__(self, view_name, args, kwargs, asvar):
         self.view_name = view_name
         self.args = args
         self.kwargs = kwargs
         self.asvar = asvar
 
+    # [TODO] URLNode > __repr__
     def __repr__(self):
         return "<%s view_name='%s' args=%s kwargs=%s as=%s>" % (
             self.__class__.__qualname__,
@@ -458,6 +515,7 @@ class URLNode(Node):
             repr(self.asvar),
         )
 
+    # [TODO] URLNode > render
     def render(self, context):
         from django.urls import NoReverseMatch, reverse
 
@@ -489,21 +547,27 @@ class URLNode(Node):
             return url
 
 
+# [TODO] VerbatimNode
 class VerbatimNode(Node):
+    # [TODO] VerbatimNode > __init__
     def __init__(self, content):
         self.content = content
 
+    # [TODO] VerbatimNode > render
     def render(self, context):
         return self.content
 
 
+# [TODO] WidthRatioNode
 class WidthRatioNode(Node):
+    # [TODO] WidthRatioNode > __init__
     def __init__(self, val_expr, max_expr, max_width, asvar=None):
         self.val_expr = val_expr
         self.max_expr = max_expr
         self.max_width = max_width
         self.asvar = asvar
 
+    # [TODO] WidthRatioNode > render
     def render(self, context):
         try:
             value = self.val_expr.resolve(context)
@@ -530,7 +594,9 @@ class WidthRatioNode(Node):
             return result
 
 
+# [TODO] WithNode
 class WithNode(Node):
+    # [TODO] WithNode > __init__
     def __init__(self, var, name, nodelist, extra_context=None):
         self.nodelist = nodelist
         # var and name are legacy attributes, being left in case they are used
@@ -539,15 +605,18 @@ class WithNode(Node):
         if name:
             self.extra_context[name] = var
 
+    # [TODO] WithNode > __repr__
     def __repr__(self):
         return "<%s>" % self.__class__.__name__
 
+    # [TODO] WithNode > render
     def render(self, context):
         values = {key: val.resolve(context) for key, val in self.extra_context.items()}
         with context.push(**values):
             return self.nodelist.render(context)
 
 
+# [TODO] autoescape
 @register.tag
 def autoescape(parser, token):
     """
@@ -566,6 +635,7 @@ def autoescape(parser, token):
     return AutoEscapeControlNode((arg == "on"), nodelist)
 
 
+# [TODO] comment
 @register.tag
 def comment(parser, token):
     """
@@ -575,6 +645,7 @@ def comment(parser, token):
     return CommentNode()
 
 
+# [TODO] cycle
 @register.tag
 def cycle(parser, token):
     """
@@ -668,11 +739,13 @@ def cycle(parser, token):
     return node
 
 
+# [TODO] csrf_token
 @register.tag
 def csrf_token(parser, token):
     return CsrfTokenNode()
 
 
+# [TODO] debug
 @register.tag
 def debug(parser, token):
     """
@@ -688,6 +761,7 @@ def debug(parser, token):
     return DebugNode()
 
 
+# [TODO] do_filter
 @register.tag("filter")
 def do_filter(parser, token):
     """
@@ -722,6 +796,7 @@ def do_filter(parser, token):
     return FilterNode(filter_expr, nodelist)
 
 
+# [TODO] firstof
 @register.tag
 def firstof(parser, token):
     """
@@ -771,6 +846,7 @@ def firstof(parser, token):
     return FirstOfNode([parser.compile_filter(bit) for bit in bits], asvar)
 
 
+# [TODO] do_for
 @register.tag("for")
 def do_for(parser, token):
     """
@@ -872,29 +948,37 @@ def do_for(parser, token):
     return ForNode(loopvars, sequence, is_reversed, nodelist_loop, nodelist_empty)
 
 
+# [TODO] TemplateLiteral
 class TemplateLiteral(Literal):
+    # [TODO] TemplateLiteral > __init__
     def __init__(self, value, text):
         self.value = value
         self.text = text  # for better error messages
 
+    # [TODO] TemplateLiteral > display
     def display(self):
         return self.text
 
+    # [TODO] TemplateLiteral > eval
     def eval(self, context):
         return self.value.resolve(context, ignore_failures=True)
 
 
+# [TODO] TemplateIfParser
 class TemplateIfParser(IfParser):
     error_class = TemplateSyntaxError
 
+    # [TODO] TemplateIfParser > __init__
     def __init__(self, parser, *args, **kwargs):
         self.template_parser = parser
         super().__init__(*args, **kwargs)
 
+    # [TODO] TemplateIfParser > create_var
     def create_var(self, value):
         return TemplateLiteral(self.template_parser.compile_filter(value), value)
 
 
+# [TODO] do_if
 @register.tag("if")
 def do_if(parser, token):
     """
@@ -986,6 +1070,7 @@ def do_if(parser, token):
     return IfNode(conditions_nodelists)
 
 
+# [TODO] ifchanged
 @register.tag
 def ifchanged(parser, token):
     """
@@ -1028,6 +1113,7 @@ def ifchanged(parser, token):
     return IfChangedNode(nodelist_true, nodelist_false, *values)
 
 
+# [TODO] find_library
 def find_library(parser, name):
     try:
         return parser.libraries[name]
@@ -1041,6 +1127,7 @@ def find_library(parser, name):
         )
 
 
+# [TODO] load_from_library
 def load_from_library(library, label, names):
     """
     Return a subset of tags and filters from a library.
@@ -1065,6 +1152,7 @@ def load_from_library(library, label, names):
     return subset
 
 
+# [TODO] load
 @register.tag
 def load(parser, token):
     """
@@ -1097,6 +1185,7 @@ def load(parser, token):
     return LoadNode()
 
 
+# [TODO] lorem
 @register.tag
 def lorem(parser, token):
     """
@@ -1144,6 +1233,7 @@ def lorem(parser, token):
     return LoremNode(count, method, common)
 
 
+# [TODO] now
 @register.tag
 def now(parser, token):
     """
@@ -1167,6 +1257,7 @@ def now(parser, token):
     return NowNode(format_string, asvar)
 
 
+# [TODO] regroup
 @register.tag
 def regroup(parser, token):
     """
@@ -1235,6 +1326,7 @@ def regroup(parser, token):
     return RegroupNode(target, expression, var_name)
 
 
+# [TODO] resetcycle
 @register.tag
 def resetcycle(parser, token):
     """
@@ -1261,6 +1353,7 @@ def resetcycle(parser, token):
         raise TemplateSyntaxError("No cycles in template.")
 
 
+# [TODO] spaceless
 @register.tag
 def spaceless(parser, token):
     """
@@ -1292,6 +1385,7 @@ def spaceless(parser, token):
     return SpacelessNode(nodelist)
 
 
+# [TODO] templatetag
 @register.tag
 def templatetag(parser, token):
     """
@@ -1329,6 +1423,7 @@ def templatetag(parser, token):
     return TemplateTagNode(tag)
 
 
+# [TODO] url
 @register.tag
 def url(parser, token):
     r"""
@@ -1398,6 +1493,7 @@ def url(parser, token):
     return URLNode(viewname, args, kwargs, asvar)
 
 
+# [TODO] verbatim
 @register.tag
 def verbatim(parser, token):
     """
@@ -1421,6 +1517,7 @@ def verbatim(parser, token):
     return VerbatimNode(nodelist.render(Context()))
 
 
+# [TODO] widthratio
 @register.tag
 def widthratio(parser, token):
     """
@@ -1463,6 +1560,7 @@ def widthratio(parser, token):
     )
 
 
+# [TODO] do_with
 @register.tag("with")
 def do_with(parser, token):
     """

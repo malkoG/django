@@ -3,6 +3,7 @@ import datetime
 from .base import Database
 
 
+# [TODO] InsertVar
 class InsertVar:
     """
     A late-binding cursor variable that can be passed to Cursor.execute
@@ -26,19 +27,23 @@ class InsertVar:
         "DecimalField": Database.NUMBER,
     }
 
+    # [TODO] InsertVar > __init__
     def __init__(self, field):
         internal_type = getattr(field, "target_field", field).get_internal_type()
         self.db_type = self.types.get(internal_type, str)
         self.bound_param = None
 
+    # [TODO] InsertVar > bind_parameter
     def bind_parameter(self, cursor):
         self.bound_param = cursor.cursor.var(self.db_type)
         return self.bound_param
 
+    # [TODO] InsertVar > get_value
     def get_value(self):
         return self.bound_param.getvalue()
 
 
+# [TODO] Oracle_datetime
 class Oracle_datetime(datetime.datetime):
     """
     A datetime object, with an additional class attribute
@@ -47,6 +52,7 @@ class Oracle_datetime(datetime.datetime):
 
     input_size = Database.TIMESTAMP
 
+    # [TODO] Oracle_datetime > from_datetime
     @classmethod
     def from_datetime(cls, dt):
         return Oracle_datetime(
@@ -60,6 +66,7 @@ class Oracle_datetime(datetime.datetime):
         )
 
 
+# [TODO] BulkInsertMapper
 class BulkInsertMapper:
     BLOB = "TO_BLOB(%s)"
     DATE = "TO_DATE(%s)"
@@ -90,6 +97,7 @@ class BulkInsertMapper:
     }
 
 
+# [TODO] dsn
 def dsn(settings_dict):
     if settings_dict["PORT"]:
         host = settings_dict["HOST"].strip() or "localhost"

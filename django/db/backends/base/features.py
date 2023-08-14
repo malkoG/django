@@ -2,6 +2,7 @@ from django.db import ProgrammingError
 from django.utils.functional import cached_property
 
 
+# [TODO] BaseDatabaseFeatures
 class BaseDatabaseFeatures:
     # An optional tuple indicating the minimum supported database version.
     minimum_database_version = None
@@ -382,14 +383,17 @@ class BaseDatabaseFeatures:
     # that should be skipped for this database.
     django_test_skips = {}
 
+    # [TODO] BaseDatabaseFeatures > __init__
     def __init__(self, connection):
         self.connection = connection
 
+    # [TODO] BaseDatabaseFeatures > supports_explaining_query_execution
     @cached_property
     def supports_explaining_query_execution(self):
         """Does this backend support explaining query execution?"""
         return self.connection.ops.explain_prefix is not None
 
+    # [TODO] BaseDatabaseFeatures > supports_transactions
     @cached_property
     def supports_transactions(self):
         """Confirm support for transactions."""
@@ -404,6 +408,7 @@ class BaseDatabaseFeatures:
             cursor.execute("DROP TABLE ROLLBACK_TEST")
         return count == 0
 
+    # [TODO] BaseDatabaseFeatures > allows_group_by_selected_pks_on_model
     def allows_group_by_selected_pks_on_model(self, model):
         if not self.allows_group_by_selected_pks:
             return False

@@ -5,7 +5,9 @@ from django.template import Library, Node, TemplateSyntaxError, VariableDoesNotE
 register = Library()
 
 
+# [TODO] CacheNode
 class CacheNode(Node):
+    # [TODO] CacheNode > __init__
     def __init__(self, nodelist, expire_time_var, fragment_name, vary_on, cache_name):
         self.nodelist = nodelist
         self.expire_time_var = expire_time_var
@@ -13,6 +15,7 @@ class CacheNode(Node):
         self.vary_on = vary_on
         self.cache_name = cache_name
 
+    # [TODO] CacheNode > render
     def render(self, context):
         try:
             expire_time = self.expire_time_var.resolve(context)
@@ -55,6 +58,7 @@ class CacheNode(Node):
         return value
 
 
+# [TODO] do_cache
 @register.tag("cache")
 def do_cache(parser, token):
     """

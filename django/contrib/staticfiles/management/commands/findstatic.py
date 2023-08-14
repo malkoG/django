@@ -4,10 +4,12 @@ from django.contrib.staticfiles import finders
 from django.core.management.base import LabelCommand
 
 
+# [TODO] Command
 class Command(LabelCommand):
     help = "Finds the absolute paths for the given static file(s)."
     label = "staticfile"
 
+    # [TODO] Command > add_arguments
     def add_arguments(self, parser):
         super().add_arguments(parser)
         parser.add_argument(
@@ -17,6 +19,7 @@ class Command(LabelCommand):
             help="Only return the first match for each static file.",
         )
 
+    # [TODO] Command > handle_label
     def handle_label(self, path, **options):
         verbosity = options["verbosity"]
         result = finders.find(path, all=options["all"])

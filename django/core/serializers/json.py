@@ -15,11 +15,13 @@ from django.utils.functional import Promise
 from django.utils.timezone import is_aware
 
 
+# [TODO] Serializer
 class Serializer(PythonSerializer):
     """Convert a queryset to JSON."""
 
     internal_use_only = False
 
+    # [TODO] Serializer > _init_options
     def _init_options(self):
         self._current = None
         self.json_kwargs = self.options.copy()
@@ -31,10 +33,12 @@ class Serializer(PythonSerializer):
         self.json_kwargs.setdefault("cls", DjangoJSONEncoder)
         self.json_kwargs.setdefault("ensure_ascii", False)
 
+    # [TODO] Serializer > start_serialization
     def start_serialization(self):
         self._init_options()
         self.stream.write("[")
 
+    # [TODO] Serializer > end_serialization
     def end_serialization(self):
         if self.options.get("indent"):
             self.stream.write("\n")
@@ -42,6 +46,7 @@ class Serializer(PythonSerializer):
         if self.options.get("indent"):
             self.stream.write("\n")
 
+    # [TODO] Serializer > end_object
     def end_object(self, obj):
         # self._current has the field data
         indent = self.options.get("indent")
@@ -54,11 +59,13 @@ class Serializer(PythonSerializer):
         json.dump(self.get_dump_object(obj), self.stream, **self.json_kwargs)
         self._current = None
 
+    # [TODO] Serializer > getvalue
     def getvalue(self):
         # Grandparent super
         return super(PythonSerializer, self).getvalue()
 
 
+# [TODO] Deserializer
 def Deserializer(stream_or_string, **options):
     """Deserialize a stream or string of JSON data."""
     if not isinstance(stream_or_string, (bytes, str)):
@@ -74,12 +81,14 @@ def Deserializer(stream_or_string, **options):
         raise DeserializationError() from exc
 
 
+# [TODO] DjangoJSONEncoder
 class DjangoJSONEncoder(json.JSONEncoder):
     """
     JSONEncoder subclass that knows how to encode date/time, decimal types, and
     UUIDs.
     """
 
+    # [TODO] DjangoJSONEncoder > default
     def default(self, o):
         # See "Date Time String Format" in the ECMA-262 specification.
         if isinstance(o, datetime.datetime):

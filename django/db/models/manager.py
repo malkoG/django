@@ -7,6 +7,7 @@ from django.db import router
 from django.db.models.query import QuerySet
 
 
+# [TODO] BaseManager
 class BaseManager:
     # To retain order, track each time a Manager instance is created.
     creation_counter = 0
@@ -18,12 +19,14 @@ class BaseManager:
     #: thus be available in e.g. RunPython operations.
     use_in_migrations = False
 
+    # [TODO] BaseManager > __new__
     def __new__(cls, *args, **kwargs):
         # Capture the arguments to make returning them trivial.
         obj = super().__new__(cls)
         obj._constructor_args = (args, kwargs)
         return obj
 
+    # [TODO] BaseManager > __init__
     def __init__(self):
         super().__init__()
         self._set_creation_counter()
@@ -32,13 +35,16 @@ class BaseManager:
         self._db = None
         self._hints = {}
 
+    # [TODO] BaseManager > __str__
     def __str__(self):
         """Return "app_label.model_label.manager_name"."""
         return "%s.%s" % (self.model._meta.label, self.name)
 
+    # [TODO] BaseManager > __class_getitem__
     def __class_getitem__(cls, *args, **kwargs):
         return cls
 
+    # [TODO] BaseManager > deconstruct
     def deconstruct(self):
         """
         Return a 5-tuple of the form (as_manager (True), manager_class,
@@ -76,9 +82,11 @@ class BaseManager:
                 self._constructor_args[1],  # kwargs
             )
 
+    # [TODO] BaseManager > check
     def check(self, **kwargs):
         return []
 
+    # [TODO] BaseManager > _get_queryset_methods
     @classmethod
     def _get_queryset_methods(cls, queryset_class):
         def create_method(name, method):
@@ -104,6 +112,7 @@ class BaseManager:
             new_methods[name] = create_method(name, method)
         return new_methods
 
+    # [TODO] BaseManager > from_queryset
     @classmethod
     def from_queryset(cls, queryset_class, class_name=None):
         if class_name is None:
@@ -117,6 +126,7 @@ class BaseManager:
             },
         )
 
+    # [TODO] BaseManager > contribute_to_class
     def contribute_to_class(self, cls, name):
         self.name = self.name or name
         self.model = cls
@@ -125,6 +135,7 @@ class BaseManager:
 
         cls._meta.add_manager(self)
 
+    # [TODO] BaseManager > _set_creation_counter
     def _set_creation_counter(self):
         """
         Set the creation counter value for this instance and increment the
@@ -133,12 +144,14 @@ class BaseManager:
         self.creation_counter = BaseManager.creation_counter
         BaseManager.creation_counter += 1
 
+    # [TODO] BaseManager > db_manager
     def db_manager(self, using=None, hints=None):
         obj = copy.copy(self)
         obj._db = using or self._db
         obj._hints = hints or self._hints
         return obj
 
+    # [TODO] BaseManager > db
     @property
     def db(self):
         return self._db or router.db_for_read(self.model, **self._hints)
@@ -147,6 +160,7 @@ class BaseManager:
     # PROXIES TO QUERYSET #
     #######################
 
+    # [TODO] BaseManager > get_queryset
     def get_queryset(self):
         """
         Return a new QuerySet object. Subclasses can override this method to
@@ -154,6 +168,7 @@ class BaseManager:
         """
         return self._queryset_class(model=self.model, using=self._db, hints=self._hints)
 
+    # [TODO] BaseManager > all
     def all(self):
         # We can't proxy this method through the `QuerySet` like we do for the
         # rest of the `QuerySet` methods. This is because `QuerySet.all()`
@@ -163,24 +178,30 @@ class BaseManager:
         # understanding of how this comes into play.
         return self.get_queryset()
 
+    # [TODO] BaseManager > __eq__
     def __eq__(self, other):
         return (
             isinstance(other, self.__class__)
             and self._constructor_args == other._constructor_args
         )
 
+    # [TODO] BaseManager > __hash__
     def __hash__(self):
         return id(self)
 
 
+# [TODO] Manager
 class Manager(BaseManager.from_queryset(QuerySet)):
     pass
 
 
+# [TODO] ManagerDescriptor
 class ManagerDescriptor:
+    # [TODO] ManagerDescriptor > __init__
     def __init__(self, manager):
         self.manager = manager
 
+    # [TODO] ManagerDescriptor > __get__
     def __get__(self, instance, cls=None):
         if instance is not None:
             raise AttributeError(
@@ -204,10 +225,13 @@ class ManagerDescriptor:
         return cls._meta.managers_map[self.manager.name]
 
 
+# [TODO] EmptyManager
 class EmptyManager(Manager):
+    # [TODO] EmptyManager > __init__
     def __init__(self, model):
         super().__init__()
         self.model = model
 
+    # [TODO] EmptyManager > get_queryset
     def get_queryset(self):
         return super().get_queryset().none()

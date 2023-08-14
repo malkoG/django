@@ -5,6 +5,7 @@ from django.db.backends.sqlite3.introspection import (
 )
 
 
+# [TODO] GeoFlexibleFieldLookupDict
 class GeoFlexibleFieldLookupDict(FlexibleFieldLookupDict):
     """
     Subclass that includes updates the `base_data_types_reverse` dict
@@ -23,9 +24,11 @@ class GeoFlexibleFieldLookupDict(FlexibleFieldLookupDict):
     }
 
 
+# [TODO] SpatiaLiteIntrospection
 class SpatiaLiteIntrospection(DatabaseIntrospection):
     data_types_reverse = GeoFlexibleFieldLookupDict()
 
+    # [TODO] SpatiaLiteIntrospection > get_geometry_type
     def get_geometry_type(self, table_name, description):
         with self.connection.cursor() as cursor:
             # Querying the `geometry_columns` table to get additional metadata.
@@ -62,6 +65,7 @@ class SpatiaLiteIntrospection(DatabaseIntrospection):
                 field_params["dim"] = 3
         return field_type, field_params
 
+    # [TODO] SpatiaLiteIntrospection > get_constraints
     def get_constraints(self, cursor, table_name):
         constraints = super().get_constraints(cursor, table_name)
         cursor.execute(

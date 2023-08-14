@@ -21,14 +21,17 @@ from django.db.backends.oracle.operations import DatabaseOperations
 DEFAULT_TOLERANCE = "0.05"
 
 
+# [TODO] SDOOperator
 class SDOOperator(SpatialOperator):
     sql_template = "%(func)s(%(lhs)s, %(rhs)s) = 'TRUE'"
 
 
+# [TODO] SDODWithin
 class SDODWithin(SpatialOperator):
     sql_template = "SDO_WITHIN_DISTANCE(%(lhs)s, %(rhs)s, %%s) = 'TRUE'"
 
 
+# [TODO] SDODisjoint
 class SDODisjoint(SpatialOperator):
     sql_template = (
         "SDO_GEOM.RELATE(%%(lhs)s, 'DISJOINT', %%(rhs)s, %s) = 'DISJOINT'"
@@ -36,9 +39,11 @@ class SDODisjoint(SpatialOperator):
     )
 
 
+# [TODO] SDORelate
 class SDORelate(SpatialOperator):
     sql_template = "SDO_RELATE(%(lhs)s, %(rhs)s, 'mask=%(mask)s') = 'TRUE'"
 
+    # [TODO] SDORelate > check_relate_argument
     def check_relate_argument(self, arg):
         masks = (
             "TOUCH|OVERLAPBDYDISJOINT|OVERLAPBDYINTERSECT|EQUAL|INSIDE|COVEREDBY|"
@@ -48,11 +53,13 @@ class SDORelate(SpatialOperator):
         if not isinstance(arg, str) or not mask_regex.match(arg):
             raise ValueError('Invalid SDO_RELATE mask: "%s"' % arg)
 
+    # [TODO] SDORelate > as_sql
     def as_sql(self, connection, lookup, template_params, sql_params):
         template_params["mask"] = sql_params[-1]
         return super().as_sql(connection, lookup, template_params, sql_params[:-1])
 
 
+# [TODO] OracleOperations
 class OracleOperations(BaseSpatialOperations, DatabaseOperations):
     name = "oracle"
     oracle = True
@@ -133,9 +140,11 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         "Translate",
     }
 
+    # [TODO] OracleOperations > geo_quote_name
     def geo_quote_name(self, name):
         return super().geo_quote_name(name).upper()
 
+    # [TODO] OracleOperations > convert_extent
     def convert_extent(self, clob):
         if clob:
             # Generally, Oracle returns a polygon for the extent -- however,
@@ -160,6 +169,7 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         else:
             return None
 
+    # [TODO] OracleOperations > geo_db_type
     def geo_db_type(self, f):
         """
         Return the geometry database type for Oracle. Unlike other spatial
@@ -168,6 +178,7 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         """
         return "MDSYS.SDO_GEOMETRY"
 
+    # [TODO] OracleOperations > get_distance
     def get_distance(self, f, value, lookup_type):
         """
         Return the distance parameters given the value and the lookup type.
@@ -195,11 +206,13 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
 
         return [dist_param]
 
+    # [TODO] OracleOperations > get_geom_placeholder
     def get_geom_placeholder(self, f, value, compiler):
         if value is None:
             return "NULL"
         return super().get_geom_placeholder(f, value, compiler)
 
+    # [TODO] OracleOperations > spatial_aggregate_name
     def spatial_aggregate_name(self, agg_name):
         """
         Return the spatial aggregate SQL name.
@@ -208,16 +221,19 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return getattr(self, agg_name)
 
     # Routines for getting the OGC-compliant models.
+    # [TODO] OracleOperations > geometry_columns
     def geometry_columns(self):
         from django.contrib.gis.db.backends.oracle.models import OracleGeometryColumns
 
         return OracleGeometryColumns
 
+    # [TODO] OracleOperations > spatial_ref_sys
     def spatial_ref_sys(self):
         from django.contrib.gis.db.backends.oracle.models import OracleSpatialRefSys
 
         return OracleSpatialRefSys
 
+    # [TODO] OracleOperations > modify_insert_params
     def modify_insert_params(self, placeholder, params):
         """Drop out insert parameters for NULL placeholder. Needed for Oracle Spatial
         backend due to #10888.
@@ -226,6 +242,7 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
             return []
         return super().modify_insert_params(placeholder, params)
 
+    # [TODO] OracleOperations > get_geometry_converter
     def get_geometry_converter(self, expression):
         read = wkb_r().read
         srid = expression.output_field.srid
@@ -242,5 +259,6 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
 
         return converter
 
+    # [TODO] OracleOperations > get_area_att_for_field
     def get_area_att_for_field(self, field):
         return "sq_m"

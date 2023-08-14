@@ -18,6 +18,7 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 
 
+# [TODO] FilteredSelectMultiple
 class FilteredSelectMultiple(forms.SelectMultiple):
     """
     A SelectMultiple with a JavaScript filter interface.
@@ -26,6 +27,7 @@ class FilteredSelectMultiple(forms.SelectMultiple):
     catalog has been loaded in the page
     """
 
+    # [TODO] FilteredSelectMultiple > Media
     class Media:
         js = [
             "admin/js/core.js",
@@ -33,11 +35,13 @@ class FilteredSelectMultiple(forms.SelectMultiple):
             "admin/js/SelectFilter2.js",
         ]
 
+    # [TODO] FilteredSelectMultiple > __init__
     def __init__(self, verbose_name, is_stacked, attrs=None, choices=()):
         self.verbose_name = verbose_name
         self.is_stacked = is_stacked
         super().__init__(attrs, choices)
 
+    # [TODO] FilteredSelectMultiple > get_context
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         context["widget"]["attrs"]["class"] = "selectfilter"
@@ -48,38 +52,47 @@ class FilteredSelectMultiple(forms.SelectMultiple):
         return context
 
 
+# [TODO] BaseAdminDateWidget
 class BaseAdminDateWidget(forms.DateInput):
+    # [TODO] BaseAdminDateWidget > Media
     class Media:
         js = [
             "admin/js/calendar.js",
             "admin/js/admin/DateTimeShortcuts.js",
         ]
 
+    # [TODO] BaseAdminDateWidget > __init__
     def __init__(self, attrs=None, format=None):
         attrs = {"class": "vDateField", "size": "10", **(attrs or {})}
         super().__init__(attrs=attrs, format=format)
 
 
+# [TODO] AdminDateWidget
 class AdminDateWidget(BaseAdminDateWidget):
     template_name = "admin/widgets/date.html"
 
 
+# [TODO] BaseAdminTimeWidget
 class BaseAdminTimeWidget(forms.TimeInput):
+    # [TODO] BaseAdminTimeWidget > Media
     class Media:
         js = [
             "admin/js/calendar.js",
             "admin/js/admin/DateTimeShortcuts.js",
         ]
 
+    # [TODO] BaseAdminTimeWidget > __init__
     def __init__(self, attrs=None, format=None):
         attrs = {"class": "vTimeField", "size": "8", **(attrs or {})}
         super().__init__(attrs=attrs, format=format)
 
 
+# [TODO] AdminTimeWidget
 class AdminTimeWidget(BaseAdminTimeWidget):
     template_name = "admin/widgets/time.html"
 
 
+# [TODO] AdminSplitDateTime
 class AdminSplitDateTime(forms.SplitDateTimeWidget):
     """
     A SplitDateTime Widget that has some admin-specific styling.
@@ -87,12 +100,14 @@ class AdminSplitDateTime(forms.SplitDateTimeWidget):
 
     template_name = "admin/widgets/split_datetime.html"
 
+    # [TODO] AdminSplitDateTime > __init__
     def __init__(self, attrs=None):
         widgets = [BaseAdminDateWidget, BaseAdminTimeWidget]
         # Note that we're calling MultiWidget, not SplitDateTimeWidget, because
         # we want to define widgets.
         forms.MultiWidget.__init__(self, widgets, attrs)
 
+    # [TODO] AdminSplitDateTime > get_context
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         context["date_label"] = _("Date:")
@@ -100,14 +115,17 @@ class AdminSplitDateTime(forms.SplitDateTimeWidget):
         return context
 
 
+# [TODO] AdminRadioSelect
 class AdminRadioSelect(forms.RadioSelect):
     template_name = "admin/widgets/radio.html"
 
 
+# [TODO] AdminFileWidget
 class AdminFileWidget(forms.ClearableFileInput):
     template_name = "admin/widgets/clearable_file_input.html"
 
 
+# [TODO] url_params_from_lookup_dict
 def url_params_from_lookup_dict(lookups):
     """
     Convert the type of lookups specified in a ForeignKey limit_choices_to
@@ -128,6 +146,7 @@ def url_params_from_lookup_dict(lookups):
     return params
 
 
+# [TODO] ForeignKeyRawIdWidget
 class ForeignKeyRawIdWidget(forms.TextInput):
     """
     A Widget for displaying ForeignKeys in the "raw_id" interface rather than
@@ -136,12 +155,14 @@ class ForeignKeyRawIdWidget(forms.TextInput):
 
     template_name = "admin/widgets/foreign_key_raw_id.html"
 
+    # [TODO] ForeignKeyRawIdWidget > __init__
     def __init__(self, rel, admin_site, attrs=None, using=None):
         self.rel = rel
         self.admin_site = admin_site
         self.db = using
         super().__init__(attrs)
 
+    # [TODO] ForeignKeyRawIdWidget > get_context
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         rel_to = self.rel.model
@@ -176,12 +197,14 @@ class ForeignKeyRawIdWidget(forms.TextInput):
             context["link_label"] = None
         return context
 
+    # [TODO] ForeignKeyRawIdWidget > base_url_parameters
     def base_url_parameters(self):
         limit_choices_to = self.rel.limit_choices_to
         if callable(limit_choices_to):
             limit_choices_to = limit_choices_to()
         return url_params_from_lookup_dict(limit_choices_to)
 
+    # [TODO] ForeignKeyRawIdWidget > url_parameters
     def url_parameters(self):
         from django.contrib.admin.views.main import TO_FIELD_VAR
 
@@ -189,6 +212,7 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         params.update({TO_FIELD_VAR: self.rel.get_related_field().name})
         return params
 
+    # [TODO] ForeignKeyRawIdWidget > label_and_url_for_value
     def label_and_url_for_value(self, value):
         key = self.rel.get_related_field().name
         try:
@@ -212,6 +236,7 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         return Truncator(obj).words(14), url
 
 
+# [TODO] ManyToManyRawIdWidget
 class ManyToManyRawIdWidget(ForeignKeyRawIdWidget):
     """
     A Widget for displaying ManyToMany ids in the "raw_id" interface rather than
@@ -220,6 +245,7 @@ class ManyToManyRawIdWidget(ForeignKeyRawIdWidget):
 
     template_name = "admin/widgets/many_to_many_raw_id.html"
 
+    # [TODO] ManyToManyRawIdWidget > get_context
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         if self.admin_site.is_registered(self.rel.model):
@@ -227,21 +253,26 @@ class ManyToManyRawIdWidget(ForeignKeyRawIdWidget):
             context["widget"]["attrs"]["class"] = "vManyToManyRawIdAdminField"
         return context
 
+    # [TODO] ManyToManyRawIdWidget > url_parameters
     def url_parameters(self):
         return self.base_url_parameters()
 
+    # [TODO] ManyToManyRawIdWidget > label_and_url_for_value
     def label_and_url_for_value(self, value):
         return "", ""
 
+    # [TODO] ManyToManyRawIdWidget > value_from_datadict
     def value_from_datadict(self, data, files, name):
         value = data.get(name)
         if value:
             return value.split(",")
 
+    # [TODO] ManyToManyRawIdWidget > format_value
     def format_value(self, value):
         return ",".join(str(v) for v in value) if value else ""
 
 
+# [TODO] RelatedFieldWidgetWrapper
 class RelatedFieldWidgetWrapper(forms.Widget):
     """
     This class is a wrapper to a given widget to add the add icon for the
@@ -250,6 +281,7 @@ class RelatedFieldWidgetWrapper(forms.Widget):
 
     template_name = "admin/widgets/related_widget_wrapper.html"
 
+    # [TODO] RelatedFieldWidgetWrapper > __init__
     def __init__(
         self,
         widget,
@@ -280,6 +312,7 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         # so we can check if the related object is registered with this AdminSite
         self.admin_site = admin_site
 
+    # [TODO] RelatedFieldWidgetWrapper > __deepcopy__
     def __deepcopy__(self, memo):
         obj = copy.copy(self)
         obj.widget = copy.deepcopy(self.widget, memo)
@@ -287,14 +320,17 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         memo[id(self)] = obj
         return obj
 
+    # [TODO] RelatedFieldWidgetWrapper > is_hidden
     @property
     def is_hidden(self):
         return self.widget.is_hidden
 
+    # [TODO] RelatedFieldWidgetWrapper > media
     @property
     def media(self):
         return self.widget.media
 
+    # [TODO] RelatedFieldWidgetWrapper > get_related_url
     def get_related_url(self, info, action, *args):
         return reverse(
             "admin:%s_%s_%s" % (info + (action,)),
@@ -302,6 +338,7 @@ class RelatedFieldWidgetWrapper(forms.Widget):
             args=args,
         )
 
+    # [TODO] RelatedFieldWidgetWrapper > get_context
     def get_context(self, name, value, attrs):
         from django.contrib.admin.views.main import IS_POPUP_VAR, TO_FIELD_VAR
 
@@ -341,38 +378,50 @@ class RelatedFieldWidgetWrapper(forms.Widget):
             )
         return context
 
+    # [TODO] RelatedFieldWidgetWrapper > value_from_datadict
     def value_from_datadict(self, data, files, name):
         return self.widget.value_from_datadict(data, files, name)
 
+    # [TODO] RelatedFieldWidgetWrapper > value_omitted_from_data
     def value_omitted_from_data(self, data, files, name):
         return self.widget.value_omitted_from_data(data, files, name)
 
+    # [TODO] RelatedFieldWidgetWrapper > id_for_label
     def id_for_label(self, id_):
         return self.widget.id_for_label(id_)
 
 
+# [TODO] AdminTextareaWidget
 class AdminTextareaWidget(forms.Textarea):
+    # [TODO] AdminTextareaWidget > __init__
     def __init__(self, attrs=None):
         super().__init__(attrs={"class": "vLargeTextField", **(attrs or {})})
 
 
+# [TODO] AdminTextInputWidget
 class AdminTextInputWidget(forms.TextInput):
+    # [TODO] AdminTextInputWidget > __init__
     def __init__(self, attrs=None):
         super().__init__(attrs={"class": "vTextField", **(attrs or {})})
 
 
+# [TODO] AdminEmailInputWidget
 class AdminEmailInputWidget(forms.EmailInput):
+    # [TODO] AdminEmailInputWidget > __init__
     def __init__(self, attrs=None):
         super().__init__(attrs={"class": "vTextField", **(attrs or {})})
 
 
+# [TODO] AdminURLFieldWidget
 class AdminURLFieldWidget(forms.URLInput):
     template_name = "admin/widgets/url.html"
 
+    # [TODO] AdminURLFieldWidget > __init__
     def __init__(self, attrs=None, validator_class=URLValidator):
         super().__init__(attrs={"class": "vURLField", **(attrs or {})})
         self.validator = validator_class()
 
+    # [TODO] AdminURLFieldWidget > get_context
     def get_context(self, name, value, attrs):
         try:
             self.validator(value if value else "")
@@ -389,18 +438,23 @@ class AdminURLFieldWidget(forms.URLInput):
         return context
 
 
+# [TODO] AdminIntegerFieldWidget
 class AdminIntegerFieldWidget(forms.NumberInput):
     class_name = "vIntegerField"
 
+    # [TODO] AdminIntegerFieldWidget > __init__
     def __init__(self, attrs=None):
         super().__init__(attrs={"class": self.class_name, **(attrs or {})})
 
 
+# [TODO] AdminBigIntegerFieldWidget
 class AdminBigIntegerFieldWidget(AdminIntegerFieldWidget):
     class_name = "vBigIntegerField"
 
 
+# [TODO] AdminUUIDInputWidget
 class AdminUUIDInputWidget(forms.TextInput):
+    # [TODO] AdminUUIDInputWidget > __init__
     def __init__(self, attrs=None):
         super().__init__(attrs={"class": "vUUIDField", **(attrs or {})})
 
@@ -461,6 +515,7 @@ SELECT2_TRANSLATIONS = {
 SELECT2_TRANSLATIONS.update({"zh-hans": "zh-CN", "zh-hant": "zh-TW"})
 
 
+# [TODO] get_select2_language
 def get_select2_language():
     lang_code = get_language()
     supported_code = SELECT2_TRANSLATIONS.get(lang_code)
@@ -474,6 +529,7 @@ def get_select2_language():
     return supported_code
 
 
+# [TODO] AutocompleteMixin
 class AutocompleteMixin:
     """
     Select widget mixin that loads options from AutocompleteJsonView via AJAX.
@@ -484,6 +540,7 @@ class AutocompleteMixin:
 
     url_name = "%s:autocomplete"
 
+    # [TODO] AutocompleteMixin > __init__
     def __init__(self, field, admin_site, attrs=None, choices=(), using=None):
         self.field = field
         self.admin_site = admin_site
@@ -492,9 +549,11 @@ class AutocompleteMixin:
         self.attrs = {} if attrs is None else attrs.copy()
         self.i18n_name = get_select2_language()
 
+    # [TODO] AutocompleteMixin > get_url
     def get_url(self):
         return reverse(self.url_name % self.admin_site.name)
 
+    # [TODO] AutocompleteMixin > build_attrs
     def build_attrs(self, base_attrs, extra_attrs=None):
         """
         Set select2's AJAX attributes.
@@ -525,6 +584,7 @@ class AutocompleteMixin:
         )
         return attrs
 
+    # [TODO] AutocompleteMixin > optgroups
     def optgroups(self, name, value, attr=None):
         """Return selected options based on the ModelChoiceIterator."""
         default = (None, [], 0)
@@ -560,6 +620,7 @@ class AutocompleteMixin:
             )
         return groups
 
+    # [TODO] AutocompleteMixin > media
     @property
     def media(self):
         extra = "" if settings.DEBUG else ".min"
@@ -587,9 +648,11 @@ class AutocompleteMixin:
         )
 
 
+# [TODO] AutocompleteSelect
 class AutocompleteSelect(AutocompleteMixin, forms.Select):
     pass
 
 
+# [TODO] AutocompleteSelectMultiple
 class AutocompleteSelectMultiple(AutocompleteMixin, forms.SelectMultiple):
     pass

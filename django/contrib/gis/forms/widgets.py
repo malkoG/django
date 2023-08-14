@@ -12,6 +12,7 @@ from django.utils.deprecation import RemovedInDjango51Warning
 logger = logging.getLogger("django.contrib.gis")
 
 
+# [TODO] BaseGeometryWidget
 class BaseGeometryWidget(Widget):
     """
     The base class for rich geometry widgets.
@@ -27,6 +28,7 @@ class BaseGeometryWidget(Widget):
     supports_3d = False
     template_name = ""  # set on subclasses
 
+    # [TODO] BaseGeometryWidget > __init__
     def __init__(self, attrs=None):
         self.attrs = {}
         for key in ("geom_type", "map_srid", "map_width", "map_height", "display_raw"):
@@ -45,9 +47,11 @@ class BaseGeometryWidget(Widget):
         if attrs:
             self.attrs.update(attrs)
 
+    # [TODO] BaseGeometryWidget > serialize
     def serialize(self, value):
         return value.wkt if value else ""
 
+    # [TODO] BaseGeometryWidget > deserialize
     def deserialize(self, value):
         try:
             return GEOSGeometry(value)
@@ -55,6 +59,7 @@ class BaseGeometryWidget(Widget):
             logger.error("Error creating geometry from value '%s' (%s)", value, err)
         return None
 
+    # [TODO] BaseGeometryWidget > get_context
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         # If a string reaches here (via a validation error on another
@@ -95,10 +100,12 @@ class BaseGeometryWidget(Widget):
         return context
 
 
+# [TODO] OpenLayersWidget
 class OpenLayersWidget(BaseGeometryWidget):
     template_name = "gis/openlayers.html"
     map_srid = 3857
 
+    # [TODO] OpenLayersWidget > Media
     class Media:
         css = {
             "all": (
@@ -111,9 +118,11 @@ class OpenLayersWidget(BaseGeometryWidget):
             "gis/js/OLMapWidget.js",
         )
 
+    # [TODO] OpenLayersWidget > serialize
     def serialize(self, value):
         return value.json if value else ""
 
+    # [TODO] OpenLayersWidget > deserialize
     def deserialize(self, value):
         geom = super().deserialize(value)
         # GeoJSON assumes WGS84 (4326). Use the map's SRID instead.
@@ -122,6 +131,7 @@ class OpenLayersWidget(BaseGeometryWidget):
         return geom
 
 
+# [TODO] OSMWidget
 class OSMWidget(OpenLayersWidget):
     """
     An OpenLayers/OpenStreetMap-based widget.
@@ -132,6 +142,7 @@ class OSMWidget(OpenLayersWidget):
     default_lat = 47
     default_zoom = 12
 
+    # [TODO] OSMWidget > __init__
     def __init__(self, attrs=None):
         super().__init__()
         for key in ("default_lon", "default_lat", "default_zoom"):

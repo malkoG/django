@@ -2,11 +2,13 @@ from django.contrib.gis.gdal.base import GDALBase
 from django.contrib.gis.gdal.prototypes import raster as capi
 
 
+# [TODO] GDALRasterBase
 class GDALRasterBase(GDALBase):
     """
     Attributes that exist on both GDALRaster and GDALBand.
     """
 
+    # [TODO] GDALRasterBase > metadata
     @property
     def metadata(self):
         """
@@ -57,6 +59,7 @@ class GDALRasterBase(GDALBase):
             result[domain or "DEFAULT"] = domain_meta
         return result
 
+    # [TODO] GDALRasterBase > metadata
     @metadata.setter
     def metadata(self, value):
         """

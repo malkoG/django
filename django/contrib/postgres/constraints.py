@@ -13,16 +13,19 @@ from django.db.models.sql import Query
 __all__ = ["ExclusionConstraint"]
 
 
+# [TODO] ExclusionConstraintExpression
 class ExclusionConstraintExpression(IndexExpression):
     template = "%(expressions)s WITH %(operator)s"
 
 
+# [TODO] ExclusionConstraint
 class ExclusionConstraint(BaseConstraint):
     template = (
         "CONSTRAINT %(name)s EXCLUDE USING %(index_type)s "
         "(%(expressions)s)%(include)s%(where)s%(deferrable)s"
     )
 
+    # [TODO] ExclusionConstraint > __init__
     def __init__(
         self,
         *,
@@ -67,6 +70,7 @@ class ExclusionConstraint(BaseConstraint):
             violation_error_message=violation_error_message,
         )
 
+    # [TODO] ExclusionConstraint > _get_expressions
     def _get_expressions(self, schema_editor, query):
         expressions = []
         for idx, (expression, operator) in enumerate(self.expressions):
@@ -77,6 +81,7 @@ class ExclusionConstraint(BaseConstraint):
             expressions.append(expression)
         return ExpressionList(*expressions).resolve_expression(query)
 
+    # [TODO] ExclusionConstraint > _get_condition_sql
     def _get_condition_sql(self, compiler, schema_editor, query):
         if self.condition is None:
             return None
@@ -84,6 +89,7 @@ class ExclusionConstraint(BaseConstraint):
         sql, params = where.as_sql(compiler, schema_editor.connection)
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
+    # [TODO] ExclusionConstraint > constraint_sql
     def constraint_sql(self, model, schema_editor):
         query = Query(model, alias_cols=False)
         compiler = query.get_compiler(connection=schema_editor.connection)
@@ -106,6 +112,7 @@ class ExclusionConstraint(BaseConstraint):
             deferrable=schema_editor._deferrable_constraint_sql(self.deferrable),
         )
 
+    # [TODO] ExclusionConstraint > create_sql
     def create_sql(self, model, schema_editor):
         self.check_supported(schema_editor)
         return Statement(
@@ -114,6 +121,7 @@ class ExclusionConstraint(BaseConstraint):
             constraint=self.constraint_sql(model, schema_editor),
         )
 
+    # [TODO] ExclusionConstraint > remove_sql
     def remove_sql(self, model, schema_editor):
         return schema_editor._delete_constraint_sql(
             schema_editor.sql_delete_check,
@@ -121,6 +129,7 @@ class ExclusionConstraint(BaseConstraint):
             schema_editor.quote_name(self.name),
         )
 
+    # [TODO] ExclusionConstraint > check_supported
     def check_supported(self, schema_editor):
         if (
             self.include
@@ -132,6 +141,7 @@ class ExclusionConstraint(BaseConstraint):
                 "require PostgreSQL 14+."
             )
 
+    # [TODO] ExclusionConstraint > deconstruct
     def deconstruct(self):
         path, args, kwargs = super().deconstruct()
         kwargs["expressions"] = self.expressions
@@ -145,6 +155,7 @@ class ExclusionConstraint(BaseConstraint):
             kwargs["include"] = self.include
         return path, args, kwargs
 
+    # [TODO] ExclusionConstraint > __eq__
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return (
@@ -159,6 +170,7 @@ class ExclusionConstraint(BaseConstraint):
             )
         return super().__eq__(other)
 
+    # [TODO] ExclusionConstraint > __repr__
     def __repr__(self):
         return "<%s: index_type=%s expressions=%s name=%s%s%s%s%s%s>" % (
             self.__class__.__qualname__,
@@ -181,6 +193,7 @@ class ExclusionConstraint(BaseConstraint):
             ),
         )
 
+    # [TODO] ExclusionConstraint > validate
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
         queryset = model._default_manager.using(using)
         replacement_map = instance._get_field_value_map(

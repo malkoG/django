@@ -5,6 +5,7 @@ from django.utils.encoding import iri_to_uri
 from django.utils.translation import gettext_lazy as _
 
 
+# [TODO] FlatPage
 class FlatPage(models.Model):
     url = models.CharField(_("URL"), max_length=100, db_index=True)
     title = models.CharField(_("title"), max_length=200)
@@ -28,15 +29,18 @@ class FlatPage(models.Model):
     )
     sites = models.ManyToManyField(Site, verbose_name=_("sites"))
 
+    # [TODO] FlatPage > Meta
     class Meta:
         db_table = "django_flatpage"
         verbose_name = _("flat page")
         verbose_name_plural = _("flat pages")
         ordering = ["url"]
 
+    # [TODO] FlatPage > __str__
     def __str__(self):
         return "%s -- %s" % (self.url, self.title)
 
+    # [TODO] FlatPage > get_absolute_url
     def get_absolute_url(self):
         from .views import flatpage
 

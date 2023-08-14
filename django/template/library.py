@@ -9,10 +9,12 @@ from .base import Node, Template, token_kwargs
 from .exceptions import TemplateSyntaxError
 
 
+# [TODO] InvalidTemplateLibrary
 class InvalidTemplateLibrary(Exception):
     pass
 
 
+# [TODO] Library
 class Library:
     """
     A class for registering template tags and filters. Compiled filter and
@@ -21,10 +23,12 @@ class Library:
     way to register callables as tags.
     """
 
+    # [TODO] Library > __init__
     def __init__(self):
         self.filters = {}
         self.tags = {}
 
+    # [TODO] Library > tag
     def tag(self, name=None, compile_function=None):
         if name is None and compile_function is None:
             # @register.tag()
@@ -49,10 +53,12 @@ class Library:
                 % (name, compile_function),
             )
 
+    # [TODO] Library > tag_function
     def tag_function(self, func):
         self.tags[func.__name__] = func
         return func
 
+    # [TODO] Library > filter
     def filter(self, name=None, filter_func=None, **flags):
         """
         Register a callable as a template filter. Example:
@@ -96,9 +102,11 @@ class Library:
                 % (name, filter_func),
             )
 
+    # [TODO] Library > filter_function
     def filter_function(self, func, **flags):
         return self.filter(func.__name__, func, **flags)
 
+    # [TODO] Library > simple_tag
     def simple_tag(self, func=None, takes_context=None, name=None):
         """
         Register a callable as a compiled template tag. Example:
@@ -153,6 +161,7 @@ class Library:
         else:
             raise ValueError("Invalid arguments provided to simple_tag")
 
+    # [TODO] Library > inclusion_tag
     def inclusion_tag(self, filename, func=None, takes_context=None, name=None):
         """
         Register a callable as an inclusion tag:
@@ -204,6 +213,7 @@ class Library:
         return dec
 
 
+# [TODO] TagHelperNode
 class TagHelperNode(Node):
     """
     Base class for tag helper nodes such as SimpleNode and InclusionNode.
@@ -211,12 +221,14 @@ class TagHelperNode(Node):
     function.
     """
 
+    # [TODO] TagHelperNode > __init__
     def __init__(self, func, takes_context, args, kwargs):
         self.func = func
         self.takes_context = takes_context
         self.args = args
         self.kwargs = kwargs
 
+    # [TODO] TagHelperNode > get_resolved_arguments
     def get_resolved_arguments(self, context):
         resolved_args = [var.resolve(context) for var in self.args]
         if self.takes_context:
@@ -225,13 +237,16 @@ class TagHelperNode(Node):
         return resolved_args, resolved_kwargs
 
 
+# [TODO] SimpleNode
 class SimpleNode(TagHelperNode):
     child_nodelists = ()
 
+    # [TODO] SimpleNode > __init__
     def __init__(self, func, takes_context, args, kwargs, target_var):
         super().__init__(func, takes_context, args, kwargs)
         self.target_var = target_var
 
+    # [TODO] SimpleNode > render
     def render(self, context):
         resolved_args, resolved_kwargs = self.get_resolved_arguments(context)
         output = self.func(*resolved_args, **resolved_kwargs)
@@ -243,11 +258,14 @@ class SimpleNode(TagHelperNode):
         return output
 
 
+# [TODO] InclusionNode
 class InclusionNode(TagHelperNode):
+    # [TODO] InclusionNode > __init__
     def __init__(self, func, takes_context, args, kwargs, filename):
         super().__init__(func, takes_context, args, kwargs)
         self.filename = filename
 
+    # [TODO] InclusionNode > render
     def render(self, context):
         """
         Render the specified template and context. Cache the template object
@@ -278,6 +296,7 @@ class InclusionNode(TagHelperNode):
         return t.render(new_context)
 
 
+# [TODO] parse_bits
 def parse_bits(
     parser,
     bits,
@@ -366,6 +385,7 @@ def parse_bits(
     return args, kwargs
 
 
+# [TODO] import_library
 def import_library(name):
     """
     Load a Library object from a template tag module.

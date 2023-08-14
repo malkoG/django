@@ -32,14 +32,17 @@ from django.views.generic.edit import FormView
 UserModel = get_user_model()
 
 
+# [TODO] RedirectURLMixin
 class RedirectURLMixin:
     next_page = None
     redirect_field_name = REDIRECT_FIELD_NAME
     success_url_allowed_hosts = set()
 
+    # [TODO] RedirectURLMixin > get_success_url
     def get_success_url(self):
         return self.get_redirect_url() or self.get_default_redirect_url()
 
+    # [TODO] RedirectURLMixin > get_redirect_url
     def get_redirect_url(self):
         """Return the user-originating redirect URL if it's safe."""
         redirect_to = self.request.POST.get(
@@ -52,9 +55,11 @@ class RedirectURLMixin:
         )
         return redirect_to if url_is_safe else ""
 
+    # [TODO] RedirectURLMixin > get_success_url_allowed_hosts
     def get_success_url_allowed_hosts(self):
         return {self.request.get_host(), *self.success_url_allowed_hosts}
 
+    # [TODO] RedirectURLMixin > get_default_redirect_url
     def get_default_redirect_url(self):
         """Return the default redirect URL."""
         if self.next_page:
@@ -62,6 +67,7 @@ class RedirectURLMixin:
         raise ImproperlyConfigured("No URL to redirect to. Provide a next_page.")
 
 
+# [TODO] LoginView
 class LoginView(RedirectURLMixin, FormView):
     """
     Display the login form and handle the login action.
@@ -73,6 +79,7 @@ class LoginView(RedirectURLMixin, FormView):
     redirect_authenticated_user = False
     extra_context = None
 
+    # [TODO] LoginView > dispatch
     @method_decorator(sensitive_post_parameters())
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)
@@ -87,6 +94,7 @@ class LoginView(RedirectURLMixin, FormView):
             return HttpResponseRedirect(redirect_to)
         return super().dispatch(request, *args, **kwargs)
 
+    # [TODO] LoginView > get_default_redirect_url
     def get_default_redirect_url(self):
         """Return the default redirect URL."""
         if self.next_page:
@@ -94,19 +102,23 @@ class LoginView(RedirectURLMixin, FormView):
         else:
             return resolve_url(settings.LOGIN_REDIRECT_URL)
 
+    # [TODO] LoginView > get_form_class
     def get_form_class(self):
         return self.authentication_form or self.form_class
 
+    # [TODO] LoginView > get_form_kwargs
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["request"] = self.request
         return kwargs
 
+    # [TODO] LoginView > form_valid
     def form_valid(self, form):
         """Security check complete. Log the user in."""
         auth_login(self.request, form.get_user())
         return HttpResponseRedirect(self.get_success_url())
 
+    # [TODO] LoginView > get_context_data
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         current_site = get_current_site(self.request)
@@ -121,6 +133,7 @@ class LoginView(RedirectURLMixin, FormView):
         return context
 
 
+# [TODO] LogoutView
 class LogoutView(RedirectURLMixin, TemplateView):
     """
     Log out the user and display the 'You are logged out' message.
@@ -130,11 +143,13 @@ class LogoutView(RedirectURLMixin, TemplateView):
     template_name = "registration/logged_out.html"
     extra_context = None
 
+    # [TODO] LogoutView > dispatch
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
+    # [TODO] LogoutView > post
     def post(self, request, *args, **kwargs):
         """Logout may be done via POST."""
         auth_logout(request)
@@ -144,6 +159,7 @@ class LogoutView(RedirectURLMixin, TemplateView):
             return HttpResponseRedirect(redirect_to)
         return super().get(request, *args, **kwargs)
 
+    # [TODO] LogoutView > get_default_redirect_url
     def get_default_redirect_url(self):
         """Return the default redirect URL."""
         if self.next_page:
@@ -153,6 +169,7 @@ class LogoutView(RedirectURLMixin, TemplateView):
         else:
             return self.request.path
 
+    # [TODO] LogoutView > get_context_data
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         current_site = get_current_site(self.request)
@@ -168,6 +185,7 @@ class LogoutView(RedirectURLMixin, TemplateView):
         return context
 
 
+# [TODO] logout_then_login
 def logout_then_login(request, login_url=None):
     """
     Log out the user if they are logged in. Then redirect to the login page.
@@ -176,6 +194,7 @@ def logout_then_login(request, login_url=None):
     return LogoutView.as_view(next_page=login_url)(request)
 
 
+# [TODO] redirect_to_login
 def redirect_to_login(next, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME):
     """
     Redirect the user to the login page, passing the given 'next' page.
@@ -199,9 +218,11 @@ def redirect_to_login(next, login_url=None, redirect_field_name=REDIRECT_FIELD_N
 # - PasswordResetCompleteView shows a success message for the above
 
 
+# [TODO] PasswordContextMixin
 class PasswordContextMixin:
     extra_context = None
 
+    # [TODO] PasswordContextMixin > get_context_data
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
@@ -210,6 +231,7 @@ class PasswordContextMixin:
         return context
 
 
+# [TODO] PasswordResetView
 class PasswordResetView(PasswordContextMixin, FormView):
     email_template_name = "registration/password_reset_email.html"
     extra_email_context = None
@@ -222,10 +244,12 @@ class PasswordResetView(PasswordContextMixin, FormView):
     title = _("Password reset")
     token_generator = default_token_generator
 
+    # [TODO] PasswordResetView > dispatch
     @method_decorator(csrf_protect)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
+    # [TODO] PasswordResetView > form_valid
     def form_valid(self, form):
         opts = {
             "use_https": self.request.is_secure(),
@@ -244,11 +268,13 @@ class PasswordResetView(PasswordContextMixin, FormView):
 INTERNAL_RESET_SESSION_TOKEN = "_password_reset_token"
 
 
+# [TODO] PasswordResetDoneView
 class PasswordResetDoneView(PasswordContextMixin, TemplateView):
     template_name = "registration/password_reset_done.html"
     title = _("Password reset sent")
 
 
+# [TODO] PasswordResetConfirmView
 class PasswordResetConfirmView(PasswordContextMixin, FormView):
     form_class = SetPasswordForm
     post_reset_login = False
@@ -259,6 +285,7 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
     title = _("Enter new password")
     token_generator = default_token_generator
 
+    # [TODO] PasswordResetConfirmView > dispatch
     @method_decorator(sensitive_post_parameters())
     @method_decorator(never_cache)
     def dispatch(self, *args, **kwargs):
@@ -293,6 +320,7 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         # Display the "Password reset unsuccessful" page.
         return self.render_to_response(self.get_context_data())
 
+    # [TODO] PasswordResetConfirmView > get_user
     def get_user(self, uidb64):
         try:
             # urlsafe_base64_decode() decodes to bytestring
@@ -308,11 +336,13 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
             user = None
         return user
 
+    # [TODO] PasswordResetConfirmView > get_form_kwargs
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.user
         return kwargs
 
+    # [TODO] PasswordResetConfirmView > form_valid
     def form_valid(self, form):
         user = form.save()
         del self.request.session[INTERNAL_RESET_SESSION_TOKEN]
@@ -320,6 +350,7 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
             auth_login(self.request, user, self.post_reset_login_backend)
         return super().form_valid(form)
 
+    # [TODO] PasswordResetConfirmView > get_context_data
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.validlink:
@@ -335,33 +366,39 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         return context
 
 
+# [TODO] PasswordResetCompleteView
 class PasswordResetCompleteView(PasswordContextMixin, TemplateView):
     template_name = "registration/password_reset_complete.html"
     title = _("Password reset complete")
 
+    # [TODO] PasswordResetCompleteView > get_context_data
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["login_url"] = resolve_url(settings.LOGIN_URL)
         return context
 
 
+# [TODO] PasswordChangeView
 class PasswordChangeView(PasswordContextMixin, FormView):
     form_class = PasswordChangeForm
     success_url = reverse_lazy("password_change_done")
     template_name = "registration/password_change_form.html"
     title = _("Password change")
 
+    # [TODO] PasswordChangeView > dispatch
     @method_decorator(sensitive_post_parameters())
     @method_decorator(csrf_protect)
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
+    # [TODO] PasswordChangeView > get_form_kwargs
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
 
+    # [TODO] PasswordChangeView > form_valid
     def form_valid(self, form):
         form.save()
         # Updating the password logs out all other sessions for the user
@@ -370,10 +407,12 @@ class PasswordChangeView(PasswordContextMixin, FormView):
         return super().form_valid(form)
 
 
+# [TODO] PasswordChangeDoneView
 class PasswordChangeDoneView(PasswordContextMixin, TemplateView):
     template_name = "registration/password_change_done.html"
     title = _("Password change successful")
 
+    # [TODO] PasswordChangeDoneView > dispatch
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)

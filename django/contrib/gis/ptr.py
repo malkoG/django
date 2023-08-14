@@ -1,6 +1,7 @@
 from ctypes import c_void_p
 
 
+# [TODO] CPointerBase
 class CPointerBase:
     """
     Base class for objects that have a pointer access property
@@ -12,6 +13,7 @@ class CPointerBase:
     destructor = None
     null_ptr_exception_class = AttributeError
 
+    # [TODO] CPointerBase > ptr
     @property
     def ptr(self):
         # Raise an exception if the pointer isn't valid so that NULL pointers
@@ -22,6 +24,7 @@ class CPointerBase:
             "NULL %s pointer encountered." % self.__class__.__name__
         )
 
+    # [TODO] CPointerBase > ptr
     @ptr.setter
     def ptr(self, ptr):
         # Only allow the pointer to be set with pointers of the compatible
@@ -30,6 +33,7 @@ class CPointerBase:
             raise TypeError("Incompatible pointer type: %s." % type(ptr))
         self._ptr = ptr
 
+    # [TODO] CPointerBase > __del__
     def __del__(self):
         """
         Free the memory used by the C++ object.

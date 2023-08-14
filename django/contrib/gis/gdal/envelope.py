@@ -18,6 +18,7 @@ from django.contrib.gis.gdal.error import GDALException
 # The OGR definition of an Envelope is a C structure containing four doubles.
 #  See the 'ogr_core.h' source file for more information:
 #   https://gdal.org/doxygen/ogr__core_8h_source.html
+# [TODO] OGREnvelope
 class OGREnvelope(Structure):
     "Represent the OGREnvelope C Structure."
     _fields_ = [
@@ -28,6 +29,7 @@ class OGREnvelope(Structure):
     ]
 
 
+# [TODO] Envelope
 class Envelope:
     """
     The Envelope object is a C structure that contains the minimum and
@@ -35,6 +37,7 @@ class Envelope:
     of the variables is compatible with the OGR Envelope structure.
     """
 
+    # [TODO] Envelope > __init__
     def __init__(self, *args):
         """
         The initialization function may take an OGREnvelope structure, 4-element
@@ -68,6 +71,7 @@ class Envelope:
         if self.min_y > self.max_y:
             raise GDALException("Envelope minimum Y > maximum Y.")
 
+    # [TODO] Envelope > __eq__
     def __eq__(self, other):
         """
         Return True if the envelopes are equivalent; can compare against
@@ -90,10 +94,12 @@ class Envelope:
         else:
             raise GDALException("Equivalence testing only works with other Envelopes.")
 
+    # [TODO] Envelope > __str__
     def __str__(self):
         "Return a string representation of the tuple."
         return str(self.tuple)
 
+    # [TODO] Envelope > _from_sequence
     def _from_sequence(self, seq):
         "Initialize the C OGR Envelope structure from the given sequence."
         self._envelope = OGREnvelope()
@@ -102,6 +108,7 @@ class Envelope:
         self._envelope.MaxX = seq[2]
         self._envelope.MaxY = seq[3]
 
+    # [TODO] Envelope > expand_to_include
     def expand_to_include(self, *args):
         """
         Modify the envelope to expand to include the boundaries of
@@ -150,41 +157,49 @@ class Envelope:
         else:
             raise GDALException("Incorrect number (%d) of arguments." % len(args[0]))
 
+    # [TODO] Envelope > min_x
     @property
     def min_x(self):
         "Return the value of the minimum X coordinate."
         return self._envelope.MinX
 
+    # [TODO] Envelope > min_y
     @property
     def min_y(self):
         "Return the value of the minimum Y coordinate."
         return self._envelope.MinY
 
+    # [TODO] Envelope > max_x
     @property
     def max_x(self):
         "Return the value of the maximum X coordinate."
         return self._envelope.MaxX
 
+    # [TODO] Envelope > max_y
     @property
     def max_y(self):
         "Return the value of the maximum Y coordinate."
         return self._envelope.MaxY
 
+    # [TODO] Envelope > ur
     @property
     def ur(self):
         "Return the upper-right coordinate."
         return (self.max_x, self.max_y)
 
+    # [TODO] Envelope > ll
     @property
     def ll(self):
         "Return the lower-left coordinate."
         return (self.min_x, self.min_y)
 
+    # [TODO] Envelope > tuple
     @property
     def tuple(self):
         "Return a tuple representing the envelope."
         return (self.min_x, self.min_y, self.max_x, self.max_y)
 
+    # [TODO] Envelope > wkt
     @property
     def wkt(self):
         "Return WKT representing a Polygon for this envelope."
